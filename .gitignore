@@ -1,0 +1,20 @@
+node_modules/
+.DS_Store
+*.log
+docs/coverage/
+.superpowers/
+docs/dashboard.html
+
+# Build outputs
+.next/
+out/
+coverage/
+tsconfig.tsbuildinfo
+
+# Environment
+.env*.local
+.env.local
+
+# IDE / tooling
+.history/
+.playwright-mcp/
