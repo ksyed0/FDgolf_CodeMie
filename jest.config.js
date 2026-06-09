@@ -1,9 +1,9 @@
-import type { Config } from 'jest'
-import nextJest from 'next/jest.js'
+const nextJest = require('next/jest.js')
 
 const createJestConfig = nextJest({ dir: './' })
 
-const config: Config = {
+/** @type {import('jest').Config} */
+const config = {
   testEnvironment: 'jest-environment-jsdom',
   setupFilesAfterEnv: ['<rootDir>/src/__tests__/setup.ts'],
   moduleNameMapper: {
@@ -12,7 +12,7 @@ const config: Config = {
   collectCoverageFrom: [
     'src/lib/**/*.ts',
     'src/app/api/**/*.ts',
-    // excluded: infrastructure wrappers and generated utilities have no logic to unit-test
+    // infrastructure wrappers and generated utilities have no logic to unit-test
     '!src/lib/supabase/**/*.ts',
     '!src/lib/utils.ts',
     '!src/**/*.d.ts',
@@ -31,4 +31,4 @@ const config: Config = {
   ],
 }
 
-export default createJestConfig(config)
+module.exports = createJestConfig(config)
