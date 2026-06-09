@@ -22,11 +22,7 @@ const RANK_STYLES: Record<number, string> = {
 
 export function LeaderboardTable({ rows }: LeaderboardTableProps) {
   if (rows.length === 0) {
-    return (
-      <div className="py-12 text-center text-sm text-gray-500">
-        No scores recorded yet.
-      </div>
-    );
+    return <div className="py-12 text-center text-sm text-gray-500">No scores recorded yet.</div>;
   }
 
   return (
@@ -48,14 +44,9 @@ export function LeaderboardTable({ rows }: LeaderboardTableProps) {
             return (
               <tr
                 key={row.team_id}
-                className={cn(
-                  'border-b transition-colors hover:bg-gray-50',
-                  RANK_STYLES[rank]
-                )}
+                className={cn('border-b transition-colors hover:bg-gray-50', RANK_STYLES[rank])}
               >
-                <td className="px-3 py-3 font-semibold text-gray-700">
-                  {rank}
-                </td>
+                <td className="px-3 py-3 font-semibold text-gray-700">{rank}</td>
                 <td className="px-3 py-3">
                   <div className="font-medium text-gray-900">
                     {row.team_name ?? `Team ${row.team_number}`}
@@ -68,16 +59,14 @@ export function LeaderboardTable({ rows }: LeaderboardTableProps) {
                       vsParVal < 0
                         ? 'text-green-600'
                         : vsParVal > 0
-                        ? 'text-red-600'
-                        : 'text-gray-700'
+                          ? 'text-red-600'
+                          : 'text-gray-700'
                     )}
                   >
                     {vsParLabel}
                   </span>
                 </td>
-                <td className="px-3 py-3 text-right text-gray-500">
-                  {row.holes_completed}/18
-                </td>
+                <td className="px-3 py-3 text-right text-gray-500">{row.holes_completed}/18</td>
               </tr>
             );
           })}

@@ -5,9 +5,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
         <h1 className="text-3xl font-bold text-[#1a472a]">FDgolf</h1>
         <p className="mt-1 text-xs text-gray-500">created by AI/Run™</p>
       </div>
-      <div className="w-full max-w-sm rounded-xl border bg-white p-6 shadow-sm">
-        {children}
-      </div>
+      <div className="w-full max-w-sm rounded-xl border bg-white p-6 shadow-sm">{children}</div>
     </div>
   );
 }

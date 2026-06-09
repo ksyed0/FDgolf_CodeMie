@@ -1,4 +1,3 @@
-import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { Badge } from '@/components/ui/badge';
 import type { Tournament } from '@/lib/types';
@@ -26,7 +25,10 @@ export default async function TournamentAdminPage() {
 
   const [{ count: playerCount }, { count: teamCount }] = await Promise.all([
     supabase.from('players').select('*', { count: 'exact', head: true }),
-    supabase.from('teams').select('*', { count: 'exact', head: true }).eq('tournament_id', tournament.id),
+    supabase
+      .from('teams')
+      .select('*', { count: 'exact', head: true })
+      .eq('tournament_id', tournament.id),
   ]);
 
   return (
@@ -40,7 +42,10 @@ export default async function TournamentAdminPage() {
             <p className="text-sm text-gray-500">{tournament.venue}</p>
             <p className="text-sm text-gray-500">
               {new Date(tournament.date).toLocaleDateString('en-CA', {
-                weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
               })}
             </p>
             <p className="mt-1 text-sm text-gray-500">Format: {tournament.format}</p>

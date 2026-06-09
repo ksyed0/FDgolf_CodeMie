@@ -25,7 +25,10 @@ export default function LeaderboardPage() {
         .limit(1)
         .single();
 
-      if (!tournament) { setLoading(false); return; }
+      if (!tournament) {
+        setLoading(false);
+        return;
+      }
 
       setTournamentId(tournament.id);
 
@@ -47,16 +50,14 @@ export default function LeaderboardPage() {
 
   useEffect(() => {
     if (!tournamentId || scores.length === 0) return;
-    supabase
-      .rpc('get_leaderboard', { p_tournament_id: tournamentId })
-      .then(({ data }) => { if (data) setRows(data as LeaderboardRow[]); });
+    supabase.rpc('get_leaderboard', { p_tournament_id: tournamentId }).then(({ data }) => {
+      if (data) setRows(data as LeaderboardRow[]);
+    });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [scores, tournamentId]);
 
   if (loading) {
-    return (
-      <div className="py-16 text-center text-sm text-gray-500">Loading leaderboard…</div>
-    );
+    return <div className="py-16 text-center text-sm text-gray-500">Loading leaderboard…</div>;
   }
 
   return (

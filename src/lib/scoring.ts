@@ -7,11 +7,7 @@ export interface TeamHoleResult {
   strokes_vs_par: number | null;
 }
 
-export function buildTeamCard(
-  scores: Score[],
-  holes: Hole[],
-  teamId: string
-): TeamHoleResult[] {
+export function buildTeamCard(scores: Score[], holes: Hole[], teamId: string): TeamHoleResult[] {
   return holes.map((hole) => {
     const teamScores = scores.filter(
       (s) => s.team_id === teamId && s.hole_number === hole.hole_number && s.is_best_ball

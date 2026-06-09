@@ -16,7 +16,9 @@ export function OfflineIndicator() {
         </>
       )}
       {pendingCount > 0 && (
-        <span>{pendingCount} shot{pendingCount > 1 ? 's' : ''} pending sync</span>
+        <span>
+          {pendingCount} shot{pendingCount > 1 ? 's' : ''} pending sync
+        </span>
       )}
     </div>
   );

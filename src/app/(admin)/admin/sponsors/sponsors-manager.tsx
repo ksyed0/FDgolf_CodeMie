@@ -46,7 +46,10 @@ export function SponsorsManager({ sponsors: initial, tournamentId }: SponsorsMan
   }
 
   async function save() {
-    if (!form.name.trim()) { toast.error('Name is required'); return; }
+    if (!form.name.trim()) {
+      toast.error('Name is required');
+      return;
+    }
     setLoading(true);
 
     const payload = {
@@ -64,8 +67,9 @@ export function SponsorsManager({ sponsors: initial, tournamentId }: SponsorsMan
         .eq('id', editId)
         .select()
         .single<Sponsor>();
-      if (error) { toast.error(error.message); }
-      else {
+      if (error) {
+        toast.error(error.message);
+      } else {
         setSponsors((prev) => prev.map((s) => (s.id === editId ? data : s)));
         toast.success('Sponsor updated');
         cancelEdit();
@@ -76,8 +80,9 @@ export function SponsorsManager({ sponsors: initial, tournamentId }: SponsorsMan
         .insert(payload)
         .select()
         .single<Sponsor>();
-      if (error) { toast.error(error.message); }
-      else {
+      if (error) {
+        toast.error(error.message);
+      } else {
         setSponsors((prev) => [...prev, data].sort((a, b) => a.display_order - b.display_order));
         toast.success('Sponsor added');
         setForm(EMPTY_FORM);
@@ -88,7 +93,10 @@ export function SponsorsManager({ sponsors: initial, tournamentId }: SponsorsMan
 
   async function deleteSponsor(id: string) {
     const { error } = await supabase.from('sponsors').delete().eq('id', id);
-    if (error) { toast.error(error.message); return; }
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
     setSponsors((prev) => prev.filter((s) => s.id !== id));
     toast.success('Sponsor deleted');
   }
@@ -105,18 +113,34 @@ export function SponsorsManager({ sponsors: initial, tournamentId }: SponsorsMan
           </div>
           <div>
             <label className="mb-1 block text-xs font-medium text-gray-600">Logo URL</label>
-            <Input name="logo_url" value={form.logo_url} onChange={handleChange} placeholder="https://…" />
+            <Input
+              name="logo_url"
+              value={form.logo_url}
+              onChange={handleChange}
+              placeholder="https://…"
+            />
           </div>
           <div>
             <label className="mb-1 block text-xs font-medium text-gray-600">Order</label>
-            <Input name="display_order" type="number" min={1} value={form.display_order} onChange={handleChange} className="w-20" />
+            <Input
+              name="display_order"
+              type="number"
+              min={1}
+              value={form.display_order}
+              onChange={handleChange}
+              className="w-20"
+            />
           </div>
         </div>
         <div className="mt-3 flex gap-2">
           <Button onClick={save} disabled={loading} className="bg-[#1a472a] hover:bg-[#143820]">
             {loading ? 'Saving…' : editId ? 'Update' : 'Add'}
           </Button>
-          {editId && <Button variant="outline" onClick={cancelEdit}>Cancel</Button>}
+          {editId && (
+            <Button variant="outline" onClick={cancelEdit}>
+              Cancel
+            </Button>
+          )}
         </div>
       </div>
 
@@ -146,14 +170,32 @@ export function SponsorsManager({ sponsors: initial, tournamentId }: SponsorsMan
                 </td>
                 <td className="px-4 py-2">
                   <div className="flex gap-2">
-                    <Button variant="outline" size="sm" className="h-7 text-xs" onClick={() => startEdit(s)}>Edit</Button>
-                    <Button variant="destructive" size="sm" className="h-7 text-xs" onClick={() => deleteSponsor(s.id)}>Delete</Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="h-7 text-xs"
+                      onClick={() => startEdit(s)}
+                    >
+                      Edit
+                    </Button>
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      className="h-7 text-xs"
+                      onClick={() => deleteSponsor(s.id)}
+                    >
+                      Delete
+                    </Button>
                   </div>
                 </td>
               </tr>
             ))}
             {sponsors.length === 0 && (
-              <tr><td colSpan={4} className="px-4 py-6 text-center text-sm text-gray-400">No sponsors yet.</td></tr>
+              <tr>
+                <td colSpan={4} className="px-4 py-6 text-center text-sm text-gray-400">
+                  No sponsors yet.
+                </td>
+              </tr>
             )}
           </tbody>
         </table>

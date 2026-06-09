@@ -21,7 +21,9 @@ export function useGps() {
     }
   };
 
-  useEffect(() => { refresh(); }, []);
+  useEffect(() => {
+    refresh();
+  }, []);
 
   return { position, error, loading, refresh };
 }

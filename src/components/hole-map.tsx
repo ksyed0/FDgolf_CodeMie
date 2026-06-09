@@ -16,10 +16,10 @@ interface HoleMapProps {
 }
 
 const OUTCOME_COLORS: Record<ShotOutcome, string> = {
-  in_play: '#2563eb',       // blue-600
+  in_play: '#2563eb', // blue-600
   out_of_bounds: '#dc2626', // red-600
-  mulligan: '#f97316',      // orange-500
-  sunk: '#ca8a04',          // yellow-600
+  mulligan: '#f97316', // orange-500
+  sunk: '#ca8a04', // yellow-600
 };
 
 export function HoleMap({ pinLat, pinLng, shots = [] }: HoleMapProps) {

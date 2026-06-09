@@ -55,8 +55,8 @@ describe('buildTeamCard', () => {
 
       const card = buildTeamCard(scores, holes, 'team-1');
 
-      expect(card[0].strokes_vs_par).toBe(1);  // 5 - 4
-      expect(card[1].strokes_vs_par).toBe(0);  // 3 - 3
+      expect(card[0].strokes_vs_par).toBe(1); // 5 - 4
+      expect(card[1].strokes_vs_par).toBe(0); // 3 - 3
       expect(card[2].strokes_vs_par).toBe(-1); // 4 - 5
     });
 
@@ -103,8 +103,20 @@ describe('buildTeamCard', () => {
     it('picks the first best-ball score when two players tie on a hole', () => {
       // Both marked is_best_ball = true (edge case: tie)
       const scores: Score[] = [
-        makeScore({ id: 'score-p1-1', player_id: 'p1', hole_number: 1, strokes: 4, is_best_ball: true }),
-        makeScore({ id: 'score-p2-1', player_id: 'p2', hole_number: 1, strokes: 4, is_best_ball: true }),
+        makeScore({
+          id: 'score-p1-1',
+          player_id: 'p1',
+          hole_number: 1,
+          strokes: 4,
+          is_best_ball: true,
+        }),
+        makeScore({
+          id: 'score-p2-1',
+          player_id: 'p2',
+          hole_number: 1,
+          strokes: 4,
+          is_best_ball: true,
+        }),
       ];
 
       const card = buildTeamCard(scores, holes, 'team-1');
@@ -132,7 +144,7 @@ describe('buildTeamCard', () => {
       const card = buildTeamCard(scores, holes, 'team-1');
       expect(card).toHaveLength(3);
       expect(card[0].best_ball_strokes).toBeNull(); // hole 1 — no score
-      expect(card[1].best_ball_strokes).toBe(2);    // hole 2 — has score
+      expect(card[1].best_ball_strokes).toBe(2); // hole 2 — has score
       expect(card[2].best_ball_strokes).toBeNull(); // hole 3 — no score
     });
   });
@@ -140,7 +152,13 @@ describe('buildTeamCard', () => {
   describe('filters by teamId', () => {
     it('ignores scores that belong to a different team', () => {
       const scores: Score[] = [
-        makeScore({ player_id: 'p1', hole_number: 1, strokes: 4, is_best_ball: true, team_id: 'team-2' }),
+        makeScore({
+          player_id: 'p1',
+          hole_number: 1,
+          strokes: 4,
+          is_best_ball: true,
+          team_id: 'team-2',
+        }),
       ];
 
       const card = buildTeamCard(scores, holes, 'team-1');
