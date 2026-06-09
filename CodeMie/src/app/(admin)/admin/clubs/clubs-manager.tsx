@@ -14,11 +14,11 @@ export function ClubsManager({ clubs: initial }: ClubsManagerProps) {
   const supabase = createClient();
 
   async function toggleClub(id: string, current: boolean) {
-    const { error } = await supabase
-      .from('clubs')
-      .update({ is_active: !current })
-      .eq('id', id);
-    if (error) { toast.error(error.message); return; }
+    const { error } = await supabase.from('clubs').update({ is_active: !current }).eq('id', id);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
     setClubs((prev) => prev.map((c) => (c.id === id ? { ...c, is_active: !current } : c)));
   }
 

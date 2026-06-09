@@ -69,33 +69,78 @@ export default function RegisterPage() {
 
       <div className="space-y-1">
         <Label htmlFor="name">Full name</Label>
-        <Input id="name" name="name" required value={form.name} onChange={handleChange} placeholder="Jane Smith" />
+        <Input
+          id="name"
+          name="name"
+          required
+          value={form.name}
+          onChange={handleChange}
+          placeholder="Jane Smith"
+        />
       </div>
 
       <div className="grid grid-cols-2 gap-3">
         <div className="space-y-1">
           <Label htmlFor="title">Job title</Label>
-          <Input id="title" name="title" value={form.title} onChange={handleChange} placeholder="Director" />
+          <Input
+            id="title"
+            name="title"
+            value={form.title}
+            onChange={handleChange}
+            placeholder="Director"
+          />
         </div>
         <div className="space-y-1">
           <Label htmlFor="company">Company</Label>
-          <Input id="company" name="company" value={form.company} onChange={handleChange} placeholder="CIBC" />
+          <Input
+            id="company"
+            name="company"
+            value={form.company}
+            onChange={handleChange}
+            placeholder="CIBC"
+          />
         </div>
       </div>
 
       <div className="space-y-1">
         <Label htmlFor="email">Email</Label>
-        <Input id="email" name="email" type="email" autoComplete="email" required value={form.email} onChange={handleChange} placeholder="you@example.com" />
+        <Input
+          id="email"
+          name="email"
+          type="email"
+          autoComplete="email"
+          required
+          value={form.email}
+          onChange={handleChange}
+          placeholder="you@example.com"
+        />
       </div>
 
       <div className="space-y-1">
         <Label htmlFor="phone">Phone</Label>
-        <Input id="phone" name="phone" type="tel" value={form.phone} onChange={handleChange} placeholder="+1 416 555 0100" />
+        <Input
+          id="phone"
+          name="phone"
+          type="tel"
+          value={form.phone}
+          onChange={handleChange}
+          placeholder="+1 416 555 0100"
+        />
       </div>
 
       <div className="space-y-1">
         <Label htmlFor="password">Password</Label>
-        <Input id="password" name="password" type="password" autoComplete="new-password" required minLength={8} value={form.password} onChange={handleChange} placeholder="min 8 characters" />
+        <Input
+          id="password"
+          name="password"
+          type="password"
+          autoComplete="new-password"
+          required
+          minLength={8}
+          value={form.password}
+          onChange={handleChange}
+          placeholder="min 8 characters"
+        />
       </div>
 
       <Button type="submit" className="w-full bg-[#1a472a] hover:bg-[#143820]" disabled={loading}>

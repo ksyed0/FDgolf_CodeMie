@@ -12,11 +12,12 @@ export async function getCurrentPosition(): Promise<GpsPosition> {
       return;
     }
     navigator.geolocation.getCurrentPosition(
-      (pos) => resolve({
-        lat: pos.coords.latitude,
-        lng: pos.coords.longitude,
-        accuracy: pos.coords.accuracy,
-      }),
+      (pos) =>
+        resolve({
+          lat: pos.coords.latitude,
+          lng: pos.coords.longitude,
+          accuracy: pos.coords.accuracy,
+        }),
       (err) => reject(err),
       { enableHighAccuracy: true, timeout: 8000, maximumAge: 5000 }
     );

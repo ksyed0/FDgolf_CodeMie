@@ -1,0 +1,3 @@
+#!/bin/sh
+# Run lint-staged for CodeMie app (FDgolf tournament scoring)
+cd CodeMie && npx lint-staged

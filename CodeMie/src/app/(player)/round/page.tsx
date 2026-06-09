@@ -29,7 +29,7 @@ export default function RoundPage() {
   const [player, setPlayer] = useState<Player | null>(null);
   const [team, setTeam] = useState<Team | null>(null);
   const [teammates, setTeammates] = useState<Player[]>([]);
-  const [tournament, setTournament] = useState<{ id: string } | null>(null);
+  const [tournament, setTournament] = useState<{ id: string; status: string } | null>(null);
   const [holes, setHoles] = useState<Hole[]>([]);
   const [clubs, setClubs] = useState<Club[]>([]);
   const [roundState, setRoundState] = useState<RoundState | null>(null);
@@ -43,8 +43,13 @@ export default function RoundPage() {
 
   useEffect(() => {
     async function loadData() {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) { router.push('/login'); return; }
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!user) {
+        router.push('/login');
+        return;
+      }
 
       const { data: playerData } = await supabase
         .from('players')
@@ -65,13 +70,18 @@ export default function RoundPage() {
         { data: teammateData },
         { data: clubData },
       ] = await Promise.all([
-        supabase.from('tournaments').select('id, status').order('created_at', { ascending: false }).limit(1).single(),
+        supabase
+          .from('tournaments')
+          .select('id, status')
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .single(),
         supabase.from('teams').select('*').eq('id', playerData.team_id).single<Team>(),
         supabase.from('players').select('*').eq('team_id', playerData.team_id),
         supabase.from('clubs').select('*').eq('is_active', true).order('sort_order'),
       ]);
 
-      if (tournamentData?.status !== 'active') {
+      if (tournamentData?.status !== 'active' && tournamentData?.status !== 'paused') {
         toast.error('Tournament is not active.');
         router.push('/dashboard');
         return;
@@ -146,10 +156,7 @@ export default function RoundPage() {
 
       // Optimistic shot marker
       if (position) {
-        setHoleShots((prev) => [
-          ...prev,
-          { lat: position.lat, lng: position.lng, outcome },
-        ]);
+        setHoleShots((prev) => [...prev, { lat: position.lat, lng: position.lng, outcome }]);
       }
 
       setShotNumber((n) => n + 1);
@@ -199,9 +206,10 @@ export default function RoundPage() {
 
   const nextHole = useCallback(async () => {
     if (!roundState || !team) return;
-    const nextHoleNum = roundState.current_hole + 1 > 18
-      ? roundState.current_hole // stay at 18 if we've gone around
-      : roundState.current_hole + 1;
+    const nextHoleNum =
+      roundState.current_hole + 1 > 18
+        ? roundState.current_hole // stay at 18 if we've gone around
+        : roundState.current_hole + 1;
 
     // Check if we've completed all 18 holes (shotgun — team may have started at != 1)
     const isComplete = roundState.current_hole === 18;
@@ -222,7 +230,9 @@ export default function RoundPage() {
       return;
     }
 
-    setRoundState((prev) => prev ? { ...prev, current_hole: nextHoleNum, status: newStatus } : prev);
+    setRoundState((prev) =>
+      prev ? { ...prev, current_hole: nextHoleNum, status: newStatus } : prev
+    );
     setHoleShots([]);
     setShotNumber(1);
     setHoleSunk(false);
@@ -256,7 +266,21 @@ export default function RoundPage() {
         }}
       />
 
-      <div className="mx-auto w-full max-w-md space-y-4 px-4 pb-24 pt-4">
+      {tournament?.status === 'paused' && (
+        <div className="mx-auto w-full max-w-md px-4 pt-4">
+          <div className="flex items-center gap-2 rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm font-medium text-amber-800">
+            <span className="text-base">⏸</span>
+            <span>
+              Tournament is paused — play has been suspended. Please wait for the tournament
+              director.
+            </span>
+          </div>
+        </div>
+      )}
+
+      <div
+        className={`mx-auto w-full max-w-md space-y-4 px-4 pb-24 pt-4 ${tournament?.status === 'paused' ? 'pointer-events-none opacity-50' : ''}`}
+      >
         {/* Player selector */}
         <div>
           <p className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-gray-500">
@@ -270,11 +294,7 @@ export default function RoundPage() {
         </div>
 
         {/* Hole map */}
-        <HoleMap
-          pinLat={currentHole.pin_lat}
-          pinLng={currentHole.pin_lng}
-          shots={holeShots}
-        />
+        <HoleMap pinLat={currentHole.pin_lat} pinLng={currentHole.pin_lng} shots={holeShots} />
 
         {/* Club selector */}
         <div>
@@ -296,12 +316,10 @@ export default function RoundPage() {
               Hole {currentHole.hole_number} complete!
             </p>
             <p className="text-sm text-gray-600">
-              Score: {shotNumber - 1} ({shotNumber - 1 - currentHole.par >= 0 ? '+' : ''}{shotNumber - 1 - currentHole.par} vs par)
+              Score: {shotNumber - 1} ({shotNumber - 1 - currentHole.par >= 0 ? '+' : ''}
+              {shotNumber - 1 - currentHole.par} vs par)
             </p>
-            <Button
-              className="w-full bg-[#1a472a] hover:bg-[#143820]"
-              onClick={nextHole}
-            >
+            <Button className="w-full bg-[#1a472a] hover:bg-[#143820]" onClick={nextHole}>
               Next Hole
             </Button>
           </div>

@@ -79,7 +79,7 @@ describe('distanceMeters', () => {
     it('returns a small distance for two nearby GPS pins on the same hole', () => {
       // Two pins ~150m apart on Granite Ridge
       const tee = pos(43.5257, -79.8816);
-      const pin = { lat: 43.5270, lng: -79.8816 }; // ~145m north
+      const pin = { lat: 43.527, lng: -79.8816 }; // ~145m north
       const distance = distanceMeters(tee, pin);
       expect(distance).toBeGreaterThan(100);
       expect(distance).toBeLessThan(300);

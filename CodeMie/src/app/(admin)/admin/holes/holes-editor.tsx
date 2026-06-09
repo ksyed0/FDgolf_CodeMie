@@ -76,11 +76,7 @@ export function HolesEditor({ holes: initial }: HolesEditorProps) {
         </tbody>
       </table>
       <div className="p-4">
-        <Button
-          onClick={saveAll}
-          disabled={saving}
-          className="bg-[#1a472a] hover:bg-[#143820]"
-        >
+        <Button onClick={saveAll} disabled={saving} className="bg-[#1a472a] hover:bg-[#143820]">
           {saving ? 'Saving…' : 'Save Changes'}
         </Button>
       </div>

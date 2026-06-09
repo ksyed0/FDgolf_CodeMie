@@ -27,11 +27,7 @@ export default async function DashboardPage() {
   if (!user) redirect('/login');
 
   const [{ data: player }, { data: tournament }] = await Promise.all([
-    supabase
-      .from('players')
-      .select('*')
-      .eq('auth_user_id', user.id)
-      .single<Player>(),
+    supabase.from('players').select('*').eq('auth_user_id', user.id).single<Player>(),
     supabase
       .from('tournaments')
       .select('*')
@@ -71,7 +67,10 @@ export default async function DashboardPage() {
         <p className="text-sm text-green-300">Welcome back</p>
         <h2 className="text-xl font-bold">{player.name}</h2>
         {player.company && (
-          <p className="text-sm text-green-300">{player.title ? `${player.title} · ` : ''}{player.company}</p>
+          <p className="text-sm text-green-300">
+            {player.title ? `${player.title} · ` : ''}
+            {player.company}
+          </p>
         )}
       </div>
 
@@ -133,11 +132,7 @@ export default async function DashboardPage() {
         className="w-full bg-[#1a472a] text-base hover:bg-[#143820] disabled:opacity-50"
         size="lg"
       >
-        {canStartRound ? (
-          <Link href="/round">Start Round</Link>
-        ) : (
-          <span>Start Round</span>
-        )}
+        {canStartRound ? <Link href="/round">Start Round</Link> : <span>Start Round</span>}
       </Button>
       {!canStartRound && tournament && (
         <p className="text-center text-xs text-gray-500">

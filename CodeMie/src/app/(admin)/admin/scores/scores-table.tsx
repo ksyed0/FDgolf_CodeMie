@@ -37,7 +37,9 @@ export function ScoresTable({ scores: initial, players, teams }: ScoresTableProp
   const supabase = createClient();
 
   const playerMap = Object.fromEntries(players.map((p) => [p.id, p.name]));
-  const teamMap = Object.fromEntries(teams.map((t) => [t.id, t.team_name ?? `Team ${t.team_number}`]));
+  const teamMap = Object.fromEntries(
+    teams.map((t) => [t.id, t.team_name ?? `Team ${t.team_number}`])
+  );
 
   const holes = Array.from(new Set(scores.map((s) => s.hole_number))).sort((a, b) => a - b);
 
@@ -50,10 +52,15 @@ export function ScoresTable({ scores: initial, players, teams }: ScoresTableProp
   async function saveOverride() {
     if (!overrideTarget) return;
     const strokes = parseInt(overrideStrokes, 10);
-    if (isNaN(strokes) || strokes < 1) { toast.error('Enter valid strokes'); return; }
+    if (isNaN(strokes) || strokes < 1) {
+      toast.error('Enter valid strokes');
+      return;
+    }
     setSaving(true);
 
-    const { data: { user } } = await supabase.auth.getUser();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
     const { error } = await supabase
       .from('scores')
       .update({ strokes, override_by: user?.id ?? null, override_at: new Date().toISOString() })
@@ -65,7 +72,12 @@ export function ScoresTable({ scores: initial, players, teams }: ScoresTableProp
       setScores((prev) =>
         prev.map((s) =>
           s.id === overrideTarget.id
-            ? { ...s, strokes, override_by: user?.id ?? null, override_at: new Date().toISOString() }
+            ? {
+                ...s,
+                strokes,
+                override_by: user?.id ?? null,
+                override_at: new Date().toISOString(),
+              }
             : s
         )
       );
@@ -87,7 +99,9 @@ export function ScoresTable({ scores: initial, players, teams }: ScoresTableProp
           <SelectContent>
             <SelectItem value="all">All teams</SelectItem>
             {teams.map((t) => (
-              <SelectItem key={t.id} value={t.id}>{teamMap[t.id]}</SelectItem>
+              <SelectItem key={t.id} value={t.id}>
+                {teamMap[t.id]}
+              </SelectItem>
             ))}
           </SelectContent>
         </Select>
@@ -98,7 +112,9 @@ export function ScoresTable({ scores: initial, players, teams }: ScoresTableProp
           <SelectContent>
             <SelectItem value="all">All holes</SelectItem>
             {holes.map((h) => (
-              <SelectItem key={h} value={String(h)}>Hole {h}</SelectItem>
+              <SelectItem key={h} value={String(h)}>
+                Hole {h}
+              </SelectItem>
             ))}
           </SelectContent>
         </Select>
@@ -125,15 +141,16 @@ export function ScoresTable({ scores: initial, players, teams }: ScoresTableProp
                 <td className="px-4 py-2">{s.hole_number}</td>
                 <td className="px-4 py-2 font-medium">{s.strokes}</td>
                 <td className="px-4 py-2">{s.is_best_ball ? '★' : ''}</td>
-                <td className="px-4 py-2 text-xs text-gray-400">
-                  {s.override_by ? 'Yes' : '—'}
-                </td>
+                <td className="px-4 py-2 text-xs text-gray-400">{s.override_by ? 'Yes' : '—'}</td>
                 <td className="px-4 py-2">
                   <Button
                     variant="outline"
                     size="sm"
                     className="h-7 text-xs"
-                    onClick={() => { setOverrideTarget(s); setOverrideStrokes(String(s.strokes)); }}
+                    onClick={() => {
+                      setOverrideTarget(s);
+                      setOverrideStrokes(String(s.strokes));
+                    }}
                   >
                     Override
                   </Button>
@@ -148,7 +165,12 @@ export function ScoresTable({ scores: initial, players, teams }: ScoresTableProp
       </div>
 
       {/* Override dialog */}
-      <Dialog open={!!overrideTarget} onOpenChange={(open) => { if (!open) setOverrideTarget(null); }}>
+      <Dialog
+        open={!!overrideTarget}
+        onOpenChange={(open) => {
+          if (!open) setOverrideTarget(null);
+        }}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Override Score</DialogTitle>
@@ -171,8 +193,14 @@ export function ScoresTable({ scores: initial, players, teams }: ScoresTableProp
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setOverrideTarget(null)}>Cancel</Button>
-            <Button className="bg-[#1a472a] hover:bg-[#143820]" onClick={saveOverride} disabled={saving}>
+            <Button variant="outline" onClick={() => setOverrideTarget(null)}>
+              Cancel
+            </Button>
+            <Button
+              className="bg-[#1a472a] hover:bg-[#143820]"
+              onClick={saveOverride}
+              disabled={saving}
+            >
               {saving ? 'Saving…' : 'Save Override'}
             </Button>
           </DialogFooter>

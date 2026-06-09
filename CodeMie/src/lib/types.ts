@@ -1,4 +1,4 @@
-export type TournamentStatus = 'setup' | 'active' | 'completed';
+export type TournamentStatus = 'setup' | 'active' | 'paused' | 'completed';
 export type RoundStatus = 'not_started' | 'in_progress' | 'completed';
 export type ShotOutcome = 'in_play' | 'out_of_bounds' | 'mulligan' | 'sunk';
 export type PlayerRole = 'player' | 'admin' | 'tournament_organizer';

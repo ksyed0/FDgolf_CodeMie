@@ -30,7 +30,9 @@ type FromChain = {
 let mockFrom: jest.Mock<FromChain>;
 let mockInsert: jest.Mock<InsertChain>;
 let mockSelect: jest.Mock<SelectChain>;
-let mockSingle: jest.Mock<Promise<{ data: { id: string } | null; error: { message: string } | null }>>;
+let mockSingle: jest.Mock<
+  Promise<{ data: { id: string } | null; error: { message: string } | null }>
+>;
 
 function buildSupabaseMock() {
   mockSingle = jest.fn().mockResolvedValue({ data: { id: 'shot-123' }, error: null });

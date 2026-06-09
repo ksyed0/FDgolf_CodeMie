@@ -3,15 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
-import {
-  Trophy,
-  Users,
-  UsersRound,
-  Disc,
-  Wrench,
-  ClipboardList,
-  Star,
-} from 'lucide-react';
+import { Trophy, Users, UsersRound, Disc, Wrench, ClipboardList, Star } from 'lucide-react';
 
 const NAV_ITEMS = [
   { href: '/admin/tournament', label: 'Tournament', Icon: Trophy },

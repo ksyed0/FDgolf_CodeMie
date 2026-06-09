@@ -12,7 +12,16 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
   }
 
-  const { player_id, tournament_id, hole_number, shot_number, club_name, start_lat, start_lng, outcome } = body;
+  const {
+    player_id,
+    tournament_id,
+    hole_number,
+    shot_number,
+    club_name,
+    start_lat,
+    start_lng,
+    outcome,
+  } = body;
 
   if (!player_id || !tournament_id || !hole_number || !shot_number || !club_name || !outcome) {
     return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
@@ -20,7 +29,16 @@ export async function POST(request: NextRequest) {
 
   const { data, error } = await supabase
     .from('shots')
-    .insert({ player_id, tournament_id, hole_number, shot_number, club_name, start_lat, start_lng, outcome })
+    .insert({
+      player_id,
+      tournament_id,
+      hole_number,
+      shot_number,
+      club_name,
+      start_lat,
+      start_lng,
+      outcome,
+    })
     .select('id')
     .single();
 

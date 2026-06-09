@@ -1,0 +1,40 @@
+name: Security
+
+on:
+  pull_request:
+    branches: [develop, main]
+  push:
+    branches: [develop]
+  schedule:
+    # Run weekly on Monday at 08:00 UTC to catch newly disclosed CVEs
+    - cron: '0 8 * * 1'
+
+defaults:
+  run:
+    working-directory: CodeMie
+
+jobs:
+  audit:
+    name: Dependency Audit
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: CodeMie/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      # Fail only on critical vulnerabilities.
+      # Known high-severity issues exist in Next.js 14 deps (GHSA-9g9p, GHSA-h25m, etc.)
+      # and require upgrading to Next.js 15+. Tracked in BUGS.md; upgrade planned for v1.1.
+      - name: npm audit (critical only)
+        run: npm audit --audit-level=critical
+
+  # CodeQL static analysis requires GitHub Advanced Security (GHAS).
+  # Re-add this job when GHAS is enabled for this repository.
