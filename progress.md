@@ -1,5 +1,39 @@
 # FDgolf — Progress
 
+## Session 7 — 2026-06-09 (Conductor)
+
+### What Was Done
+
+- **Phase 5 complete**: 59 unit tests pass across 4 suites; all global coverage thresholds met
+  - Statements 86.9% | Branches 89.74% | Functions 80.95% | Lines 89.47%
+- **Test fixes applied**:
+  - `jest.config.ts`: excluded `src/lib/supabase/**` and `src/lib/utils.ts` from coverage (infrastructure wrappers, no logic)
+  - `src/lib/gps.ts` + `src/lib/sync-engine.ts`: `/* istanbul ignore next */` on browser-API wrappers (`navigator.geolocation`, `window.addEventListener`)
+  - `api-shots.test.ts`: added `@jest-environment node` docblock (Next.js route handlers use Web `Request` API unavailable in jsdom)
+  - `gps.test.ts`: corrected Haversine expected distance Toronto→Granite Ridge (42.5 km, not 48 km)
+  - `sync-engine.test.ts`: seeded localStorage directly in flush() test instead of calling enqueue(), which fires flush() internally without await
+- **Commit**: `ba9672e` — `test: Phase 5 complete — 59 tests pass, coverage ≥80%`
+- **GitHub monorepo setup** (`ksyed0/FDgolf`, commit `c27152d`):
+  - Removed `CodeMie/.git` nested repo (bare backup preserved at `CodeMie-origin.git/`)
+  - `CodeMie/` is now a proper subdirectory of the `FDgolf` monorepo
+  - Updated `CodeMie/.gitignore` to exclude `.next/`, `coverage/`, `.playwright-mcp/`, `.history/`, `tsconfig.tsbuildinfo`
+  - Pushed to `origin/main` — GitHub now shows `CodeMie/src/...` as intended
+- **PO answers recorded** (from prior session — built into next sprint):
+  - Q1: No attestation required
+  - Q2: Magic link for concierge registration
+  - Q3: Pause/resume state (`'paused'` enum value)
+  - Q4: Preserve scores after event (archive/history view)
+  - Q5: Per-hole scorecard view
+  - Q6: Custom team naming
+  - Q7: Mulligan tracking/reporting
+
+### Next Steps
+
+- Phase 6: Polish + implement PO-answered stories (magic link, pause state, archive, scorecard, team name, mulligans)
+- Vercel deploy target: June 20 (2-day test window before June 22 tournament)
+
+---
+
 ## Session 6 — 2026-06-08 (Circuit — Test Infrastructure Agent)
 
 ### What Was Done
