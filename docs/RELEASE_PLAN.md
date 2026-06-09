@@ -10,7 +10,7 @@
 EPIC-0001: Project Setup & Infrastructure
 Description: Initialize Next.js 14 project with Supabase, deploy pipeline, shared components, and offline sync engine as foundation layer.
 Release Target: MVP (v0.1)
-Status: Planned
+Status: In Progress
 Dependencies: None
 Start Date: 2026-06-08
 ```
@@ -19,7 +19,7 @@ Start Date: 2026-06-08
 EPIC-0002: Registration & Authentication
 Description: Player self-registration (3-step wizard), email/password login, auth middleware, and role-based access control.
 Release Target: MVP (v0.1)
-Status: Planned
+Status: In Progress
 Dependencies: EPIC-0001
 ```
 
@@ -27,7 +27,7 @@ Dependencies: EPIC-0001
 EPIC-0003: Player Dashboard
 Description: Post-login hub showing tournament info, team members, round status, and quick-access leaderboard link.
 Release Target: MVP (v0.1)
-Status: Planned
+Status: Done
 Dependencies: EPIC-0002
 ```
 
@@ -35,7 +35,7 @@ Dependencies: EPIC-0002
 EPIC-0004: Active Round — Shot Tracking
 Description: Core gameplay: GPS shot capture, club selection, shot outcomes (In-Play, OOB, Mulligan, Sunk), player rotation within foursome, and offline resilience.
 Release Target: MVP (v0.1)
-Status: Planned
+Status: Done
 Dependencies: EPIC-0001, EPIC-0003
 ```
 
@@ -43,7 +43,7 @@ Dependencies: EPIC-0001, EPIC-0003
 EPIC-0005: Hole & Round Completion
 Description: Detect hole completion, calculate Best Ball via Edge Function, display hole summary, and navigate through 18-hole wraparound sequence.
 Release Target: MVP (v0.1)
-Status: Planned
+Status: Done
 Dependencies: EPIC-0004
 ```
 
@@ -51,7 +51,7 @@ Dependencies: EPIC-0004
 EPIC-0006: Leaderboard
 Description: Real-time team leaderboard (authenticated + public shareable URL), sponsor logo banner, Supabase Realtime subscription.
 Release Target: MVP (v0.1)
-Status: Planned
+Status: Done
 Dependencies: EPIC-0005
 ```
 
@@ -59,7 +59,7 @@ Dependencies: EPIC-0005
 EPIC-0007: Admin — Tournament & Course Setup
 Description: Admin layout with sidebar, tournament configuration, hole management (par, GPS pins), and club list management.
 Release Target: MVP (v0.1)
-Status: Planned
+Status: Done
 Dependencies: EPIC-0001
 ```
 
@@ -67,7 +67,7 @@ Dependencies: EPIC-0001
 EPIC-0008: Admin — Player & Team Management
 Description: Player CRUD with team assignment, team creation with starting holes, search unassigned players, auto-assign starting holes.
 Release Target: MVP (v0.1)
-Status: Planned
+Status: Done
 Dependencies: EPIC-0007
 ```
 
@@ -75,7 +75,7 @@ Dependencies: EPIC-0007
 EPIC-0009: Admin — Scores & Sponsors
 Description: Score override with audit trail, Best Ball recalculation, sponsor logo upload and ordering, CSV export.
 Release Target: MVP (v0.1)
-Status: Planned
+Status: Done
 Dependencies: EPIC-0007
 ```
 
@@ -95,7 +95,7 @@ Dependencies: EPIC-0002
 US-0001 (EPIC-0001): As a developer, I want the Next.js project initialized with Tailwind and shadcn/ui, so that I can build UI components rapidly.
 Priority: High
 Estimate: S
-Status: Planned
+Status: Done
 Branch: feature/US-0001-project-init
 Dependencies: None
 Acceptance Criteria:
@@ -108,7 +108,7 @@ Acceptance Criteria:
 US-0002 (EPIC-0001): As a developer, I want Supabase configured with browser and server clients, so that I can query the database from any context.
 Priority: High
 Estimate: S
-Status: Planned
+Status: Done
 Branch: feature/US-0002-supabase-setup
 Dependencies: US-0001
 Acceptance Criteria:
@@ -121,7 +121,7 @@ Acceptance Criteria:
 US-0003 (EPIC-0001): As a developer, I want the database schema deployed with all tables, RLS policies, and indexes, so that the app has a complete data layer.
 Priority: High
 Estimate: M
-Status: Planned
+Status: Done
 Branch: feature/US-0003-database-schema
 Dependencies: US-0002
 Acceptance Criteria:
@@ -147,7 +147,7 @@ Acceptance Criteria:
 US-0005 (EPIC-0001): As a developer, I want a Google Maps wrapper component, so that I can display holes and player positions.
 Priority: High
 Estimate: S
-Status: Planned
+Status: Done
 Branch: feature/US-0005-google-maps
 Dependencies: US-0001
 Acceptance Criteria:
@@ -160,7 +160,7 @@ Acceptance Criteria:
 US-0006 (EPIC-0001): As a developer, I want clubs and Granite Ridge hole data seeded, so that the app has course data on first run.
 Priority: High
 Estimate: S
-Status: Planned
+Status: Done
 Branch: feature/US-0006-seed-data
 Dependencies: US-0003
 Acceptance Criteria:
@@ -173,7 +173,7 @@ Acceptance Criteria:
 US-0007 (EPIC-0001): As a player, I want consistent FDgolf + AI/Run branding on every screen, so that the app feels professional.
 Priority: High
 Estimate: S
-Status: Planned
+Status: Done
 Branch: feature/US-0007-header-branding
 Dependencies: US-0001
 Acceptance Criteria:
@@ -186,7 +186,7 @@ Acceptance Criteria:
 US-0008 (EPIC-0001): As a developer, I want an offline sync engine that queues all writes to localStorage, so that shots are never lost.
 Priority: High
 Estimate: M
-Status: Planned
+Status: Done
 Branch: feature/US-0008-sync-engine
 Dependencies: US-0001
 Acceptance Criteria:
@@ -201,7 +201,7 @@ Acceptance Criteria:
 US-0009 (EPIC-0002): As a player, I want to create an account with email and password, so that I can register for the tournament.
 Priority: High
 Estimate: S
-Status: Planned
+Status: Done
 Branch: feature/US-0009-registration-step1
 Dependencies: US-0002
 Acceptance Criteria:
@@ -214,7 +214,7 @@ Acceptance Criteria:
 US-0010 (EPIC-0002): As a player, I want to enter my profile information, so that tournament organizers know who I am.
 Priority: High
 Estimate: S
-Status: Planned
+Status: Done
 Branch: feature/US-0010-registration-step2
 Dependencies: US-0009
 Acceptance Criteria:
@@ -226,7 +226,7 @@ Acceptance Criteria:
 US-0011 (EPIC-0002): As a player, I want to link to my assigned team during registration, so that I can see my teammates.
 Priority: High
 Estimate: M
-Status: Planned
+Status: Done
 Branch: feature/US-0011-registration-step3
 Dependencies: US-0010
 Acceptance Criteria:
@@ -239,7 +239,7 @@ Acceptance Criteria:
 US-0012 (EPIC-0002): As a player, I want to log in with my email and password, so that I can access the app.
 Priority: High
 Estimate: S
-Status: Planned
+Status: Done
 Branch: feature/US-0012-login
 Dependencies: US-0002
 Acceptance Criteria:
@@ -252,7 +252,7 @@ Acceptance Criteria:
 US-0013 (EPIC-0002): As a developer, I want auth middleware that protects routes and redirects unauthenticated users, so that player data is secure.
 Priority: High
 Estimate: S
-Status: Planned
+Status: Done
 Branch: feature/US-0013-auth-middleware
 Dependencies: US-0002
 Acceptance Criteria:
@@ -266,7 +266,7 @@ Acceptance Criteria:
 US-0014 (EPIC-0003): As a player, I want a dashboard showing my team, tournament info, and a Start Round button, so that I have a clear home screen.
 Priority: High
 Estimate: S
-Status: Planned
+Status: Done
 Branch: feature/US-0014-dashboard
 Dependencies: US-0013
 Acceptance Criteria:
@@ -281,7 +281,7 @@ Acceptance Criteria:
 US-0015 (EPIC-0004): As a player, I want to start my round and confirm my starting hole, so that shot tracking begins correctly.
 Priority: High
 Estimate: S
-Status: Planned
+Status: Done
 Branch: feature/US-0015-start-round
 Dependencies: US-0014
 Acceptance Criteria:
@@ -294,7 +294,7 @@ Acceptance Criteria:
 US-0016 (EPIC-0004): As a player, I want to see a map of the current hole with the pin location, so that I know where to aim.
 Priority: High
 Estimate: M
-Status: Planned
+Status: Done
 Branch: feature/US-0016-hole-map
 Dependencies: US-0005, US-0015
 Acceptance Criteria:
@@ -307,7 +307,7 @@ Acceptance Criteria:
 US-0017 (EPIC-0004): As a player, I want to select which team member is taking the current shot, so that we can track all four players from one phone.
 Priority: High
 Estimate: S
-Status: Planned
+Status: Done
 Branch: feature/US-0017-player-selector
 Dependencies: US-0015
 Acceptance Criteria:
@@ -321,7 +321,7 @@ Acceptance Criteria:
 US-0018 (EPIC-0004): As a player, I want to select my club from a grouped dropdown, so that my club choice is recorded per shot.
 Priority: High
 Estimate: S
-Status: Planned
+Status: Done
 Branch: feature/US-0018-club-selector
 Dependencies: US-0006
 Acceptance Criteria:
@@ -333,7 +333,7 @@ Acceptance Criteria:
 US-0019 (EPIC-0004): As a player, I want to tap "Capture Shot" to record my GPS position, so that my shot location is tracked.
 Priority: High
 Estimate: M
-Status: Planned
+Status: Done
 Branch: feature/US-0019-capture-shot
 Dependencies: US-0008, US-0017, US-0018
 Acceptance Criteria:
@@ -347,7 +347,7 @@ Acceptance Criteria:
 US-0020 (EPIC-0004): As a player, I want to choose the outcome of my shot (In-Play, OOB, Mulligan, Sunk), so that scoring is accurate.
 Priority: High
 Estimate: M
-Status: Planned
+Status: Done
 Branch: feature/US-0020-shot-outcomes
 Dependencies: US-0019
 Acceptance Criteria:
@@ -375,7 +375,7 @@ Acceptance Criteria:
 US-0022 (EPIC-0005): As a player, I want the hole to complete automatically when all team members have sunk, so that we can see results.
 Priority: High
 Estimate: S
-Status: Planned
+Status: Done
 Branch: feature/US-0022-hole-completion
 Dependencies: US-0020
 Acceptance Criteria:
@@ -401,7 +401,7 @@ Acceptance Criteria:
 US-0024 (EPIC-0005): As a player, I want to advance to the next hole with wraparound (e.g., hole 10 start → 10→18→1→9), so that the shotgun format works correctly.
 Priority: High
 Estimate: S
-Status: Planned
+Status: Done
 Branch: feature/US-0024-next-hole
 Dependencies: US-0023
 Acceptance Criteria:
@@ -414,7 +414,7 @@ Acceptance Criteria:
 US-0025 (EPIC-0006): As a player, I want a live team leaderboard showing rankings vs par, so that I can track my team's position.
 Priority: High
 Estimate: M
-Status: Planned
+Status: Done
 Branch: feature/US-0025-leaderboard
 Dependencies: US-0022
 Acceptance Criteria:
@@ -429,7 +429,7 @@ Acceptance Criteria:
 US-0026 (EPIC-0006): As a spectator, I want a public leaderboard URL that works without login, so that I can follow the tournament.
 Priority: High
 Estimate: S
-Status: Planned
+Status: Done
 Branch: feature/US-0026-public-leaderboard
 Dependencies: US-0025
 Acceptance Criteria:
@@ -443,7 +443,7 @@ Acceptance Criteria:
 US-0027 (EPIC-0006): As a sponsor, I want my logo displayed on the leaderboard, so that I get visibility.
 Priority: High
 Estimate: S
-Status: Planned
+Status: Done
 Branch: feature/US-0027-sponsor-banner
 Dependencies: US-0025
 Acceptance Criteria:
@@ -456,7 +456,7 @@ Acceptance Criteria:
 US-0028 (EPIC-0007): As an admin, I want a sidebar navigation with FDgolf + AI/Run branding, so that I can access all admin functions.
 Priority: High
 Estimate: S
-Status: Planned
+Status: Done
 Branch: feature/US-0028-admin-layout
 Dependencies: US-0007
 Acceptance Criteria:
@@ -470,7 +470,7 @@ Acceptance Criteria:
 US-0029 (EPIC-0007): As an admin, I want to configure tournament details, so that the event information is correct.
 Priority: High
 Estimate: S
-Status: Planned
+Status: Done
 Branch: feature/US-0029-tournament-config
 Dependencies: US-0028
 Acceptance Criteria:
@@ -483,7 +483,7 @@ Acceptance Criteria:
 US-0030 (EPIC-0007): As an admin, I want to edit hole par values and pin GPS coordinates, so that scoring is accurate.
 Priority: High
 Estimate: M
-Status: Planned
+Status: Done
 Branch: feature/US-0030-hole-management
 Dependencies: US-0028
 Acceptance Criteria:
@@ -496,7 +496,7 @@ Acceptance Criteria:
 US-0031 (EPIC-0007): As an admin, I want to manage the club list, so that players see the correct clubs.
 Priority: High
 Estimate: S
-Status: Planned
+Status: Done
 Branch: feature/US-0031-club-management
 Dependencies: US-0028
 Acceptance Criteria:
@@ -509,7 +509,7 @@ Acceptance Criteria:
 US-0032 (EPIC-0008): As an admin, I want to view and edit player details including team assignment, so that registrations are correct.
 Priority: High
 Estimate: M
-Status: Planned
+Status: Done
 Branch: feature/US-0032-player-management
 Dependencies: US-0028
 Acceptance Criteria:
@@ -523,7 +523,7 @@ Acceptance Criteria:
 US-0033 (EPIC-0008): As an admin, I want to create teams, assign players, and set starting holes, so that foursomes are organized.
 Priority: High
 Estimate: M
-Status: Planned
+Status: Done
 Branch: feature/US-0033-team-management
 Dependencies: US-0028
 Acceptance Criteria:
@@ -537,7 +537,7 @@ Acceptance Criteria:
 US-0034 (EPIC-0009): As an admin, I want to override any player's score, so that I can correct errors.
 Priority: High
 Estimate: M
-Status: Planned
+Status: Done
 Branch: feature/US-0034-score-override
 Dependencies: US-0028
 Acceptance Criteria:
@@ -552,7 +552,7 @@ Acceptance Criteria:
 US-0035 (EPIC-0009): As an admin, I want to upload sponsor logos and set their display order, so that sponsors are visible on the leaderboard.
 Priority: High
 Estimate: M
-Status: Planned
+Status: Done
 Branch: feature/US-0035-sponsor-management
 Dependencies: US-0028
 Acceptance Criteria:
