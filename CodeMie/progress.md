@@ -1,5 +1,25 @@
 # FDgolf — Progress
 
+## Session 8 — 2026-06-09 (Status Sync)
+
+### What Was Done
+
+- **RELEASE_PLAN.md synced** — corrected story statuses (Python regex had matched across block boundaries via Dependencies fields)
+  - 32/37 stories marked Done; remaining Planned: US-0004 (Vercel), US-0021 (edit shot), US-0023 (hole summary), US-0036 (2FA), US-0037 (password reset)
+- **Dashboard regenerated** — `npm run plan:generate` → `docs/plan-status.html` now shows 86.5% progress (was showing 0%)
+- **CodeMie local schema applied** — `supabase/migrations/001_initial_schema.sql` + `002_leaderboard_rpc.sql` live on local Supabase; 3 schema bugs fixed pre-apply
+- **`.env.local` created** pointing to local Supabase instance (`http://127.0.0.1:54321`)
+- **Commits**: `83b5145` (docs sync + dashboard) on `develop`
+- **Feature branch `feature/US-0009-tournament-create` cleaned** — stray docs commit removed via `rebase --onto`; TASK-0308–0312 commits intact
+
+### Next Steps
+
+- **US-0004**: Deploy to Vercel — set up project, connect Supabase, configure env vars
+- **US-0009 PR**: Open PR for tournament creation feature (TASK-0308–0312 ready)
+- Vercel deploy target: June 20 (2-day test window before June 22 tournament)
+
+---
+
 ## Session 7 — 2026-06-09 (Conductor)
 
 ### What Was Done
