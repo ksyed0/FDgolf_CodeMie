@@ -24,7 +24,10 @@ export async function POST(request: NextRequest) {
   const { email } = body as { email: string };
 
   const supabase = await createClient();
-  const { data: { user }, error: sessionError } = await supabase.auth.getUser();
+  const {
+    data: { user },
+    error: sessionError,
+  } = await supabase.auth.getUser();
 
   if (sessionError || !user) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -42,7 +45,7 @@ export async function POST(request: NextRequest) {
 
   const adminClient = createSupabaseAdminClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
   );
 
   const { data, error } = await adminClient.auth.admin.generateLink({
