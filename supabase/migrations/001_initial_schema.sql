@@ -9,7 +9,7 @@ create table tournaments (
   date date not null,
   format text not null default 'best_ball',
   venue text not null,
-  status text not null default 'setup' check (status in ('setup', 'active', 'completed')),
+  status text not null default 'setup' check (status in ('setup', 'active', 'paused', 'completed')),
   created_at timestamptz not null default now()
 );
 
@@ -66,7 +66,7 @@ create table clubs (
 );
 
 -- Round State
-create table round_state (
+create table round_states (
   id uuid primary key default uuid_generate_v4(),
   team_id uuid not null references teams(id) on delete cascade,
   current_hole int not null check (current_hole between 1 and 18),
@@ -126,7 +126,7 @@ alter table holes enable row level security;
 alter table teams enable row level security;
 alter table players enable row level security;
 alter table clubs enable row level security;
-alter table round_state enable row level security;
+alter table round_states enable row level security;
 alter table shots enable row level security;
 alter table scores enable row level security;
 alter table sponsors enable row level security;
@@ -165,15 +165,15 @@ create policy "Team read shots" on shots for select
   ));
 
 -- Round state: team members can read and update
-create policy "Team read round_state" on round_state for select
+create policy "Team read round_state" on round_states for select
   using (team_id in (
     select team_id from players where auth_user_id = auth.uid()
   ));
-create policy "Team update round_state" on round_state for update
+create policy "Team update round_state" on round_states for update
   using (team_id in (
     select team_id from players where auth_user_id = auth.uid()
   ));
-create policy "Team insert round_state" on round_state for insert
+create policy "Team insert round_state" on round_states for insert
   with check (team_id in (
     select team_id from players where auth_user_id = auth.uid()
   ));
@@ -189,7 +189,7 @@ create policy "Admin full access" on players for all
   using (exists (select 1 from players where auth_user_id = auth.uid() and role = 'admin'));
 create policy "Admin full access" on clubs for all
   using (exists (select 1 from players where auth_user_id = auth.uid() and role = 'admin'));
-create policy "Admin full access" on round_state for all
+create policy "Admin full access" on round_states for all
   using (exists (select 1 from players where auth_user_id = auth.uid() and role = 'admin'));
 create policy "Admin full access" on shots for all
   using (exists (select 1 from players where auth_user_id = auth.uid() and role = 'admin'));
