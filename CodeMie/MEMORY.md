@@ -13,15 +13,17 @@ Stack: Next.js 14 App Router · TypeScript · Tailwind CSS · shadcn/ui · Supab
 
 ---
 
-## Branch State (as of Session 4)
+## Branch State (as of Session 7 — 2026-06-09)
 
 | Branch | Status | Notes |
 |--------|--------|-------|
-| `main` | clean | baseline |
-| `develop` | ahead of main | integration branch — merge all features here first |
-| `feature/EPIC-0001-infrastructure` | merged to develop | Keystone scaffold |
-| `feature/EPIC-0002-best-ball-engine` | merged to develop | Forge backend |
-| `feature/EPIC-0003-frontend-pages` | **in-progress (Pixel agent running)** | all frontend pages |
+| `main` | clean | baseline (CodeMie has no dedicated main; parent FDgolf/main tracks everything) |
+| `develop` | HEAD `ba9672e` | Phase 5 complete — 59 tests, coverage ≥80% |
+| `feature/EPIC-0001-infrastructure` | merged | Keystone scaffold |
+| `feature/EPIC-0002-best-ball-engine` | merged | Forge backend |
+| `feature/EPIC-0003-frontend-pages` | merged | Pixel — all frontend pages |
+
+**Monorepo**: `ksyed0/FDgolf` on GitHub — `CodeMie/` is a plain subdirectory (no nested git). Bare backup at `CodeMie-origin.git/`.
 
 ---
 
@@ -60,15 +62,14 @@ Stack: Next.js 14 App Router · TypeScript · Tailwind CSS · shadcn/ui · Supab
 - **Keystone** — scaffold, types, schema, sync engine, leaderboard RPC (Session 2)
 - **Lens** — reviewed EPIC-0001, approved with amendments (Session 3)
 - **Forge** — best-ball edge function, GPS utils, realtime hook, scoring utils (Session 3)
+- **Pixel** — all auth/player/admin/live pages, 38 files (Session 4-5)
+- **Sentinel** — 59 unit tests: scoring, GPS, sync-engine, API shots (Session 6-7)
+- **Circuit** — Jest config, coverage thresholds, GitHub Actions CI (Session 6-7)
 
-## Agents In-Flight
+## Agents Pending (Phase 6)
 
-- **Pixel** — `feature/EPIC-0003-frontend-pages` — all auth/player/admin/live pages (Session 4, still running)
-
-## Agents Pending
-
-- **Sentinel** — Phase 5: functional test suite
-- **Circuit** — Phase 5: coverage + automation
+- **Pixel** — magic link UI, pause/resume tournament UI, team naming, scorecard view
+- **Forge** — mulligan tracking schema + Edge Function updates, archive/history endpoint
 
 ---
 
@@ -98,21 +99,26 @@ docs/
 
 ---
 
-## Open Questions (for PO — see ux-review HTML)
+## PO Answers (Session 7)
 
-1. Score attestation by team captain?
-2. Concierge registration: temp password / magic link / verbal?
-3. Weather/delay pause state needed?
-4. Tournament archive / history view?
-5. Per-hole scorecard view?
-6. Team naming convention?
-7. Mulligan tracking for reporting?
+| Q | Answer |
+|---|--------|
+| 1. Attestation | Not required |
+| 2. Concierge registration | Magic link |
+| 3. Pause state | Yes — add `'paused'` to tournament status enum |
+| 4. Score preservation | Yes — archive/history view after event |
+| 5. Per-hole scorecard | Yes — hole-by-hole view |
+| 6. Team naming | Yes — custom team names |
+| 7. Mulligan tracking | Yes — tracked + reportable |
 
 ---
 
-## Next Steps
+## Next Steps (Phase 6 — target deploy June 20)
 
-1. Pixel agent completes `feature/EPIC-0003-frontend-pages`
-2. Merge to `develop`
-3. Phase 5: Sentinel (functional tests) + Circuit (coverage) in parallel
-4. Phase 6: Polish + Vercel deploy (target June 20 for 2-day test window)
+1. Schema: add `'paused'` to tournament status; mulligan table
+2. Magic link concierge flow (auth page + API)
+3. Pause/resume tournament UI in admin
+4. Hole-by-hole scorecard view (player)
+5. Custom team naming (admin + player)
+6. Mulligan counter UI + admin report
+7. Vercel deploy + 2-day test window (June 20-21)
