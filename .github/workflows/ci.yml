@@ -42,6 +42,7 @@ jobs:
           NEXT_PUBLIC_SUPABASE_URL: https://placeholder.supabase.co
           NEXT_PUBLIC_SUPABASE_ANON_KEY: placeholder-anon-key
           NEXT_PUBLIC_GOOGLE_MAPS_API_KEY: placeholder-maps-key
+          NEXT_PUBLIC_MAPBOX_TOKEN: pk.placeholder-mapbox-token
 
       - name: Unit tests with coverage
         run: npm run test:ci
