@@ -1,0 +1,1299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>FDgolf — UX Review &amp; User Journey Walkthrough</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --green: #1a472a;
+    --green-light: #2d6a3f;
+    --green-pale: #e8f5e9;
+    --gold: #c8961e;
+    --gold-pale: #fff8e1;
+    --blue: #1565c0;
+    --blue-pale: #e3f2fd;
+    --red: #b71c1c;
+    --red-pale: #ffebee;
+    --orange: #e65100;
+    --purple: #6a1b9a;
+    --purple-pale: #f3e5f5;
+    --gray-50: #fafafa;
+    --gray-100: #f5f5f5;
+    --gray-200: #eeeeee;
+    --gray-300: #e0e0e0;
+    --gray-400: #bdbdbd;
+    --gray-600: #757575;
+    --gray-700: #616161;
+    --gray-800: #424242;
+    --gray-900: #212121;
+    --shadow: 0 2px 8px rgba(0,0,0,0.12);
+    --shadow-lg: 0 8px 24px rgba(0,0,0,0.15);
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    color: var(--gray-900);
+    background: var(--gray-100);
+    line-height: 1.6;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: var(--green);
+    color: white;
+    padding: 0 24px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    height: 52px;
+    box-shadow: var(--shadow);
+  }
+  nav .brand { font-weight: 800; font-size: 18px; letter-spacing: -0.5px; flex-shrink: 0; }
+  nav .divider { width: 1px; height: 20px; background: rgba(255,255,255,0.3); flex-shrink: 0; }
+  nav .subtitle { font-size: 11px; color: rgba(255,255,255,0.6); }
+  nav .spacer { flex: 1; }
+  nav .badge { background: var(--gold); color: white; font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 12px; letter-spacing: 0.5px; }
+
+  nav .toc-toggle { background: none; border: 1px solid rgba(255,255,255,0.3); color: white; font-size: 12px; padding: 4px 10px; border-radius: 6px; cursor: pointer; }
+
+  /* ── TOC OVERLAY ── */
+  #toc-overlay {
+    display: none;
+    position: fixed; inset: 0; z-index: 200;
+    background: rgba(0,0,0,0.5);
+  }
+  #toc-overlay.open { display: block; }
+  #toc-panel {
+    position: absolute; top: 52px; right: 0; bottom: 0;
+    width: 280px; background: white;
+    overflow-y: auto; padding: 16px;
+    box-shadow: -4px 0 16px rgba(0,0,0,0.2);
+  }
+  #toc-panel h3 { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--gray-600); margin-bottom: 12px; }
+  #toc-panel a { display: block; padding: 6px 8px; font-size: 13px; color: var(--gray-800); text-decoration: none; border-radius: 6px; margin-bottom: 2px; }
+  #toc-panel a:hover { background: var(--gray-100); color: var(--green); }
+  #toc-panel .toc-section { font-size: 10px; font-weight: 700; text-transform: uppercase; color: var(--gray-400); letter-spacing: 1px; margin: 12px 0 4px; padding: 0 8px; }
+
+  /* ── HERO ── */
+  .hero {
+    background: linear-gradient(135deg, var(--green) 0%, #0d2b18 100%);
+    color: white;
+    padding: 64px 32px 72px;
+    text-align: center;
+  }
+  .hero .event-pill { display: inline-block; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.25); border-radius: 20px; padding: 4px 14px; font-size: 11px; letter-spacing: 0.5px; margin-bottom: 20px; }
+  .hero h1 { font-size: 42px; font-weight: 800; letter-spacing: -1px; margin-bottom: 8px; }
+  .hero h1 span { color: rgba(255,255,255,0.55); font-size: 28px; display: block; font-weight: 400; margin-top: 4px; }
+  .hero p { font-size: 15px; color: rgba(255,255,255,0.75); max-width: 560px; margin: 16px auto 0; }
+  .hero .meta { display: flex; justify-content: center; gap: 32px; margin-top: 32px; flex-wrap: wrap; }
+  .hero .meta-item { text-align: center; }
+  .hero .meta-item .value { font-size: 28px; font-weight: 800; display: block; }
+  .hero .meta-item .label { font-size: 11px; color: rgba(255,255,255,0.6); text-transform: uppercase; letter-spacing: 0.5px; }
+  .hero .airun { display: inline-flex; align-items: center; gap: 6px; margin-top: 24px; background: rgba(255,255,255,0.08); border-radius: 20px; padding: 4px 12px; font-size: 11px; color: rgba(255,255,255,0.5); }
+  .hero .airun-dot { width: 8px; height: 8px; border-radius: 50%; background: linear-gradient(135deg, #818cf8, #a855f7); }
+
+  /* ── LAYOUT ── */
+  .container { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+  .section { padding: 56px 0; }
+  .section + .section { border-top: 1px solid var(--gray-200); }
+
+  .section-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: var(--gray-400); margin-bottom: 6px; }
+  .section-title { font-size: 28px; font-weight: 800; letter-spacing: -0.5px; color: var(--gray-900); margin-bottom: 8px; }
+  .section-desc { font-size: 15px; color: var(--gray-600); max-width: 640px; margin-bottom: 40px; }
+
+  /* ── ROLE BADGES ── */
+  .role { display: inline-flex; align-items: center; gap: 5px; border-radius: 12px; padding: 2px 10px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+  .role.player { background: var(--blue-pale); color: var(--blue); }
+  .role.admin { background: var(--red-pale); color: var(--red); }
+  .role.organizer { background: var(--purple-pale); color: var(--purple); }
+  .role.public { background: var(--gray-200); color: var(--gray-700); }
+  .role::before { content: ''; display: block; width: 6px; height: 6px; border-radius: 50%; background: currentColor; opacity: 0.7; }
+
+  /* ── JOURNEY CARD ── */
+  .journey-card {
+    background: white;
+    border-radius: 16px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    margin-bottom: 40px;
+  }
+  .journey-header {
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--gray-200);
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .journey-number {
+    width: 36px; height: 36px; border-radius: 50%;
+    background: var(--green); color: white;
+    font-weight: 800; font-size: 16px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .journey-header h2 { font-size: 18px; font-weight: 700; margin-bottom: 2px; }
+  .journey-header .journey-roles { display: flex; gap: 6px; }
+  .journey-body { padding: 24px; }
+
+  /* ── SCREENS ROW ── */
+  .screens-row {
+    display: flex;
+    gap: 20px;
+    overflow-x: auto;
+    padding-bottom: 8px;
+    margin-bottom: 24px;
+    scrollbar-width: thin;
+  }
+  .screen-frame {
+    flex-shrink: 0;
+    width: 200px;
+  }
+  .screen-frame.wide { width: 260px; }
+  .screen-label { font-size: 11px; font-weight: 600; text-align: center; color: var(--gray-600); margin-bottom: 8px; }
+
+  /* phone shell */
+  .phone {
+    width: 200px;
+    background: var(--gray-900);
+    border-radius: 28px;
+    padding: 12px 8px;
+    box-shadow: var(--shadow-lg);
+    position: relative;
+  }
+  .phone.wide { width: 260px; }
+  .phone-notch {
+    width: 60px; height: 16px; background: var(--gray-900);
+    border-radius: 0 0 12px 12px; margin: 0 auto 8px;
+    position: relative; z-index: 1;
+  }
+  .phone-screen {
+    background: white;
+    border-radius: 18px;
+    overflow: hidden;
+    min-height: 360px;
+  }
+
+  /* ── SCREEN CONTENT PIECES ── */
+  .s-header { background: var(--green); color: white; padding: 8px 10px; display: flex; align-items: center; justify-content: space-between; }
+  .s-header .s-brand { font-weight: 800; font-size: 12px; }
+  .s-header .s-info { font-size: 9px; opacity: 0.7; }
+  .s-header .s-avatar { width: 20px; height: 20px; border-radius: 50%; background: rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; font-size: 9px; }
+  .s-header .s-airun { font-size: 7px; opacity: 0.5; }
+
+  .s-body { padding: 10px; }
+  .s-card { background: var(--gray-50); border-radius: 8px; padding: 8px 10px; margin-bottom: 8px; border: 1px solid var(--gray-200); }
+  .s-card-title { font-size: 9px; font-weight: 700; color: var(--gray-600); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+  .s-card-value { font-size: 13px; font-weight: 700; color: var(--gray-900); }
+  .s-card-sub { font-size: 9px; color: var(--gray-600); margin-top: 2px; }
+
+  .s-field { margin-bottom: 6px; }
+  .s-field label { font-size: 8px; font-weight: 600; color: var(--gray-600); display: block; margin-bottom: 2px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .s-field input { width: 100%; background: var(--gray-100); border: 1px solid var(--gray-300); border-radius: 5px; padding: 4px 6px; font-size: 10px; color: var(--gray-800); }
+
+  .s-btn { display: block; width: 100%; background: var(--green); color: white; border: none; border-radius: 7px; padding: 7px; font-size: 10px; font-weight: 700; text-align: center; cursor: pointer; margin-top: 4px; }
+  .s-btn.secondary { background: var(--gray-100); color: var(--gray-700); border: 1px solid var(--gray-300); }
+  .s-btn.danger { background: var(--red); }
+  .s-btn.gold { background: var(--gold); }
+  .s-btn.disabled { background: var(--gray-300); color: var(--gray-500); }
+
+  .s-section-title { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--gray-500); margin: 8px 0 4px; }
+
+  .s-player-pill { display: inline-flex; align-items: center; background: var(--gray-100); border: 1px solid var(--gray-300); border-radius: 20px; padding: 2px 7px; font-size: 8px; margin: 2px; }
+  .s-player-pill.active { background: var(--green); border-color: var(--green); color: white; }
+
+  .s-club-row { display: flex; align-items: center; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid var(--gray-100); font-size: 9px; color: var(--gray-700); }
+
+  .s-outcome-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; margin-top: 8px; }
+  .s-outcome-btn { border-radius: 6px; padding: 6px 4px; font-size: 9px; font-weight: 700; text-align: center; }
+  .s-outcome-btn.inplay { background: #e3f2fd; color: var(--blue); border: 1px solid #90caf9; }
+  .s-outcome-btn.oob { background: var(--red-pale); color: var(--red); border: 1px solid #ef9a9a; }
+  .s-outcome-btn.mulligan { background: #fff3e0; color: var(--orange); border: 1px solid #ffcc02; }
+  .s-outcome-btn.sunk { background: var(--gold-pale); color: var(--gold); border: 1px solid #ffe082; }
+
+  .s-leaderboard-row { display: flex; align-items: center; padding: 5px 0; border-bottom: 1px solid var(--gray-100); font-size: 9px; }
+  .s-leaderboard-row .rank { width: 18px; font-weight: 700; color: var(--gray-500); }
+  .s-leaderboard-row .team-name { flex: 1; font-weight: 600; }
+  .s-leaderboard-row .score { font-weight: 800; font-size: 11px; width: 28px; text-align: right; }
+  .s-leaderboard-row .score.under { color: var(--red); }
+  .s-leaderboard-row .score.over { color: var(--blue); }
+  .s-leaderboard-row .score.even { color: var(--gray-700); }
+  .s-leaderboard-row .holes { color: var(--gray-400); font-size: 8px; width: 20px; text-align: right; }
+  .s-leaderboard-row.top1 { border-left: 3px solid #FFD700; padding-left: 5px; }
+  .s-leaderboard-row.top2 { border-left: 3px solid #C0C0C0; padding-left: 5px; }
+  .s-leaderboard-row.top3 { border-left: 3px solid #CD7F32; padding-left: 5px; }
+
+  .s-map { background: #d4e8c2; height: 80px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 9px; color: #4a7c59; font-weight: 600; position: relative; overflow: hidden; }
+  .s-map::before { content: ''; position: absolute; inset: 0; background: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%234a7c59' fill-opacity='0.1'%3E%3Cpath d='M0 40L40 0H20L0 20M40 40V20L20 40'/%3E%3C/g%3E%3C/svg%3E"); }
+  .s-map-pin { position: absolute; top: 50%; left: 55%; transform: translate(-50%, -50%); }
+  .s-map-pin::before { content: '⛳'; font-size: 16px; }
+
+  .s-offline { background: #fef3c7; border-radius: 20px; padding: 3px 8px; font-size: 8px; font-weight: 700; color: #92400e; display: inline-flex; align-items: center; gap: 4px; }
+  .s-offline::before { content: '●'; color: #f59e0b; animation: pulse 2s infinite; }
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+  .s-status-badge { display: inline-block; border-radius: 12px; padding: 2px 7px; font-size: 8px; font-weight: 700; }
+  .s-status-badge.active { background: #dcfce7; color: #166534; }
+  .s-status-badge.setup { background: #fef9c3; color: #854d0e; }
+  .s-status-badge.complete { background: var(--gray-200); color: var(--gray-600); }
+
+  .s-sponsor-bar { background: var(--gray-100); border-top: 1px solid var(--gray-200); padding: 5px 8px; display: flex; gap: 6px; align-items: center; justify-content: center; }
+  .s-sponsor { width: 28px; height: 14px; background: var(--gray-300); border-radius: 3px; }
+
+  /* wide = tablet/desktop frame */
+  .desktop-frame {
+    background: white;
+    border-radius: 12px;
+    border: 1px solid var(--gray-300);
+    overflow: hidden;
+    box-shadow: var(--shadow);
+  }
+  .desktop-toolbar { background: var(--gray-100); border-bottom: 1px solid var(--gray-200); padding: 6px 12px; display: flex; align-items: center; gap: 6px; }
+  .desktop-toolbar .dot { width: 8px; height: 8px; border-radius: 50%; }
+  .desktop-toolbar .url-bar { flex: 1; background: white; border: 1px solid var(--gray-300); border-radius: 4px; padding: 3px 8px; font-size: 10px; color: var(--gray-600); }
+
+  /* ── FLOW ARROW ── */
+  .flow { display: flex; align-items: center; gap: 0; flex-wrap: nowrap; overflow-x: auto; padding: 8px 0 16px; }
+  .flow-step { flex-shrink: 0; background: var(--gray-50); border: 1px solid var(--gray-300); border-radius: 8px; padding: 6px 12px; font-size: 12px; font-weight: 600; color: var(--gray-800); text-align: center; }
+  .flow-step.highlight { background: var(--green); border-color: var(--green); color: white; }
+  .flow-step.warning { background: var(--gold-pale); border-color: #ffe082; color: #7c5700; }
+  .flow-arrow { flex-shrink: 0; color: var(--gray-400); font-size: 18px; padding: 0 4px; }
+
+  /* ── NOTES & CALLOUTS ── */
+  .notes-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; margin-top: 24px; }
+  .note { border-radius: 10px; padding: 14px 16px; }
+  .note.info { background: var(--blue-pale); border-left: 3px solid var(--blue); }
+  .note.warn { background: var(--gold-pale); border-left: 3px solid var(--gold); }
+  .note.success { background: var(--green-pale); border-left: 3px solid var(--green); }
+  .note.risk { background: var(--red-pale); border-left: 3px solid var(--red); }
+  .note h4 { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+  .note.info h4 { color: var(--blue); }
+  .note.warn h4 { color: var(--gold); }
+  .note.success h4 { color: var(--green); }
+  .note.risk h4 { color: var(--red); }
+  .note p { font-size: 13px; line-height: 1.5; }
+
+  /* ── OVERVIEW GRID ── */
+  .overview-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; margin-top: 8px; }
+  .overview-card { background: white; border-radius: 12px; padding: 18px; box-shadow: var(--shadow); border-top: 3px solid var(--green); }
+  .overview-card.blue { border-top-color: var(--blue); }
+  .overview-card.red { border-top-color: var(--red); }
+  .overview-card.purple { border-top-color: var(--purple); }
+  .overview-card.gold { border-top-color: var(--gold); }
+  .overview-card h3 { font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+  .overview-card p { font-size: 12px; color: var(--gray-600); line-height: 1.5; }
+  .overview-card ul { font-size: 12px; color: var(--gray-600); line-height: 1.7; padding-left: 16px; margin-top: 6px; }
+
+  /* ── OPEN QUESTIONS ── */
+  .oq-list { list-style: none; }
+  .oq-list li { padding: 10px 14px; border-radius: 8px; margin-bottom: 8px; font-size: 13px; display: flex; gap: 10px; align-items: flex-start; }
+  .oq-list li.high { background: var(--red-pale); }
+  .oq-list li.medium { background: var(--gold-pale); }
+  .oq-list li.low { background: var(--blue-pale); }
+  .oq-list li .priority { font-weight: 800; font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; flex-shrink: 0; padding-top: 2px; }
+  .oq-list li.high .priority { color: var(--red); }
+  .oq-list li.medium .priority { color: var(--gold); }
+  .oq-list li.low .priority { color: var(--blue); }
+
+  /* ── FOOTER ── */
+  footer { background: var(--green); color: rgba(255,255,255,0.6); text-align: center; font-size: 12px; padding: 24px; margin-top: 0; }
+  footer strong { color: white; }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <span class="brand">FDgolf</span>
+  <span class="divider"></span>
+  <span class="subtitle">UX Review · External PO Walkthrough</span>
+  <span class="spacer"></span>
+  <span class="badge">DRAFT v0.1</span>
+  &nbsp;
+  <button class="toc-toggle" onclick="document.getElementById('toc-overlay').classList.toggle('open')">☰ Contents</button>
+</nav>
+
+<!-- TOC OVERLAY -->
+<div id="toc-overlay" onclick="if(event.target===this)this.classList.remove('open')">
+  <div id="toc-panel">
+    <h3>Table of Contents</h3>
+    <span class="toc-section">Overview</span>
+    <a href="#overview" onclick="document.getElementById('toc-overlay').classList.remove('open')">App Structure &amp; Roles</a>
+    <a href="#arch" onclick="document.getElementById('toc-overlay').classList.remove('open')">Technical Architecture</a>
+    <span class="toc-section">User Journeys</span>
+    <a href="#j1" onclick="document.getElementById('toc-overlay').classList.remove('open')">1 · Tournament Setup (Admin)</a>
+    <a href="#j2" onclick="document.getElementById('toc-overlay').classList.remove('open')">2 · Player Registration</a>
+    <a href="#j3" onclick="document.getElementById('toc-overlay').classList.remove('open')">3 · Concierge Registration</a>
+    <a href="#j4" onclick="document.getElementById('toc-overlay').classList.remove('open')">4 · Player Day-of Flow</a>
+    <a href="#j5" onclick="document.getElementById('toc-overlay').classList.remove('open')">5 · Score Entry (Core Loop)</a>
+    <a href="#j6" onclick="document.getElementById('toc-overlay').classList.remove('open')">6 · Live Leaderboard</a>
+    <a href="#j7" onclick="document.getElementById('toc-overlay').classList.remove('open')">7 · Admin Score Override</a>
+    <a href="#j8" onclick="document.getElementById('toc-overlay').classList.remove('open')">8 · Offline Mode</a>
+    <span class="toc-section">Review</span>
+    <a href="#oq" onclick="document.getElementById('toc-overlay').classList.remove('open')">Open Questions</a>
+    <a href="#constraints" onclick="document.getElementById('toc-overlay').classList.remove('open')">Constraints &amp; Risks</a>
+  </div>
+</div>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="event-pill">CIBC Capital Markets Golf Tournament · June 22, 2026</div>
+  <h1>FDgolf
+    <span>UX Review &amp; User Journey Walkthrough</span>
+  </h1>
+  <p>A real-time golf score tracking app for 125 players at Granite Ridge Golf Club, Milton ON. Best Ball + Shotgun Start format. Mobile-first, offline-capable.</p>
+  <div class="meta">
+    <div class="meta-item"><span class="value">125</span><span class="label">Players</span></div>
+    <div class="meta-item"><span class="value">18</span><span class="label">Holes</span></div>
+    <div class="meta-item"><span class="value">4</span><span class="label">Roles</span></div>
+    <div class="meta-item"><span class="value">8</span><span class="label">User Journeys</span></div>
+    <div class="meta-item"><span class="value">0</span><span class="label">App Store installs</span></div>
+  </div>
+  <div class="airun"><span class="airun-dot"></span>Built by AI/Run™</div>
+</div>
+
+<!-- OVERVIEW -->
+<section class="section" id="overview">
+  <div class="container">
+    <div class="section-label">Overview</div>
+    <div class="section-title">App Structure &amp; Roles</div>
+    <div class="section-desc">FDgolf is a Progressive Web App (PWA) — no app store required. Players open it in their phone browser on tournament day. Four distinct roles, each with a tailored experience.</div>
+    <div class="overview-grid">
+      <div class="overview-card blue">
+        <h3>⛳ Player</h3>
+        <p>The core user. Registers before tournament day, joins a team, and uses the scoring interface during the round.</p>
+        <ul>
+          <li>Self-registers with name, company, email</li>
+          <li>Assigned to a team by organizer or admin</li>
+          <li>Scores shots on phone during round</li>
+          <li>Views live leaderboard</li>
+        </ul>
+      </div>
+      <div class="overview-card purple">
+        <h3>🎯 Tournament Organizer</h3>
+        <p>A "concierge" role for bulk registering players and managing team assignments before the event.</p>
+        <ul>
+          <li>Registers players on their behalf</li>
+          <li>Assigns players to teams</li>
+          <li>Sets team captains</li>
+          <li>Cannot override scores</li>
+        </ul>
+      </div>
+      <div class="overview-card red">
+        <h3>🔧 Admin</h3>
+        <p>Full tournament control. Pre-event setup and real-time management during the round.</p>
+        <ul>
+          <li>Creates &amp; activates tournament</li>
+          <li>Manages holes, clubs, sponsors</li>
+          <li>Overrides scores if disputed</li>
+          <li>Completes the tournament</li>
+        </ul>
+      </div>
+      <div class="overview-card gold">
+        <h3>👥 Public / Spectator</h3>
+        <p>No login required. The live leaderboard at <code style="font-size:11px;background:#f5f5f5;padding:1px 4px;border-radius:3px;">/live/cibc-granite-ridge-2026</code> is accessible to anyone with the link.</p>
+        <ul>
+          <li>Real-time leaderboard (no auth)</li>
+          <li>Sponsor banner visible</li>
+          <li>Auto-refreshes every 30 seconds</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ARCH -->
+<section class="section" id="arch">
+  <div class="container">
+    <div class="section-label">Technical Architecture</div>
+    <div class="section-title">Key Design Decisions</div>
+    <div class="notes-grid">
+      <div class="note success">
+        <h4>Offline-First Write Queue</h4>
+        <p>Every shot is written to localStorage first, then synced to Supabase. If the player loses signal mid-round, shots accumulate locally and auto-flush when connectivity returns. Up to 5 retry attempts per shot.</p>
+      </div>
+      <div class="note info">
+        <h4>Best Ball Calculation</h4>
+        <p>Calculated server-side via a Supabase Edge Function after every score save. The edge function finds the minimum stroke per team+hole and marks <code>is_best_ball = true</code> on the winning player's score row.</p>
+      </div>
+      <div class="note info">
+        <h4>Live Leaderboard (125 clients)</h4>
+        <p>Supabase Realtime subscription on the scores table with a <strong>5-second client-side debounce</strong>. On any score change event, the client waits 5s before re-fetching — preventing a 125-client storm on every score save.</p>
+      </div>
+      <div class="note warn">
+        <h4>Google Maps Caching</h4>
+        <p>The Google Maps instance is cached in a React ref (<code>useRef</code>) so it's only created once per page load. ~18,000 map loads for a full tournament (125 players × 8 views/hole × 18 holes) — within free tier of 28K/mo.</p>
+      </div>
+      <div class="note success">
+        <h4>Variable Team Size</h4>
+        <p>Teams support 2–6 players (<code>max_players</code> column). Default is 4. Enables both standard foursomes and smaller/larger groups as needed for this event's headcount.</p>
+      </div>
+      <div class="note warn">
+        <h4>No App Store Required</h4>
+        <p>Players open a URL on mobile Safari / Chrome. PWA manifest allows "Add to Home Screen" for native-like experience. The main risk is iOS Safari's PWA offline support — see Open Questions.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- JOURNEY 1: Tournament Setup -->
+<section class="section" id="j1">
+  <div class="container">
+    <div class="section-label">Journey 1</div>
+    <div class="section-title">Tournament Setup</div>
+    <div class="section-desc">Done by the admin 1–2 days before the event. Configures the tournament, holes, clubs, sponsors, and creates team slots.</div>
+
+    <div class="journey-card">
+      <div class="journey-header">
+        <div class="journey-number">1</div>
+        <div>
+          <h2>Admin Pre-Event Setup</h2>
+          <div class="journey-roles"><span class="role admin">Admin</span></div>
+        </div>
+      </div>
+      <div class="journey-body">
+        <div class="flow">
+          <div class="flow-step">Login at /login</div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step highlight">/admin/tournament</div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step">Verify holes &amp; par</div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step">Create team slots</div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step">Add sponsors</div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step highlight">Activate tournament</div>
+        </div>
+
+        <div class="screens-row">
+          <div class="screen-frame">
+            <div class="screen-label">Admin: Tournament</div>
+            <div class="phone">
+              <div class="phone-notch"></div>
+              <div class="phone-screen">
+                <div class="s-header"><span class="s-brand">FDgolf</span><span class="s-airun">AI/Run™</span></div>
+                <div style="display:flex;height:330px;">
+                  <div style="width:52px;background:#1a1a2e;padding:8px 0;">
+                    <div style="padding:6px 4px;text-align:center;font-size:7px;color:#818cf8;background:rgba(129,140,248,0.1);border-radius:4px;margin:0 4px 4px;">🏆</div>
+                    <div style="padding:6px 4px;text-align:center;font-size:7px;color:rgba(255,255,255,0.4);">👥</div>
+                    <div style="padding:6px 4px;text-align:center;font-size:7px;color:rgba(255,255,255,0.4);">⛳</div>
+                    <div style="padding:6px 4px;text-align:center;font-size:7px;color:rgba(255,255,255,0.4);">🏌️</div>
+                    <div style="padding:6px 4px;text-align:center;font-size:7px;color:rgba(255,255,255,0.4);">📋</div>
+                    <div style="padding:6px 4px;text-align:center;font-size:7px;color:rgba(255,255,255,0.4);">⭐</div>
+                  </div>
+                  <div style="flex:1;padding:10px 8px;overflow:hidden;">
+                    <div style="font-size:10px;font-weight:700;margin-bottom:8px;">Tournament</div>
+                    <div class="s-card">
+                      <div class="s-card-title">CIBC Capital Markets 2026</div>
+                      <div style="margin-top:4px;"><span class="s-status-badge setup">Setup</span></div>
+                      <div class="s-card-sub">June 22 · Granite Ridge, Milton ON</div>
+                    </div>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px;">
+                      <div class="s-card" style="text-align:center;padding:6px;"><div style="font-size:16px;font-weight:800;">0</div><div style="font-size:8px;color:#757575;">Players</div></div>
+                      <div class="s-card" style="text-align:center;padding:6px;"><div style="font-size:16px;font-weight:800;">0</div><div style="font-size:8px;color:#757575;">Teams</div></div>
+                    </div>
+                    <div class="s-btn gold">⚡ Activate Tournament</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="screen-frame">
+            <div class="screen-label">Admin: Teams</div>
+            <div class="phone">
+              <div class="phone-notch"></div>
+              <div class="phone-screen">
+                <div class="s-header"><span class="s-brand">FDgolf</span><span class="s-airun">AI/Run™</span></div>
+                <div style="display:flex;height:330px;">
+                  <div style="width:52px;background:#1a1a2e;padding:8px 0;">
+                    <div style="padding:6px 4px;text-align:center;font-size:7px;color:rgba(255,255,255,0.4);">🏆</div>
+                    <div style="padding:6px 4px;text-align:center;font-size:7px;color:rgba(255,255,255,0.4);">👥</div>
+                    <div style="padding:6px 4px;text-align:center;font-size:7px;color:#818cf8;background:rgba(129,140,248,0.1);border-radius:4px;margin:0 4px 4px;">🏌️</div>
+                    <div style="padding:6px 4px;text-align:center;font-size:7px;color:rgba(255,255,255,0.4);">⛳</div>
+                  </div>
+                  <div style="flex:1;padding:10px 8px;overflow:hidden;">
+                    <div style="font-size:10px;font-weight:700;margin-bottom:8px;">Teams</div>
+                    <div class="s-card" style="padding:6px 8px;">
+                      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px;">
+                        <div style="font-size:9px;font-weight:700;">Team 1</div>
+                        <div style="font-size:8px;color:#757575;">Hole 1 · Max 4</div>
+                      </div>
+                      <div style="font-size:8px;color:#757575;">Captain: J. Chen · 3 players</div>
+                    </div>
+                    <div class="s-card" style="padding:6px 8px;">
+                      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px;">
+                        <div style="font-size:9px;font-weight:700;">Team 2</div>
+                        <div style="font-size:8px;color:#757575;">Hole 3 · Max 4</div>
+                      </div>
+                      <div style="font-size:8px;color:#757575;">Captain: — · 0 players</div>
+                    </div>
+                    <div class="s-card" style="padding:6px 8px;border:1px dashed #bdbdbd;background:white;">
+                      <div style="font-size:9px;color:#9e9e9e;text-align:center;">+ Add Team</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="screen-frame">
+            <div class="screen-label">Admin: Sponsors</div>
+            <div class="phone">
+              <div class="phone-notch"></div>
+              <div class="phone-screen">
+                <div class="s-header"><span class="s-brand">FDgolf</span><span class="s-airun">AI/Run™</span></div>
+                <div style="display:flex;height:330px;">
+                  <div style="width:52px;background:#1a1a2e;padding:8px 0;">
+                    <div style="padding:6px 4px;text-align:center;font-size:7px;color:rgba(255,255,255,0.4);">🏆</div>
+                    <div style="padding:6px 4px;text-align:center;font-size:7px;color:rgba(255,255,255,0.4);">👥</div>
+                    <div style="padding:6px 4px;text-align:center;font-size:7px;color:rgba(255,255,255,0.4);">🏌️</div>
+                    <div style="padding:6px 4px;text-align:center;font-size:7px;color:#818cf8;background:rgba(129,140,248,0.1);border-radius:4px;margin:0 4px 4px;">⭐</div>
+                  </div>
+                  <div style="flex:1;padding:10px 8px;overflow:hidden;">
+                    <div style="font-size:10px;font-weight:700;margin-bottom:8px;">Sponsors</div>
+                    <div style="font-size:8px;color:#757575;margin-bottom:6px;">Logo bar shown on all screens</div>
+                    <div class="s-card" style="padding:6px 8px;display:flex;align-items:center;gap:8px;">
+                      <div style="width:32px;height:20px;background:#e0e0e0;border-radius:3px;"></div>
+                      <div><div style="font-size:9px;font-weight:600;">CIBC</div><div style="font-size:7px;color:#9e9e9e;">Order: 1</div></div>
+                    </div>
+                    <div class="s-card" style="padding:6px 8px;display:flex;align-items:center;gap:8px;">
+                      <div style="width:32px;height:20px;background:#e0e0e0;border-radius:3px;"></div>
+                      <div><div style="font-size:9px;font-weight:600;">Sponsor 2</div><div style="font-size:7px;color:#9e9e9e;">Order: 2</div></div>
+                    </div>
+                    <div class="s-btn secondary" style="margin-top:6px;font-size:8px;">+ Add Sponsor</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="notes-grid">
+          <div class="note success">
+            <h4>Activate Gate</h4>
+            <p>The "Activate Tournament" button is the only way to enable scoring. Players see a disabled "Start Round" button until status is 'active'. This prevents premature scoring.</p>
+          </div>
+          <div class="note warn">
+            <h4>Seed Data Pre-Loaded</h4>
+            <p>18 Granite Ridge holes (approximate GPS) and 21 standard clubs are pre-seeded. Admin only needs to verify/adjust par values and handicap index — not re-enter all holes from scratch.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- JOURNEY 2: Player Registration -->
+<section class="section" id="j2">
+  <div class="container">
+    <div class="section-label">Journey 2</div>
+    <div class="section-title">Player Self-Registration</div>
+    <div class="section-desc">Players register themselves before the tournament. They receive a link and sign up on their phone. Team assignment happens separately by the organizer or admin.</div>
+
+    <div class="journey-card">
+      <div class="journey-header">
+        <div class="journey-number">2</div>
+        <div>
+          <h2>Player Registration</h2>
+          <div class="journey-roles"><span class="role player">Player</span></div>
+        </div>
+      </div>
+      <div class="journey-body">
+        <div class="flow">
+          <div class="flow-step">Receives link</div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step">Opens on phone</div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step highlight">/register</div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step">Account created</div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step highlight">/dashboard</div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step warning">Awaiting team assignment</div>
+        </div>
+
+        <div class="screens-row">
+          <div class="screen-frame">
+            <div class="screen-label">Login</div>
+            <div class="phone">
+              <div class="phone-notch"></div>
+              <div class="phone-screen">
+                <div class="s-header"><span class="s-brand">FDgolf</span></div>
+                <div class="s-body" style="padding-top:20px;">
+                  <div style="font-size:14px;font-weight:800;margin-bottom:4px;">Welcome back</div>
+                  <div style="font-size:10px;color:#757575;margin-bottom:16px;">CIBC Capital Markets 2026</div>
+                  <div class="s-field"><label>Email</label><input value="james.chen@cibc.com" /></div>
+                  <div class="s-field"><label>Password</label><input type="password" value="••••••••" /></div>
+                  <div class="s-btn" style="margin-top:12px;">Sign In</div>
+                  <div style="text-align:center;font-size:9px;color:#9e9e9e;margin-top:10px;">New player? <span style="color:#1a472a;font-weight:600;">Create account</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="screen-frame">
+            <div class="screen-label">Register</div>
+            <div class="phone">
+              <div class="phone-notch"></div>
+              <div class="phone-screen">
+                <div class="s-header"><span class="s-brand">FDgolf</span></div>
+                <div class="s-body" style="padding-top:12px;">
+                  <div style="font-size:12px;font-weight:800;margin-bottom:12px;">Create account</div>
+                  <div class="s-field"><label>Full Name</label><input value="James Chen" /></div>
+                  <div class="s-field"><label>Job Title</label><input value="Managing Director" /></div>
+                  <div class="s-field"><label>Company</label><input value="CIBC Capital Markets" /></div>
+                  <div class="s-field"><label>Email</label><input value="james.chen@cibc.com" /></div>
+                  <div class="s-field"><label>Phone</label><input value="+1 416 555 0100" /></div>
+                  <div class="s-field"><label>Password</label><input type="password" value="••••••••" /></div>
+                  <div class="s-btn" style="margin-top:8px;">Create Account</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="screen-frame">
+            <div class="screen-label">Dashboard (no team yet)</div>
+            <div class="phone">
+              <div class="phone-notch"></div>
+              <div class="phone-screen">
+                <div class="s-header"><span class="s-brand">FDgolf</span><div style="flex:1"></div><span style="font-size:18px;">🏆</span><div class="s-avatar">JC</div></div>
+                <div class="s-body">
+                  <div style="font-size:10px;color:#757575;">Welcome,</div>
+                  <div style="font-size:14px;font-weight:800;margin-bottom:2px;">James Chen</div>
+                  <div style="font-size:9px;color:#9e9e9e;margin-bottom:12px;">Managing Director · CIBC Capital Markets</div>
+                  <div class="s-card" style="border:1px dashed #bdbdbd;text-align:center;padding:12px;">
+                    <div style="font-size:11px;font-weight:600;color:#9e9e9e;">No Team Assigned</div>
+                    <div style="font-size:8px;color:#bdbdbd;margin-top:4px;">Your tournament organizer will assign you to a team before the round</div>
+                  </div>
+                  <div class="s-btn disabled" style="margin-top:12px;">Start Round</div>
+                  <div style="font-size:8px;color:#9e9e9e;text-align:center;margin-top:4px;">Available when tournament is active</div>
+                </div>
+                <div class="s-sponsor-bar"><div class="s-sponsor"></div><div class="s-sponsor"></div><div class="s-sponsor"></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- JOURNEY 3: Concierge Registration -->
+<section class="section" id="j3">
+  <div class="container">
+    <div class="section-label">Journey 3</div>
+    <div class="section-title">Concierge Registration</div>
+    <div class="section-desc">A Tournament Organizer registers players on their behalf (e.g. on a tablet at check-in) and assigns them to teams. Useful when players haven't pre-registered.</div>
+
+    <div class="journey-card">
+      <div class="journey-header">
+        <div class="journey-number">3</div>
+        <div>
+          <h2>Organizer Registers &amp; Assigns Players</h2>
+          <div class="journey-roles"><span class="role organizer">Organizer</span></div>
+        </div>
+      </div>
+      <div class="journey-body">
+        <div class="flow">
+          <div class="flow-step">Login as organizer</div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step highlight">Admin: Players</div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step">Add player (name, email)</div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step highlight">Admin: Teams</div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step">Assign player to team</div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step">Set captain</div>
+        </div>
+
+        <div class="notes-grid">
+          <div class="note info">
+            <h4>Check-in Tablet Flow</h4>
+            <p>Organizer uses a tablet at the registration desk. As players arrive, they're registered (creating a Supabase auth account with a temp password) and placed on their team. Players get a "reset password" email to set their own password before teeing off.</p>
+          </div>
+          <div class="note warn">
+            <h4>Captain Field</h4>
+            <p>Each team has one designated captain (set via <code>teams.captain_id</code>). The captain is responsible for confirming the score at end of hole. This is a UX label only — all team members can record shots.</p>
+          </div>
+          <div class="note info">
+            <h4>Variable Team Size</h4>
+            <p>Organizer sets <code>max_players</code> (2–6) per team. The team card shows this limit and prevents over-assignment. Default is 4 for Best Ball foursomes.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- JOURNEY 4: Player Day-of Flow -->
+<section class="section" id="j4">
+  <div class="container">
+    <div class="section-label">Journey 4</div>
+    <div class="section-title">Player Day-of Flow</div>
+    <div class="section-desc">The complete journey on tournament day — from arriving at the course through completing the round.</div>
+
+    <div class="journey-card">
+      <div class="journey-header">
+        <div class="journey-number">4</div>
+        <div>
+          <h2>Tournament Day</h2>
+          <div class="journey-roles"><span class="role player">Player</span></div>
+        </div>
+      </div>
+      <div class="journey-body">
+        <div class="flow">
+          <div class="flow-step">Open FDgolf URL</div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step">Auto-login (session)</div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step highlight">Dashboard</div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step highlight">Start Round</div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step">Score 18 holes</div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step">Check leaderboard</div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step highlight">Round Complete</div>
+        </div>
+
+        <div class="screens-row">
+          <div class="screen-frame">
+            <div class="screen-label">Dashboard (team assigned)</div>
+            <div class="phone">
+              <div class="phone-notch"></div>
+              <div class="phone-screen">
+                <div class="s-header"><span class="s-brand">FDgolf</span><div style="flex:1"></div><span style="font-size:18px;">🏆</span><div class="s-avatar">JC</div></div>
+                <div class="s-body">
+                  <div style="font-size:9px;color:#757575;">Welcome,</div>
+                  <div style="font-size:13px;font-weight:800;margin-bottom:8px;">James Chen</div>
+                  <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px;">
+                    <span class="s-status-badge active">LIVE</span>
+                    <span style="font-size:9px;color:#757575;">Tournament Active</span>
+                  </div>
+                  <div class="s-card">
+                    <div class="s-card-title">Your Team</div>
+                    <div class="s-card-value">Team 3</div>
+                    <div class="s-card-sub">Starting Hole: 5 · 4 players</div>
+                    <div style="margin-top:6px;display:flex;flex-wrap:wrap;gap:3px;">
+                      <span class="s-player-pill active">JC</span>
+                      <span class="s-player-pill">SW</span>
+                      <span class="s-player-pill">MK</span>
+                      <span class="s-player-pill">AR</span>
+                    </div>
+                  </div>
+                  <div class="s-btn" style="margin-top:8px;">⛳ Start Round</div>
+                </div>
+                <div class="s-sponsor-bar"><div class="s-sponsor"></div><div class="s-sponsor"></div><div class="s-sponsor"></div></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="screen-frame">
+            <div class="screen-label">Round Active (Hole 5)</div>
+            <div class="phone">
+              <div class="phone-notch"></div>
+              <div class="phone-screen">
+                <div class="s-header" style="background:#0d2b18;"><span class="s-brand">FDgolf</span><span style="font-size:9px;color:rgba(255,255,255,0.6);">Hole 5 · Par 3</span><div class="s-avatar">JC</div></div>
+                <div class="s-body" style="padding-top:6px;">
+                  <div style="display:flex;flex-wrap:wrap;gap:3px;margin-bottom:8px;">
+                    <span class="s-player-pill active">James C.</span>
+                    <span class="s-player-pill">Sarah W.</span>
+                    <span class="s-player-pill">Mike K.</span>
+                    <span class="s-player-pill">Amy R.</span>
+                  </div>
+                  <div class="s-map"><div class="s-map-pin"></div><div style="position:absolute;bottom:4px;right:6px;font-size:7px;background:rgba(255,255,255,0.8);padding:2px 5px;border-radius:4px;">142m to pin</div></div>
+                  <div style="font-size:8px;font-weight:600;color:#757575;margin:6px 0 3px;">CLUB</div>
+                  <div style="background:#f5f5f5;border:1px solid #e0e0e0;border-radius:5px;padding:4px 8px;font-size:9px;color:#424242;margin-bottom:6px;">8 Iron ▾</div>
+                  <div class="s-outcome-grid">
+                    <div class="s-outcome-btn inplay">⛳ In Play</div>
+                    <div class="s-outcome-btn oob">❌ OOB</div>
+                    <div class="s-outcome-btn mulligan">↺ Mulligan</div>
+                    <div class="s-outcome-btn sunk" style="font-size:10px;">🏆 Sunk!</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="screen-frame">
+            <div class="screen-label">Leaderboard</div>
+            <div class="phone">
+              <div class="phone-notch"></div>
+              <div class="phone-screen">
+                <div class="s-header"><span class="s-brand">FDgolf</span><div style="flex:1"></div><div style="display:flex;align-items:center;gap:3px;"><span style="width:5px;height:5px;border-radius:50%;background:#4caf50;display:inline-block;"></span><span style="font-size:8px;color:rgba(255,255,255,0.7);">LIVE</span></div></div>
+                <div class="s-body" style="padding-top:8px;">
+                  <div style="font-size:10px;font-weight:700;margin-bottom:8px;">CIBC 2026 · Best Ball</div>
+                  <div class="s-leaderboard-row top1"><div class="rank">1</div><div class="team-name">Davidson & Co</div><div class="score under">-4</div><div class="holes">14</div></div>
+                  <div class="s-leaderboard-row top2"><div class="rank">2</div><div class="team-name">Team 7</div><div class="score under">-3</div><div class="holes">15</div></div>
+                  <div class="s-leaderboard-row top3"><div class="rank">3</div><div class="team-name">Team 3</div><div class="score under">-2</div><div class="holes">5</div></div>
+                  <div class="s-leaderboard-row"><div class="rank">4</div><div class="team-name">Team 12</div><div class="score even">E</div><div class="holes">9</div></div>
+                  <div class="s-leaderboard-row"><div class="rank">5</div><div class="team-name">Team 2</div><div class="score over">+1</div><div class="holes">11</div></div>
+                  <div class="s-leaderboard-row"><div class="rank">6</div><div class="team-name">Team 9</div><div class="score over">+2</div><div class="holes">10</div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- JOURNEY 5: Score Entry -->
+<section class="section" id="j5">
+  <div class="container">
+    <div class="section-label">Journey 5</div>
+    <div class="section-title">Score Entry — Core Loop</div>
+    <div class="section-desc">The most important user journey. One phone per foursome (typically). One player navigates the shot entry UI for themselves or a teammate.</div>
+
+    <div class="journey-card">
+      <div class="journey-header">
+        <div class="journey-number">5</div>
+        <div>
+          <h2>Recording a Shot</h2>
+          <div class="journey-roles"><span class="role player">Player</span></div>
+        </div>
+      </div>
+      <div class="journey-body">
+        <div class="flow">
+          <div class="flow-step">Tap player pill</div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step highlight">View hole map + distance</div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step">Select club</div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step highlight">Tap outcome</div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step">Shot recorded (GPS captured)</div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step warning">If Sunk → confirm score → Next Hole</div>
+        </div>
+
+        <div class="screens-row">
+          <div class="screen-frame">
+            <div class="screen-label">Select Player</div>
+            <div class="phone">
+              <div class="phone-notch"></div>
+              <div class="phone-screen">
+                <div class="s-header" style="background:#0d2b18;"><span class="s-brand">FDgolf</span><span style="font-size:9px;color:rgba(255,255,255,0.6);">Hole 7 · Par 4</span></div>
+                <div class="s-body" style="padding-top:8px;">
+                  <div style="font-size:8px;font-weight:600;color:#757575;margin-bottom:5px;">WHO IS HITTING?</div>
+                  <div style="display:flex;flex-direction:column;gap:4px;">
+                    <div style="background:#1a472a;color:white;border-radius:8px;padding:6px 10px;font-size:9px;font-weight:700;">✓ James Chen — Hole 7, Shot 1</div>
+                    <div style="background:#f5f5f5;border:1px solid #e0e0e0;border-radius:8px;padding:6px 10px;font-size:9px;color:#424242;">Sarah Wilson</div>
+                    <div style="background:#f5f5f5;border:1px solid #e0e0e0;border-radius:8px;padding:6px 10px;font-size:9px;color:#424242;">Mike Kowalski</div>
+                    <div style="background:#f5f5f5;border:1px solid #e0e0e0;border-radius:8px;padding:6px 10px;font-size:9px;color:#424242;">Amy Roberts</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="screen-frame">
+            <div class="screen-label">Club + Outcome</div>
+            <div class="phone">
+              <div class="phone-notch"></div>
+              <div class="phone-screen">
+                <div class="s-header" style="background:#0d2b18;"><span class="s-brand">FDgolf</span><span style="font-size:9px;color:rgba(255,255,255,0.6);">James · Shot 2</span></div>
+                <div class="s-body" style="padding-top:6px;">
+                  <div class="s-map" style="height:70px;"><div class="s-map-pin"></div>
+                    <div style="position:absolute;top:4px;left:4px;background:rgba(255,255,255,0.9);border-radius:4px;padding:2px 5px;font-size:7px;font-weight:700;">📍 GPS locked</div>
+                    <div style="position:absolute;bottom:4px;right:6px;font-size:7px;background:rgba(255,255,255,0.8);padding:2px 5px;border-radius:4px;">89m to pin</div>
+                  </div>
+                  <div style="font-size:8px;font-weight:600;color:#757575;margin:6px 0 2px;">CLUB</div>
+                  <div style="background:#f5f5f5;border:1px solid #e0e0e0;border-radius:5px;padding:5px 8px;font-size:9px;color:#424242;display:flex;justify-content:space-between;margin-bottom:6px;"><span>9 Iron</span><span style="color:#9e9e9e;">▾</span></div>
+                  <div style="font-size:8px;font-weight:600;color:#757575;margin-bottom:4px;">OUTCOME</div>
+                  <div class="s-outcome-grid">
+                    <div class="s-outcome-btn inplay">⛳ In Play</div>
+                    <div class="s-outcome-btn oob">❌ OOB</div>
+                    <div class="s-outcome-btn mulligan">↺ Mulligan</div>
+                    <div class="s-outcome-btn sunk">🏆 Sunk!</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="screen-frame">
+            <div class="screen-label">Hole Complete</div>
+            <div class="phone">
+              <div class="phone-notch"></div>
+              <div class="phone-screen">
+                <div class="s-header" style="background:#0d2b18;"><span class="s-brand">FDgolf</span><span style="font-size:9px;color:rgba(255,255,255,0.6);">Hole 7 · Complete</span></div>
+                <div class="s-body" style="padding-top:12px;text-align:center;">
+                  <div style="font-size:28px;margin-bottom:4px;">🏆</div>
+                  <div style="font-size:12px;font-weight:800;">Hole Complete!</div>
+                  <div style="font-size:9px;color:#757575;margin:4px 0 12px;">Hole 7 · Par 4</div>
+                  <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:12px;">
+                    <div class="s-card" style="text-align:center;"><div style="font-size:16px;font-weight:800;color:#1a472a;">3</div><div style="font-size:8px;color:#757575;">Best Ball</div></div>
+                    <div class="s-card" style="text-align:center;"><div style="font-size:16px;font-weight:800;color:#b71c1c;">-1</div><div style="font-size:8px;color:#757575;">vs Par</div></div>
+                  </div>
+                  <div style="font-size:8px;color:#9e9e9e;margin-bottom:8px;">Lowest score: Mike Kowalski (3 shots)</div>
+                  <div class="s-btn">Next Hole →</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="notes-grid">
+          <div class="note success">
+            <h4>One Phone, Four Players</h4>
+            <p>One player acts as scorekeeper for the group. They tap the player pill to switch who they're recording for. No need for each player to have their own phone open during the round.</p>
+          </div>
+          <div class="note info">
+            <h4>GPS Captured at Shot Time</h4>
+            <p>The phone's GPS coordinates are captured when the player taps an outcome button. These appear as shot markers on the hole map. The "distance to pin" is calculated in real-time using the Haversine formula.</p>
+          </div>
+          <div class="note warn">
+            <h4>Best Ball Auto-Calculated</h4>
+            <p>When "Sunk!" is tapped for any player, the edge function runs and marks <code>is_best_ball = true</code> on the minimum stroke score for that team+hole. The hole summary card reflects this immediately.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- JOURNEY 6: Live Leaderboard -->
+<section class="section" id="j6">
+  <div class="container">
+    <div class="section-label">Journey 6</div>
+    <div class="section-title">Live Leaderboard</div>
+    <div class="section-desc">Two leaderboard views: authenticated player view (in-app) and public spectator view (no login required). Both update in real-time.</div>
+
+    <div class="journey-card">
+      <div class="journey-header">
+        <div class="journey-number">6</div>
+        <div>
+          <h2>Real-Time Leaderboard</h2>
+          <div class="journey-roles"><span class="role player">Player</span><span class="role public">Public</span></div>
+        </div>
+      </div>
+      <div class="journey-body">
+        <div class="screens-row">
+          <div class="screen-frame">
+            <div class="screen-label">Public URL (no login)</div>
+            <div class="phone">
+              <div class="phone-notch"></div>
+              <div class="phone-screen">
+                <div class="s-header"><span class="s-brand">FDgolf</span><div style="flex:1"></div><div style="display:flex;align-items:center;gap:3px;"><span style="width:5px;height:5px;border-radius:50%;background:#4caf50;display:inline-block;"></span><span style="font-size:8px;color:rgba(255,255,255,0.7);">LIVE</span></div></div>
+                <div class="s-body" style="padding-top:8px;">
+                  <div style="font-size:9px;font-weight:800;margin-bottom:2px;">CIBC Capital Markets 2026</div>
+                  <div style="font-size:8px;color:#9e9e9e;margin-bottom:10px;">Granite Ridge · Best Ball</div>
+                  <div class="s-leaderboard-row top1"><div class="rank">1</div><div class="team-name">Davidson &amp; Co</div><div class="score under">-4</div><div class="holes">14</div></div>
+                  <div class="s-leaderboard-row top2"><div class="rank">2</div><div class="team-name">Team 7</div><div class="score under">-3</div><div class="holes">15</div></div>
+                  <div class="s-leaderboard-row top3"><div class="rank">3</div><div class="team-name">Team 3</div><div class="score under">-2</div><div class="holes">5</div></div>
+                  <div class="s-leaderboard-row"><div class="rank">4</div><div class="team-name">Team 12</div><div class="score even">E</div><div class="holes">9</div></div>
+                  <div class="s-leaderboard-row"><div class="rank">5</div><div class="team-name">Team 2</div><div class="score over">+1</div><div class="holes">11</div></div>
+                  <div class="s-leaderboard-row"><div class="rank">6</div><div class="team-name">Team 9</div><div class="score over">+2</div><div class="holes">10</div></div>
+                  <div style="text-align:center;font-size:7px;color:#bdbdbd;margin-top:8px;">Auto-refreshes every 30s</div>
+                </div>
+                <div class="s-sponsor-bar"><div class="s-sponsor"></div><div class="s-sponsor"></div><div class="s-sponsor"></div></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="screen-frame wide">
+            <div class="screen-label">Public URL on laptop/TV (spectators, clubhouse)</div>
+            <div class="desktop-frame">
+              <div class="desktop-toolbar">
+                <div class="dot" style="background:#ff6b6b;"></div>
+                <div class="dot" style="background:#ffd93d;"></div>
+                <div class="dot" style="background:#6bcb77;"></div>
+                <div class="url-bar">fdgolf.app/live/cibc-granite-ridge-2026</div>
+              </div>
+              <div>
+                <div style="background:#1a472a;color:white;padding:8px 12px;display:flex;align-items:center;justify-content:space-between;">
+                  <span style="font-weight:800;font-size:12px;">FDgolf</span>
+                  <div style="display:flex;align-items:center;gap:4px;"><span style="width:6px;height:6px;border-radius:50%;background:#4caf50;display:inline-block;"></span><span style="font-size:8px;color:rgba(255,255,255,0.8);">LIVE · 31 of 32 teams active</span></div>
+                </div>
+                <div style="padding:12px;">
+                  <div style="font-size:11px;font-weight:800;margin-bottom:8px;">CIBC Capital Markets Golf Tournament 2026 · Leaderboard</div>
+                  <table style="width:100%;border-collapse:collapse;font-size:9px;">
+                    <thead><tr style="border-bottom:2px solid #e0e0e0;text-align:left;color:#9e9e9e;font-weight:700;font-size:8px;text-transform:uppercase;">
+                      <th style="padding:3px 6px;">Rank</th><th style="padding:3px 6px;">Team</th><th style="padding:3px 6px;text-align:right;">Score</th><th style="padding:3px 6px;text-align:right;">Holes</th>
+                    </tr></thead>
+                    <tbody>
+                      <tr style="border-left:3px solid #FFD700;background:#fffde7;"><td style="padding:4px 6px;font-weight:800;">1</td><td style="padding:4px 6px;font-weight:700;">Davidson &amp; Company</td><td style="padding:4px 6px;text-align:right;font-weight:800;color:#b71c1c;">-4</td><td style="padding:4px 6px;text-align:right;color:#9e9e9e;">14</td></tr>
+                      <tr style="border-left:3px solid #C0C0C0;"><td style="padding:4px 6px;font-weight:800;">2</td><td style="padding:4px 6px;font-weight:700;">Team 7</td><td style="padding:4px 6px;text-align:right;font-weight:800;color:#b71c1c;">-3</td><td style="padding:4px 6px;text-align:right;color:#9e9e9e;">15</td></tr>
+                      <tr style="border-left:3px solid #CD7F32;background:#fff8e1;"><td style="padding:4px 6px;font-weight:800;">3</td><td style="padding:4px 6px;font-weight:700;">Chen / Roberts / Wilson / Kowalski</td><td style="padding:4px 6px;text-align:right;font-weight:800;color:#b71c1c;">-2</td><td style="padding:4px 6px;text-align:right;color:#9e9e9e;">5</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+                <div style="background:#f5f5f5;border-top:1px solid #e0e0e0;padding:6px 12px;display:flex;gap:10px;align-items:center;justify-content:center;">
+                  <div style="width:36px;height:18px;background:#bdbdbd;border-radius:3px;"></div>
+                  <div style="width:36px;height:18px;background:#bdbdbd;border-radius:3px;"></div>
+                  <div style="width:36px;height:18px;background:#bdbdbd;border-radius:3px;"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="notes-grid">
+          <div class="note info">
+            <h4>Public URL Use Cases</h4>
+            <p>The <code>/live/[slug]</code> URL can be displayed on a TV in the clubhouse, shared in the event WhatsApp group, or projected at the 19th hole. No account needed — just the link.</p>
+          </div>
+          <div class="note success">
+            <h4>ISR (30-second refresh)</h4>
+            <p>The public page uses Next.js Incremental Static Regeneration with <code>revalidate = 30</code>. It serves cached HTML (fast load, low DB cost) and regenerates every 30s as new scores arrive.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- JOURNEY 7: Admin Override -->
+<section class="section" id="j7">
+  <div class="container">
+    <div class="section-label">Journey 7</div>
+    <div class="section-title">Admin Score Override</div>
+    <div class="section-desc">When a score is disputed or entered incorrectly, an admin can override any score. The override is logged with the admin's user ID and timestamp.</div>
+
+    <div class="journey-card">
+      <div class="journey-header">
+        <div class="journey-number">7</div>
+        <div>
+          <h2>Correct a Score</h2>
+          <div class="journey-roles"><span class="role admin">Admin</span></div>
+        </div>
+      </div>
+      <div class="journey-body">
+        <div class="flow">
+          <div class="flow-step">/admin/scores</div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step">Filter by team or hole</div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step highlight">Click Override</div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step">Enter correct strokes</div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step highlight">Save</div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step">Best Ball recalculated</div>
+        </div>
+
+        <div class="notes-grid">
+          <div class="note warn">
+            <h4>Audit Trail</h4>
+            <p>The <code>scores</code> table has <code>override_by</code> (admin player ID) and <code>override_at</code> (timestamp) columns. Overrides are visible in the admin table with a distinct visual treatment.</p>
+          </div>
+          <div class="note info">
+            <h4>Best Ball Recalc</h4>
+            <p>After an admin override, the best ball edge function is called again for that team+hole. The minimum stroke changes if the override affects who had the best score on that hole.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- JOURNEY 8: Offline Mode -->
+<section class="section" id="j8">
+  <div class="container">
+    <div class="section-label">Journey 8</div>
+    <div class="section-title">Offline Mode &amp; Sync</div>
+    <div class="section-desc">Granite Ridge has known dead zones on several holes. The app is designed to work seamlessly without signal — shots queue locally and sync when connectivity returns.</div>
+
+    <div class="journey-card">
+      <div class="journey-header">
+        <div class="journey-number">8</div>
+        <div>
+          <h2>No Signal → Score Anyway → Auto-Sync</h2>
+          <div class="journey-roles"><span class="role player">Player</span></div>
+        </div>
+      </div>
+      <div class="journey-body">
+        <div class="flow">
+          <div class="flow-step warning">Signal lost</div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step">Offline indicator appears</div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step highlight">Score normally</div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step">Shots queued locally</div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step warning">Signal returns</div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step highlight">Auto-flush queue</div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step">Leaderboard updates</div>
+        </div>
+
+        <div class="screens-row">
+          <div class="screen-frame">
+            <div class="screen-label">Offline Indicator</div>
+            <div class="phone">
+              <div class="phone-notch"></div>
+              <div class="phone-screen">
+                <div class="s-header" style="background:#0d2b18;"><span class="s-brand">FDgolf</span><span style="font-size:9px;color:rgba(255,255,255,0.6);">Hole 12 · Par 5</span></div>
+                <div class="s-body" style="padding-top:8px;">
+                  <div class="s-map" style="height:70px;"><div class="s-map-pin"></div></div>
+                  <div style="font-size:8px;font-weight:600;color:#757575;margin:6px 0 2px;">CLUB</div>
+                  <div style="background:#f5f5f5;border:1px solid #e0e0e0;border-radius:5px;padding:4px 8px;font-size:9px;margin-bottom:6px;">Driver ▾</div>
+                  <div class="s-outcome-grid">
+                    <div class="s-outcome-btn inplay">⛳ In Play</div>
+                    <div class="s-outcome-btn oob">❌ OOB</div>
+                    <div class="s-outcome-btn mulligan">↺ Mulligan</div>
+                    <div class="s-outcome-btn sunk">🏆 Sunk!</div>
+                  </div>
+                </div>
+                <!-- offline pill -->
+                <div style="position:absolute;bottom:16px;left:50%;transform:translateX(-50%);background:#fef3c7;border-radius:20px;padding:3px 10px;font-size:8px;font-weight:700;color:#92400e;display:flex;align-items:center;gap:5px;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,0.15);">
+                  <span style="width:6px;height:6px;border-radius:50%;background:#f59e0b;display:inline-block;"></span>
+                  Offline · 3 shots pending sync
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="screen-frame">
+            <div class="screen-label">Sync Complete</div>
+            <div class="phone">
+              <div class="phone-notch"></div>
+              <div class="phone-screen">
+                <div class="s-header" style="background:#0d2b18;"><span class="s-brand">FDgolf</span><span style="font-size:9px;color:rgba(255,255,255,0.6);">Hole 13 · Par 4</span></div>
+                <div class="s-body" style="padding-top:8px;">
+                  <div style="background:#dcfce7;border:1px solid #86efac;border-radius:8px;padding:8px;margin-bottom:10px;display:flex;align-items:center;gap:6px;">
+                    <span style="font-size:14px;">✅</span>
+                    <div><div style="font-size:9px;font-weight:700;color:#166534;">Back online</div><div style="font-size:8px;color:#16a34a;">3 shots synced successfully</div></div>
+                  </div>
+                  <div class="s-map" style="height:70px;"><div class="s-map-pin"></div></div>
+                  <div class="s-outcome-grid" style="margin-top:10px;">
+                    <div class="s-outcome-btn inplay">⛳ In Play</div>
+                    <div class="s-outcome-btn oob">❌ OOB</div>
+                    <div class="s-outcome-btn mulligan">↺ Mulligan</div>
+                    <div class="s-outcome-btn sunk">🏆 Sunk!</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="notes-grid">
+          <div class="note success">
+            <h4>localStorage Queue</h4>
+            <p>Shots are written to <code>localStorage['fdgolf_sync_queue']</code> first — before any network attempt. If the page is refreshed mid-queue, shots are not lost.</p>
+          </div>
+          <div class="note warn">
+            <h4>Max 5 Retries</h4>
+            <p>Each queued shot retries up to 5 times on flush. If it fails 5 times (e.g. server error, not just network), it's dropped and the player should contact the admin for a manual override.</p>
+          </div>
+          <div class="note risk">
+            <h4>iOS PWA Risk</h4>
+            <p>iOS Safari PWA storage can be cleared by the OS if the device is low on storage. For tournament day, recommend players do NOT delete the PWA and have at least 200MB free. Fallback: use Safari directly (not the home screen app).</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- OPEN QUESTIONS -->
+<section class="section" id="oq">
+  <div class="container">
+    <div class="section-label">Open Questions</div>
+    <div class="section-title">Items for PO Review</div>
+    <div class="section-desc">These items need your input before or during build. Priority: High = blocks development, Medium = needed before launch, Low = can decide day-of.</div>
+
+    <ul class="oq-list">
+      <li class="high">
+        <span class="priority">HIGH</span>
+        <div><strong>Score attestation:</strong> Should the team captain be required to confirm/sign off on each hole score before it's submitted? Or is the "Sunk!" button tap sufficient? This affects the UX flow and data model.</div>
+      </li>
+      <li class="high">
+        <span class="priority">HIGH</span>
+        <div><strong>Concierge registration flow:</strong> When the organizer registers a player on their behalf, what password should be set? Options: (a) temp password emailed to player, (b) player completes registration via magic link, (c) organizer sets password verbally at check-in.</div>
+      </li>
+      <li class="medium">
+        <span class="priority">MED</span>
+        <div><strong>Weather / delay pause:</strong> Is there a need for a "pause tournament" state? (e.g. thunder delay). Currently the only states are setup → active → completed. A "paused" state could prevent scoring during a delay.</div>
+      </li>
+      <li class="medium">
+        <span class="priority">MED</span>
+        <div><strong>Tournament archive:</strong> After June 22, should this year's scores be preserved and accessible? Do you want a tournament history view? This affects whether we need a "past tournaments" feature or if the app is one-and-done.</div>
+      </li>
+      <li class="medium">
+        <span class="priority">MED</span>
+        <div><strong>Hole-by-hole scorecard:</strong> The leaderboard shows total score vs par. Do players/admins also need a per-hole scorecard view (stroke per hole, best ball highlighted per hole)?</div>
+      </li>
+      <li class="low">
+        <span class="priority">LOW</span>
+        <div><strong>Team naming:</strong> Teams currently have a <code>team_name</code> field. Should teams be named (e.g. after the captain's company)? Or stay as "Team 1", "Team 2"? This affects leaderboard display.</div>
+      </li>
+      <li class="low">
+        <span class="priority">LOW</span>
+        <div><strong>Mulligan tracking:</strong> Mulligans are currently treated as a shot outcome (recorded but not counted in score). Do they need to be tracked for any reporting purpose? Or is logging them sufficient?</div>
+      </li>
+    </ul>
+  </div>
+</section>
+
+<!-- CONSTRAINTS -->
+<section class="section" id="constraints">
+  <div class="container">
+    <div class="section-label">Constraints &amp; Risks</div>
+    <div class="section-title">Known Risks</div>
+    <div class="notes-grid">
+      <div class="note risk">
+        <h4>iOS Safari PWA Offline</h4>
+        <p>iOS Safari has inconsistent PWA offline support compared to Chrome. The <code>localStorage</code> queue works, but Service Worker caching (for full offline app shell) is less reliable. Mitigation: test on iPhone before tournament day.</p>
+      </div>
+      <div class="note warn">
+        <h4>125 Concurrent Users</h4>
+        <p>Supabase Realtime handles 125 concurrent subscriptions well, but the 5s debounce is critical. Without it, every score save from every player would trigger a DB fetch on all 125 clients simultaneously.</p>
+      </div>
+      <div class="note warn">
+        <h4>GPS Accuracy on Course</h4>
+        <p>Hole GPS coordinates in seed data are approximate (based on Granite Ridge course center). Actual pin locations may differ by 30–100m. Admin should update pin_lat/pin_lng via the holes admin page before the round.</p>
+      </div>
+      <div class="note info">
+        <h4>Shotgun Start (All Teams, Same Time)</h4>
+        <p>All teams start simultaneously on different holes. The round_state table tracks current_hole per team independently. There's no dependency between teams — each team progresses at their own pace around the course.</p>
+      </div>
+      <div class="note success">
+        <h4>No App Store Dependency</h4>
+        <p>A web app avoids App Store review delays and the friction of asking 125 players to download an app. Players open a URL — that's it. The tradeoff is slightly worse offline support vs a native app.</p>
+      </div>
+      <div class="note success">
+        <h4>Tournament Date: June 22</h4>
+        <p>Build timeline: Week 1 (June 8–15) infrastructure + admin, Week 2 (June 15–22) scoring + leaderboard + polish. Full Vercel deploy targeted for June 20 for 2-day testing window.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <strong>FDgolf</strong> · UX Review v0.1 · CIBC Capital Markets Golf Tournament 2026<br />
+  <span style="font-size:11px;margin-top:4px;display:block;">Built by <strong>AI/Run™</strong> · Confidential — for internal review only</span>
+</footer>
+
+<script>
+  // Smooth scroll for TOC links
+  document.querySelectorAll('a[href^="#"]').forEach(a => {
+    a.addEventListener('click', e => {
+      const target = document.querySelector(a.getAttribute('href'));
+      if (target) {
+        e.preventDefault();
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    });
+  });
+</script>
+</body>
+</html>

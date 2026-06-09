@@ -2,3 +2,8 @@ CodeMie-origin.git/
 node_modules/
 .superpowers/
 *.zip
+.DS_Store
+
+Claude/fdgolf-app/.next/
+Claude/fdgolf-app/node_modules/
+Claude/fdgolf-app/.env.local
