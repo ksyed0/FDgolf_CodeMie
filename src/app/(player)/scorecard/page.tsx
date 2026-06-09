@@ -7,7 +7,9 @@ import type { Score, Hole } from '@/lib/types';
 export default async function ScorecardPage() {
   const supabase = await createClient();
 
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) redirect('/login');
 
   const { data: player } = await supabase
@@ -25,11 +27,7 @@ export default async function ScorecardPage() {
     .single<{ id: string }>();
 
   if (!tournament) {
-    return (
-      <div className="px-4 py-8 text-center text-sm text-gray-500">
-        No tournament found.
-      </div>
-    );
+    return <div className="px-4 py-8 text-center text-sm text-gray-500">No tournament found.</div>;
   }
 
   const [{ data: rawScores }, { data: rawHoles }] = await Promise.all([
@@ -39,11 +37,7 @@ export default async function ScorecardPage() {
       .eq('player_id', player.id)
       .eq('tournament_id', tournament.id)
       .order('hole_number'),
-    supabase
-      .from('holes')
-      .select('*')
-      .eq('tournament_id', tournament.id)
-      .order('hole_number'),
+    supabase.from('holes').select('*').eq('tournament_id', tournament.id).order('hole_number'),
   ]);
 
   const scores = (rawScores as Score[]) ?? [];
@@ -51,9 +45,7 @@ export default async function ScorecardPage() {
   const scoreMap = Object.fromEntries(scores.map((s) => [s.hole_number, s]));
 
   const totalStrokes = scores.reduce((sum, s) => sum + s.strokes, 0);
-  const totalPar = holes
-    .filter((h) => scoreMap[h.hole_number])
-    .reduce((sum, h) => sum + h.par, 0);
+  const totalPar = holes.filter((h) => scoreMap[h.hole_number]).reduce((sum, h) => sum + h.par, 0);
 
   if (scores.length === 0) {
     return (
@@ -93,11 +85,15 @@ export default async function ScorecardPage() {
                     </td>
                     <td className="px-3 py-2 text-center">
                       {vsPar !== null ? (
-                        <span className={
-                          vsPar < 0 ? 'font-semibold text-green-600' :
-                          vsPar > 0 ? 'font-semibold text-red-600' :
-                          'text-gray-700'
-                        }>
+                        <span
+                          className={
+                            vsPar < 0
+                              ? 'font-semibold text-green-600'
+                              : vsPar > 0
+                                ? 'font-semibold text-red-600'
+                                : 'text-gray-700'
+                          }
+                        >
                           {formatVsPar(vsPar)}
                         </span>
                       ) : (
@@ -120,11 +116,15 @@ export default async function ScorecardPage() {
                   <td className="px-3 py-2 text-center">{totalPar}</td>
                   <td className="px-3 py-2 text-center">{totalStrokes}</td>
                   <td className="px-3 py-2 text-center">
-                    <span className={
-                      totalStrokes - totalPar < 0 ? 'text-green-600' :
-                      totalStrokes - totalPar > 0 ? 'text-red-600' :
-                      'text-gray-700'
-                    }>
+                    <span
+                      className={
+                        totalStrokes - totalPar < 0
+                          ? 'text-green-600'
+                          : totalStrokes - totalPar > 0
+                            ? 'text-red-600'
+                            : 'text-gray-700'
+                      }
+                    >
                       {formatVsPar(totalStrokes - totalPar)}
                     </span>
                   </td>
