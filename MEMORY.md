@@ -13,12 +13,13 @@ Stack: Next.js 14 App Router · TypeScript · Tailwind CSS · shadcn/ui · Supab
 
 ---
 
-## Branch State (as of Session 7 — 2026-06-09)
+## Branch State (as of Session 8 — 2026-06-09)
 
 | Branch | Status | Notes |
 |--------|--------|-------|
-| `main` | clean | baseline (CodeMie has no dedicated main; parent FDgolf/main tracks everything) |
+| `main` | clean | baseline |
 | `develop` | HEAD `ba9672e` | Phase 5 complete — 59 tests, coverage ≥80% |
+| `feature/phase6-po-items` | open PR #1 → develop | Phase 6 complete (8e04b56) |
 | `feature/EPIC-0001-infrastructure` | merged | Keystone scaffold |
 | `feature/EPIC-0002-best-ball-engine` | merged | Forge backend |
 | `feature/EPIC-0003-frontend-pages` | merged | Pixel — all frontend pages |
@@ -66,10 +67,17 @@ Stack: Next.js 14 App Router · TypeScript · Tailwind CSS · shadcn/ui · Supab
 - **Sentinel** — 59 unit tests: scoring, GPS, sync-engine, API shots (Session 6-7)
 - **Circuit** — Jest config, coverage thresholds, GitHub Actions CI (Session 6-7)
 
-## Agents Pending (Phase 6)
+## Phase 6 Status — COMPLETE
 
-- **Pixel** — magic link UI, pause/resume tournament UI, team naming, scorecard view
-- **Forge** — mulligan tracking schema + Edge Function updates, archive/history endpoint
+All PO-answer stories shipped in PR #1 (`feature/phase6-po-items` → `develop`):
+- Magic link API + Send Invite UI
+- Pause/resume state (migration 003 + controls + player overlay)
+- Hole-by-hole scorecard page + bottom nav link
+- Editable team names
+- Mulligan report in admin scores
+- Dashboard path fix + README
+
+**Outstanding**: merge PR #1, Vercel deploy (target June 20), apply migration 003 to prod.
 
 ---
 
@@ -113,12 +121,9 @@ docs/
 
 ---
 
-## Next Steps (Phase 6 — target deploy June 20)
+## Next Steps
 
-1. Schema: add `'paused'` to tournament status; mulligan table
-2. Magic link concierge flow (auth page + API)
-3. Pause/resume tournament UI in admin
-4. Hole-by-hole scorecard view (player)
-5. Custom team naming (admin + player)
-6. Mulligan counter UI + admin report
-7. Vercel deploy + 2-day test window (June 20-21)
+1. Merge PR #1 (`feature/phase6-po-items` → `develop`) — https://github.com/ksyed0/FDgolf/pull/1
+2. Apply `supabase/migrations/003_tournament_pause_state.sql` to production Supabase
+3. Vercel deploy + smoke test (target June 20)
+4. 2-day test window (June 20-21) before tournament June 22
