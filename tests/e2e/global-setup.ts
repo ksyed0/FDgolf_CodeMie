@@ -28,7 +28,8 @@ export const ADMIN_AUTH_FILE = 'tests/e2e/.auth/admin.json'
 const E2E_TOURNAMENT_SLUG = 'cibc-granite-ridge-2026'
 
 async function upsertUser(
-  admin: ReturnType<typeof createClient>,
+  admin: // eslint-disable-next-line @typescript-eslint/no-explicit-any
+any,
   users: Array<{ id: string; email?: string }>,
   email: string,
   password: string,
@@ -53,7 +54,8 @@ async function upsertUser(
     console.log(`[globalSetup] ${role} user already exists:`, email)
   }
 
-  const { error: playerError } = await admin
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { error: playerError } = await (admin as any)
     .from('players')
     .upsert({ auth_user_id: userId, name: `E2E ${role}`, email, role }, { onConflict: 'auth_user_id' })
 
@@ -66,7 +68,8 @@ async function upsertUser(
   return userId
 }
 
-async function seedTestPlayers(admin: ReturnType<typeof createClient>) {
+async function seedTestPlayers(admin: // eslint-disable-next-line @typescript-eslint/no-explicit-any
+any) {
   // Fixture players for TC-0053 (admin player search filter).
   // auth_user_id is required NOT NULL; use fixed test UUIDs that won't clash with real auth users.
   const fixtures = [
@@ -76,7 +79,8 @@ async function seedTestPlayers(admin: ReturnType<typeof createClient>) {
   ]
 
   for (const p of fixtures) {
-    const { error } = await admin
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { error } = await (admin as any)
       .from('players')
       .upsert(p, { onConflict: 'email', ignoreDuplicates: true })
     if (error) {
@@ -86,10 +90,13 @@ async function seedTestPlayers(admin: ReturnType<typeof createClient>) {
   console.log('[globalSetup] Fixture players ready')
 }
 
-async function seedTournament(admin: ReturnType<typeof createClient>) {
+async function seedTournament(admin: // eslint-disable-next-line @typescript-eslint/no-explicit-any
+any) {
   // Only insert the CIBC tournament if no tournament with this slug already exists.
   // The seed.sql may have already created it with a different ID; we don't override that.
-  const { data: existing } = await admin
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const adminAny = admin as any
+  const { data: existing } = await adminAny
     .from('tournaments')
     .select('id')
     .eq('slug', E2E_TOURNAMENT_SLUG)
@@ -101,7 +108,7 @@ async function seedTournament(admin: ReturnType<typeof createClient>) {
   }
 
   // Let the DB generate a UUID for the id column (uuid_generate_v4() default)
-  const { error } = await admin.from('tournaments').insert({
+  const { error } = await adminAny.from('tournaments').insert({
     name: 'CIBC Capital Markets Golf Tournament 2026',
     slug: E2E_TOURNAMENT_SLUG,
     date: '2026-06-22',
