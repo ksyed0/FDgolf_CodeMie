@@ -16,5 +16,4 @@ tsconfig.tsbuildinfo
 .env.local
 
 # IDE / tooling
-.history/
 .playwright-mcp/
