@@ -1,5 +1,62 @@
 # FDgolf — Progress
 
+## Session 12 — 2026-06-10 (Mapbox migration, pin editor, shot tracking flow test)
+
+### What Was Done
+
+- **Mapbox migration** — replaced `@googlemaps/js-api-loader` with `mapbox-gl` + `react-map-gl`.
+  - `src/components/hole-map.tsx` rewritten: `react-map-gl/mapbox`, satellite-v9 style, `interactive={false}`, shot markers
+  - `NEXT_PUBLIC_MAPBOX_TOKEN` replaces `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY` in `.env.local.example`
+  - `package.json`: removed `@googlemaps/js-api-loader`, added `mapbox-gl` + `react-map-gl`
+- **Admin pin editor** — new `PinEditorModal` component (`src/app/(admin)/admin/holes/pin-editor-modal.tsx`)
+  - Click-to-place draggable marker on satellite map, coordinate readout, per-hole save
+  - `holes-editor.tsx` updated: `applyPin()` helper, "Edit Pin" button per row, `pin_lat/pin_lng` in `saveAll()`
+- **Vercel deployment** — project `fdgolf_cm` created under `ksyed0s-projects`; `.vercel/project.json` linked
+  - Recommended architecture: feature branches → local Docker Supabase; develop → Vercel preview; main → Vercel production
+- **tsconfig + E2E fixes** — added `"tests"` to tsconfig exclude; cast `any` types in `global-setup.ts`
+- **scores RLS fix** — `supabase/migrations/005_scores_player_rls.sql`:
+  - Players were blocked from inserting scores (admin-only write policy)
+  - Added "Players insert own score", "Players insert team score", "Players update team score" policies
+- **Shot tracking flow tested manually** — full golden path confirmed working locally:
+  - Login → Dashboard → `/round` — round_states created on first visit
+  - Player pills (E2E, Alice, John, Jane), club selector (21 clubs), shot outcome buttons
+  - Shot 1 (In Play) + Shot 2 (Sunk!) → Hole 1 complete (2 shots, -2 vs par)
+  - Next Hole → Hole 2 (Par 3, HCP 15) — driver + Sunk! → hole-in-one (-2 vs par)
+  - DB verified: 3 shots recorded in `shots` table; 1 score in `scores` table with `is_best_ball: true`
+  - Edge function `calculate-best-ball` ran and marked best ball score
+- **Known gaps found**:
+  - `/api/auth/signout` returns 404 — no logout route in app (low priority before tournament)
+  - React StrictMode causes 406+409 on first `round_states` load in dev — cosmetic; doesn't affect prod
+
+### Files Changed
+
+- `src/components/hole-map.tsx` — Mapbox rewrite
+- `src/app/(admin)/admin/holes/pin-editor-modal.tsx` — NEW: click-to-place pin editor
+- `src/app/(admin)/admin/holes/holes-editor.tsx` — added pin_lat/lng fields + Edit Pin button
+- `package.json` / `package-lock.json` — Mapbox deps swap
+- `.env.local.example` — Mapbox token, Supabase service role key
+- `tsconfig.json` — exclude "tests"
+- `tests/e2e/global-setup.ts` — TS cast fixes
+- `supabase/migrations/005_scores_player_rls.sql` — NEW: player write policies on scores
+- `CLAUDE.md` — updated env vars + map provider notes
+- `.gitignore` — added *.png rule (screenshot captures)
+
+### Test Status
+
+- **Jest unit tests**: 68 passing, coverage ≥80% ✓
+- **Playwright E2E**: 31 passed, 5 skipped, 0 failed ✓ (unchanged)
+- **Manual shot tracking flow**: PASSED ✓
+
+### Next Steps
+
+- **Add sign-out** — create `/api/auth/signout` route + logout button in player layout
+- **Vercel staging** — create Supabase cloud project, apply all 5 migrations + seed, add env vars to Vercel preview scope
+- **Vercel production** — same for prod Supabase; connect GitHub → auto-deploy on push to `develop` / `main`
+- Apply `005_scores_player_rls.sql` to staging/production Supabase when created
+- Target: Vercel deploy by June 20 (2-day test window before June 22 tournament)
+
+---
+
 ## Session 10+11 — 2026-06-10 (Playwright E2E — All Tests Green)
 
 ### What Was Done
