@@ -12,6 +12,7 @@ export interface LeaderboardRow {
 
 interface LeaderboardTableProps {
   rows: LeaderboardRow[];
+  myTeamId?: string | null;
 }
 
 const RANK_STYLES: Record<number, string> = {
@@ -20,7 +21,7 @@ const RANK_STYLES: Record<number, string> = {
   3: 'border-l-4 border-amber-600',
 };
 
-export function LeaderboardTable({ rows }: LeaderboardTableProps) {
+export function LeaderboardTable({ rows, myTeamId }: LeaderboardTableProps) {
   if (rows.length === 0) {
     return <div className="py-12 text-center text-sm text-gray-500">No scores recorded yet.</div>;
   }
@@ -41,15 +42,22 @@ export function LeaderboardTable({ rows }: LeaderboardTableProps) {
             const rank = idx + 1;
             const vsParVal = row.total_score - row.par_total;
             const vsParLabel = formatVsPar(vsParVal);
+            const isMyTeam = !!myTeamId && row.team_id === myTeamId;
             return (
               <tr
-                key={row.team_id}
-                className={cn('border-b transition-colors hover:bg-gray-50', RANK_STYLES[rank])}
+                key={`${row.team_id}-${idx}`}
+                data-your-team={isMyTeam ? 'true' : undefined}
+                className={cn(
+                  'border-b transition-colors hover:bg-gray-50',
+                  RANK_STYLES[rank],
+                  isMyTeam && 'bg-blue-50',
+                )}
               >
                 <td className="px-3 py-3 font-semibold text-gray-700">{rank}</td>
                 <td className="px-3 py-3">
                   <div className="font-medium text-gray-900">
                     {row.team_name ?? `Team ${row.team_number}`}
+                    {isMyTeam && <span className="ml-1 text-xs text-blue-600">★</span>}
                   </div>
                 </td>
                 <td className="px-3 py-3 text-right">

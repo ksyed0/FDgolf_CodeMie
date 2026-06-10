@@ -17,3 +17,21 @@ tsconfig.tsbuildinfo
 
 # IDE / tooling
 .playwright-mcp/
+
+# Playwright
+playwright-report/
+test-results/
+tests/e2e/.auth/
+
+# Supabase local state
+supabase/.branches/
+supabase/.temp/
+
+# Session telemetry
+.history/
+.vercel
+
+# Dev screenshots (playwright captures)
+*.png
+*.jpg
+*.jpeg

@@ -1,6 +1,7 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import Map, { Marker } from 'react-map-gl/mapbox';
+import 'mapbox-gl/dist/mapbox-gl.css';
 import type { ShotOutcome } from '@/lib/types';
 
 interface ShotMarker {
@@ -16,100 +17,49 @@ interface HoleMapProps {
 }
 
 const OUTCOME_COLORS: Record<ShotOutcome, string> = {
-  in_play: '#2563eb', // blue-600
-  out_of_bounds: '#dc2626', // red-600
-  mulligan: '#f97316', // orange-500
-  sunk: '#ca8a04', // yellow-600
+  in_play: '#2563eb',
+  out_of_bounds: '#dc2626',
+  mulligan: '#f97316',
+  sunk: '#ca8a04',
 };
 
 export function HoleMap({ pinLat, pinLng, shots = [] }: HoleMapProps) {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const mapRef = useRef<google.maps.Map | null>(null);
-  const markersRef = useRef<google.maps.Marker[]>([]);
-
-  useEffect(() => {
-    let cancelled = false;
-
-    async function initMap() {
-      // Dynamically import to prevent SSR evaluation of window-dependent module
-      const { setOptions, importLibrary } = await import('@googlemaps/js-api-loader');
-
-      setOptions({
-        key: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY ?? '',
-        v: 'weekly',
-      });
-
-      const { Map } = await importLibrary('maps');
-      // Marker and SymbolPath live in the 'marker' library in newer Maps JS API
-      // but legacy Marker + SymbolPath are accessed via google.maps global after maps is loaded
-      const mapsLib = await importLibrary('marker');
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const Marker = (mapsLib as any).Marker ?? google.maps.Marker;
-      const SymbolPath = google.maps.SymbolPath;
-
-      if (cancelled || !containerRef.current) return;
-
-      if (!mapRef.current) {
-        mapRef.current = new Map(containerRef.current, {
-          center: { lat: pinLat, lng: pinLng },
-          zoom: 17,
-          mapTypeId: 'satellite',
-          disableDefaultUI: true,
-          zoomControl: true,
-        });
-
-        // Pin marker (green)
-        new Marker({
-          position: { lat: pinLat, lng: pinLng },
-          map: mapRef.current,
-          title: 'Pin',
-          icon: {
-            path: SymbolPath.CIRCLE,
-            scale: 10,
-            fillColor: '#16a34a',
-            fillOpacity: 1,
-            strokeColor: '#fff',
-            strokeWeight: 2,
-          },
-        });
-      } else {
-        mapRef.current.setCenter({ lat: pinLat, lng: pinLng });
-      }
-
-      // Clear previous shot markers
-      markersRef.current.forEach((m) => m.setMap(null));
-      markersRef.current = [];
-
-      // Add shot markers
-      for (const shot of shots) {
-        const marker = new Marker({
-          position: { lat: shot.lat, lng: shot.lng },
-          map: mapRef.current!,
-          icon: {
-            path: SymbolPath.CIRCLE,
-            scale: 7,
-            fillColor: OUTCOME_COLORS[shot.outcome],
-            fillOpacity: 0.9,
-            strokeColor: '#fff',
-            strokeWeight: 1.5,
-          },
-        });
-        markersRef.current.push(marker);
-      }
-    }
-
-    initMap().catch(console.error);
-
-    return () => {
-      cancelled = true;
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pinLat, pinLng, shots]);
-
   return (
-    <div
-      ref={containerRef}
-      className="h-48 w-full overflow-hidden rounded-lg border border-gray-200"
-    />
+    <div className="h-48 w-full overflow-hidden rounded-lg border border-gray-200">
+      <Map
+        // Re-key on hole change so the map re-centers when the player advances
+        key={`${pinLat},${pinLng}`}
+        initialViewState={{ longitude: pinLng, latitude: pinLat, zoom: 17 }}
+        style={{ width: '100%', height: '100%' }}
+        mapStyle="mapbox://styles/mapbox/satellite-v9"
+        mapboxAccessToken={process.env.NEXT_PUBLIC_MAPBOX_TOKEN}
+        // Disable pan/zoom to prevent accidental touches during shot entry
+        interactive={false}
+      >
+        {/* Pin marker */}
+        <Marker latitude={pinLat} longitude={pinLng} anchor="center">
+          <svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true">
+            <circle cx="10" cy="10" r="8" fill="#16a34a" stroke="#fff" strokeWidth="2" />
+          </svg>
+        </Marker>
+
+        {/* Shot markers */}
+        {shots.map((shot, i) => (
+          <Marker key={i} latitude={shot.lat} longitude={shot.lng} anchor="center">
+            <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true">
+              <circle
+                cx="7"
+                cy="7"
+                r="5.5"
+                fill={OUTCOME_COLORS[shot.outcome]}
+                fillOpacity="0.9"
+                stroke="#fff"
+                strokeWidth="1.5"
+              />
+            </svg>
+          </Marker>
+        ))}
+      </Map>
+    </div>
   );
 }

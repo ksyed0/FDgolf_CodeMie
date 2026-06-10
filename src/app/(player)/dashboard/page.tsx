@@ -36,7 +36,17 @@ export default async function DashboardPage() {
       .single<Tournament>(),
   ]);
 
-  if (!player) redirect('/login');
+  if (!player) {
+    return (
+      <div className="flex flex-col items-center justify-center gap-4 px-4 py-12 text-center">
+        <h2 className="text-xl font-semibold text-gray-800">Account pending setup</h2>
+        <p className="text-sm text-gray-500">
+          Your account has been created but hasn&apos;t been assigned to a team yet.
+          Please contact the tournament administrator.
+        </p>
+      </div>
+    );
+  }
 
   let team: Team | null = null;
   let teammates: Player[] = [];

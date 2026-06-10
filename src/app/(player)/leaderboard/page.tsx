@@ -12,6 +12,7 @@ export default function LeaderboardPage() {
   const [tournamentId, setTournamentId] = useState<string>('');
   const [rows, setRows] = useState<LeaderboardRow[]>([]);
   const [sponsors, setSponsors] = useState<Sponsor[]>([]);
+  const [myTeamId, setMyTeamId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   const supabase = createClient();
@@ -32,13 +33,21 @@ export default function LeaderboardPage() {
 
       setTournamentId(tournament.id);
 
-      const [{ data: lbData }, { data: sponsorData }] = await Promise.all([
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      const [{ data: lbData }, { data: sponsorData }, { data: playerData }] = await Promise.all([
         supabase.rpc('get_leaderboard', { p_tournament_id: tournament.id }),
         supabase.from('sponsors').select('*').eq('tournament_id', tournament.id),
+        user
+          ? supabase.from('players').select('team_id').eq('auth_user_id', user.id).single()
+          : Promise.resolve({ data: null }),
       ]);
 
       setRows((lbData as LeaderboardRow[]) ?? []);
       setSponsors((sponsorData as Sponsor[]) ?? []);
+      setMyTeamId((playerData as { team_id: string | null } | null)?.team_id ?? null);
       setLoading(false);
     }
     init().catch(console.error);
@@ -64,7 +73,7 @@ export default function LeaderboardPage() {
     <div className="flex flex-col gap-4 px-4 py-6">
       <h2 className="text-xl font-bold text-gray-900">Leaderboard</h2>
       <div className="rounded-xl border bg-white shadow-sm">
-        <LeaderboardTable rows={rows} />
+        <LeaderboardTable rows={rows} myTeamId={myTeamId} />
       </div>
       {sponsors.length > 0 && (
         <div className="mt-2">
