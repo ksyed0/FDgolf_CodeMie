@@ -1628,235 +1628,876 @@
       "notes": "Shot history list, tap to edit, update via sync engine"
     }
   ],
-  "testCases": [],
+  "testCases": [
+    {
+      "id": "TC-0001",
+      "title": "Player completes 3-step registration (happy path)",
+      "relatedStory": "US-0009",
+      "relatedTask": "TASK-0009",
+      "relatedAC": "AC-0027",
+      "type": "Functional",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0002",
+      "title": "Registration — duplicate email rejected",
+      "relatedStory": "US-0009",
+      "relatedTask": "TASK-0009",
+      "relatedAC": "AC-0028",
+      "type": "Negative",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0003",
+      "title": "Registration — password validation enforced on Step 1",
+      "relatedStory": "US-0009",
+      "relatedTask": "TASK-0009",
+      "relatedAC": "AC-0029",
+      "type": "Negative",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0004",
+      "title": "Registration Step 2 — profile fields validated (name required)",
+      "relatedStory": "US-0010",
+      "relatedTask": "TASK-0010",
+      "relatedAC": "AC-0030",
+      "type": "Negative",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0005",
+      "title": "Registration Step 3 — invalid team number shows error",
+      "relatedStory": "US-0011",
+      "relatedTask": "TASK-0011",
+      "relatedAC": "AC-0034",
+      "type": "Negative",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0006",
+      "title": "Registration Step 3 — team at capacity rejected",
+      "relatedStory": "US-0011",
+      "relatedTask": "TASK-0011",
+      "relatedAC": "AC-0034",
+      "type": "Edge Case",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0007",
+      "title": "Player logs in with valid email and password",
+      "relatedStory": "US-0012",
+      "relatedTask": "TASK-0012",
+      "relatedAC": "AC-0035",
+      "type": "Functional",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0008",
+      "title": "Login — wrong password shows error",
+      "relatedStory": "US-0012",
+      "relatedTask": "TASK-0012",
+      "relatedAC": "AC-0036",
+      "type": "Negative",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0009",
+      "title": "Login — unknown email shows generic error (no account enumeration)",
+      "relatedStory": "US-0012",
+      "relatedTask": "TASK-0012",
+      "relatedAC": "AC-0036",
+      "type": "Negative",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0010",
+      "title": "Auth middleware — unauthenticated user redirected to /login",
+      "relatedStory": "US-0013",
+      "relatedTask": "TASK-0008",
+      "relatedAC": "AC-0038",
+      "type": "Functional",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0011",
+      "title": "Auth middleware — logged-in user redirected away from /login",
+      "relatedStory": "US-0013",
+      "relatedTask": "TASK-0008",
+      "relatedAC": "AC-0039",
+      "type": "Functional",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0012",
+      "title": "Auth middleware — player role blocked from /admin routes",
+      "relatedStory": "US-0013",
+      "relatedTask": "TASK-0008",
+      "relatedAC": "AC-0040",
+      "type": "Functional",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0013",
+      "title": "Auth middleware — /live/slug accessible without authentication",
+      "relatedStory": "US-0013",
+      "relatedTask": "TASK-0008",
+      "relatedAC": "AC-0041",
+      "type": "Functional",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0014",
+      "title": "Magic link — player session created on link click",
+      "relatedStory": "US-0015",
+      "relatedTask": "N/A",
+      "relatedAC": "AC-0047",
+      "type": "Functional",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0015",
+      "title": "Magic link — profile completion form shown for new player",
+      "relatedStory": "US-0015",
+      "relatedTask": "N/A",
+      "relatedAC": "AC-0048",
+      "type": "Functional",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0016",
+      "title": "Dashboard shows team name, members, and starting hole",
+      "relatedStory": "US-0014",
+      "relatedTask": "TASK-0013",
+      "relatedAC": "AC-0042",
+      "type": "Functional",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0017",
+      "title": "Dashboard shows current round status",
+      "relatedStory": "US-0014",
+      "relatedTask": "TASK-0013",
+      "relatedAC": "AC-0043",
+      "type": "Functional",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0018",
+      "title": "Dashboard \"Start Round\" navigates to /round",
+      "relatedStory": "US-0014",
+      "relatedTask": "TASK-0013",
+      "relatedAC": "AC-0044",
+      "type": "Functional",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0019",
+      "title": "Dashboard shows quick-link to leaderboard",
+      "relatedStory": "US-0014",
+      "relatedTask": "TASK-0013",
+      "relatedAC": "AC-0046",
+      "type": "Functional",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0020",
+      "title": "Round page shows active player indicator",
+      "relatedStory": "US-0017",
+      "relatedTask": "N/A",
+      "relatedAC": "AC-0053",
+      "type": "Functional",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0021",
+      "title": "Tapping a player card selects that player as active shooter",
+      "relatedStory": "US-0017",
+      "relatedTask": "N/A",
+      "relatedAC": "AC-0054",
+      "type": "Functional",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0022",
+      "title": "Club selector shows clubs grouped by category",
+      "relatedStory": "US-0018",
+      "relatedTask": "N/A",
+      "relatedAC": "AC-0057",
+      "type": "Functional",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0023",
+      "title": "Inactive club not shown in player club selector",
+      "relatedStory": "US-0018",
+      "relatedTask": "N/A",
+      "relatedAC": "AC-0057",
+      "type": "Edge Case",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0024",
+      "title": "GPS position captured on \"Capture Shot\" tap",
+      "relatedStory": "US-0019",
+      "relatedTask": "TASK-0006",
+      "relatedAC": "AC-0059",
+      "type": "Functional",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0025",
+      "title": "GPS permission prompt shown on first use",
+      "relatedStory": "US-0019",
+      "relatedTask": "N/A",
+      "relatedAC": "AC-0062",
+      "type": "Functional",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0026",
+      "title": "Shot recorded offline — queued in SyncEngine",
+      "relatedStory": "US-0008",
+      "relatedTask": "TASK-0006",
+      "relatedAC": "AC-0060",
+      "type": "Edge Case",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0027",
+      "title": "SyncEngine flushes queue on network reconnect",
+      "relatedStory": "US-0008",
+      "relatedTask": "TASK-0006",
+      "relatedAC": "AC-0060",
+      "type": "Edge Case",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0028",
+      "title": "SyncEngine drops entry after 5 consecutive failures",
+      "relatedStory": "US-0008",
+      "relatedTask": "TASK-0006",
+      "relatedAC": "AC-0060",
+      "type": "Edge Case",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0029",
+      "title": "In-Play outcome records shot and rotates to next player",
+      "relatedStory": "US-0020",
+      "relatedTask": "N/A",
+      "relatedAC": "AC-0064",
+      "type": "Functional",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0030",
+      "title": "OOB outcome adds +1 penalty stroke and shows rehit prompt",
+      "relatedStory": "US-0020",
+      "relatedTask": "N/A",
+      "relatedAC": "AC-0065",
+      "type": "Functional",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0031",
+      "title": "Mulligan outcome discards shot — no stroke counted",
+      "relatedStory": "US-0020",
+      "relatedTask": "N/A",
+      "relatedAC": "AC-0066",
+      "type": "Functional",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0032",
+      "title": "Sunk outcome closes hole for that player",
+      "relatedStory": "US-0020",
+      "relatedTask": "N/A",
+      "relatedAC": "AC-0067",
+      "type": "Functional",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0033",
+      "title": "Hole completes when all team members have sunk",
+      "relatedStory": "US-0022",
+      "relatedTask": "N/A",
+      "relatedAC": "AC-0071",
+      "type": "Functional",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0034",
+      "title": "Best Ball Edge Function called on hole completion",
+      "relatedStory": "US-0022",
+      "relatedTask": "N/A",
+      "relatedAC": "AC-0072",
+      "type": "Functional",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0035",
+      "title": "Hole summary shows each player's stroke count",
+      "relatedStory": "US-0023",
+      "relatedTask": "N/A",
+      "relatedAC": "AC-0074",
+      "type": "Functional",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0036",
+      "title": "Best ball highlighted with star on hole summary",
+      "relatedStory": "US-0023",
+      "relatedTask": "N/A",
+      "relatedAC": "AC-0075",
+      "type": "Functional",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0037",
+      "title": "Score vs par label shown on hole summary (birdie/par/bogey)",
+      "relatedStory": "US-0023",
+      "relatedTask": "N/A",
+      "relatedAC": "AC-0076",
+      "type": "Functional",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0038",
+      "title": "Shotgun wraparound — hole 18 advances to hole 1",
+      "relatedStory": "US-0024",
+      "relatedTask": "N/A",
+      "relatedAC": "AC-0078",
+      "type": "Edge Case",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0039",
+      "title": "Round complete summary shown after 18 holes",
+      "relatedStory": "US-0024",
+      "relatedTask": "N/A",
+      "relatedAC": "AC-0079",
+      "type": "Functional",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0040",
+      "title": "Leaderboard ranks teams by best-ball score vs par",
+      "relatedStory": "US-0025",
+      "relatedTask": "N/A",
+      "relatedAC": "AC-0080",
+      "type": "Functional",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0041",
+      "title": "\"Your Team ★\" row pinned with green highlight outside top 20",
+      "relatedStory": "US-0025",
+      "relatedTask": "N/A",
+      "relatedAC": "AC-0082",
+      "type": "Edge Case",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0042",
+      "title": "Leaderboard \"Thru\" column shows holes completed per team",
+      "relatedStory": "US-0025",
+      "relatedTask": "N/A",
+      "relatedAC": "AC-0083",
+      "type": "Functional",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0043",
+      "title": "Public leaderboard loads without authentication",
+      "relatedStory": "US-0026",
+      "relatedTask": "N/A",
+      "relatedAC": "AC-0085",
+      "type": "Functional",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0044",
+      "title": "LIVE badge visible on public leaderboard header",
+      "relatedStory": "US-0026",
+      "relatedTask": "N/A",
+      "relatedAC": "AC-0087",
+      "type": "Functional",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0045",
+      "title": "Sponsor logos visible on public leaderboard",
+      "relatedStory": "US-0027",
+      "relatedTask": "N/A",
+      "relatedAC": "AC-0089",
+      "type": "Functional",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0046",
+      "title": "Leaderboard updates in real-time after score change",
+      "relatedStory": "US-0025",
+      "relatedTask": "N/A",
+      "relatedAC": "AC-0084",
+      "type": "Functional",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0047",
+      "title": "Admin sidebar shows all 7 management sections",
+      "relatedStory": "US-0028",
+      "relatedTask": "N/A",
+      "relatedAC": "AC-0092",
+      "type": "Functional",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0048",
+      "title": "Non-admin user cannot reach admin routes",
+      "relatedStory": "US-0028",
+      "relatedTask": "TASK-0008",
+      "relatedAC": "AC-0095",
+      "type": "Functional",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0049",
+      "title": "Tournament config edits saved to database",
+      "relatedStory": "US-0029",
+      "relatedTask": "N/A",
+      "relatedAC": "AC-0096",
+      "type": "Functional",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0050",
+      "title": "Copy public leaderboard URL to clipboard",
+      "relatedStory": "US-0029",
+      "relatedTask": "N/A",
+      "relatedAC": "AC-0097",
+      "type": "Functional",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0051",
+      "title": "Hole par values editable inline and saved",
+      "relatedStory": "US-0030",
+      "relatedTask": "N/A",
+      "relatedAC": "AC-0100",
+      "type": "Functional",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0052",
+      "title": "Club deactivation hides club from player selector",
+      "relatedStory": "US-0031",
+      "relatedTask": "N/A",
+      "relatedAC": "AC-0104",
+      "type": "Functional",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0053",
+      "title": "Player table filtered by search term",
+      "relatedStory": "US-0032",
+      "relatedTask": "N/A",
+      "relatedAC": "AC-0105",
+      "type": "Functional",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0054",
+      "title": "Edit player modal updates name and team assignment",
+      "relatedStory": "US-0032",
+      "relatedTask": "N/A",
+      "relatedAC": "AC-0106",
+      "type": "Functional",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0055",
+      "title": "Magic link sent to player from admin players page",
+      "relatedStory": "US-0016",
+      "relatedTask": "N/A",
+      "relatedAC": "AC-0050",
+      "type": "Functional",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0056",
+      "title": "New team created with starting hole",
+      "relatedStory": "US-0033",
+      "relatedTask": "N/A",
+      "relatedAC": "AC-0109",
+      "type": "Functional",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0057",
+      "title": "Auto-assign starting holes distributes teams across 1–18",
+      "relatedStory": "US-0033",
+      "relatedTask": "N/A",
+      "relatedAC": "AC-0112",
+      "type": "Functional",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0058",
+      "title": "Admin overrides player stroke count and best ball recalculates",
+      "relatedStory": "US-0034",
+      "relatedTask": "N/A",
+      "relatedAC": "AC-0113",
+      "type": "Functional",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0059",
+      "title": "Score override logged with admin ID and timestamp",
+      "relatedStory": "US-0034",
+      "relatedTask": "N/A",
+      "relatedAC": "AC-0116",
+      "type": "Functional",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0060",
+      "title": "Sponsor logo uploaded and visible on leaderboard",
+      "relatedStory": "US-0035",
+      "relatedTask": "N/A",
+      "relatedAC": "AC-0118",
+      "type": "Functional",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0061",
+      "title": "Scorecard shows hole-by-hole best-ball view",
+      "relatedStory": "US-0016",
+      "relatedTask": "N/A",
+      "relatedAC": "AC-0052",
+      "type": "Functional",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0062",
+      "title": "Tournament pause state — shot recording disabled",
+      "relatedStory": "US-0013",
+      "relatedTask": "N/A",
+      "relatedAC": "AC-0041",
+      "type": "Edge Case",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0063",
+      "title": "Mulligan allowance enforced — cannot take more than allowed",
+      "relatedStory": "US-0020",
+      "relatedTask": "N/A",
+      "relatedAC": "AC-0066",
+      "type": "Edge Case",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0064",
+      "title": "Offline indicator reflects pending shot count",
+      "relatedStory": "US-0008",
+      "relatedTask": "TASK-0006",
+      "relatedAC": "AC-0060",
+      "type": "Functional",
+      "status": "Not Run",
+      "defect": "None"
+    }
+  ],
   "bugs": [],
   "costs": {
     "US-0001": {
       "projectedUsd": 400,
-      "costUsd": 1.72733,
+      "costUsd": 1.025003,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0002": {
       "projectedUsd": 400,
-      "costUsd": 1.72733,
+      "costUsd": 1.025003,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0003": {
       "projectedUsd": 800,
-      "costUsd": 1.72733,
+      "costUsd": 1.025003,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0004": {
       "projectedUsd": 0.9,
-      "costUsd": 1.72733,
+      "costUsd": 1.025003,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0005": {
       "projectedUsd": 400,
-      "costUsd": 1.72733,
+      "costUsd": 1.025003,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0006": {
       "projectedUsd": 400,
-      "costUsd": 1.72733,
+      "costUsd": 1.025003,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0007": {
       "projectedUsd": 400,
-      "costUsd": 1.72733,
+      "costUsd": 1.025003,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0008": {
       "projectedUsd": 800,
-      "costUsd": 1.72733,
+      "costUsd": 1.025003,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0009": {
       "projectedUsd": 400,
-      "costUsd": 1.72733,
+      "costUsd": 1.025003,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0010": {
       "projectedUsd": 400,
-      "costUsd": 1.72733,
+      "costUsd": 1.025003,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0011": {
       "projectedUsd": 800,
-      "costUsd": 1.72733,
+      "costUsd": 1.025003,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0012": {
       "projectedUsd": 400,
-      "costUsd": 1.72733,
+      "costUsd": 1.025003,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0013": {
       "projectedUsd": 400,
-      "costUsd": 1.72733,
+      "costUsd": 1.025003,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0014": {
       "projectedUsd": 400,
-      "costUsd": 1.72733,
+      "costUsd": 1.025003,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0015": {
       "projectedUsd": 400,
-      "costUsd": 1.72733,
+      "costUsd": 1.025003,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0016": {
       "projectedUsd": 800,
-      "costUsd": 1.72733,
+      "costUsd": 1.025003,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0017": {
       "projectedUsd": 400,
-      "costUsd": 1.72733,
+      "costUsd": 1.025003,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0018": {
       "projectedUsd": 400,
-      "costUsd": 1.72733,
+      "costUsd": 1.025003,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0019": {
       "projectedUsd": 800,
-      "costUsd": 1.72733,
+      "costUsd": 1.025003,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0020": {
       "projectedUsd": 800,
-      "costUsd": 1.72733,
+      "costUsd": 1.025003,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0021": {
       "projectedUsd": 0.9,
-      "costUsd": 1.72733,
+      "costUsd": 1.025003,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0022": {
       "projectedUsd": 400,
-      "costUsd": 1.72733,
+      "costUsd": 1.025003,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0023": {
       "projectedUsd": 0.9,
-      "costUsd": 1.72733,
+      "costUsd": 1.025003,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0024": {
       "projectedUsd": 400,
-      "costUsd": 1.72733,
+      "costUsd": 1.025003,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0025": {
       "projectedUsd": 800,
-      "costUsd": 1.72733,
+      "costUsd": 1.025003,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0026": {
       "projectedUsd": 400,
-      "costUsd": 1.72733,
+      "costUsd": 1.025003,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0027": {
       "projectedUsd": 400,
-      "costUsd": 1.72733,
+      "costUsd": 1.025003,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0028": {
       "projectedUsd": 400,
-      "costUsd": 1.72733,
+      "costUsd": 1.025003,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0029": {
       "projectedUsd": 400,
-      "costUsd": 1.72733,
+      "costUsd": 1.025003,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0030": {
       "projectedUsd": 800,
-      "costUsd": 1.72733,
+      "costUsd": 1.025003,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0031": {
       "projectedUsd": 400,
-      "costUsd": 1.72733,
+      "costUsd": 1.025003,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0032": {
       "projectedUsd": 800,
-      "costUsd": 1.72733,
+      "costUsd": 1.025003,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0033": {
       "projectedUsd": 800,
-      "costUsd": 1.72733,
+      "costUsd": 1.025003,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0034": {
       "projectedUsd": 800,
-      "costUsd": 1.72733,
+      "costUsd": 1.025003,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0035": {
       "projectedUsd": 800,
-      "costUsd": 1.72733,
+      "costUsd": 1.025003,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0036": {
       "projectedUsd": 0.9,
-      "costUsd": 1.72733,
+      "costUsd": 1.025003,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0037": {
       "projectedUsd": 0.9,
-      "costUsd": 1.72733,
+      "costUsd": 1.025003,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "_totals": {
-      "costUsd": 63.9112,
-      "inputTokens": 4411660,
-      "outputTokens": 824637
+      "costUsd": 37.9251,
+      "inputTokens": 2770786,
+      "outputTokens": 576718
     },
     "_bugs": {
       "_totals": {
@@ -1917,91 +2558,91 @@
       "isAtRisk": false
     },
     "US-0008": {
-      "missingTCs": true,
+      "missingTCs": false,
       "noBranch": false,
       "failedTCNoBug": false,
       "openCriticalBug": false,
       "isAtRisk": false
     },
     "US-0009": {
-      "missingTCs": true,
+      "missingTCs": false,
       "noBranch": false,
       "failedTCNoBug": false,
       "openCriticalBug": false,
       "isAtRisk": false
     },
     "US-0010": {
-      "missingTCs": true,
+      "missingTCs": false,
       "noBranch": false,
       "failedTCNoBug": false,
       "openCriticalBug": false,
       "isAtRisk": false
     },
     "US-0011": {
-      "missingTCs": true,
+      "missingTCs": false,
       "noBranch": false,
       "failedTCNoBug": false,
       "openCriticalBug": false,
       "isAtRisk": false
     },
     "US-0012": {
-      "missingTCs": true,
+      "missingTCs": false,
       "noBranch": false,
       "failedTCNoBug": false,
       "openCriticalBug": false,
       "isAtRisk": false
     },
     "US-0013": {
-      "missingTCs": true,
+      "missingTCs": false,
       "noBranch": false,
       "failedTCNoBug": false,
       "openCriticalBug": false,
       "isAtRisk": false
     },
     "US-0014": {
-      "missingTCs": true,
+      "missingTCs": false,
       "noBranch": false,
       "failedTCNoBug": false,
       "openCriticalBug": false,
       "isAtRisk": false
     },
     "US-0015": {
-      "missingTCs": true,
+      "missingTCs": false,
       "noBranch": false,
       "failedTCNoBug": false,
       "openCriticalBug": false,
       "isAtRisk": false
     },
     "US-0016": {
-      "missingTCs": true,
+      "missingTCs": false,
       "noBranch": false,
       "failedTCNoBug": false,
       "openCriticalBug": false,
       "isAtRisk": false
     },
     "US-0017": {
-      "missingTCs": true,
+      "missingTCs": false,
       "noBranch": false,
       "failedTCNoBug": false,
       "openCriticalBug": false,
       "isAtRisk": false
     },
     "US-0018": {
-      "missingTCs": true,
+      "missingTCs": false,
       "noBranch": false,
       "failedTCNoBug": false,
       "openCriticalBug": false,
       "isAtRisk": false
     },
     "US-0019": {
-      "missingTCs": true,
+      "missingTCs": false,
       "noBranch": false,
       "failedTCNoBug": false,
       "openCriticalBug": false,
       "isAtRisk": false
     },
     "US-0020": {
-      "missingTCs": true,
+      "missingTCs": false,
       "noBranch": false,
       "failedTCNoBug": false,
       "openCriticalBug": false,
@@ -2015,98 +2656,98 @@
       "isAtRisk": true
     },
     "US-0022": {
-      "missingTCs": true,
+      "missingTCs": false,
       "noBranch": false,
       "failedTCNoBug": false,
       "openCriticalBug": false,
       "isAtRisk": false
     },
     "US-0023": {
-      "missingTCs": true,
+      "missingTCs": false,
       "noBranch": false,
       "failedTCNoBug": false,
       "openCriticalBug": false,
-      "isAtRisk": true
+      "isAtRisk": false
     },
     "US-0024": {
-      "missingTCs": true,
+      "missingTCs": false,
       "noBranch": false,
       "failedTCNoBug": false,
       "openCriticalBug": false,
       "isAtRisk": false
     },
     "US-0025": {
-      "missingTCs": true,
+      "missingTCs": false,
       "noBranch": false,
       "failedTCNoBug": false,
       "openCriticalBug": false,
       "isAtRisk": false
     },
     "US-0026": {
-      "missingTCs": true,
+      "missingTCs": false,
       "noBranch": false,
       "failedTCNoBug": false,
       "openCriticalBug": false,
       "isAtRisk": false
     },
     "US-0027": {
-      "missingTCs": true,
+      "missingTCs": false,
       "noBranch": false,
       "failedTCNoBug": false,
       "openCriticalBug": false,
       "isAtRisk": false
     },
     "US-0028": {
-      "missingTCs": true,
+      "missingTCs": false,
       "noBranch": false,
       "failedTCNoBug": false,
       "openCriticalBug": false,
       "isAtRisk": false
     },
     "US-0029": {
-      "missingTCs": true,
+      "missingTCs": false,
       "noBranch": false,
       "failedTCNoBug": false,
       "openCriticalBug": false,
       "isAtRisk": false
     },
     "US-0030": {
-      "missingTCs": true,
+      "missingTCs": false,
       "noBranch": false,
       "failedTCNoBug": false,
       "openCriticalBug": false,
       "isAtRisk": false
     },
     "US-0031": {
-      "missingTCs": true,
+      "missingTCs": false,
       "noBranch": false,
       "failedTCNoBug": false,
       "openCriticalBug": false,
       "isAtRisk": false
     },
     "US-0032": {
-      "missingTCs": true,
+      "missingTCs": false,
       "noBranch": false,
       "failedTCNoBug": false,
       "openCriticalBug": false,
       "isAtRisk": false
     },
     "US-0033": {
-      "missingTCs": true,
+      "missingTCs": false,
       "noBranch": false,
       "failedTCNoBug": false,
       "openCriticalBug": false,
       "isAtRisk": false
     },
     "US-0034": {
-      "missingTCs": true,
+      "missingTCs": false,
       "noBranch": false,
       "failedTCNoBug": false,
       "openCriticalBug": false,
       "isAtRisk": false
     },
     "US-0035": {
-      "missingTCs": true,
+      "missingTCs": false,
       "noBranch": false,
       "failedTCNoBug": false,
       "openCriticalBug": false,
@@ -2132,15 +2773,20 @@
     "byEpic": {}
   },
   "coverage": {
-    "lines": 0,
-    "statements": 0,
-    "functions": 0,
-    "branches": 0,
-    "overall": 0,
-    "meetsTarget": false,
-    "available": false
+    "lines": 91.91,
+    "statements": 88.88,
+    "functions": 81.81,
+    "branches": 92.85,
+    "overall": 91.91,
+    "meetsTarget": true,
+    "available": true
   },
   "recentActivity": [
+    {
+      "sessionNum": 8,
+      "date": "2026-06-09",
+      "summary": "**RELEASE_PLAN.md synced** — corrected story statuses (Python regex had matched across block boundaries via Dependencies fields);   - 32/37 stories marked Done; remaining Planned: US-0004 (Vercel), US-0021 (edit shot), US-0023 (hole summary), US-0036 (2FA), US-0037 (password reset); **Dashboard regenerated** — `npm run plan:generate` → `docs/plan-status.html` now shows 86.5% progress (was showing 0%)"
+    },
     {
       "sessionNum": 7,
       "date": "2026-06-09",
@@ -2160,11 +2806,6 @@
       "sessionNum": 2,
       "date": "2026-06-08",
       "summary": ""
-    },
-    {
-      "sessionNum": 3,
-      "date": "2026-06-08",
-      "summary": ""
     }
   ],
   "lessons": [
@@ -2177,35 +2818,43 @@
       "bugIds": []
     }
   ],
-  "generatedAt": "2026-06-09T23:11:49.527Z",
-  "commitSha": "68076a3",
-  "buildNumber": "21",
-  "branch": "feature/US-0009-tournament-create",
+  "generatedAt": "2026-06-10T03:39:46.809Z",
+  "commitSha": "66bf107",
+  "buildNumber": "18",
+  "branch": "develop",
   "sessionTimeline": [
     {
       "date": "2026-06-09",
-      "cumCost": 56.4811
+      "cumCost": 31.4852
     },
     {
-      "date": "2026-06-09",
-      "cumCost": 63.9112
+      "date": "2026-06-10",
+      "cumCost": 37.9251
+    },
+    {
+      "date": "2026-06-10",
+      "cumCost": 37.9251
     }
   ],
   "costHistory": {
-    "feature/US-0002-supabase-project": [
+    "main": [
       {
         "date": "2026-06-09",
-        "costUsd": 56.4811
+        "costUsd": 31.4852
       }
     ],
     "develop": [
       {
-        "date": "2026-06-09",
-        "costUsd": 7.4301
+        "date": "2026-06-10",
+        "costUsd": 6.4399
+      },
+      {
+        "date": "2026-06-10",
+        "costUsd": 0
       }
     ]
   },
-  "deltaSpend": 7.43,
+  "deltaSpend": 0,
   "projectName": "CodeMie",
   "tagline": "FDgolf CodeMie project.",
   "version": "0.1.0",
@@ -2278,11 +2927,11 @@
     }
   },
   "budget": {
-    "totalBudget": 68.41120000000001,
-    "totalSpent": 63.9112,
+    "totalBudget": 42.4251,
+    "totalSpent": 37.9251,
     "totalProjected": 17604.5,
-    "percentUsed": 93,
-    "burnRate": 26.1507,
+    "percentUsed": 89,
+    "burnRate": 13.15765,
     "daysRemaining": 0,
     "projectedExhaustion": 0,
     "thresholds": [
@@ -2293,89 +2942,88 @@
     ],
     "crossedThresholds": [
       50,
-      75,
-      90
+      75
     ],
     "epicBudgets": [
       {
         "id": "EPIC-0003",
         "title": "Player Dashboard",
-        "budget": 1.72733,
-        "spent": 1.72733,
+        "budget": 1.025003,
+        "spent": 1.025003,
         "remaining": 0,
         "percentUsed": 100
       },
       {
         "id": "EPIC-0006",
         "title": "Leaderboard",
-        "budget": 5.18199,
-        "spent": 5.18199,
+        "budget": 3.0750090000000005,
+        "spent": 3.0750090000000005,
         "remaining": 0,
         "percentUsed": 100
       },
       {
         "id": "EPIC-0007",
         "title": "Admin — Tournament & Course Setup",
-        "budget": 6.90932,
-        "spent": 6.90932,
+        "budget": 4.100012,
+        "spent": 4.100012,
         "remaining": 0,
         "percentUsed": 100
       },
       {
         "id": "EPIC-0008",
         "title": "Admin — Player & Team Management",
-        "budget": 3.45466,
-        "spent": 3.45466,
+        "budget": 2.050006,
+        "spent": 2.050006,
         "remaining": 0,
         "percentUsed": 100
       },
       {
         "id": "EPIC-0009",
         "title": "Admin — Scores & Sponsors",
-        "budget": 3.45466,
-        "spent": 3.45466,
+        "budget": 2.050006,
+        "spent": 2.050006,
         "remaining": 0,
         "percentUsed": 100
       },
       {
         "id": "EPIC-0001",
         "title": "Project Setup & Infrastructure",
-        "budget": 14.71864,
-        "spent": 13.81864,
+        "budget": 9.100024000000001,
+        "spent": 8.200024,
         "remaining": 0.9000000000000004,
-        "percentUsed": 94
+        "percentUsed": 90
       },
       {
         "id": "EPIC-0004",
         "title": "Active Round — Shot Tracking",
-        "budget": 12.99131,
-        "spent": 12.09131,
-        "remaining": 0.9000000000000004,
-        "percentUsed": 93
+        "budget": 8.075021,
+        "spent": 7.175021,
+        "remaining": 0.8999999999999995,
+        "percentUsed": 89
       },
       {
         "id": "EPIC-0002",
         "title": "Registration & Authentication",
-        "budget": 11.26398,
-        "spent": 10.36398,
+        "budget": 7.050018000000001,
+        "spent": 6.150018,
         "remaining": 0.9000000000000004,
-        "percentUsed": 92
+        "percentUsed": 87
       },
       {
         "id": "EPIC-0005",
         "title": "Hole & Round Completion",
-        "budget": 6.08199,
-        "spent": 5.18199,
-        "remaining": 0.9000000000000004,
-        "percentUsed": 85
+        "budget": 3.9750090000000005,
+        "spent": 3.0750090000000005,
+        "remaining": 0.8999999999999999,
+        "percentUsed": 77
       },
       {
         "id": "EPIC-0010",
         "title": "Security & 2FA",
-        "budget": 2.62733,
-        "spent": 1.72733,
+        "budget": 1.9250030000000002,
+        "spent": 1.025003,
         "remaining": 0.9000000000000001,
-        "percentUsed": 66
+        "percentUsed": 53
       }
     ],
     "hasBudget": true
@@ -2384,46 +3032,57 @@
   "trends": {
     "dates": [
       "2026-06-08T21:00:25.236Z",
-      "2026-06-09T23:11:49.621Z"
+      "2026-06-09T23:11:49.621Z",
+      "2026-06-10T03:39:46.974Z"
     ],
     "doneCounts": [
       0,
+      32,
       32
     ],
     "totalStories": [
+      37,
       37,
       37
     ],
     "aiCosts": [
       11.6098,
+      63.9112,
       63.9112
     ],
     "coverage": [
       null,
-      null
+      null,
+      91.91
     ],
     "velocity": [
       0,
+      56,
       56
     ],
     "openBugs": [
+      0,
       0,
       0
     ],
     "atRisk": [
       0,
+      0,
       0
     ],
     "inputTokens": [
       993972,
-      4411660
+      4411660,
+      2770786
     ],
     "outputTokens": [
       157392,
-      824637
+      824637,
+      576718
     ],
     "avgRisk": [
       1.1000000000000008,
+      1.1,
       1.1
     ],
     "velocityByWeek": {

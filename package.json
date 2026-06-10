@@ -37,7 +37,10 @@
     "agent:apply": "node tools/agent-spec-plan.js apply-pending",
     "agent:list": "node tools/agent-spec-plan.js list",
     "agent:status": "node tools/agent-spec-plan.js status",
-    "dashboard:watch": "node tools/watch-dashboard.js"
+    "dashboard:watch": "node tools/watch-dashboard.js",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:debug": "playwright test --debug"
   },
   "keywords": [],
   "author": "",
@@ -69,6 +72,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.0.0",
+    "@playwright/test": "^1.60.0",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
     "@testing-library/user-event": "^14.6.1",

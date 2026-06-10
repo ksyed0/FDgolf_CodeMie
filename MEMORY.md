@@ -35,6 +35,30 @@ Stack: Next.js 14 App Router · TypeScript · Tailwind CSS · shadcn/ui · Supab
 
 ---
 
+## E2E Test Status (Session 10+11 — 2026-06-10)
+
+**31 passed, 5 skipped, 0 failed.** All tests green on `develop` branch.
+
+Skipped: TC-0045 (no sponsor logo_url seeded), TC-0049/0050 (features not implemented), TC-0056 (no Add Team button), TC-0058 (Radix Select incompatible with `.selectOption()`).
+
+Local Supabase: must run `supabase start` from `FDgolf_CodeMie/` before tests. The previous conflicting container was `supabase_db_fdgolf` (old project name); stop with `supabase stop --project-id fdgolf` if port conflict on 54322.
+
+---
+
+## RLS Infinite Recursion Bug — FIXED (migration 004)
+
+**Root cause**: `"Admin full access" FOR ALL` policy on `players` table:
+```sql
+using (exists (select 1 from players where auth_user_id = auth.uid() and role = 'admin'))
+```
+This queries `players` from within a `players` policy → PostgreSQL evaluates the same policy again → infinite recursion (error `42P17`). Cascaded to ALL tables with admin policies that checked `players`.
+
+**Fix**: `supabase/migrations/004_fix_admin_rls.sql` — replaced `FOR ALL` with `FOR INSERT/UPDATE/DELETE` only. The existing `"Public read"` policy (`using (true)`) handles SELECT, so removing SELECT from the admin policy is safe.
+
+**Must apply to production** before deploy: `supabase db push --db-url <prod-url>`
+
+---
+
 ## Key Schema Facts
 
 - **`teams.captain_id`**: `uuid` column with NO inline FK. Deferred FK added via `ALTER TABLE` after `players` is defined (circular reference pattern).

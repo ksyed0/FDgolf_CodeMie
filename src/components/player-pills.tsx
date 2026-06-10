@@ -16,6 +16,7 @@ export function PlayerPills({ players, activePlayerId, onSelect }: PlayerPillsPr
           <button
             key={player.id}
             onClick={() => onSelect(player.id)}
+            data-active={isActive ? 'true' : undefined}
             className={cn(
               'rounded-full border px-3 py-1.5 text-sm font-medium transition-colors',
               isActive
