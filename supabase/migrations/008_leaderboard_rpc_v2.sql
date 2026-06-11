@@ -10,6 +10,9 @@ returns table (
   holes_completed bigint,
   par_total bigint
 ) language sql stable as $$
+  with trn as (
+    select course_id from tournaments where id = p_tournament_id
+  )
   select
     t.id as team_id,
     t.team_number,
@@ -18,10 +21,10 @@ returns table (
     count(distinct s.hole_number) as holes_completed,
     coalesce(sum(h.par), 0) as par_total
   from teams t
+  cross join trn
   left join scores s on s.team_id = t.id
     and s.tournament_id = p_tournament_id
     and s.is_best_ball = true
-  left join tournaments trn on trn.id = p_tournament_id
   left join holes h on h.course_id = trn.course_id
     and h.hole_number = s.hole_number
   where t.tournament_id = p_tournament_id

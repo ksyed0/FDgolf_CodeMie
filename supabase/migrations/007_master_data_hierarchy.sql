@@ -96,8 +96,11 @@ create policy "Public read" on courses for select using (true);
 create policy "Public read" on tee_boxes for select using (true);
 
 create policy "Admin full access" on venues for all
-  using (exists (select 1 from players where auth_user_id = auth.uid() and role = 'admin'));
+  using (exists (select 1 from players where auth_user_id = auth.uid() and role = 'admin'))
+  with check (exists (select 1 from players where auth_user_id = auth.uid() and role = 'admin'));
 create policy "Admin full access" on courses for all
-  using (exists (select 1 from players where auth_user_id = auth.uid() and role = 'admin'));
+  using (exists (select 1 from players where auth_user_id = auth.uid() and role = 'admin'))
+  with check (exists (select 1 from players where auth_user_id = auth.uid() and role = 'admin'));
 create policy "Admin full access" on tee_boxes for all
-  using (exists (select 1 from players where auth_user_id = auth.uid() and role = 'admin'));
+  using (exists (select 1 from players where auth_user_id = auth.uid() and role = 'admin'))
+  with check (exists (select 1 from players where auth_user_id = auth.uid() and role = 'admin'));
