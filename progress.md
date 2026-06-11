@@ -1,6 +1,6 @@
 # FDgolf — Progress
 
-## Session 18 — 2026-06-11 (Vercel cloud deployment + smoke test)
+## Session 18 — 2026-06-11 (Vercel cloud deployment, smoke test, README + CONTRIBUTING)
 
 ### What Was Done
 
@@ -31,12 +31,15 @@ Preview scope requires GitHub repo connection (browser OAuth) — deferred.
 | Venues | `/admin/venues` | ✓ Granite Ridge Golf Club shown |
 | Public leaderboard | `/live/cibc-granite-ridge-2026` | ✓ Team Alpha / Team Bravo, E, auto-refresh |
 
+**7. README + CONTRIBUTING updated** (this PR)
+- README: corrected stack (Mapbox, not Google Maps), env vars, 8 migrations, 12 tables, 81 tests, added live URL
+- CONTRIBUTING.md: new file — full local setup, git workflow, test commands, deploy instructions
+
 ### Next Steps
 
-- Connect GitHub repo to Vercel (browser OAuth at vercel.com) → enables preview env vars + auto-deploys
 - Create GitHub labels (`critical`, `high`, `medium`, `low`, `planvisualizer`)
 - Invite real tournament players via magic link before June 22
-- Pre-tournament smoke test on tournament day
+- Pre-tournament smoke test on tournament day (June 22)
 
 ---
 
