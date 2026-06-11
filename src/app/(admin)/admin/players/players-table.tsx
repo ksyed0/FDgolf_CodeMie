@@ -2,9 +2,11 @@
 
 import { useState } from 'react';
 import { toast } from 'sonner';
+import { UserPlus } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { Label } from '@/components/ui/label';
 import {
   Select,
   SelectContent,
@@ -21,11 +23,42 @@ interface PlayersTableProps {
 
 const ROLES: PlayerRole[] = ['player', 'admin', 'tournament_organizer'];
 
+const EMPTY_ADD_FORM = { name: '', email: '', company: '', title: '' };
+
 export function PlayersTable({ players: initial, teams }: PlayersTableProps) {
   const [players, setPlayers] = useState(initial);
   const [search, setSearch] = useState('');
   const [invitingId, setInvitingId] = useState<string | null>(null);
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [addForm, setAddForm] = useState(EMPTY_ADD_FORM);
+  const [adding, setAdding] = useState(false);
   const supabase = createClient();
+
+  async function addPlayer() {
+    if (!addForm.name.trim() || !addForm.email.trim()) {
+      toast.error('Name and email are required');
+      return;
+    }
+    setAdding(true);
+    try {
+      const res = await fetch('/api/admin/add-player', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(addForm),
+      });
+      const json = (await res.json()) as { player?: Player; error?: string };
+      if (!res.ok || !json.player) {
+        toast.error(json.error ?? 'Failed to add player');
+        return;
+      }
+      setPlayers((prev) => [...prev, json.player!]);
+      setAddForm(EMPTY_ADD_FORM);
+      setShowAddForm(false);
+      toast.success(`${json.player.name} added`);
+    } finally {
+      setAdding(false);
+    }
+  }
 
   async function sendInvite(player: Player) {
     if (!player.email) {
@@ -73,14 +106,81 @@ export function PlayersTable({ players: initial, teams }: PlayersTableProps) {
 
   return (
     <div>
-      <div className="border-b p-3">
+      <div className="flex items-center justify-between border-b p-3">
         <Input
           placeholder="Search by name or company…"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="max-w-xs"
         />
+        <Button
+          size="sm"
+          className="bg-[#1a472a] hover:bg-[#143820]"
+          onClick={() => setShowAddForm((v) => !v)}
+        >
+          <UserPlus className="mr-2 h-4 w-4" />
+          Add Player
+        </Button>
       </div>
+
+      {showAddForm && (
+        <div className="border-b bg-green-50 p-4">
+          <h3 className="mb-3 text-sm font-semibold text-gray-800">Add new player</h3>
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+            <div className="space-y-1">
+              <Label className="text-xs">Name *</Label>
+              <Input
+                placeholder="Alice Smith"
+                value={addForm.name}
+                onChange={(e) => setAddForm((f) => ({ ...f, name: e.target.value }))}
+              />
+            </div>
+            <div className="space-y-1">
+              <Label className="text-xs">Email *</Label>
+              <Input
+                type="email"
+                placeholder="alice@example.com"
+                value={addForm.email}
+                onChange={(e) => setAddForm((f) => ({ ...f, email: e.target.value }))}
+              />
+            </div>
+            <div className="space-y-1">
+              <Label className="text-xs">Company</Label>
+              <Input
+                placeholder="CIBC"
+                value={addForm.company}
+                onChange={(e) => setAddForm((f) => ({ ...f, company: e.target.value }))}
+              />
+            </div>
+            <div className="space-y-1">
+              <Label className="text-xs">Title</Label>
+              <Input
+                placeholder="VP, Capital Markets"
+                value={addForm.title}
+                onChange={(e) => setAddForm((f) => ({ ...f, title: e.target.value }))}
+              />
+            </div>
+          </div>
+          <div className="mt-3 flex gap-2">
+            <Button
+              size="sm"
+              className="bg-[#1a472a] hover:bg-[#143820]"
+              onClick={addPlayer}
+              disabled={adding}
+            >
+              {adding ? 'Adding…' : 'Add Player'}
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => { setShowAddForm(false); setAddForm(EMPTY_ADD_FORM); }}
+            >
+              Cancel
+            </Button>
+          </div>
+        </div>
+      )}
+
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead>

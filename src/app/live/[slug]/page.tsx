@@ -3,7 +3,7 @@ import { LeaderboardTable } from '@/components/leaderboard-table';
 import { SponsorBanner } from '@/components/sponsor-banner';
 import { AppHeader } from '@/components/app-header';
 import type { LeaderboardRow } from '@/components/leaderboard-table';
-import type { Sponsor } from '@/lib/types';
+import type { Sponsor, Tournament } from '@/lib/types';
 
 export const revalidate = 30;
 
@@ -14,11 +14,15 @@ interface LiveLeaderboardPageProps {
 export default async function LiveLeaderboardPage({ params }: LiveLeaderboardPageProps) {
   const supabase = await createClient();
 
+  type TournamentWithVenue = Tournament & {
+    venue: { name: string; city: string; province_state: string } | null;
+  };
+
   const { data: tournament } = await supabase
     .from('tournaments')
-    .select('*')
+    .select('*, venue:venues!venue_id(name, city, province_state)')
     .eq('slug', params.slug)
-    .single();
+    .single<TournamentWithVenue>();
 
   if (!tournament) {
     return (
@@ -42,7 +46,9 @@ export default async function LiveLeaderboardPage({ params }: LiveLeaderboardPag
       <div className="mx-auto w-full max-w-2xl px-4 py-6">
         <div className="mb-4">
           <h1 className="text-2xl font-bold text-gray-900">{tournament.name}</h1>
-          <p className="text-sm text-gray-500">{tournament.venue} · Live Leaderboard</p>
+          <p className="text-sm text-gray-500">
+            {tournament.venue?.name}{tournament.venue?.city ? ` · ${tournament.venue.city}` : ''} · Live Leaderboard
+          </p>
         </div>
         <div className="rounded-xl border bg-white shadow-sm">
           <LeaderboardTable rows={rows} />

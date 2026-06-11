@@ -21,10 +21,10 @@ export default async function ScorecardPage() {
 
   const { data: tournament } = await supabase
     .from('tournaments')
-    .select('id')
+    .select('id, course_id')
     .order('created_at', { ascending: false })
     .limit(1)
-    .single<{ id: string }>();
+    .single<{ id: string; course_id: string }>();
 
   if (!tournament) {
     return <div className="px-4 py-8 text-center text-sm text-gray-500">No tournament found.</div>;
@@ -37,7 +37,7 @@ export default async function ScorecardPage() {
       .eq('player_id', player.id)
       .eq('tournament_id', tournament.id)
       .order('hole_number'),
-    supabase.from('holes').select('*').eq('tournament_id', tournament.id).order('hole_number'),
+    supabase.from('holes').select('*').eq('course_id', tournament.course_id).order('hole_number'),
   ]);
 
   const scores = (rawScores as Score[]) ?? [];

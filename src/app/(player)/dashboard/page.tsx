@@ -26,15 +26,21 @@ export default async function DashboardPage() {
   } = await supabase.auth.getUser();
   if (!user) redirect('/login');
 
+  type TournamentWithVenue = Tournament & {
+    venue: { name: string; city: string; province_state: string } | null;
+  };
+
   const [{ data: player }, { data: tournament }] = await Promise.all([
     supabase.from('players').select('*').eq('auth_user_id', user.id).single<Player>(),
     supabase
       .from('tournaments')
-      .select('*')
+      .select('*, venue:venues!venue_id(name, city, province_state)')
       .order('created_at', { ascending: false })
       .limit(1)
-      .single<Tournament>(),
+      .single<TournamentWithVenue>(),
   ]);
+
+  if (player?.role === 'admin') redirect('/admin/tournament');
 
   if (!player) {
     return (
@@ -93,7 +99,11 @@ export default async function DashboardPage() {
               {STATUS_LABELS[tournament.status] ?? tournament.status}
             </Badge>
           </div>
-          <p className="mt-1 text-sm text-gray-500">{tournament.venue}</p>
+          <p className="mt-1 text-sm text-gray-500">
+            {tournament.venue?.name}
+            {' · '}
+            {tournament.venue?.city}
+          </p>
           <p className="text-sm text-gray-500">
             {new Date(tournament.date).toLocaleDateString('en-CA', {
               weekday: 'long',

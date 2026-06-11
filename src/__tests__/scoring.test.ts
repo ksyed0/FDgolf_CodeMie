@@ -8,7 +8,7 @@ import type { Score, Hole } from '@/lib/types';
 function makeHole(hole_number: number, par: number): Hole {
   return {
     id: `hole-${hole_number}`,
-    tournament_id: 'tournament-1',
+    course_id: 'course-1',
     hole_number,
     par,
     handicap: hole_number,
