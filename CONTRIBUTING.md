@@ -2,6 +2,60 @@
 
 ---
 
+## Contributing with Claude Code
+
+[Claude Code](https://claude.ai/code) is the AI coding assistant used to build and maintain this project. All context it needs is already wired up in `CLAUDE.md`, `AGENTS.md`, and `MEMORY.md` at the repo root.
+
+### Install
+
+**macOS / Linux / WSL:**
+```bash
+curl -fsSL https://claude.ai/install.sh | bash
+```
+
+**macOS (Homebrew):**
+```bash
+brew install --cask claude-code
+```
+
+**Windows PowerShell:**
+```powershell
+irm https://claude.ai/install.ps1 | iex
+```
+
+### Authenticate
+
+```bash
+claude          # opens browser for one-time login with your Anthropic account
+```
+
+Requires a Pro, Max, Team, or Enterprise Claude.ai subscription.
+
+### Update
+
+Native installs auto-update in the background. To force an immediate update:
+```bash
+claude update
+```
+
+Homebrew installs require `brew upgrade --cask claude-code`.
+
+### Start contributing
+
+```bash
+git clone git@github.com:ksyed0/FDgolf_CodeMie.git   # SSH (contributors with access)
+# or
+git clone https://github.com/ksyed0/FDgolf_CodeMie.git  # HTTPS (read-only / fork)
+
+cd FDgolf_CodeMie
+npm install
+claude                      # Claude Code reads CLAUDE.md automatically
+```
+
+To request contributor access, open an issue on GitHub with the subject **"Contributor access request"**.
+
+---
+
 ## Prerequisites
 
 - Node.js 20+
