@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { toast } from 'sonner';
 import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -195,8 +195,8 @@ export function VenueManager({ venues: initial }: VenueManagerProps) {
               </tr>
             )}
             {venues.map((v) => (
-              <>
-                <tr key={v.id} className="border-b hover:bg-gray-50">
+              <React.Fragment key={v.id}>
+                <tr className="border-b hover:bg-gray-50">
                   <td className="px-4 py-2 font-medium">{v.name}</td>
                   <td className="px-4 py-2 text-gray-500">
                     {[v.city, v.province_state].filter(Boolean).join(', ')}
@@ -236,13 +236,13 @@ export function VenueManager({ venues: initial }: VenueManagerProps) {
                   </td>
                 </tr>
                 {editingId === v.id && (
-                  <tr key={`${v.id}-edit`}>
+                  <tr>
                     <td colSpan={3} className="bg-gray-50 px-4 py-3">
                       {FormPanel}
                     </td>
                   </tr>
                 )}
-              </>
+              </React.Fragment>
             ))}
           </tbody>
         </table>

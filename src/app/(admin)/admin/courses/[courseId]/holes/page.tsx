@@ -7,20 +7,21 @@ import type { Hole, TeeBox, Course } from '@/lib/types';
 export default async function CourseHolesPage({
   params,
 }: {
-  params: { courseId: string };
+  params: Promise<{ courseId: string }>;
 }) {
+  const { courseId } = await params;
   const supabase = await createClient();
 
   const { data: course } = await supabase
     .from('courses')
     .select('id, name')
-    .eq('id', params.courseId)
+    .eq('id', courseId)
     .single();
 
   const { data: holes } = await supabase
     .from('holes')
     .select('*')
-    .eq('course_id', params.courseId)
+    .eq('course_id', courseId)
     .order('hole_number');
 
   const holeIds = ((holes as Hole[]) ?? []).map((h) => h.id);

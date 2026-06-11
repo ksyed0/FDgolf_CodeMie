@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import { toast } from 'sonner';
 import { createClient } from '@/lib/supabase/client';
@@ -286,8 +286,8 @@ export function CourseManager({ courses: initial, venues }: CourseManagerProps) 
               </tr>
             )}
             {courses.map((c) => (
-              <>
-                <tr key={c.id} className="border-b hover:bg-gray-50">
+              <React.Fragment key={c.id}>
+                <tr className="border-b hover:bg-gray-50">
                   <td className="px-4 py-2 font-medium">{c.name}</td>
                   <td className="px-4 py-2 text-gray-500">{c.venue_name}</td>
                   <td className="px-4 py-2 text-gray-500">
@@ -333,13 +333,13 @@ export function CourseManager({ courses: initial, venues }: CourseManagerProps) 
                   </td>
                 </tr>
                 {editingId === c.id && (
-                  <tr key={`${c.id}-edit`}>
+                  <tr>
                     <td colSpan={4} className="bg-gray-50 px-4 py-3">
                       {FormPanel}
                     </td>
                   </tr>
                 )}
-              </>
+              </React.Fragment>
             ))}
           </tbody>
         </table>
