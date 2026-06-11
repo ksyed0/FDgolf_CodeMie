@@ -107,9 +107,7 @@ describe('POST /api/admin/add-player', () => {
 
     (createServerClient as jest.Mock).mockResolvedValue(buildServerClientMock());
 
-    mockCreateUser = jest
-      .fn()
-      .mockResolvedValue({ data: { user: NEW_AUTH_USER }, error: null });
+    mockCreateUser = jest.fn().mockResolvedValue({ data: { user: NEW_AUTH_USER }, error: null });
     mockListUsers = jest.fn().mockResolvedValue({ data: { users: [] } });
     mockDeleteUser = jest.fn().mockResolvedValue({});
     mockAdminFrom = buildInsertChain({ data: PLAYER_ROW, error: null });

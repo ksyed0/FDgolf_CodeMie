@@ -16,10 +16,12 @@ export default async function TournamentAdminPage() {
     supabase.from('courses').select('*').order('name'),
   ]);
 
-  const rows: TournamentRow[] = ((rawTournaments as (Tournament & {
-    venue: { name: string } | null;
-    course: { name: string } | null;
-  })[]) ?? []).map((t) => ({
+  const rows: TournamentRow[] = (
+    (rawTournaments as (Tournament & {
+      venue: { name: string } | null;
+      course: { name: string } | null;
+    })[]) ?? []
+  ).map((t) => ({
     ...t,
     venue_name: t.venue?.name ?? '',
     course_name: t.course?.name ?? '',

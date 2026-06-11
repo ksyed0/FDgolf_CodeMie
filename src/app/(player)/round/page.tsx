@@ -239,7 +239,10 @@ export default function RoundPage() {
           .select('*')
           .eq('tournament_id', tournament.id)
           .eq('hole_number', roundState.current_hole)
-          .in('player_id', teammates.map((p) => p.id));
+          .in(
+            'player_id',
+            teammates.map((p) => p.id)
+          );
         setHoleSummaryScores((summaryData as Score[]) ?? []);
         setSummaryLoading(false);
       }
@@ -253,12 +256,25 @@ export default function RoundPage() {
           .select('*')
           .eq('tournament_id', tournament.id)
           .eq('hole_number', roundState.current_hole)
-          .in('player_id', teammates.map((p) => p.id))
+          .in(
+            'player_id',
+            teammates.map((p) => p.id)
+          )
           .order('shot_number');
         setDbShots((refreshed as Shot[]) ?? []);
       }
     },
-    [player, tournament, roundState, activePlayerId, selectedClub, shotNumber, position, supabase, teammates]
+    [
+      player,
+      tournament,
+      roundState,
+      activePlayerId,
+      selectedClub,
+      shotNumber,
+      position,
+      supabase,
+      teammates,
+    ]
   );
 
   const nextHole = useCallback(async () => {
@@ -380,44 +396,34 @@ export default function RoundPage() {
                         } else {
                           setEditingShot(shot.id);
                           setEditClub(shot.club_name);
-                          setEditOutcome(
-                            shot.outcome === 'sunk' ? 'in_play' : shot.outcome
-                          );
+                          setEditOutcome(shot.outcome === 'sunk' ? 'in_play' : shot.outcome);
                         }
                       }}
                     >
                       <span className="text-gray-700">
-                        Shot {shot.shot_number} · {shooter?.name ?? 'Unknown'} ·{' '}
-                        {shot.club_name} · {OUTCOME_LABELS[shot.outcome]}
+                        Shot {shot.shot_number} · {shooter?.name ?? 'Unknown'} · {shot.club_name} ·{' '}
+                        {OUTCOME_LABELS[shot.outcome]}
                       </span>
-                      <span className="text-xs text-[#1a472a]">
-                        {isEditing ? '✕' : '✏'}
-                      </span>
+                      <span className="text-xs text-[#1a472a]">{isEditing ? '✕' : '✏'}</span>
                     </button>
 
                     {isEditing && (
                       <div className="space-y-3 border-t bg-gray-50 px-3 py-3">
-                        <ClubSelector
-                          clubs={clubs}
-                          value={editClub}
-                          onChange={setEditClub}
-                        />
+                        <ClubSelector clubs={clubs} value={editClub} onChange={setEditClub} />
                         <div className="flex gap-2">
-                          {(['in_play', 'out_of_bounds', 'mulligan'] as ShotOutcome[]).map(
-                            (o) => (
-                              <button
-                                key={o}
-                                onClick={() => setEditOutcome(o)}
-                                className={`flex-1 rounded-lg border px-2 py-1.5 text-xs font-medium transition-colors ${
-                                  editOutcome === o
-                                    ? 'border-[#1a472a] bg-[#1a472a] text-white'
-                                    : 'border-gray-200 bg-white text-gray-700 hover:bg-gray-50'
-                                }`}
-                              >
-                                {OUTCOME_LABELS[o]}
-                              </button>
-                            )
-                          )}
+                          {(['in_play', 'out_of_bounds', 'mulligan'] as ShotOutcome[]).map((o) => (
+                            <button
+                              key={o}
+                              onClick={() => setEditOutcome(o)}
+                              className={`flex-1 rounded-lg border px-2 py-1.5 text-xs font-medium transition-colors ${
+                                editOutcome === o
+                                  ? 'border-[#1a472a] bg-[#1a472a] text-white'
+                                  : 'border-gray-200 bg-white text-gray-700 hover:bg-gray-50'
+                              }`}
+                            >
+                              {OUTCOME_LABELS[o]}
+                            </button>
+                          ))}
                         </div>
                         <div className="flex gap-2">
                           <Button
@@ -492,14 +498,12 @@ export default function RoundPage() {
                     holeSummaryScores.length > 0
                       ? Math.min(...holeSummaryScores.map((s) => s.strokes))
                       : null;
-                  const bestBallPar =
-                    bestStrokes !== null ? bestStrokes - currentHole.par : null;
+                  const bestBallPar = bestStrokes !== null ? bestStrokes - currentHole.par : null;
                   return (
                     <>
                       {bestBallPar !== null && (
                         <p className="text-center text-sm text-gray-600">
-                          Best Ball: {bestStrokes} strokes (
-                          {bestBallPar >= 0 ? '+' : ''}
+                          Best Ball: {bestStrokes} strokes ({bestBallPar >= 0 ? '+' : ''}
                           {bestBallPar} vs par)
                         </p>
                       )}
@@ -518,9 +522,7 @@ export default function RoundPage() {
                             >
                               <span>{p.name}</span>
                               <span>
-                                {score
-                                  ? `${score.strokes} strokes${isBest ? ' ★' : ''}`
-                                  : '—'}
+                                {score ? `${score.strokes} strokes${isBest ? ' ★' : ''}` : '—'}
                               </span>
                             </div>
                           );

@@ -77,7 +77,10 @@ export async function POST(request: NextRequest) {
       .eq('auth_user_id', existingUser.id)
       .single();
     if (existingPlayer) {
-      return NextResponse.json({ error: 'A player with this email already exists' }, { status: 409 });
+      return NextResponse.json(
+        { error: 'A player with this email already exists' },
+        { status: 409 }
+      );
     }
     // Insert player row linked to existing auth user
     const { data: player, error: playerError } = await adminClient

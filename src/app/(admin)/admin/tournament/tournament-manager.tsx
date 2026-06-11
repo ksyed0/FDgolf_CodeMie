@@ -66,7 +66,11 @@ const STATUS_VARIANTS: Record<TournamentStatus, 'default' | 'secondary' | 'outli
   completed: 'outline',
 };
 
-export function TournamentManager({ tournaments: initial, venues, courses }: TournamentManagerProps) {
+export function TournamentManager({
+  tournaments: initial,
+  venues,
+  courses,
+}: TournamentManagerProps) {
   const router = useRouter();
   const supabase = createClient();
   const [tournaments, setTournaments] = useState<TournamentRow[]>(initial);
@@ -79,7 +83,11 @@ export function TournamentManager({ tournaments: initial, venues, courses }: Tou
   const [deleting, setDeleting] = useState(false);
 
   function toSlug(name: string) {
-    return name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 80);
+    return name
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-|-$/g, '')
+      .slice(0, 80);
   }
 
   function setField<K extends keyof FormState>(key: K, value: FormState[K]) {
@@ -89,16 +97,18 @@ export function TournamentManager({ tournaments: initial, venues, courses }: Tou
         return { ...prev, name: value, slug: wasAuto ? toSlug(value) : prev.slug };
       }
       if (key === 'holesPlayed') {
-        return { ...prev, holesPlayed: value as string, nineHoleSelection: value === '18' ? '' : prev.nineHoleSelection };
+        return {
+          ...prev,
+          holesPlayed: value as string,
+          nineHoleSelection: value === '18' ? '' : prev.nineHoleSelection,
+        };
       }
       return { ...prev, [key]: value };
     });
   }
 
   // Courses filtered to the selected venue
-  const venueCourses = form.venueId
-    ? courses.filter((c) => c.venue_id === form.venueId)
-    : courses;
+  const venueCourses = form.venueId ? courses.filter((c) => c.venue_id === form.venueId) : courses;
 
   async function save() {
     if (!form.name.trim() || !form.venueId || !form.courseId || !form.date) {
@@ -124,15 +134,22 @@ export function TournamentManager({ tournaments: initial, venues, courses }: Tou
         .select('*, venue:venues!venue_id(name), course:courses!course_id(name)')
         .single();
 
-      if (error) { toast.error(error.message); setSaving(false); return; }
+      if (error) {
+        toast.error(error.message);
+        setSaving(false);
+        return;
+      }
 
       const venue = venues.find((v) => v.id === form.venueId);
       const course = courses.find((c) => c.id === form.courseId);
-      setTournaments((prev) => [{
-        ...(created as Tournament),
-        venue_name: venue?.name ?? '',
-        course_name: course?.name ?? '',
-      }, ...prev]);
+      setTournaments((prev) => [
+        {
+          ...(created as Tournament),
+          venue_name: venue?.name ?? '',
+          course_name: course?.name ?? '',
+        },
+        ...prev,
+      ]);
       toast.success('Tournament created');
       setMode('list');
     } else if (mode === 'edit' && editingId) {
@@ -152,19 +169,30 @@ export function TournamentManager({ tournaments: initial, venues, courses }: Tou
         })
         .eq('id', editingId);
 
-      if (error) { toast.error(error.message); setSaving(false); return; }
+      if (error) {
+        toast.error(error.message);
+        setSaving(false);
+        return;
+      }
 
       const venue = venues.find((v) => v.id === form.venueId);
       const course = courses.find((c) => c.id === form.courseId);
-      setTournaments((prev) => prev.map((t) =>
-        t.id === editingId
-          ? { ...t, ...form, venue_id: form.venueId, course_id: form.courseId,
-              holes_played: parseInt(form.holesPlayed, 10) as 9 | 18,
-              nine_hole_selection: (form.nineHoleSelection as 'front' | 'back') || null,
-              venue_name: venue?.name ?? '',
-              course_name: course?.name ?? '' }
-          : t
-      ));
+      setTournaments((prev) =>
+        prev.map((t) =>
+          t.id === editingId
+            ? {
+                ...t,
+                ...form,
+                venue_id: form.venueId,
+                course_id: form.courseId,
+                holes_played: parseInt(form.holesPlayed, 10) as 9 | 18,
+                nine_hole_selection: (form.nineHoleSelection as 'front' | 'back') || null,
+                venue_name: venue?.name ?? '',
+                course_name: course?.name ?? '',
+              }
+            : t
+        )
+      );
       toast.success('Tournament updated');
       setMode('list');
       router.refresh();
@@ -257,13 +285,21 @@ export function TournamentManager({ tournaments: initial, venues, courses }: Tou
           {/* Venue */}
           <div>
             <Label htmlFor="t-venue">Venue *</Label>
-            <Select value={form.venueId} onValueChange={(v) => { setField('venueId', v); setField('courseId', ''); }}>
+            <Select
+              value={form.venueId}
+              onValueChange={(v) => {
+                setField('venueId', v);
+                setField('courseId', '');
+              }}
+            >
               <SelectTrigger id="t-venue" className="mt-1">
                 <SelectValue placeholder="Select a venue…" />
               </SelectTrigger>
               <SelectContent>
                 {venues.map((v) => (
-                  <SelectItem key={v.id} value={v.id}>{v.name} — {v.city}, {v.province_state}</SelectItem>
+                  <SelectItem key={v.id} value={v.id}>
+                    {v.name} — {v.city}, {v.province_state}
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -278,11 +314,15 @@ export function TournamentManager({ tournaments: initial, venues, courses }: Tou
               disabled={!form.venueId}
             >
               <SelectTrigger id="t-course" className="mt-1">
-                <SelectValue placeholder={form.venueId ? 'Select a course…' : 'Select a venue first'} />
+                <SelectValue
+                  placeholder={form.venueId ? 'Select a course…' : 'Select a venue first'}
+                />
               </SelectTrigger>
               <SelectContent>
                 {venueCourses.map((c) => (
-                  <SelectItem key={c.id} value={c.id}>{c.name} ({c.hole_count} holes)</SelectItem>
+                  <SelectItem key={c.id} value={c.id}>
+                    {c.name} ({c.hole_count} holes)
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -291,20 +331,34 @@ export function TournamentManager({ tournaments: initial, venues, courses }: Tou
           {/* Date */}
           <div>
             <Label htmlFor="t-date">Date *</Label>
-            <Input id="t-date" type="date" className="mt-1" value={form.date} onChange={(e) => setField('date', e.target.value)} />
+            <Input
+              id="t-date"
+              type="date"
+              className="mt-1"
+              value={form.date}
+              onChange={(e) => setField('date', e.target.value)}
+            />
           </div>
 
           {/* Start time */}
           <div>
             <Label htmlFor="t-time">Start time</Label>
-            <Input id="t-time" type="time" className="mt-1" value={form.startTime} onChange={(e) => setField('startTime', e.target.value)} />
+            <Input
+              id="t-time"
+              type="time"
+              className="mt-1"
+              value={form.startTime}
+              onChange={(e) => setField('startTime', e.target.value)}
+            />
           </div>
 
           {/* Format */}
           <div>
             <Label>Format *</Label>
             <Select value={form.format} onValueChange={(v) => setField('format', v)}>
-              <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
+              <SelectTrigger className="mt-1">
+                <SelectValue />
+              </SelectTrigger>
               <SelectContent>
                 <SelectItem value="best_ball">Best Ball</SelectItem>
                 <SelectItem value="stroke_play">Stroke Play</SelectItem>
@@ -317,7 +371,9 @@ export function TournamentManager({ tournaments: initial, venues, courses }: Tou
           <div>
             <Label>Holes played *</Label>
             <Select value={form.holesPlayed} onValueChange={(v) => setField('holesPlayed', v)}>
-              <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
+              <SelectTrigger className="mt-1">
+                <SelectValue />
+              </SelectTrigger>
               <SelectContent>
                 <SelectItem value="18">18 holes</SelectItem>
                 <SelectItem value="9">9 holes</SelectItem>
@@ -329,8 +385,13 @@ export function TournamentManager({ tournaments: initial, venues, courses }: Tou
           {form.holesPlayed === '9' && (
             <div>
               <Label>Which 9 holes? *</Label>
-              <Select value={form.nineHoleSelection} onValueChange={(v) => setField('nineHoleSelection', v)}>
-                <SelectTrigger className="mt-1"><SelectValue placeholder="Front or back 9?" /></SelectTrigger>
+              <Select
+                value={form.nineHoleSelection}
+                onValueChange={(v) => setField('nineHoleSelection', v)}
+              >
+                <SelectTrigger className="mt-1">
+                  <SelectValue placeholder="Front or back 9?" />
+                </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="front">Front 9 (holes 1–9)</SelectItem>
                   <SelectItem value="back">Back 9 (holes 10–18)</SelectItem>
@@ -343,8 +404,13 @@ export function TournamentManager({ tournaments: initial, venues, courses }: Tou
           {mode === 'edit' && (
             <div>
               <Label>Status</Label>
-              <Select value={form.status} onValueChange={(v) => setField('status', v as TournamentStatus)}>
-                <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
+              <Select
+                value={form.status}
+                onValueChange={(v) => setField('status', v as TournamentStatus)}
+              >
+                <SelectTrigger className="mt-1">
+                  <SelectValue />
+                </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="setup">Setup</SelectItem>
                   <SelectItem value="active">Active</SelectItem>
@@ -357,11 +423,7 @@ export function TournamentManager({ tournaments: initial, venues, courses }: Tou
         </div>
 
         <div className="flex gap-3">
-          <Button
-            className="bg-[#1a472a] hover:bg-[#143820]"
-            onClick={save}
-            disabled={saving}
-          >
+          <Button className="bg-[#1a472a] hover:bg-[#143820]" onClick={save} disabled={saving}>
             {saving ? 'Saving…' : isAdd ? 'Create Tournament' : 'Save Changes'}
           </Button>
           <Button variant="outline" onClick={cancelForm} disabled={saving}>
@@ -377,7 +439,14 @@ export function TournamentManager({ tournaments: initial, venues, courses }: Tou
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-gray-900">Tournaments</h1>
-        <Button className="bg-[#1a472a] hover:bg-[#143820]" onClick={() => { setForm(EMPTY_FORM); setEditingId(null); setMode('add'); }}>
+        <Button
+          className="bg-[#1a472a] hover:bg-[#143820]"
+          onClick={() => {
+            setForm(EMPTY_FORM);
+            setEditingId(null);
+            setMode('add');
+          }}
+        >
           <Plus className="mr-2 h-4 w-4" />
           Add Tournament
         </Button>
@@ -386,7 +455,14 @@ export function TournamentManager({ tournaments: initial, venues, courses }: Tou
       {tournaments.length === 0 ? (
         <div className="rounded-xl border bg-white p-10 text-center text-sm text-gray-400 shadow-sm">
           No tournaments yet.{' '}
-          <button onClick={() => { setForm(EMPTY_FORM); setEditingId(null); setMode('add'); }} className="font-medium text-[#1a472a] hover:underline">
+          <button
+            onClick={() => {
+              setForm(EMPTY_FORM);
+              setEditingId(null);
+              setMode('add');
+            }}
+            className="font-medium text-[#1a472a] hover:underline"
+          >
             Create the first one.
           </button>
         </div>
@@ -408,7 +484,10 @@ export function TournamentManager({ tournaments: initial, venues, courses }: Tou
                   <tr className="border-b last:border-0 hover:bg-gray-50">
                     <td className="px-4 py-3 font-medium">{t.name}</td>
                     <td className="px-4 py-3 text-gray-600">
-                      <div>{t.venue_name}{t.course_name ? ` — ${t.course_name}` : ''}</div>
+                      <div>
+                        {t.venue_name}
+                        {t.course_name ? ` — ${t.course_name}` : ''}
+                      </div>
                     </td>
                     <td className="px-4 py-3 text-gray-600">
                       {new Date(t.date + 'T12:00:00').toLocaleDateString('en-CA', {
@@ -418,9 +497,7 @@ export function TournamentManager({ tournaments: initial, venues, courses }: Tou
                       })}
                     </td>
                     <td className="px-4 py-3">
-                      <Badge variant={STATUS_VARIANTS[t.status]}>
-                        {STATUS_LABELS[t.status]}
-                      </Badge>
+                      <Badge variant={STATUS_VARIANTS[t.status]}>{STATUS_LABELS[t.status]}</Badge>
                     </td>
                     <td className="px-4 py-3">
                       <div className="flex items-center justify-end gap-1">
@@ -449,13 +526,16 @@ export function TournamentManager({ tournaments: initial, venues, courses }: Tou
                       <td colSpan={5} className="px-4 py-3">
                         <div className="flex flex-wrap items-center gap-3">
                           <span className="text-sm font-medium text-red-700">
-                            Delete &ldquo;{t.name}&rdquo;? This permanently removes all
-                            teams, scores, and shots for this tournament.
+                            Delete &ldquo;{t.name}&rdquo;? This permanently removes all teams,
+                            scores, and shots for this tournament.
                           </span>
                           <Button
                             size="sm"
                             variant="destructive"
-                            onClick={() => { setDeletingId(t.id); confirmDelete(t.id); }}
+                            onClick={() => {
+                              setDeletingId(t.id);
+                              confirmDelete(t.id);
+                            }}
                             disabled={deleting && deletingId === t.id}
                             className="h-7 px-3 text-xs"
                           >

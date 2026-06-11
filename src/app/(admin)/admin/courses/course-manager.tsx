@@ -106,19 +106,13 @@ export function CourseManager({ courses: initial, venues }: CourseManagerProps) 
       } else {
         const venueName = venues.find((v) => v.id === form.venueId)?.name ?? '';
         setCourses((cs) =>
-          cs.map((c) =>
-            c.id === editingId ? { ...(data as Course), venue_name: venueName } : c,
-          ),
+          cs.map((c) => (c.id === editingId ? { ...(data as Course), venue_name: venueName } : c))
         );
         toast.success('Course updated.');
         cancel();
       }
     } else {
-      const { data, error } = await supabase
-        .from('courses')
-        .insert(payload)
-        .select()
-        .single();
+      const { data, error } = await supabase.from('courses').insert(payload).select().single();
       if (error) {
         toast.error(error.message);
       } else {

@@ -47,7 +47,8 @@ export default async function LiveLeaderboardPage({ params }: LiveLeaderboardPag
         <div className="mb-4">
           <h1 className="text-2xl font-bold text-gray-900">{tournament.name}</h1>
           <p className="text-sm text-gray-500">
-            {tournament.venue?.name}{tournament.venue?.city ? ` · ${tournament.venue.city}` : ''} · Live Leaderboard
+            {tournament.venue?.name}
+            {tournament.venue?.city ? ` · ${tournament.venue.city}` : ''} · Live Leaderboard
           </p>
         </div>
         <div className="rounded-xl border bg-white shadow-sm">
