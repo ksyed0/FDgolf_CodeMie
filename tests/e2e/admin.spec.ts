@@ -61,10 +61,10 @@ test('TC-0048: unauthenticated user is blocked from /admin routes', async ({ pag
 })
 
 // ── TC-0049: Tournament config saved ──────────────────────────────────────
-// SKIPPED: TournamentControls only has status buttons (Activate/Pause/Complete).
-// There is no editable tournament-name form on this page yet.
 
-test.skip('TC-0049: tournament config edits are saved to database', async ({ page }) => {
+test('TC-0049: tournament config edits are saved to database', async ({ page }) => {
+  test.skip(!hasRealSupabase, 'Requires seeded local Supabase — /admin/tournament is SSR')
+
   let patchCalled = false
 
   await page.route(`${SB_URL}/rest/v1/tournaments**`, (route) => {
@@ -88,10 +88,10 @@ test.skip('TC-0049: tournament config edits are saved to database', async ({ pag
 })
 
 // ── TC-0050: Copy leaderboard URL ─────────────────────────────────────────
-// SKIPPED: "Copy Leaderboard URL" button is not yet implemented in
-// TournamentControls (only status-change buttons exist).
 
-test.skip('TC-0050: "Copy Leaderboard URL" button copies URL to clipboard', async ({ page }) => {
+test('TC-0050: "Copy Leaderboard URL" button copies URL to clipboard', async ({ page }) => {
+  test.skip(!hasRealSupabase, 'Requires seeded local Supabase — /admin/tournament is SSR')
+
   await page.goto('/admin/tournament')
   await page.context().grantPermissions(['clipboard-read', 'clipboard-write'])
 
@@ -181,10 +181,9 @@ test('TC-0055: sending magic link calls /api/auth/magic-link', async ({ page }) 
 })
 
 // ── TC-0056: Create new team ───────────────────────────────────────────────
-// SKIPPED: TeamsManager (/admin/teams) only edits existing teams.
-// There is no "Add Team" or "New Team" button — team creation is not yet implemented.
 
-test.skip('TC-0056: new team can be created with team number and starting hole', async ({ page }) => {
+test('TC-0056: new team can be created with team number and starting hole', async ({ page }) => {
+  test.skip(!hasRealSupabase, 'Requires seeded local Supabase — /admin/teams is SSR')
   await mockSupabaseTable(page, 'teams', fakeTeams)
 
   let insertCalled = false

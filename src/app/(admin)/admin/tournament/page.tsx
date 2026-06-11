@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server';
 import { Badge } from '@/components/ui/badge';
 import type { Tournament } from '@/lib/types';
 import { TournamentControls } from './tournament-controls';
+import { TournamentNameEditor } from './tournament-name-editor';
 
 const STATUS_LABELS: Record<string, string> = {
   setup: 'Not started',
@@ -38,7 +39,10 @@ export default async function TournamentAdminPage() {
       <div className="rounded-xl border bg-white p-6 shadow-sm">
         <div className="flex items-start justify-between">
           <div>
-            <h2 className="text-xl font-semibold">{tournament.name}</h2>
+            <TournamentNameEditor
+              tournamentId={tournament.id}
+              initialName={tournament.name}
+            />
             <p className="text-sm text-gray-500">{tournament.venue}</p>
             <p className="text-sm text-gray-500">
               {new Date(tournament.date).toLocaleDateString('en-CA', {
@@ -67,7 +71,7 @@ export default async function TournamentAdminPage() {
         </div>
       </div>
 
-      <TournamentControls tournament={tournament} />
+      <TournamentControls tournament={tournament} slug={tournament.slug} />
     </div>
   );
 }

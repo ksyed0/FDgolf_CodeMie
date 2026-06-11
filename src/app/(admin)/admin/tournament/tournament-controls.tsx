@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { Copy } from 'lucide-react';
 import { toast } from 'sonner';
 import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -9,6 +10,7 @@ import type { Tournament, TournamentStatus } from '@/lib/types';
 
 interface TournamentControlsProps {
   tournament: Tournament;
+  slug: string;
 }
 
 const STATUS_MESSAGES: Partial<Record<TournamentStatus, string>> = {
@@ -17,7 +19,7 @@ const STATUS_MESSAGES: Partial<Record<TournamentStatus, string>> = {
   completed: 'Tournament completed!',
 };
 
-export function TournamentControls({ tournament }: TournamentControlsProps) {
+export function TournamentControls({ tournament, slug }: TournamentControlsProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
 
@@ -38,8 +40,21 @@ export function TournamentControls({ tournament }: TournamentControlsProps) {
     setLoading(false);
   }
 
+  function copyLiveUrl() {
+    const url = `${window.location.origin}/live/${slug}`;
+    navigator.clipboard.writeText(url).then(
+      () => toast.success('Link copied!'),
+      () => toast.error('Could not copy to clipboard')
+    );
+  }
+
   return (
     <div className="flex flex-wrap gap-3">
+      <Button variant="outline" onClick={copyLiveUrl}>
+        <Copy className="mr-2 h-4 w-4" />
+        Copy live URL
+      </Button>
+
       {tournament.status === 'setup' && (
         <Button
           className="bg-[#1a472a] hover:bg-[#143820]"

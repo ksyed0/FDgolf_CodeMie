@@ -24,7 +24,11 @@ export default async function TeamsAdminPage() {
   return (
     <div className="space-y-4">
       <h1 className="text-2xl font-bold text-gray-900">Teams</h1>
-      <TeamsManager teams={(teams as Team[]) ?? []} players={(players as Player[]) ?? []} />
+      <TeamsManager
+        teams={(teams as Team[]) ?? []}
+        players={(players as Player[]) ?? []}
+        tournamentId={tournament?.id ?? ''}
+      />
     </div>
   );
 }

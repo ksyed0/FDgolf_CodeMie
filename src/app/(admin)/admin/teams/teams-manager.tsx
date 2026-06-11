@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { createClient } from '@/lib/supabase/client';
+import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
   Select,
@@ -16,13 +17,17 @@ import type { Team, Player } from '@/lib/types';
 interface TeamsManagerProps {
   teams: Team[];
   players: Player[];
+  tournamentId: string;
 }
 
-export function TeamsManager({ teams: initialTeams, players }: TeamsManagerProps) {
+export function TeamsManager({ teams: initialTeams, players, tournamentId }: TeamsManagerProps) {
   const [teams, setTeams] = useState(initialTeams);
   const [teamNames, setTeamNames] = useState<Record<string, string>>(
     Object.fromEntries(initialTeams.map((t) => [t.id, t.team_name ?? '']))
   );
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [addForm, setAddForm] = useState({ team_name: '', starting_hole: 1, max_players: 4 });
+  const [adding, setAdding] = useState(false);
   const supabase = createClient();
 
   async function updateTeamName(teamId: string) {
@@ -74,8 +79,98 @@ export function TeamsManager({ teams: initialTeams, players }: TeamsManagerProps
     toast.success('Player assigned');
   }
 
+  async function addTeam() {
+    setAdding(true);
+    const nextNumber =
+      teams.length > 0 ? Math.max(...teams.map((t) => t.team_number)) + 1 : 1;
+    const { data, error } = await supabase
+      .from('teams')
+      .insert({
+        tournament_id: tournamentId,
+        team_number: nextNumber,
+        team_name: addForm.team_name.trim() || null,
+        starting_hole: addForm.starting_hole,
+        max_players: addForm.max_players,
+      })
+      .select()
+      .single<Team>();
+    if (error) {
+      toast.error(error.message);
+    } else if (data) {
+      setTeams((prev) => [...prev, data]);
+      setTeamNames((prev) => ({ ...prev, [data.id]: data.team_name ?? '' }));
+      setAddForm({ team_name: '', starting_hole: 1, max_players: 4 });
+      setShowAddForm(false);
+      toast.success('Team added');
+    }
+    setAdding(false);
+  }
+
   return (
     <div className="space-y-4">
+      {/* Add Team */}
+      <div className="flex justify-end">
+        <Button
+          variant="outline"
+          className="border-[#1a472a] text-[#1a472a] hover:bg-[#1a472a] hover:text-white"
+          onClick={() => setShowAddForm((v) => !v)}
+        >
+          {showAddForm ? 'Cancel' : '+ Add Team'}
+        </Button>
+      </div>
+
+      {showAddForm && (
+        <div className="rounded-xl border bg-white p-4 shadow-sm space-y-3">
+          <h3 className="font-semibold text-gray-900">New Team</h3>
+          <div className="flex flex-wrap gap-3">
+            <Input
+              placeholder="Team name (optional)"
+              value={addForm.team_name}
+              onChange={(e) => setAddForm((f) => ({ ...f, team_name: e.target.value }))}
+              className="flex-1 min-w-[160px]"
+            />
+            <div className="flex items-center gap-2">
+              <label className="text-xs text-gray-500 shrink-0">Starting hole</label>
+              <Input
+                type="number"
+                min={1}
+                max={18}
+                value={addForm.starting_hole}
+                onChange={(e) =>
+                  setAddForm((f) => ({ ...f, starting_hole: Number(e.target.value) }))
+                }
+                className="w-16"
+              />
+            </div>
+            <div className="flex items-center gap-2">
+              <label className="text-xs text-gray-500 shrink-0">Max</label>
+              <Select
+                value={String(addForm.max_players)}
+                onValueChange={(v) => setAddForm((f) => ({ ...f, max_players: Number(v) }))}
+              >
+                <SelectTrigger className="h-8 w-16">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {[2, 3, 4, 5, 6].map((n) => (
+                    <SelectItem key={n} value={String(n)}>
+                      {n}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <Button
+            className="bg-[#1a472a] hover:bg-[#143820]"
+            onClick={addTeam}
+            disabled={adding || !addForm.starting_hole || addForm.starting_hole < 1 || addForm.starting_hole > 18}
+          >
+            {adding ? 'Adding…' : 'Add Team'}
+          </Button>
+        </div>
+      )}
+
       {teams.map((team) => {
         const members = players.filter((p) => p.team_id === team.id);
         return (
