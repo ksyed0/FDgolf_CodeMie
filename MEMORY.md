@@ -13,12 +13,13 @@ Stack: Next.js 14 App Router · TypeScript · Tailwind CSS · shadcn/ui · Supab
 
 ---
 
-## Branch State (as of Session 16 — 2026-06-11)
+## Branch State (as of Session 17 — 2026-06-11)
 
 | Branch | Status | Notes |
 |--------|--------|-------|
 | `main` | clean | baseline |
-| `develop` | HEAD `ddb6746` | Plan 1 squash-merged (PR #7); all session 15/16 work on develop |
+| `develop` | HEAD `81934ca` | Plan 2 squash-merged (PR #8); all session 17 work on develop |
+| `feature/plan2-admin-venues-courses` | **merged PR #8** | Admin venues, courses, tee boxes — 4 new/modified files |
 | `feature/plan1-master-data-hierarchy` | **merged PR #7** | Master data hierarchy — migrations 007/008, types, 7 pages, add-player tests |
 | `feature/feature-completion-2026-06-11` | **merged PR #3** | 6 features: sign-out, add team, tournament controls, hole summary, edit shot, password reset |
 | `feature/e2e-playwright-full-suite` | **merged PR #2** | Mapbox + pin editor + scores RLS fix + E2E suite |
@@ -26,7 +27,7 @@ Stack: Next.js 14 App Router · TypeScript · Tailwind CSS · shadcn/ui · Supab
 
 **Monorepo**: `ksyed0/FDgolf` on GitHub — `CodeMie/` is a plain subdirectory (no nested git). Bare backup at `CodeMie-origin.git/`.
 
-**Next action**: Execute Plan 2 (admin UI for `/admin/venues`, `/admin/courses`, holes+tee-box editor), then Vercel cloud deployment.
+**Next action**: Vercel cloud deployment — create Supabase staging project, apply all 8 migrations + seed.sql, set env vars, connect GitHub repo, deploy, smoke test.
 
 ---
 
@@ -202,9 +203,8 @@ Must apply `005_scores_player_rls.sql` to all Supabase instances (local ✓, sta
 
 ## Next Steps
 
-1. **Execute Plan 2** — `/admin/venues`, `/admin/courses`, holes+tee-box editor (design spec + plan not yet written)
-3. **Create GitHub labels** on `ksyed0/FDgolf_CodeMie`: `critical`, `high`, `medium`, `low`, `planvisualizer`
-4. **Create Supabase staging project** on supabase.com; apply all migrations + seed.sql
-5. **Vercel env vars**: staging keys → `preview` scope; prod keys → `production` scope; Mapbox token
-6. **Connect GitHub repo to Vercel**: `develop` → preview, `main` → production
-7. Vercel deploy + smoke test (target June 20); 2-day test window before June 22 tournament
+1. **Create GitHub labels** on `ksyed0/FDgolf_CodeMie`: `critical`, `high`, `medium`, `low`, `planvisualizer`
+2. **Create Supabase staging project** on supabase.com; apply all 8 migrations + seed.sql
+3. **Vercel env vars**: staging keys → `preview` scope; prod keys → `production` scope; Mapbox token
+4. **Connect GitHub repo to Vercel**: `develop` → preview, `main` → production
+5. **Vercel deploy + smoke test** (target June 20; 2-day test window before June 22 tournament)

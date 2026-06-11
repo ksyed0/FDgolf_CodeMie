@@ -1,5 +1,34 @@
 # FDgolf — Progress
 
+## Session 17 — 2026-06-11 (Plan 2: admin venues, courses, tee boxes — PR #8 merged)
+
+### What Was Done
+
+**1. Plan 2 written** (`docs/superpowers/plans/2026-06-11-admin-venues-courses-plan2.md`)
+DM_AGENT wrote a full implementation plan for `/admin/venues`, `/admin/courses`, and `/admin/courses/[courseId]/holes` based on reading existing `TournamentManager`, `HolesEditor`, `PinEditorModal`, and `AdminSidebar` source.
+
+**2. Forge executed Plan 2 in worktree** (PR #8 → develop `81934ca`)
+Forge dispatched to `feature/plan2-admin-venues-courses` worktree, implementing:
+- **`/admin/venues`** — `VenueManager` client component; inline add/edit form, confirm-delete, full CRUD
+- **`/admin/courses`** — `CourseManager` with venue FK dropdown (sentinel `__none__` pattern), hole count/par/rating fields, "Holes →" link per row
+- **`/admin/courses/[courseId]/holes`** — breadcrumb server page reusing `HolesEditor` unchanged + new `CourseHolesEditor` with per-hole accordion for tee box CRUD (add/edit/delete inline form)
+- **`admin-sidebar.tsx`** — MapPin (Venues) and Flag (Courses) nav links added after Tournament
+
+**3. Lens review → 2 bugs fixed** (commit `98f7d56`)
+- BUG: `<>` bare fragments in `.map()` inside `<tbody>` — replaced with `<React.Fragment key={id}>` in `venue-manager.tsx` and `course-manager.tsx`
+- BUG: `params: { courseId: string }` in `courses/[courseId]/holes/page.tsx` — updated to `params: Promise<{ courseId: string }>` with `await params` for Next.js 15 compatibility
+
+### Test Results
+
+- `npm run type-check`: 0 errors (post-fix)
+- `npm run test:ci`: 81 passed, coverage 90.47% stmts / 94.44% branches — all above thresholds (new pages are UI-only; no new tests needed)
+
+### Stories / ACs Closed
+
+None (admin tooling infrastructure). Next: Vercel cloud deployment — create Supabase staging project, apply migrations, set env vars.
+
+---
+
 ## Session 16 — 2026-06-11 (Plan 1: master data hierarchy — schema migration + PR #7 merged)
 
 ### What Was Done
