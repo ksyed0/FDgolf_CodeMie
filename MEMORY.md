@@ -13,13 +13,13 @@ Stack: Next.js 14 App Router · TypeScript · Tailwind CSS · shadcn/ui · Supab
 
 ---
 
-## Branch State (as of Session 12 — 2026-06-10)
+## Branch State (as of Session 13 — 2026-06-11)
 
 | Branch | Status | Notes |
 |--------|--------|-------|
 | `main` | clean | baseline |
-| `develop` | HEAD `66bf107` | latest — includes phase6 + E2E suite |
-| `feature/e2e-playwright-full-suite` | open, 4 new commits | Mapbox + pin editor + scores RLS fix |
+| `develop` | HEAD `32e827d` | latest — all features merged including E2E + Mapbox + RLS fixes |
+| `feature/e2e-playwright-full-suite` | **merged PR #2** | Mapbox + pin editor + scores RLS fix + E2E suite |
 | `feature/phase6-po-items` | **merged PR #1** | Phase 6 complete |
 | `feature/EPIC-0001-infrastructure` | merged | Keystone scaffold |
 | `feature/EPIC-0002-best-ball-engine` | merged | Forge backend |
@@ -168,10 +168,21 @@ Must apply `005_scores_player_rls.sql` to all Supabase instances (local ✓, sta
 
 ---
 
+## Local Dev Setup
+
+- **Supabase instance**: containers running on ports 54341–54349 (`supabase_*_FDgolf_CodeMie` on OrbStack)
+- **Studio**: http://127.0.0.1:54343
+- **DB**: `postgresql://postgres:postgres@127.0.0.1:54342/postgres`
+- **Seed test users**: `npx tsx supabase/seed-users.ts` (5 users, password: `Password1!`)
+- **Start instance**: `supabase start` from `FDgolf_CodeMie/` directory
+- **Port conflict note**: default ports 54321–54327 used by another project; FDgolf_CodeMie uses +20 offset
+
+---
+
 ## Next Steps
 
-1. **PR** `feature/e2e-playwright-full-suite` → `develop` (contains Mapbox migration + pin editor + scores RLS)
-2. **Sign-out route** — add `/api/auth/signout` + logout button in player layout (low priority)
+1. **Logout button** — add `/api/auth/signout` route + logout UI in player layout (~30 min)
+2. **E2E suite on develop** — run Playwright against local to confirm green after PR #2 merge
 3. **Create Supabase staging project** on supabase.com; apply all 5 migrations + seed.sql
 4. **Create Supabase production project** on supabase.com; apply same
 5. **Vercel env vars**: staging keys → `preview` scope; prod keys → `production` scope; Mapbox token for both

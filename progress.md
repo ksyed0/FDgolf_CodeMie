@@ -1,5 +1,45 @@
 # FDgolf — Progress
 
+## Session 13 — 2026-06-11 (Local Supabase setup, test users, PR #2 merged)
+
+### What Was Done
+
+- **Local Supabase instance** — `supabase/config.toml` created with port offset +20 (54341–54349) to coexist with other local Supabase projects on OrbStack Docker. Instance running as `supabase_*_FDgolf_CodeMie`.
+- **Migration 005 registered** — policies were applied by `supabase start` but not tracked; inserted row into `supabase_migrations.schema_migrations` manually.
+- **`.env.local` updated** — `NEXT_PUBLIC_SUPABASE_URL` changed from port 54321 → 54341.
+- **Test user seed script** — `supabase/seed-users.ts`: idempotent script creates 5 auth users + 2 teams + 5 players via Supabase admin API. Run: `npx tsx supabase/seed-users.ts`
+  - `admin@fdgolf.local` / `Password1!` — admin role
+  - `alice@fdgolf.local` — Team Alpha captain
+  - `john@fdgolf.local` — Team Alpha player
+  - `bob@fdgolf.local` — Team Bravo captain
+  - `jane@fdgolf.local` — Team Bravo player
+- **Schema alignment decision** — decided NOT to align the two schema implementations before June 22. Too risky with 11 days to tournament; CodeMie schema is fully integrated and tested.
+- **PR #2 merged** — `feature/e2e-playwright-full-suite` squash-merged into `develop` (HEAD `32e827d`). CI was green (68 tests passing) before merge.
+
+### Files Changed
+
+- `supabase/config.toml` — NEW: local dev config, ports 54341–54349
+- `supabase/.gitignore` — NEW: ignore .branches, .temp, env files
+- `supabase/seed-users.ts` — NEW: test user + team seed script
+- `.env.local` — port updated to 54341 (gitignored, not committed)
+- `docs/AI_COST_LOG.md` — session cost rows
+
+### Test Status
+
+- **Jest unit tests**: 68 passing, coverage 88.88% ✓
+- **PR #2 CI**: both checks passed before merge ✓
+
+### Next Steps
+
+1. **Logout button** — add `/api/auth/signout` route + logout UI in player layout (~30 min)
+2. **E2E suite on develop** — run Playwright against local to confirm green after merge
+3. **Supabase cloud staging project** — create on supabase.com, apply all 5 migrations + seed
+4. **Vercel env vars** — staging keys → preview scope; Mapbox token
+5. **Staging smoke test** before June 20
+6. Target: Vercel deploy by June 20; 2-day test window before June 22 tournament
+
+---
+
 ## Session 12 — 2026-06-10 (Mapbox migration, pin editor, shot tracking flow test)
 
 ### What Was Done
