@@ -58,8 +58,8 @@ export function CourseManager({ courses: initial, venues }: CourseManagerProps) 
       name: c.name,
       holeCount: c.hole_count === 9 ? '9' : '18',
       parTotal: String(c.par_total),
-      courseRating: c.course_rating != null ? String(c.course_rating) : '',
-      slopeRating: c.slope_rating != null ? String(c.slope_rating) : '',
+      courseRating: c.course_rating !== null ? String(c.course_rating) : '',
+      slopeRating: c.slope_rating !== null ? String(c.slope_rating) : '',
     });
   }
 
