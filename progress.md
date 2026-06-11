@@ -1,6 +1,6 @@
 # FDgolf — Progress
 
-## Session 18 — 2026-06-11 (Vercel cloud deployment, smoke test, README + CONTRIBUTING)
+## Session 18 — 2026-06-11 (Vercel cloud deployment, smoke test, README + CONTRIBUTING, develop→main PR)
 
 ### What Was Done
 
@@ -31,9 +31,14 @@ Preview scope requires GitHub repo connection (browser OAuth) — deferred.
 | Venues | `/admin/venues` | ✓ Granite Ridge Golf Club shown |
 | Public leaderboard | `/live/cibc-granite-ridge-2026` | ✓ Team Alpha / Team Bravo, E, auto-refresh |
 
-**7. README + CONTRIBUTING updated** (this PR)
+**7. README + CONTRIBUTING updated** (PR #9, merged to develop)
 - README: corrected stack (Mapbox, not Google Maps), env vars, 8 migrations, 12 tables, 81 tests, added live URL
 - CONTRIBUTING.md: new file — full local setup, git workflow, test commands, deploy instructions
+
+**8. develop → main PR #10** — all develop work squash-merged to main
+- Includes all 20 commits since last production release
+- GitHub Pages `continue-on-error` fix added to plan-visualizer workflow
+- CI passed (81 tests, 84%+ coverage), Vercel production auto-deployed via GitHub integration
 
 ### Next Steps
 
