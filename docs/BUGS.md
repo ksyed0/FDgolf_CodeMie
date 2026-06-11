@@ -97,10 +97,10 @@ Action required post-tournament: upgrade `next` + `eslint-config-next` from 14.x
 audit breaking changes in the migration guide, run full E2E suite before re-promoting to
 production.
 
-BUG-0006: CodeQL analyze job fails — GitHub Code Scanning not enabled on repository
+BUG-0006: CodeQL SARIF upload fails — GitHub Code Scanning unavailable on private repo free plan
 Severity: Low
 Related Story: N/A (CI setup)
-Status: Workaround applied — continue-on-error: true on analyze job
+Status: Workaround applied — continue-on-error: true on analyze job (permanent for free plan)
 Fix Branch: feature/ci-security-format (merged PR #11)
 Lesson Encoded: No
 
@@ -108,13 +108,19 @@ The `codeql.yml` workflow fails with:
   "Code scanning is not enabled for this repository. Please enable code scanning in
    the repository settings."
 
-CodeQL requires GitHub Advanced Security / Code Scanning to be toggled on before the
-`github/codeql-action/analyze@v3` action can upload SARIF results. This is a one-time
-repo Settings change (Security → Code scanning → Set up → Advanced) that requires
-repository admin access.
+Root cause: GitHub Code Scanning (including CodeQL SARIF upload) is only available on
+public repositories or private repositories with a GitHub Advanced Security license
+(Team/Enterprise plan). The repo is private on a free plan — the Security settings page
+does not show a Code Scanning option at all.
 
-Workaround: `continue-on-error: true` added to the `analyze` job in `codeql.yml` so
-the check shows as a warning (yellow) rather than blocking PR merges.
+The CodeQL analysis step itself runs successfully and would surface findings in the
+workflow logs, but it cannot POST results to the GitHub Security tab without GHAS.
 
-Fix: enable Code Scanning in GitHub Settings → Security → Code scanning → Advanced.
-Once enabled, remove the `continue-on-error` flag so CodeQL failures block merges.
+Workaround: `continue-on-error: true` on the `analyze` job — CodeQL still runs as a
+best-effort scan; PRs are not blocked. This is the correct permanent state for a free
+private repo.
+
+Options if SARIF reporting is needed in future:
+  1. Make repo public — unlocks Code Scanning at no cost
+  2. Upgrade to GitHub Team plan (~$4/user/month) — enables Advanced Security on private repos
+  3. Use a third-party SAST tool (Semgrep, Snyk) that doesn't require GHAS for reporting
