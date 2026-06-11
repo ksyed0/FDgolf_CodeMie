@@ -1,5 +1,38 @@
 # FDgolf — Progress
 
+## Session 16 — 2026-06-11 (Plan 1: master data hierarchy — schema migration + PR #7 merged)
+
+### What Was Done
+
+**1. Forged Plan 1 in worktree** (PR #7 → develop `c045dd7`)
+DM_AGENT dispatched Forge to execute all 12 tasks of `docs/superpowers/plans/2026-06-11-master-data-hierarchy-plan1.md` in a git worktree (`feature/plan1-master-data-hierarchy`).
+
+Key deliverables:
+- **Migration 007** — creates `venues`, `courses`, `tee_boxes` tables; backfills `course_id` on `holes`, drops `tournament_id`; adds `venue_id`, `course_id`, `holes_played`, `nine_hole_selection`, `start_time` to `tournaments`; drops old text `venue`/`course` columns; seeds Granite Ridge venue + course with hardcoded UUIDs
+- **Migration 008** — replaces `get_leaderboard()` RPC to join holes via `course_id` (via CTE to avoid cross-join)
+- **`src/lib/types.ts`** — new `Venue`, `Course`, `TeeBox` interfaces; updated `Tournament` and `Hole`
+- **7 pages updated** — all holes queries migrated to `course_id`; dashboard/live use embedded venue relation
+- **`src/__tests__/api-add-player.test.ts`** — 13 new tests for `POST /api/admin/add-player` (was 0%)
+- **`supabase/seed.sql`** — updated tournament/holes inserts to use `venue_id`/`course_id`
+
+**2. Lens review → 2 blocking bugs fixed** (commit `45f1e38`)
+- BUG-1: Leaderboard RPC `LEFT JOIN tournaments` was unanchored — replaced with CTE (`cross join trn`)
+- BUG-2: RLS `FOR ALL` policies on new tables had no `WITH CHECK` — admin INSERT/UPDATE silently rejected
+
+**3. Branch sync** — rebased feature onto develop, resolved 3 file conflicts (all resolved by taking feature branch version); local develop squash-merged; history reconciled via cherry-pick.
+
+### Test Results
+
+- `npm run type-check`: 0 errors
+- `npm run test:ci`: **81 passed** (6 suites); coverage 90.47% stmts / 94.44% branches / 83.33% funcs / 94.11% lines — all above thresholds
+- `supabase db reset`: all 8 migrations applied clean, seed data inserted without error
+
+### Stories / ACs Closed
+
+None (infrastructure migration). Plan 2 (admin UI for venues/courses/tee-boxes) is next.
+
+---
+
 ## Session 15 — 2026-06-11 (Tournament manager, GitHub sync, master data hierarchy design)
 
 ### What Was Done

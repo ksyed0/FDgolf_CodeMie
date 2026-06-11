@@ -13,19 +13,20 @@ Stack: Next.js 14 App Router · TypeScript · Tailwind CSS · shadcn/ui · Supab
 
 ---
 
-## Branch State (as of Session 15 — 2026-06-11)
+## Branch State (as of Session 16 — 2026-06-11)
 
 | Branch | Status | Notes |
 |--------|--------|-------|
 | `main` | clean | baseline |
-| `develop` | HEAD `1c4a2bf` | Plan 1 doc committed; all session 15 work is on develop directly |
+| `develop` | HEAD `ddb6746` | Plan 1 squash-merged (PR #7); all session 15/16 work on develop |
+| `feature/plan1-master-data-hierarchy` | **merged PR #7** | Master data hierarchy — migrations 007/008, types, 7 pages, add-player tests |
 | `feature/feature-completion-2026-06-11` | **merged PR #3** | 6 features: sign-out, add team, tournament controls, hole summary, edit shot, password reset |
 | `feature/e2e-playwright-full-suite` | **merged PR #2** | Mapbox + pin editor + scores RLS fix + E2E suite |
 | `feature/phase6-po-items` | **merged PR #1** | Phase 6 complete |
 
 **Monorepo**: `ksyed0/FDgolf` on GitHub — `CodeMie/` is a plain subdirectory (no nested git). Bare backup at `CodeMie-origin.git/`.
 
-**Next action**: Execute Plan 1 (master data hierarchy migration), then Vercel cloud deployment.
+**Next action**: Execute Plan 2 (admin UI for `/admin/venues`, `/admin/courses`, holes+tee-box editor), then Vercel cloud deployment.
 
 ---
 
@@ -201,11 +202,7 @@ Must apply `005_scores_player_rls.sql` to all Supabase instances (local ✓, sta
 
 ## Next Steps
 
-1. **Execute Plan 1** — master data hierarchy schema migration + code updates (12 tasks)
-   - File: `docs/superpowers/plans/2026-06-11-master-data-hierarchy-plan1.md`
-   - DB: `psql postgresql://postgres:postgres@127.0.0.1:54342/postgres < supabase/migrations/007_master_data_hierarchy.sql`
-   - Then migration 008 (leaderboard RPC v2), then update all affected TypeScript files
-2. **Execute Plan 2** — `/admin/venues`, `/admin/courses`, holes+tee-box editor
+1. **Execute Plan 2** — `/admin/venues`, `/admin/courses`, holes+tee-box editor (design spec + plan not yet written)
 3. **Create GitHub labels** on `ksyed0/FDgolf_CodeMie`: `critical`, `high`, `medium`, `low`, `planvisualizer`
 4. **Create Supabase staging project** on supabase.com; apply all migrations + seed.sql
 5. **Vercel env vars**: staging keys → `preview` scope; prod keys → `production` scope; Mapbox token
