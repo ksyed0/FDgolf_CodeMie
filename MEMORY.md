@@ -13,12 +13,12 @@ Stack: Next.js 14 App Router · TypeScript · Tailwind CSS · shadcn/ui · Supab
 
 ---
 
-## Branch State (as of Session 17 — 2026-06-11)
+## Branch State (as of Session 18 — 2026-06-11)
 
 | Branch | Status | Notes |
 |--------|--------|-------|
 | `main` | clean | baseline |
-| `develop` | HEAD `81934ca` | Plan 2 squash-merged (PR #8); all session 17 work on develop |
+| `develop` | HEAD `dddb0b5` | lint fix (course-manager strict equality); session 18 work on develop |
 | `feature/plan2-admin-venues-courses` | **merged PR #8** | Admin venues, courses, tee boxes — 4 new/modified files |
 | `feature/plan1-master-data-hierarchy` | **merged PR #7** | Master data hierarchy — migrations 007/008, types, 7 pages, add-player tests |
 | `feature/feature-completion-2026-06-11` | **merged PR #3** | 6 features: sign-out, add team, tournament controls, hole summary, edit shot, password reset |
@@ -27,7 +27,7 @@ Stack: Next.js 14 App Router · TypeScript · Tailwind CSS · shadcn/ui · Supab
 
 **Monorepo**: `ksyed0/FDgolf` on GitHub — `CodeMie/` is a plain subdirectory (no nested git). Bare backup at `CodeMie-origin.git/`.
 
-**Next action**: Vercel cloud deployment — create Supabase staging project, apply all 8 migrations + seed.sql, set env vars, connect GitHub repo, deploy, smoke test.
+**Next action**: Connect GitHub repo to Vercel (browser OAuth in dashboard) → enables preview env vars + auto-deploys. Then deploy Edge Function updates as needed.
 
 ---
 
@@ -185,8 +185,12 @@ Must apply `005_scores_player_rls.sql` to all Supabase instances (local ✓, sta
 - **Project ID**: `prj_2ekiP2phChQuxw2cTsCWSumIHhUL`
 - **Team**: `ksyed0s-projects` (`team_1GYxYGIISutKRyI2KzwcYq29`)
 - **Project name**: `fdgolf_cm`
-- `.vercel/project.json` added to repo (gitignored `.vercel` directory in earlier sessions — review if needed)
-- **Env vars not yet set** — need staging + production Supabase cloud projects created first
+- **Production URL**: `https://fdgolfcm.vercel.app` ✓ LIVE
+- **Live leaderboard**: `https://fdgolfcm.vercel.app/live/cibc-granite-ridge-2026`
+- **Deployment ID**: `dpl_HygpvMZA4ijh3zTfQk5wLeMW7ziC`
+- **Env vars**: All 4 set for Production scope. Preview scope requires GitHub repo connection first (browser OAuth at vercel.com).
+- **GitHub integration**: NOT connected yet — connect via Vercel dashboard to enable auto-deploys + preview deployments.
+- **To redeploy**: `vercel deploy --prod` from repo root.
 
 ---
 
@@ -201,10 +205,21 @@ Must apply `005_scores_player_rls.sql` to all Supabase instances (local ✓, sta
 
 ---
 
+## Supabase Cloud Project
+
+- **Project ID**: `jsinxqmbkowigeyihhdv`
+- **Project name**: `fdgolf-production`
+- **Region**: `ca-central-1`
+- **URL**: `https://jsinxqmbkowigeyihhdv.supabase.co`
+- **Migrations applied**: 001–008 (all 8) ✓
+- **Seed applied**: CIBC tournament, Granite Ridge venue/course, 18 holes, 21 clubs ✓
+- **Test users seeded**: 5 users (`admin@fdgolf.local` + 4 players), password `Password1!` ✓
+- **Edge Function**: `calculate-best-ball` deployed and ACTIVE ✓
+- **Tournament slug**: `cibc-granite-ridge-2026`
+
 ## Next Steps
 
-1. **Create GitHub labels** on `ksyed0/FDgolf_CodeMie`: `critical`, `high`, `medium`, `low`, `planvisualizer`
-2. **Create Supabase staging project** on supabase.com; apply all 8 migrations + seed.sql
-3. **Vercel env vars**: staging keys → `preview` scope; prod keys → `production` scope; Mapbox token
-4. **Connect GitHub repo to Vercel**: `develop` → preview, `main` → production
-5. **Vercel deploy + smoke test** (target June 20; 2-day test window before June 22 tournament)
+1. **Connect GitHub repo to Vercel** (browser OAuth at vercel.com/dashboard) → enables preview env vars + auto-deploys on push
+2. **Create GitHub labels** on `ksyed0/FDgolf_CodeMie`: `critical`, `high`, `medium`, `low`, `planvisualizer`
+3. **Production players**: invite real tournament players via magic link (admin dashboard → Players → Send Invite)
+4. **Pre-tournament smoke test** on tournament day: confirm login, score submission, leaderboard update

@@ -1,5 +1,45 @@
 # FDgolf — Progress
 
+## Session 18 — 2026-06-11 (Vercel cloud deployment + smoke test)
+
+### What Was Done
+
+**1. Supabase cloud project** (`fdgolf-production`, `jsinxqmbkowigeyihhdv`, `ca-central-1`)
+All 8 migrations applied, seed.sql loaded (CIBC tournament, Granite Ridge venue/course, 18 holes, 21 clubs).
+
+**2. Vercel env vars** — Production scope set for all 4 vars:
+`NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `NEXT_PUBLIC_MAPBOX_TOKEN`.
+Preview scope requires GitHub repo connection (browser OAuth) — deferred.
+
+**3. Lint fix** (`course-manager.tsx`) — `!=` → `!==` (ESLint `eqeqeq` rule, commit `dddb0b5`). Was blocking production build.
+
+**4. First production deployment** — `vercel deploy --prod`
+- URL: `https://fdgolfcm.vercel.app`
+- Deployment ID: `dpl_HygpvMZA4ijh3zTfQk5wLeMW7ziC`
+- Framework auto-detected as Next.js during build
+
+**5. Test users seeded** into cloud Supabase via `npx tsx supabase/seed-users.ts` with production env vars override. 5 users created (admin + 4 players), 2 teams, tournament activated.
+
+**6. Edge Function deployed** — `calculate-best-ball` → ACTIVE (`a1c0305a`)
+
+### Smoke Test Results
+
+| Page | URL | Result |
+|------|-----|--------|
+| Login | `/login` | ✓ renders, middleware redirect works |
+| Admin dashboard | `/admin/tournament` | ✓ CIBC tournament Active, full sidebar |
+| Venues | `/admin/venues` | ✓ Granite Ridge Golf Club shown |
+| Public leaderboard | `/live/cibc-granite-ridge-2026` | ✓ Team Alpha / Team Bravo, E, auto-refresh |
+
+### Next Steps
+
+- Connect GitHub repo to Vercel (browser OAuth at vercel.com) → enables preview env vars + auto-deploys
+- Create GitHub labels (`critical`, `high`, `medium`, `low`, `planvisualizer`)
+- Invite real tournament players via magic link before June 22
+- Pre-tournament smoke test on tournament day
+
+---
+
 ## Session 17 — 2026-06-11 (Plan 2: admin venues, courses, tee boxes — PR #8 merged)
 
 ### What Was Done
