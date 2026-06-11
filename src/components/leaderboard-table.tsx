@@ -50,7 +50,7 @@ export function LeaderboardTable({ rows, myTeamId }: LeaderboardTableProps) {
                 className={cn(
                   'border-b transition-colors hover:bg-gray-50',
                   RANK_STYLES[rank],
-                  isMyTeam && 'bg-blue-50',
+                  isMyTeam && 'bg-blue-50'
                 )}
               >
                 <td className="px-3 py-3 font-semibold text-gray-700">{rank}</td>

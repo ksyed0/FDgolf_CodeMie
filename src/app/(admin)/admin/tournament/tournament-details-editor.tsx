@@ -104,7 +104,13 @@ export function TournamentDetailsEditor({
         >
           <Check className="h-3.5 w-3.5" />
         </Button>
-        <Button size="sm" variant="outline" aria-label="Cancel" className="h-7 px-2" onClick={cancel}>
+        <Button
+          size="sm"
+          variant="outline"
+          aria-label="Cancel"
+          className="h-7 px-2"
+          onClick={cancel}
+        >
           <X className="h-3.5 w-3.5" />
         </Button>
       </div>

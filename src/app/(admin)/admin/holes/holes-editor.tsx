@@ -88,11 +88,7 @@ export function HolesEditor({ holes: initial }: HolesEditorProps) {
                 {h.pin_lat.toFixed(5)}, {h.pin_lng.toFixed(5)}
               </td>
               <td className="px-4 py-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setEditingPin(h)}
-                >
+                <Button variant="outline" size="sm" onClick={() => setEditingPin(h)}>
                   Edit Pin
                 </Button>
               </td>

@@ -13,12 +13,13 @@ Stack: Next.js 14 App Router · TypeScript · Tailwind CSS · shadcn/ui · Supab
 
 ---
 
-## Branch State (as of Session 18 — 2026-06-11)
+## Branch State (as of Session 19 — 2026-06-11)
 
 | Branch | Status | Notes |
 |--------|--------|-------|
-| `main` | clean | baseline |
-| `develop` | HEAD `dddb0b5` | lint fix (course-manager strict equality); session 18 work on develop |
+| `main` | **→ PR #10 merged** | all develop work shipped to prod via PR #10 |
+| `develop` | HEAD `8f744e2` | `continue-on-error` on GitHub Pages deploy step |
+| `feature/ci-security-format` | **open PR #11** | format+audit+CodeQL CI jobs, Husky pre-commit, CONTRIBUTING.md Claude Code section |
 | `feature/plan2-admin-venues-courses` | **merged PR #8** | Admin venues, courses, tee boxes — 4 new/modified files |
 | `feature/plan1-master-data-hierarchy` | **merged PR #7** | Master data hierarchy — migrations 007/008, types, 7 pages, add-player tests |
 | `feature/feature-completion-2026-06-11` | **merged PR #3** | 6 features: sign-out, add team, tournament controls, hole summary, edit shot, password reset |
@@ -27,7 +28,11 @@ Stack: Next.js 14 App Router · TypeScript · Tailwind CSS · shadcn/ui · Supab
 
 **Monorepo**: `ksyed0/FDgolf` on GitHub — `CodeMie/` is a plain subdirectory (no nested git). Bare backup at `CodeMie-origin.git/`.
 
-**Next action**: Connect GitHub repo to Vercel (browser OAuth in dashboard) → enables preview env vars + auto-deploys. Then deploy Edge Function updates as needed.
+**Current open PR**: #11 `feature/ci-security-format` → `develop` — CI format/test/audit passing; CodeQL non-blocking.
+
+**Next action**: Merge PR #11 to develop, then PR develop → main. Then invite real players via magic link (admin dashboard → Players → Send Invite) and run pre-tournament smoke test on June 22.
+
+**Post-tournament backlog**: Upgrade `next` from 14.x → 15.x to resolve HIGH CVEs. Not done now due to 11-day tournament window. Known CVEs: GHSA-ggv3-7p47-pfv8, GHSA-q4gf-8mx6-v5v3, GHSA-8h8q-6873-q5fj (all DoS/cache). Audit gate set to `--audit-level=critical` in CI until upgrade.
 
 ---
 

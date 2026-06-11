@@ -39,7 +39,7 @@ supabase start                      # starts local containers on ports 54341–5
 npx tsx supabase/seed-users.ts      # creates 5 test users + teams
 ```
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for full local setup instructions.
+See [CONTRIBUTING.md](CONTRIBUTING.md) for full local setup and [Claude Code setup instructions](CONTRIBUTING.md#contributing-with-claude-code).
 
 ---
 

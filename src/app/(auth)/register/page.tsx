@@ -148,9 +148,7 @@ export default function RegisterPage() {
           onChange={handleChange}
           placeholder="min 8 characters"
         />
-        {passwordError && (
-          <p className="text-sm text-red-600">{passwordError}</p>
-        )}
+        {passwordError && <p className="text-sm text-red-600">{passwordError}</p>}
       </div>
 
       <Button type="submit" className="w-full bg-[#1a472a] hover:bg-[#143820]" disabled={loading}>
