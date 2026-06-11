@@ -40,6 +40,8 @@ export default function RoundPage() {
   const [shotNumber, setShotNumber] = useState(1);
   const [holeSunk, setHoleSunk] = useState(false);
   const [recording, setRecording] = useState(false);
+  const [holeSummaryScores, setHoleSummaryScores] = useState<Score[]>([]);
+  const [summaryLoading, setSummaryLoading] = useState(false);
 
   useEffect(() => {
     async function loadData() {
@@ -197,6 +199,17 @@ export default function RoundPage() {
         }
 
         setHoleSunk(true);
+
+        // Fetch all teammates' scores for the hole summary
+        setSummaryLoading(true);
+        const { data: summaryData } = await supabase
+          .from('scores')
+          .select('*')
+          .eq('tournament_id', tournament.id)
+          .eq('hole_number', roundState.current_hole)
+          .in('player_id', teammates.map((p) => p.id));
+        setHoleSummaryScores((summaryData as Score[]) ?? []);
+        setSummaryLoading(false);
       }
 
       setRecording(false);
@@ -236,6 +249,8 @@ export default function RoundPage() {
     setHoleShots([]);
     setShotNumber(1);
     setHoleSunk(false);
+    setHoleSummaryScores([]);
+    setSummaryLoading(false);
     setSelectedClub('');
   }, [roundState, team, supabase, router]);
 
@@ -311,16 +326,62 @@ export default function RoundPage() {
             disabled={recording || !selectedClub || !activePlayerId}
           />
         ) : (
-          <div className="space-y-3 rounded-xl border bg-white p-4 text-center shadow-sm">
-            <p className="text-lg font-bold text-[#1a472a]">
-              Hole {currentHole.hole_number} complete!
+          <div className="space-y-3 rounded-xl border bg-white p-4 shadow-sm">
+            <p className="text-center text-lg font-bold text-[#1a472a]">
+              ⛳ Hole {currentHole.hole_number} Complete
             </p>
-            <p className="text-sm text-gray-600">
-              Score: {shotNumber - 1} ({shotNumber - 1 - currentHole.par >= 0 ? '+' : ''}
-              {shotNumber - 1 - currentHole.par} vs par)
-            </p>
+
+            {summaryLoading ? (
+              <p className="text-center text-sm text-gray-500">Calculating…</p>
+            ) : (
+              <>
+                {(() => {
+                  const bestStrokes =
+                    holeSummaryScores.length > 0
+                      ? Math.min(...holeSummaryScores.map((s) => s.strokes))
+                      : null;
+                  const bestBallPar =
+                    bestStrokes !== null ? bestStrokes - currentHole.par : null;
+                  return (
+                    <>
+                      {bestBallPar !== null && (
+                        <p className="text-center text-sm text-gray-600">
+                          Best Ball: {bestStrokes} strokes (
+                          {bestBallPar >= 0 ? '+' : ''}
+                          {bestBallPar} vs par)
+                        </p>
+                      )}
+                      <div className="space-y-1.5">
+                        {teammates.map((p) => {
+                          const score = holeSummaryScores.find((s) => s.player_id === p.id);
+                          const isBest = score !== undefined && score.strokes === bestStrokes;
+                          return (
+                            <div
+                              key={p.id}
+                              className={`flex items-center justify-between rounded-lg px-3 py-2 text-sm ${
+                                isBest
+                                  ? 'border border-green-500 bg-green-50 font-bold text-green-700'
+                                  : 'border border-gray-200 bg-gray-50 text-gray-700'
+                              }`}
+                            >
+                              <span>{p.name}</span>
+                              <span>
+                                {score
+                                  ? `${score.strokes} strokes${isBest ? ' ★' : ''}`
+                                  : '—'}
+                              </span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </>
+                  );
+                })()}
+              </>
+            )}
+
             <Button className="w-full bg-[#1a472a] hover:bg-[#143820]" onClick={nextHole}>
-              Next Hole
+              Next Hole →
             </Button>
           </div>
         )}
