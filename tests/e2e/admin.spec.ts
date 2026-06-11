@@ -78,11 +78,13 @@ test('TC-0049: tournament config edits are saved to database', async ({ page }) 
 
   await page.goto('/admin/tournament')
 
-  const nameInput = page.getByLabel(/tournament name|name/i).first()
+  // TournamentNameEditor renders an "Edit tournament name" pencil button; clicking it reveals the input
+  await page.getByRole('button', { name: /edit tournament name/i }).click()
+  const nameInput = page.getByRole('textbox').first()
   await nameInput.clear()
   await nameInput.fill('CIBC 2026 Updated')
 
-  await page.getByRole('button', { name: /save/i }).click()
+  await page.getByRole('button', { name: /save name/i }).click()
 
   expect(patchCalled).toBe(true)
 })
@@ -198,11 +200,11 @@ test('TC-0056: new team can be created with team number and starting hole', asyn
 
   await page.goto('/admin/teams')
 
-  await page.getByRole('button', { name: /new team|add team/i }).click()
-  await page.getByLabel(/team number/i).fill('32')
-  await page.getByLabel(/team name/i).fill('Eagles')
-  await page.getByLabel(/starting hole/i).fill('5')
-  await page.getByRole('button', { name: /create|save/i }).click()
+  // team_number is auto-generated (max + 1) — no field for it in the form
+  await page.getByRole('button', { name: /\+ add team/i }).click()
+  await page.getByPlaceholder(/team name/i).fill('Eagles')
+  await page.locator('input[type="number"]').fill('5')
+  await page.getByRole('button', { name: /^add team$/i }).click()
 
   expect(insertCalled).toBe(true)
 })
