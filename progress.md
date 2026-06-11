@@ -1,5 +1,58 @@
 # FDgolf — Progress
 
+## Session 15 — 2026-06-11 (Tournament manager, GitHub sync, master data hierarchy design)
+
+### What Was Done
+
+**1. Tournament manager committed** (`19f81dd`)
+Full CRUD admin UI for tournaments (`src/app/(admin)/admin/tournament/tournament-manager.tsx` + `page.tsx`). Key pattern: `EMPTY_FORM.importFromId = '__none__'` (Radix Select sentinel — prevents empty-string crash). Auto-slug sync from name. Hole import guarded by `importFromId !== '__none__'`. Delete confirmation via inline conditional row.
+
+**2. PlanVisualizer GitHub issues sync re-enabled** (`a88fe74`)
+`plan-visualizer.config.json`: changed `enabled: false → true`, set `repo: "ksyed0/FDgolf_CodeMie"`. Syncs bugs (`syncBugs: true`) to GitHub issues with labels `critical/high/medium/low` + `planvisualizer`. Labels must be created on the GitHub repo before sync runs.
+
+**3. Master data hierarchy — brainstorm → spec → plan** (`5696661`, `1c4a2bf`)
+Redesigned from flat per-tournament holes to a fully normalized Venue → Course → Hole → TeeBox hierarchy.
+
+Design approved (Option A: Fully Normalized):
+- `venues` — name, address, city, province_state, postal_code, country
+- `courses` — venue_id FK, name, hole_count (9|18), par_total, course_rating, slope_rating
+- `holes` — **re-keyed**: `course_id` replaces `tournament_id`
+- `tee_boxes` — hole_id FK, name (free-form text), lat, lng, distance_yards
+- `tournaments` — adds `venue_id`, `course_id`, `start_time`, `holes_played`, `nine_hole_selection`; drops text `venue` + `course`
+
+Spec: `docs/superpowers/specs/2026-06-11-master-data-hierarchy-design.md`
+Plan 1 (12 tasks): `docs/superpowers/plans/2026-06-11-master-data-hierarchy-plan1.md`
+
+### Stories / ACs Closed
+
+None — this session was infrastructure and design work. Plan 1 execution is the next step.
+
+### Test Results
+
+No new test runs this session (no code logic changes).
+
+### Files Changed
+
+- `supabase/migrations/006_tournament_course_field.sql` — ADD COLUMN course to tournaments
+- `src/lib/types.ts` — Venue, Course, TeeBox interfaces added; Hole uses course_id; Tournament updated
+- `src/app/(admin)/admin/tournament/tournament-manager.tsx` — NEW: full CRUD (~340 lines)
+- `src/app/(admin)/admin/tournament/page.tsx` — fetches tournaments + hole counts
+- `plan-visualizer.config.json` — GitHub sync enabled for ksyed0/FDgolf_CodeMie
+- `docs/superpowers/specs/2026-06-11-master-data-hierarchy-design.md` — NEW
+- `docs/superpowers/plans/2026-06-11-master-data-hierarchy-plan1.md` — NEW
+
+### Next Steps
+
+1. **Execute Plan 1** — `docs/superpowers/plans/2026-06-11-master-data-hierarchy-plan1.md` (12 tasks)
+   - Apply migration 007 (`venues`, `courses`, `tee_boxes`, re-key `holes`) via `psql postgresql://postgres:postgres@127.0.0.1:54342/postgres`
+   - Apply migration 008 (updated `get_leaderboard()` RPC)
+   - Update `src/lib/types.ts` fully; update round, scorecard, dashboard, live, holes admin, tournament pages
+2. **Execute Plan 2** (follow-up) — `/admin/venues`, `/admin/courses`, holes + tee-box editor
+3. **Create GitHub labels** on `ksyed0/FDgolf_CodeMie`: `critical`, `high`, `medium`, `low`, `planvisualizer`
+4. **Vercel deploy** — cloud Supabase project, env vars, smoke test (target June 20)
+
+---
+
 ## Session 14 — 2026-06-11 (Feature completion: 6 pre-tournament features, PR #3 open)
 
 ### What Was Done
