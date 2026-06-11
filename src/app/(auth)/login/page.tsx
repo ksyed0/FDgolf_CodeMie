@@ -20,12 +20,25 @@ export default function LoginPage() {
     setLoading(true);
 
     const supabase = createClient();
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    const { error, data } = await supabase.auth.signInWithPassword({ email, password });
 
     if (error) {
-      toast.error(error.message);
+      toast.error('Invalid email or password. Please try again.');
       setLoading(false);
       return;
+    }
+
+    if (data.user) {
+      const { data: player } = await supabase
+        .from('players')
+        .select('role')
+        .eq('auth_user_id', data.user.id)
+        .single();
+
+      if (player?.role === 'admin') {
+        router.push('/admin/tournament');
+        return;
+      }
     }
 
     router.push('/dashboard');
@@ -59,6 +72,12 @@ export default function LoginPage() {
           onChange={(e) => setPassword(e.target.value)}
           placeholder="••••••••"
         />
+      </div>
+
+      <div className="flex justify-end">
+        <Link href="/forgot-password" className="text-sm font-medium text-[#1a472a] hover:underline">
+          Forgot password?
+        </Link>
       </div>
 
       <Button type="submit" className="w-full bg-[#1a472a] hover:bg-[#143820]" disabled={loading}>

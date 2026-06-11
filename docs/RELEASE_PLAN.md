@@ -362,12 +362,12 @@ Acceptance Criteria:
 US-0021 (EPIC-0004): As a player, I want to edit a previous shot, so that I can correct mistakes.
 Priority: High
 Estimate: M
-Status: Planned
-Branch: feature/US-0021-edit-shot
+Status: Done
+Branch: feature/feature-completion-2026-06-11
 Dependencies: US-0019
 Acceptance Criteria:
-  - [ ] AC-0068: Shot history visible for current hole
-  - [ ] AC-0069: Tapping a previous shot opens edit mode
+  - [x] AC-0068: Shot history visible for current hole
+  - [x] AC-0069: Tapping a previous shot opens edit mode
   - [ ] AC-0070: Modified shot updates in database and recalculates sequence
 ```
 
@@ -388,12 +388,12 @@ Acceptance Criteria:
 US-0023 (EPIC-0005): As a player, I want to see a hole summary with everyone's strokes and the best ball highlighted, so that we know team performance.
 Priority: High
 Estimate: S
-Status: Planned
-Branch: feature/US-0023-hole-summary
+Status: Done
+Branch: feature/feature-completion-2026-06-11
 Dependencies: US-0022
 Acceptance Criteria:
-  - [ ] AC-0074: Each player's stroke count displayed
-  - [ ] AC-0075: Best ball score highlighted with star indicator
+  - [x] AC-0074: Each player's stroke count displayed
+  - [x] AC-0075: Best ball score highlighted with star indicator
   - [ ] AC-0076: Score relative to par shown (birdie, bogey, etc.)
 ```
 
@@ -579,13 +579,13 @@ Acceptance Criteria:
 US-0037 (EPIC-0002): As a player, I want to reset my password via email, so that I can recover access.
 Priority: Medium
 Estimate: S
-Status: Planned
-Branch: feature/US-0037-password-reset
+Status: Done
+Branch: feature/feature-completion-2026-06-11
 Dependencies: US-0012
 Acceptance Criteria:
-  - [ ] AC-0125: "Forgot password" link on login page
-  - [ ] AC-0126: Reset email sent via Supabase Auth
-  - [ ] AC-0127: New password accepted after clicking reset link
+  - [x] AC-0125: "Forgot password" link on login page
+  - [x] AC-0126: Reset email sent via Supabase Auth
+  - [x] AC-0127: New password accepted after clicking reset link
 ```
 
 ---

@@ -12,6 +12,7 @@ import { Label } from '@/components/ui/label';
 export default function RegisterPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [passwordError, setPasswordError] = useState('');
   const [form, setForm] = useState({
     name: '',
     title: '',
@@ -27,6 +28,13 @@ export default function RegisterPage() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    setPasswordError('');
+
+    if (form.password.length < 8) {
+      setPasswordError('Password must be at least 8 characters.');
+      return;
+    }
+
     setLoading(true);
 
     const supabase = createClient();
@@ -136,11 +144,13 @@ export default function RegisterPage() {
           type="password"
           autoComplete="new-password"
           required
-          minLength={8}
           value={form.password}
           onChange={handleChange}
           placeholder="min 8 characters"
         />
+        {passwordError && (
+          <p className="text-sm text-red-600">{passwordError}</p>
+        )}
       </div>
 
       <Button type="submit" className="w-full bg-[#1a472a] hover:bg-[#143820]" disabled={loading}>

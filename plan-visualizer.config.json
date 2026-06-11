@@ -12,7 +12,7 @@
     "outputDir": "docs"
   },
   "coverage": {
-    "summaryPath": "docs/coverage/coverage-summary.json"
+    "summaryPath": "coverage/coverage-summary.json"
   },
   "progress": {
     "path": "progress.md"
@@ -28,8 +28,8 @@
     }
   },
   "github": {
-    "enabled": false,
-    "repo": "owner/repo",
+    "enabled": true,
+    "repo": "ksyed0/FDgolf_CodeMie",
     "syncBugs": true,
     "syncStories": false,
     "labelMap": {

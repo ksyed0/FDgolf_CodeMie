@@ -5,25 +5,61 @@ export type PlayerRole = 'player' | 'admin' | 'tournament_organizer';
 export type Gender = 'male' | 'female' | 'prefer_not_to_say';
 export type ClubCategory = 'wood' | 'hybrid' | 'iron' | 'wedge' | 'putter';
 
+export interface Venue {
+  id: string;
+  name: string;
+  address1: string;
+  address2: string | null;
+  city: string;
+  province_state: string;
+  postal_code: string;
+  country: string;
+  created_at: string;
+}
+
+export interface Course {
+  id: string;
+  venue_id: string;
+  name: string;
+  hole_count: 9 | 18;
+  par_total: number;
+  course_rating: number | null;
+  slope_rating: number | null;
+  created_at: string;
+}
+
 export interface Tournament {
   id: string;
   name: string;
   slug: string;
+  venue_id: string;
+  course_id: string;
   date: string;
+  start_time: string | null;
   format: string;
-  venue: string;
+  holes_played: 9 | 18;
+  nine_hole_selection: 'front' | 'back' | null;
   status: TournamentStatus;
   created_at: string;
 }
 
 export interface Hole {
   id: string;
-  tournament_id: string;
+  course_id: string;
   hole_number: number;
   par: number;
   handicap: number;
   pin_lat: number;
   pin_lng: number;
+}
+
+export interface TeeBox {
+  id: string;
+  hole_id: string;
+  name: string;
+  lat: number;
+  lng: number;
+  distance_yards: number;
 }
 
 export interface Player {

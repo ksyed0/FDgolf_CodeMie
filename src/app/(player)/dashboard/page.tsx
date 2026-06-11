@@ -26,17 +26,33 @@ export default async function DashboardPage() {
   } = await supabase.auth.getUser();
   if (!user) redirect('/login');
 
+  type TournamentWithVenue = Tournament & {
+    venue: { name: string; city: string; province_state: string } | null;
+  };
+
   const [{ data: player }, { data: tournament }] = await Promise.all([
     supabase.from('players').select('*').eq('auth_user_id', user.id).single<Player>(),
     supabase
       .from('tournaments')
-      .select('*')
+      .select('*, venue:venues!venue_id(name, city, province_state)')
       .order('created_at', { ascending: false })
       .limit(1)
-      .single<Tournament>(),
+      .single<TournamentWithVenue>(),
   ]);
 
-  if (!player) redirect('/login');
+  if (player?.role === 'admin') redirect('/admin/tournament');
+
+  if (!player) {
+    return (
+      <div className="flex flex-col items-center justify-center gap-4 px-4 py-12 text-center">
+        <h2 className="text-xl font-semibold text-gray-800">Account pending setup</h2>
+        <p className="text-sm text-gray-500">
+          Your account has been created but hasn&apos;t been assigned to a team yet.
+          Please contact the tournament administrator.
+        </p>
+      </div>
+    );
+  }
 
   let team: Team | null = null;
   let teammates: Player[] = [];
@@ -83,7 +99,11 @@ export default async function DashboardPage() {
               {STATUS_LABELS[tournament.status] ?? tournament.status}
             </Badge>
           </div>
-          <p className="mt-1 text-sm text-gray-500">{tournament.venue}</p>
+          <p className="mt-1 text-sm text-gray-500">
+            {tournament.venue?.name}
+            {' · '}
+            {tournament.venue?.city}
+          </p>
           <p className="text-sm text-gray-500">
             {new Date(tournament.date).toLocaleDateString('en-CA', {
               weekday: 'long',
