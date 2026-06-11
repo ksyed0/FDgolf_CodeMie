@@ -188,9 +188,9 @@ Must apply `005_scores_player_rls.sql` to all Supabase instances (local ✓, sta
 - **Production URL**: `https://fdgolfcm.vercel.app` ✓ LIVE
 - **Live leaderboard**: `https://fdgolfcm.vercel.app/live/cibc-granite-ridge-2026`
 - **Deployment ID**: `dpl_HygpvMZA4ijh3zTfQk5wLeMW7ziC`
-- **Env vars**: All 4 set for Production scope. Preview scope requires GitHub repo connection first (browser OAuth at vercel.com).
-- **GitHub integration**: NOT connected yet — connect via Vercel dashboard to enable auto-deploys + preview deployments.
-- **To redeploy**: `vercel deploy --prod` from repo root.
+- **Env vars**: All 4 set for both **Production** and **Preview** scopes ✓
+- **GitHub integration**: Connected (`ksyed0/FDgolf_CodeMie`) — `develop` → preview auto-deploy, `main` → production auto-deploy ✓
+- **To redeploy manually**: `vercel deploy --prod` from repo root (or push to `main` via PR).
 
 ---
 
@@ -219,7 +219,6 @@ Must apply `005_scores_player_rls.sql` to all Supabase instances (local ✓, sta
 
 ## Next Steps
 
-1. **Connect GitHub repo to Vercel** (browser OAuth at vercel.com/dashboard) → enables preview env vars + auto-deploys on push
-2. **Create GitHub labels** on `ksyed0/FDgolf_CodeMie`: `critical`, `high`, `medium`, `low`, `planvisualizer`
-3. **Production players**: invite real tournament players via magic link (admin dashboard → Players → Send Invite)
-4. **Pre-tournament smoke test** on tournament day: confirm login, score submission, leaderboard update
+1. **Create GitHub labels** on `ksyed0/FDgolf_CodeMie`: `critical`, `high`, `medium`, `low`, `planvisualizer`
+2. **Invite real tournament players** via magic link (admin dashboard → Players → Send Invite)
+3. **Pre-tournament smoke test** on tournament day (June 22): confirm login, score submission, leaderboard update end-to-end
