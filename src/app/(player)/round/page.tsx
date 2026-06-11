@@ -36,7 +36,13 @@ export default function RoundPage() {
   const [player, setPlayer] = useState<Player | null>(null);
   const [team, setTeam] = useState<Team | null>(null);
   const [teammates, setTeammates] = useState<Player[]>([]);
-  const [tournament, setTournament] = useState<{ id: string; status: string } | null>(null);
+  const [tournament, setTournament] = useState<{
+    id: string;
+    status: string;
+    course_id: string;
+    holes_played: 9 | 18;
+    nine_hole_selection: 'front' | 'back' | null;
+  } | null>(null);
   const [holes, setHoles] = useState<Hole[]>([]);
   const [clubs, setClubs] = useState<Club[]>([]);
   const [roundState, setRoundState] = useState<RoundState | null>(null);
@@ -85,7 +91,7 @@ export default function RoundPage() {
       ] = await Promise.all([
         supabase
           .from('tournaments')
-          .select('id, status')
+          .select('id, status, course_id, holes_played, nine_hole_selection')
           .order('created_at', { ascending: false })
           .limit(1)
           .single(),
@@ -108,7 +114,7 @@ export default function RoundPage() {
       const { data: holeData } = await supabase
         .from('holes')
         .select('*')
-        .eq('tournament_id', tournamentData.id)
+        .eq('course_id', tournamentData.course_id)
         .order('hole_number');
       setHoles((holeData as Hole[]) ?? []);
 

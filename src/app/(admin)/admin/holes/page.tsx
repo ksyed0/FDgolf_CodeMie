@@ -7,15 +7,15 @@ export default async function HolesAdminPage() {
 
   const { data: tournament } = await supabase
     .from('tournaments')
-    .select('id')
+    .select('id, course_id')
     .order('created_at', { ascending: false })
     .limit(1)
-    .single();
+    .single<{ id: string; course_id: string }>();
 
   const { data: holes } = await supabase
     .from('holes')
     .select('*')
-    .eq('tournament_id', tournament?.id ?? '')
+    .eq('course_id', tournament?.course_id ?? '')
     .order('hole_number');
 
   return (
