@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { AppHeader } from '@/components/app-header';
+import { SignOutButton } from '@/components/sign-out-button';
 import Link from 'next/link';
 import { Home, Flag, Trophy, ClipboardList } from 'lucide-react';
 
@@ -55,6 +56,7 @@ export default async function PlayerLayout({ children }: { children: React.React
             <ClipboardList className="h-5 w-5" />
             <span className="text-[10px]">Scorecard</span>
           </Link>
+          <SignOutButton />
         </div>
       </nav>
     </div>
