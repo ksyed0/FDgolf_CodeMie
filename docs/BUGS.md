@@ -97,10 +97,10 @@ Action required post-tournament: upgrade `next` + `eslint-config-next` from 14.x
 audit breaking changes in the migration guide, run full E2E suite before re-promoting to
 production.
 
-BUG-0006: CodeQL SARIF upload fails — GitHub Code Scanning unavailable on private repo free plan
+BUG-0006: CodeQL SARIF upload fails — Advanced Security requires GitHub Organization account
 Severity: Low
 Related Story: N/A (CI setup)
-Status: Workaround applied — continue-on-error: true on analyze job (permanent for free plan)
+Status: Permanent workaround — continue-on-error: true on analyze job
 Fix Branch: feature/ci-security-format (merged PR #11)
 Lesson Encoded: No
 
@@ -108,19 +108,19 @@ The `codeql.yml` workflow fails with:
   "Code scanning is not enabled for this repository. Please enable code scanning in
    the repository settings."
 
-Root cause: GitHub Code Scanning (including CodeQL SARIF upload) is only available on
-public repositories or private repositories with a GitHub Advanced Security license
-(Team/Enterprise plan). The repo is private on a free plan — the Security settings page
-does not show a Code Scanning option at all.
+Root cause: GitHub Code Scanning / Advanced Security is only available on Organization
+accounts (Team or Enterprise plan). The repo is on a personal GitHub Pro account —
+the Security Overview page shows "Advanced Security is only available for Organizations"
+with no enable option. This is a billing tier restriction, not a configuration gap.
 
-The CodeQL analysis step itself runs successfully and would surface findings in the
-workflow logs, but it cannot POST results to the GitHub Security tab without GHAS.
+The CodeQL analysis steps run successfully and surface findings in the workflow logs,
+but cannot POST SARIF results to the GitHub Security tab without an org-level GHAS license.
 
-Workaround: `continue-on-error: true` on the `analyze` job — CodeQL still runs as a
-best-effort scan; PRs are not blocked. This is the correct permanent state for a free
-private repo.
+Resolution: `continue-on-error: true` on the `analyze` job is the correct permanent state.
+CodeQL runs as a best-effort scan on every PR; PRs are not blocked. Dependabot alerts
+(free on all plans) enabled separately to cover the same CVE surface in the Security tab.
 
-Options if SARIF reporting is needed in future:
-  1. Make repo public — unlocks Code Scanning at no cost
-  2. Upgrade to GitHub Team plan (~$4/user/month) — enables Advanced Security on private repos
-  3. Use a third-party SAST tool (Semgrep, Snyk) that doesn't require GHAS for reporting
+Options if full SARIF dashboard is needed in future:
+  1. Transfer repo to a GitHub Organization + upgrade to Team plan
+  2. Make repo public — unlocks Code Scanning at no cost
+  3. Use a third-party SAST tool (Semgrep, Snyk) that reports outside GitHub Security tab
