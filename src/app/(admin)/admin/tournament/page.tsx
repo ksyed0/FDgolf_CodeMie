@@ -3,6 +3,7 @@ import { Badge } from '@/components/ui/badge';
 import type { Tournament } from '@/lib/types';
 import { TournamentControls } from './tournament-controls';
 import { TournamentNameEditor } from './tournament-name-editor';
+import { TournamentDetailsEditor } from './tournament-details-editor';
 
 const STATUS_LABELS: Record<string, string> = {
   setup: 'Not started',
@@ -43,15 +44,11 @@ export default async function TournamentAdminPage() {
               tournamentId={tournament.id}
               initialName={tournament.name}
             />
-            <p className="text-sm text-gray-500">{tournament.venue}</p>
-            <p className="text-sm text-gray-500">
-              {new Date(tournament.date).toLocaleDateString('en-CA', {
-                weekday: 'long',
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-              })}
-            </p>
+            <TournamentDetailsEditor
+              tournamentId={tournament.id}
+              initialVenue={tournament.venue}
+              initialDate={tournament.date.slice(0, 10)}
+            />
             <p className="mt-1 text-sm text-gray-500">Format: {tournament.format}</p>
           </div>
           <Badge variant={tournament.status === 'active' ? 'default' : 'secondary'}>
