@@ -72,14 +72,7 @@ export function PinEditorModal({ hole, onClose, onSave }: PinEditorModalProps) {
                 <circle cx="14" cy="15" r="9" fill="black" fillOpacity="0.25" />
                 {/* Pin */}
                 <circle cx="14" cy="14" r="9" fill="#16a34a" stroke="#fff" strokeWidth="2.5" />
-                <text
-                  x="14"
-                  y="18"
-                  textAnchor="middle"
-                  fontSize="10"
-                  fontWeight="bold"
-                  fill="#fff"
-                >
+                <text x="14" y="18" textAnchor="middle" fontSize="10" fontWeight="bold" fill="#fff">
                   {hole.hole_number}
                 </text>
               </svg>
@@ -107,10 +100,7 @@ export function PinEditorModal({ hole, onClose, onSave }: PinEditorModalProps) {
           <Button variant="outline" onClick={onClose}>
             Cancel
           </Button>
-          <Button
-            onClick={() => onSave(lat, lng)}
-            className="bg-[#1a472a] hover:bg-[#143820]"
-          >
+          <Button onClick={() => onSave(lat, lng)} className="bg-[#1a472a] hover:bg-[#143820]">
             Save Pin
           </Button>
         </div>

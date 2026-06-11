@@ -7,6 +7,30 @@ on:
     branches: [develop, main]
 
 jobs:
+  format:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - run: npm ci
+      - run: npm run format:check
+
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - run: npm ci
+      # next@14.x has HIGH CVEs with no non-breaking fix (requires next@15+).
+      # Gate on CRITICAL only; upgrade next.js post-tournament.
+      - run: npm audit --audit-level=critical
+
   test:
     runs-on: ubuntu-latest
     steps:

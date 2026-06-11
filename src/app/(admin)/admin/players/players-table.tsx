@@ -173,7 +173,10 @@ export function PlayersTable({ players: initial, teams }: PlayersTableProps) {
             <Button
               size="sm"
               variant="outline"
-              onClick={() => { setShowAddForm(false); setAddForm(EMPTY_ADD_FORM); }}
+              onClick={() => {
+                setShowAddForm(false);
+                setAddForm(EMPTY_ADD_FORM);
+              }}
             >
               Cancel
             </Button>

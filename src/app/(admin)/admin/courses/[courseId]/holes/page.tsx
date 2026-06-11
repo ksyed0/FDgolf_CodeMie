@@ -60,10 +60,7 @@ export default async function CourseHolesPage({
       </div>
 
       {/* Tee box editor */}
-      <CourseHolesEditor
-        holes={(holes as Hole[]) ?? []}
-        teeBoxes={(teeBoxes as TeeBox[]) ?? []}
-      />
+      <CourseHolesEditor holes={(holes as Hole[]) ?? []} teeBoxes={(teeBoxes as TeeBox[]) ?? []} />
     </div>
   );
 }

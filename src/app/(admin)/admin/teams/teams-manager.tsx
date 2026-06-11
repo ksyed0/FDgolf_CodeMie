@@ -81,8 +81,7 @@ export function TeamsManager({ teams: initialTeams, players, tournamentId }: Tea
 
   async function addTeam() {
     setAdding(true);
-    const nextNumber =
-      teams.length > 0 ? Math.max(...teams.map((t) => t.team_number)) + 1 : 1;
+    const nextNumber = teams.length > 0 ? Math.max(...teams.map((t) => t.team_number)) + 1 : 1;
     const { data, error } = await supabase
       .from('teams')
       .insert({
@@ -164,7 +163,12 @@ export function TeamsManager({ teams: initialTeams, players, tournamentId }: Tea
           <Button
             className="bg-[#1a472a] hover:bg-[#143820]"
             onClick={addTeam}
-            disabled={adding || !addForm.starting_hole || addForm.starting_hole < 1 || addForm.starting_hole > 18}
+            disabled={
+              adding ||
+              !addForm.starting_hole ||
+              addForm.starting_hole < 1 ||
+              addForm.starting_hole > 18
+            }
           >
             {adding ? 'Adding…' : 'Add Team'}
           </Button>

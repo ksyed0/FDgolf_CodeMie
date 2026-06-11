@@ -58,11 +58,7 @@ export default function ForgotPasswordPage() {
         />
       </div>
 
-      <Button
-        type="submit"
-        className="w-full bg-[#1a472a] hover:bg-[#143820]"
-        disabled={loading}
-      >
+      <Button type="submit" className="w-full bg-[#1a472a] hover:bg-[#143820]" disabled={loading}>
         {loading ? 'Sending…' : 'Send reset link'}
       </Button>
 

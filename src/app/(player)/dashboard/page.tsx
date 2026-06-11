@@ -47,8 +47,8 @@ export default async function DashboardPage() {
       <div className="flex flex-col items-center justify-center gap-4 px-4 py-12 text-center">
         <h2 className="text-xl font-semibold text-gray-800">Account pending setup</h2>
         <p className="text-sm text-gray-500">
-          Your account has been created but hasn&apos;t been assigned to a team yet.
-          Please contact the tournament administrator.
+          Your account has been created but hasn&apos;t been assigned to a team yet. Please contact
+          the tournament administrator.
         </p>
       </div>
     );
