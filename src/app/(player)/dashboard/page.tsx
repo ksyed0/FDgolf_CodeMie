@@ -36,6 +36,8 @@ export default async function DashboardPage() {
       .single<Tournament>(),
   ]);
 
+  if (player?.role === 'admin') redirect('/admin/tournament');
+
   if (!player) {
     return (
       <div className="flex flex-col items-center justify-center gap-4 px-4 py-12 text-center">
