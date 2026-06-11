@@ -27,9 +27,7 @@ jobs:
           node-version: '20'
           cache: 'npm'
       - run: npm ci
-      # next@14.x has HIGH CVEs with no non-breaking fix (requires next@15+).
-      # Gate on CRITICAL only; upgrade next.js post-tournament.
-      - run: npm audit --audit-level=critical
+      - run: npm audit --audit-level=high
 
   test:
     runs-on: ubuntu-latest
