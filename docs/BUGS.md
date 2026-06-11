@@ -29,8 +29,8 @@ attribute (not `htmlFor` label association) for team name, and a bare `<label>` 
 BUG-0003: Sunk shot written twice — SyncEngine queue + direct Supabase upsert
 Severity: Medium
 Related Story: US-0021
-Status: Open
-Fix Branch: —
+Status: Fixed
+Fix Branch: develop (direct commit 251c366)
 Lesson Encoded: No
 
 In `src/app/(player)/round/page.tsx`, when `outcome === 'sunk'` is recorded, the score
