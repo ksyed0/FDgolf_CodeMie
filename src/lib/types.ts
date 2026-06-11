@@ -12,6 +12,7 @@ export interface Tournament {
   date: string;
   format: string;
   venue: string;
+  course: string | null;
   status: TournamentStatus;
   created_at: string;
 }
