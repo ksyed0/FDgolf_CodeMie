@@ -203,9 +203,8 @@ export default function RoundPage() {
           override_by: null,
           override_at: null,
         };
-        syncEngine.enqueue('scores', scorePayload as Record<string, unknown>);
-
-        // Insert score in Supabase immediately
+        // Insert score directly — SyncEngine is for shots only; score write gates the
+        // edge function and hole summary fetch, both of which require connectivity anyway.
         const { data: insertedScore } = await supabase
           .from('scores')
           .upsert(scorePayload, { onConflict: 'player_id,tournament_id,hole_number' })
