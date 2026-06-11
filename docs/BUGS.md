@@ -100,8 +100,8 @@ production.
 BUG-0006: CodeQL SARIF upload fails — Advanced Security requires GitHub Organization account
 Severity: Low
 Related Story: N/A (CI setup)
-Status: Permanent workaround — continue-on-error: true on analyze job
-Fix Branch: feature/ci-security-format (merged PR #11)
+Status: Fixed — repo made public; continue-on-error removed; CodeQL now blocks PRs
+Fix Branch: develop (direct commit)
 Lesson Encoded: No
 
 The `codeql.yml` workflow fails with:

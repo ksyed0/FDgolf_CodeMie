@@ -15,9 +15,6 @@ permissions:
 
 jobs:
   analyze:
-    # continue-on-error: GitHub Code Scanning must be enabled in repo Settings
-    # before CodeQL SARIF upload succeeds. Non-blocking until that is configured.
-    continue-on-error: true
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
