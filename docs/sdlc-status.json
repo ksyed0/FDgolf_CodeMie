@@ -5,7 +5,7 @@
     "repoUrl": "https://github.com/ksyed0/PlanVisualizer",
     "startDate": "2026-03-10"
   },
-  "currentPhase": 5,
+  "currentPhase": 3,
   "phases": [
     {
       "id": 1,
@@ -17,9 +17,9 @@
         "refined ACs",
         "priority list"
       ],
-      "status": "complete",
-      "startedAt": "2026-06-08T21:08:15.669Z",
-      "completedAt": "2026-06-08T21:08:22.054Z"
+      "status": "pending",
+      "startedAt": null,
+      "completedAt": null
     },
     {
       "id": 2,
@@ -32,9 +32,9 @@
         "types",
         "service stubs"
       ],
-      "status": "complete",
-      "startedAt": "2026-06-08T21:08:28.666Z",
-      "completedAt": "2026-06-08T21:25:49.000Z"
+      "status": "pending",
+      "startedAt": null,
+      "completedAt": null
     },
     {
       "id": 3,
@@ -48,9 +48,9 @@
         "implementation",
         "unit tests"
       ],
-      "status": "complete",
-      "startedAt": "2026-06-08T21:38:00.000Z",
-      "completedAt": "2026-06-08T22:01:00.000Z"
+      "status": "in-progress",
+      "startedAt": "2026-06-11T16:45:15.538Z",
+      "completedAt": null
     },
     {
       "id": 4,
@@ -77,8 +77,8 @@
         "test report",
         "coverage"
       ],
-      "status": "in-progress",
-      "startedAt": "2026-06-08T22:01:30.000Z",
+      "status": "pending",
+      "startedAt": null,
       "completedAt": null
     },
     {
@@ -133,9 +133,10 @@
       "tasksCompleted": 1
     },
     "Pixel": {
-      "status": "idle",
-      "currentTask": null,
-      "tasksCompleted": 1
+      "status": "active",
+      "currentTask": "Implement 6-feature completion plan",
+      "tasksCompleted": 1,
+      "model": "sonnet"
     },
     "Sentinel": {
       "status": "working",
@@ -159,22 +160,44 @@
       "completedAt": null,
       "storiesCompleted": 0,
       "storiesTotal": 4
+    },
+    "EPIC-0010": {
+      "name": "Feature Completion — Pre-Tournament",
+      "status": "in-progress",
+      "startedAt": "2026-06-11T16:45:15.451Z",
+      "completedAt": null,
+      "storiesCompleted": 0,
+      "storiesTotal": 6
     }
   },
   "stories": {
-    "US-0001": {
+    "US-0021": {
       "status": "InProgress",
-      "epic": null,
-      "assignedAgent": "Keystone",
-      "startedAt": "2026-06-08T21:08:21.857Z",
+      "epic": "EPIC-0010",
+      "assignedAgent": "Pixel",
+      "startedAt": "2026-06-11T16:45:19.916Z",
+      "completedAt": null
+    },
+    "US-0023": {
+      "status": "InProgress",
+      "epic": "EPIC-0010",
+      "assignedAgent": null,
+      "startedAt": "2026-06-11T16:45:20.056Z",
+      "completedAt": null
+    },
+    "US-0037": {
+      "status": "InProgress",
+      "epic": "EPIC-0010",
+      "assignedAgent": null,
+      "startedAt": "2026-06-11T16:45:20.208Z",
       "completedAt": null
     }
   },
   "cycles": [],
   "metrics": {
     "storiesCompleted": 0,
-    "storiesTotal": 37,
-    "tasksCompleted": 2,
+    "storiesTotal": 6,
+    "tasksCompleted": 0,
     "tasksTotal": 0,
     "testsPassed": 0,
     "testsFailed": 0,
@@ -286,6 +309,42 @@
       "agent": "Circuit",
       "message": "started Phase 5: Jest config, coverage thresholds (≥80%), CI matrix",
       "model": "sonnet"
+    },
+    {
+      "time": "2026-06-11T16:45:09.124Z",
+      "agent": "Conductor",
+      "message": "Session started — 6 stories planned"
+    },
+    {
+      "time": "2026-06-11T16:45:15.452Z",
+      "agent": "Conductor",
+      "message": "Epic EPIC-0010 (Feature Completion — Pre-Tournament) started"
+    },
+    {
+      "time": "2026-06-11T16:45:15.538Z",
+      "agent": "Conductor",
+      "message": "Phase 3 (Build) → in-progress"
+    },
+    {
+      "time": "2026-06-11T16:45:19.917Z",
+      "agent": "Conductor",
+      "message": "started US-0021 (EPIC-0010)"
+    },
+    {
+      "time": "2026-06-11T16:45:20.061Z",
+      "agent": "Conductor",
+      "message": "started US-0023 (EPIC-0010)"
+    },
+    {
+      "time": "2026-06-11T16:45:20.211Z",
+      "agent": "Conductor",
+      "message": "started US-0037 (EPIC-0010)"
+    },
+    {
+      "time": "2026-06-11T16:45:36.786Z",
+      "agent": "Pixel",
+      "message": "started US-0021: Implement 6-feature completion plan",
+      "model": "sonnet"
     }
   ],
   "tasks": {
@@ -305,6 +364,36 @@
       "planTaskIndex": 1,
       "summary": "Next.js 14 scaffolded, Supabase SSR, schema+RLS, sync engine, leaderboard RPC — TypeScript clean",
       "headSha": "d3622ff"
+    },
+    "task-c5351f6b-534c-4368-8147-87df28e20ee3": {
+      "id": "task-c5351f6b-534c-4368-8147-87df28e20ee3",
+      "story": "US-0021",
+      "agent": "Pixel",
+      "model": "sonnet",
+      "description": "Implement feature-completion plan: logout, add team, tournament controls, hole summary, edit shot, password reset",
+      "state": "done",
+      "concerns": null,
+      "blockedReason": null,
+      "blockedResolutions": [],
+      "startedAt": "2026-06-11T16:45:26.909Z",
+      "completedAt": "2026-06-11T16:57:06.889Z",
+      "retryCount": 0,
+      "planTaskIndex": 1,
+      "summary": "Implemented 11 tasks: SignOutButton, player nav, Add Team, TournamentNameEditor, Copy URL, tournament page, hole summary, inline shot edit, forgot-password, reset-password, login link",
+      "headSha": "0477b14",
+      "taskReview": {
+        "status": "spec_reviewing",
+        "baseSha": "54853104b909e29c9c7871138e8874dbd2a06da2",
+        "headSha": "0477b14",
+        "specVerdict": null,
+        "specFindings": null,
+        "qualityVerdict": null,
+        "qualityFindings": null,
+        "forgeRetries": 0,
+        "lastRetryTriggeredBy": null,
+        "startedAt": "2026-06-11T16:57:15.697Z",
+        "completedAt": null
+      }
     }
   }
 }

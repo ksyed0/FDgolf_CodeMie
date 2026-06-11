@@ -1,5 +1,59 @@
 # FDgolf — Progress
 
+## Session 14 — 2026-06-11 (Feature completion: 6 pre-tournament features, PR #3 open)
+
+### What Was Done
+
+Full agentic pipeline (Conductor → Pixel → Lens/Sentinel/Circuit → PR) executed against the approved design spec `docs/superpowers/specs/2026-06-11-feature-completion-design.md`.
+
+**6 features implemented** on `feature/feature-completion-2026-06-11` (PR #3 → develop):
+
+1. **Sign Out tab** — `src/components/sign-out-button.tsx` (new) + `(player)/layout.tsx` (5th nav item). Calls `supabase.auth.signOut()`, redirects to `/login`, `toast.error` on failure.
+2. **Add Team** — `(admin)/admin/teams/teams-manager.tsx` + `teams/page.tsx`. Inline form with auto-incrementing `team_number`, starting hole 1–18, max players 2–6. INSERT via Supabase client.
+3. **Tournament name edit** — `(admin)/admin/tournament/tournament-name-editor.tsx` (new). Click-to-edit `<h2>` using Supabase PATCH + `toast.success`.
+4. **Copy live URL** — `tournament-controls.tsx`: `navigator.clipboard.writeText('/live/' + slug)` button.
+5. **Hole Summary card** (US-0023) — `(player)/round/page.tsx`: after sinking, fetches all teammate scores, shows best ball highlighted green with ★.
+6. **Inline shot edit** (US-0021) — `(player)/round/page.tsx`: shot history above club selector; tap to expand edit panel (club + in_play/OOB/mulligan, NOT sunk).
+7. **Password reset** (US-0037) — `(auth)/forgot-password/page.tsx` + `reset-password/page.tsx` (new) + login "Forgot password?" link. PKCE flow via `resetPasswordForEmail` + `updateUser`.
+
+**E2E tests**: TC-0049, TC-0050, TC-0056 converted from unconditional `test.skip(...)` to `test(...)` with inline `test.skip(!hasRealSupabase, '...')` guard.
+
+### Test Results
+
+- `npm run type-check`: 0 errors
+- `npm run build`: success (23 routes)
+- `npm run test:ci`: 68 tests, statements 88.88%, branches 92.85%, functions 81.81%, lines 91.91% — all ≥ thresholds
+
+### Stories Closed
+
+- US-0021: Done (AC-0068 ✓, AC-0069 ✓)
+- US-0023: Done (AC-0074 ✓, AC-0075 ✓)
+- US-0037: Done (AC-0125 ✓, AC-0126 ✓)
+
+### Files Changed
+
+- `src/components/sign-out-button.tsx` — NEW
+- `src/app/(player)/layout.tsx` — Sign Out 5th nav tab
+- `src/app/(admin)/admin/teams/teams-manager.tsx` — Add Team form
+- `src/app/(admin)/admin/teams/page.tsx` — tournamentId prop
+- `src/app/(admin)/admin/tournament/tournament-name-editor.tsx` — NEW
+- `src/app/(admin)/admin/tournament/tournament-controls.tsx` — Copy URL button
+- `src/app/(admin)/admin/tournament/page.tsx` — wired both new components
+- `src/app/(player)/round/page.tsx` — hole summary + inline shot edit
+- `src/app/(auth)/forgot-password/page.tsx` — NEW
+- `src/app/(auth)/reset-password/page.tsx` — NEW
+- `src/app/(auth)/login/page.tsx` — Forgot password link
+- `tests/e2e/admin.spec.ts` — TC-0049/0050/0056 un-skipped
+
+### Next Steps
+
+- Merge PR #3 to develop
+- Cloud deploy to Vercel staging — set env vars, run `supabase db push` to staging
+- Manual smoke test on staging: sign out, add team, edit tournament name, password reset (check Supabase email dashboard)
+- Remaining open ACs: AC-0070 (shot recalculation), AC-0076 (score vs par label in hole summary) — deferred post-tournament
+
+---
+
 ## Session 13 — 2026-06-11 (Local Supabase setup, test users, PR #2 merged)
 
 ### What Was Done

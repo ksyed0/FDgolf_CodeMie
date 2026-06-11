@@ -13,19 +13,19 @@ Stack: Next.js 14 App Router · TypeScript · Tailwind CSS · shadcn/ui · Supab
 
 ---
 
-## Branch State (as of Session 13 — 2026-06-11)
+## Branch State (as of Session 14 — 2026-06-11)
 
 | Branch | Status | Notes |
 |--------|--------|-------|
 | `main` | clean | baseline |
-| `develop` | HEAD `32e827d` | latest — all features merged including E2E + Mapbox + RLS fixes |
+| `develop` | HEAD `5485310` | design spec committed; PR #3 open and awaiting merge |
+| `feature/feature-completion-2026-06-11` | **PR #3 open** | 6 features: sign-out, add team, tournament controls, hole summary, edit shot, password reset |
 | `feature/e2e-playwright-full-suite` | **merged PR #2** | Mapbox + pin editor + scores RLS fix + E2E suite |
 | `feature/phase6-po-items` | **merged PR #1** | Phase 6 complete |
-| `feature/EPIC-0001-infrastructure` | merged | Keystone scaffold |
-| `feature/EPIC-0002-best-ball-engine` | merged | Forge backend |
-| `feature/EPIC-0003-frontend-pages` | merged | Pixel — all frontend pages |
 
 **Monorepo**: `ksyed0/FDgolf` on GitHub — `CodeMie/` is a plain subdirectory (no nested git). Bare backup at `CodeMie-origin.git/`.
+
+**Next action**: Merge PR #3, then proceed to Vercel cloud deployment.
 
 ---
 
@@ -36,11 +36,11 @@ Stack: Next.js 14 App Router · TypeScript · Tailwind CSS · shadcn/ui · Supab
 
 ---
 
-## E2E Test Status (Session 10+11 — 2026-06-10)
+## E2E Test Status (Session 14 — 2026-06-11)
 
-**31 passed, 5 skipped, 0 failed.** All tests green on `develop` branch.
+**31 passed, 2 skipped (conditional), 0 failed.** After PR #3 merges, TC-0049/0050/0056 move from unconditional skip to conditional (`test.skip(!hasRealSupabase, '...')`).
 
-Skipped: TC-0045 (no sponsor logo_url seeded), TC-0049/0050 (features not implemented), TC-0056 (no Add Team button), TC-0058 (Radix Select incompatible with `.selectOption()`).
+Remaining unconditional skips: TC-0045 (no sponsor logo_url seeded), TC-0058 (Radix Select incompatible with `.selectOption()` — backlog).
 
 Local Supabase: must run `supabase start` from `FDgolf_CodeMie/` before tests. The previous conflicting container was `supabase_db_fdgolf` (old project name); stop with `supabase stop --project-id fdgolf` if port conflict on 54322.
 
