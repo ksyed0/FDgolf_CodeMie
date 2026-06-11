@@ -20,6 +20,13 @@ interface ShotMarker {
   outcome: ShotOutcome;
 }
 
+const OUTCOME_LABELS: Record<ShotOutcome, string> = {
+  in_play: 'In Play',
+  out_of_bounds: 'OOB',
+  mulligan: 'Mulligan',
+  sunk: 'Sunk',
+};
+
 export default function RoundPage() {
   const router = useRouter();
   const supabase = createClient();
@@ -42,6 +49,10 @@ export default function RoundPage() {
   const [recording, setRecording] = useState(false);
   const [holeSummaryScores, setHoleSummaryScores] = useState<Score[]>([]);
   const [summaryLoading, setSummaryLoading] = useState(false);
+  const [dbShots, setDbShots] = useState<Shot[]>([]);
+  const [editingShot, setEditingShot] = useState<string | null>(null);
+  const [editClub, setEditClub] = useState('');
+  const [editOutcome, setEditOutcome] = useState<ShotOutcome>('in_play');
 
   useEffect(() => {
     async function loadData() {
@@ -125,6 +136,22 @@ export default function RoundPage() {
       setRoundState(rsData ?? null);
 
       setLoading(false);
+
+      // Load shots for the current hole
+      if (rsData && tournamentData) {
+        const startHole = rsData.current_hole;
+        const allPlayerIds = (teammateData as Player[])?.map((p) => p.id) ?? [];
+        if (allPlayerIds.length > 0) {
+          const { data: shotData } = await supabase
+            .from('shots')
+            .select('*')
+            .eq('tournament_id', tournamentData.id)
+            .eq('hole_number', startHole)
+            .in('player_id', allPlayerIds)
+            .order('shot_number');
+          setDbShots((shotData as Shot[]) ?? []);
+        }
+      }
     }
     loadData().catch(console.error);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -213,8 +240,20 @@ export default function RoundPage() {
       }
 
       setRecording(false);
+
+      // Refresh shot history
+      if (tournament && roundState) {
+        const { data: refreshed } = await supabase
+          .from('shots')
+          .select('*')
+          .eq('tournament_id', tournament.id)
+          .eq('hole_number', roundState.current_hole)
+          .in('player_id', teammates.map((p) => p.id))
+          .order('shot_number');
+        setDbShots((refreshed as Shot[]) ?? []);
+      }
     },
-    [player, tournament, roundState, activePlayerId, selectedClub, shotNumber, position, supabase]
+    [player, tournament, roundState, activePlayerId, selectedClub, shotNumber, position, supabase, teammates]
   );
 
   const nextHole = useCallback(async () => {
@@ -251,6 +290,8 @@ export default function RoundPage() {
     setHoleSunk(false);
     setHoleSummaryScores([]);
     setSummaryLoading(false);
+    setDbShots([]);
+    setEditingShot(null);
     setSelectedClub('');
   }, [roundState, team, supabase, router]);
 
@@ -310,6 +351,112 @@ export default function RoundPage() {
 
         {/* Hole map */}
         <HoleMap pinLat={currentHole.pin_lat} pinLng={currentHole.pin_lng} shots={holeShots} />
+
+        {/* Shot history */}
+        {dbShots.length > 0 && !holeSunk && (
+          <div>
+            <p className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-gray-500">
+              This hole
+            </p>
+            <div className="space-y-1.5">
+              {dbShots.map((shot) => {
+                const shooter = teammates.find((p) => p.id === shot.player_id);
+                const isEditing = editingShot === shot.id;
+                return (
+                  <div
+                    key={shot.id}
+                    className="overflow-hidden rounded-lg border bg-white shadow-sm"
+                  >
+                    <button
+                      className="flex w-full items-center justify-between px-3 py-2 text-left text-sm hover:bg-gray-50"
+                      onClick={() => {
+                        if (isEditing) {
+                          setEditingShot(null);
+                        } else {
+                          setEditingShot(shot.id);
+                          setEditClub(shot.club_name);
+                          setEditOutcome(
+                            shot.outcome === 'sunk' ? 'in_play' : shot.outcome
+                          );
+                        }
+                      }}
+                    >
+                      <span className="text-gray-700">
+                        Shot {shot.shot_number} · {shooter?.name ?? 'Unknown'} ·{' '}
+                        {shot.club_name} · {OUTCOME_LABELS[shot.outcome]}
+                      </span>
+                      <span className="text-xs text-[#1a472a]">
+                        {isEditing ? '✕' : '✏'}
+                      </span>
+                    </button>
+
+                    {isEditing && (
+                      <div className="space-y-3 border-t bg-gray-50 px-3 py-3">
+                        <ClubSelector
+                          clubs={clubs}
+                          value={editClub}
+                          onChange={setEditClub}
+                        />
+                        <div className="flex gap-2">
+                          {(['in_play', 'out_of_bounds', 'mulligan'] as ShotOutcome[]).map(
+                            (o) => (
+                              <button
+                                key={o}
+                                onClick={() => setEditOutcome(o)}
+                                className={`flex-1 rounded-lg border px-2 py-1.5 text-xs font-medium transition-colors ${
+                                  editOutcome === o
+                                    ? 'border-[#1a472a] bg-[#1a472a] text-white'
+                                    : 'border-gray-200 bg-white text-gray-700 hover:bg-gray-50'
+                                }`}
+                              >
+                                {OUTCOME_LABELS[o]}
+                              </button>
+                            )
+                          )}
+                        </div>
+                        <div className="flex gap-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="flex-1"
+                            onClick={() => setEditingShot(null)}
+                          >
+                            Cancel
+                          </Button>
+                          <Button
+                            size="sm"
+                            className="flex-1 bg-[#1a472a] hover:bg-[#143820]"
+                            onClick={async () => {
+                              const { error } = await supabase
+                                .from('shots')
+                                .update({ club_name: editClub, outcome: editOutcome })
+                                .eq('id', shot.id);
+                              if (error) {
+                                toast.error(error.message);
+                                return;
+                              }
+                              setDbShots((prev) =>
+                                prev.map((s) =>
+                                  s.id === shot.id
+                                    ? { ...s, club_name: editClub, outcome: editOutcome }
+                                    : s
+                                )
+                              );
+                              setEditingShot(null);
+                              toast.success('Shot updated');
+                            }}
+                          >
+                            Save
+                          </Button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
 
         {/* Club selector */}
         <div>
