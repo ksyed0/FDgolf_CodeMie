@@ -209,6 +209,94 @@ test('TC-0056: new team can be created with team number and starting hole', asyn
   expect(insertCalled).toBe(true)
 })
 
+// ── TC-0059: CSV player import ────────────────────────────────────────────
+
+test('TC-0059: CSV import creates players and shows invite links', async ({ page }) => {
+  test.skip(!hasRealSupabase, 'Requires seeded local Supabase — /admin/players is SSR')
+
+  let importCalled = false
+  let importBody: unknown = null
+
+  await page.route('**/api/admin/import-players', (route) => {
+    importCalled = true
+    importBody = route.request().postDataJSON()
+    route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        imported: 3,
+        errors: [],
+        teamsCreated: ['Eagles', 'Hawks'],
+        invites: [
+          { name: 'Test Player 1', email: 'tp1@test.com', link: 'http://localhost:3000/auth/confirm?token=1' },
+          { name: 'Test Player 2', email: 'tp2@test.com', link: 'http://localhost:3000/auth/confirm?token=2' },
+          { name: 'Test Player 3', email: 'tp3@test.com', link: 'http://localhost:3000/auth/confirm?token=3' },
+        ],
+      }),
+    })
+  })
+
+  await page.goto('/admin/players')
+
+  // Click Import CSV button
+  await page.getByRole('button', { name: /import csv/i }).click()
+
+  // Verify the import panel is visible
+  await expect(page.getByText(/import players from csv/i)).toBeVisible()
+
+  // Upload a CSV file
+  const csvContent = 'name,email,company,team\nTest Player 1,tp1@test.com,CIBC,Eagles\nTest Player 2,tp2@test.com,CIBC,Eagles\nTest Player 3,tp3@test.com,TD,Hawks'
+  const fileInput = page.locator('input[type="file"]')
+  await fileInput.setInputFiles({
+    name: 'players.csv',
+    mimeType: 'text/csv',
+    buffer: Buffer.from(csvContent),
+  })
+
+  // Preview should show 3 valid rows
+  await expect(page.getByText('3 valid')).toBeVisible()
+
+  // Click import button
+  await page.getByRole('button', { name: /import 3 players/i }).click()
+
+  // Verify API was called
+  expect(importCalled).toBe(true)
+  expect((importBody as { rows: unknown[] }).rows).toHaveLength(3)
+
+  // Results should show success
+  await expect(page.getByText(/3 imported/i)).toBeVisible({ timeout: 5000 })
+  await expect(page.getByText(/2 teams created/i)).toBeVisible()
+
+  // Copy all links button should be visible
+  await expect(page.getByRole('button', { name: /copy all invite links/i })).toBeVisible()
+})
+
+// ── TC-0060: CSV import shows validation errors ─────────────────────────────
+
+test('TC-0060: CSV import shows validation errors for invalid rows', async ({ page }) => {
+  test.skip(!hasRealSupabase, 'Requires seeded local Supabase — /admin/players is SSR')
+
+  await page.goto('/admin/players')
+  await page.getByRole('button', { name: /import csv/i }).click()
+
+  // Upload CSV with invalid rows
+  const csvContent = 'name,email,team\n,missing-name@test.com,Eagles\nNo Email,,Hawks\nValid Player,valid@test.com,Eagles'
+  const fileInput = page.locator('input[type="file"]')
+  await fileInput.setInputFiles({
+    name: 'bad-players.csv',
+    mimeType: 'text/csv',
+    buffer: Buffer.from(csvContent),
+  })
+
+  // Should show 1 valid, 2 errors
+  await expect(page.getByText('1 valid')).toBeVisible()
+  await expect(page.getByText('2 errors')).toBeVisible()
+
+  // Error rows should be highlighted
+  await expect(page.getByText('Missing name')).toBeVisible()
+  await expect(page.getByText('Missing email')).toBeVisible()
+})
+
 // ── TC-0058: Score override ────────────────────────────────────────────────
 // SKIPPED: /admin/scores is SSR — page.route() score/team mocks don't affect the initial
 // render. ScoresTable also uses Radix UI Select (not a native <select>), so Playwright's

@@ -225,6 +225,6 @@ Must apply `005_scores_player_rls.sql` to all Supabase instances (local ✓, sta
 
 ## Next Steps
 
-1. **Invite real tournament players** via magic link (admin dashboard → Players → Send Invite)
-2. **Pre-tournament smoke test** on tournament day (June 22): confirm login, score submission, leaderboard update end-to-end
+1. **Invite real tournament players** via CSV import (`scripts/sample-data/players-import.csv` as template) or individual magic link
+2. **Pre-tournament smoke test** on tournament day (June 22): confirm login, submit score, verify leaderboard end-to-end
 3. **Post-tournament**: upgrade eslint v8 → v9 (flat config), remove `.npmrc` legacy-peer-deps workaround

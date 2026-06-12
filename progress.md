@@ -42,9 +42,19 @@
 - BUG-0005: 14 HIGH next@14 CVEs → Fixed (next@16.2.9)
 - BUG-0006: CodeQL SARIF upload → Fixed (repo made public)
 
+**8. CSV player import feature** (PR #16 → `develop`)
+- `POST /api/admin/import-players` — bulk import API (max 200 rows, auth check, team auto-creation, magic link generation)
+- `csv-import.tsx` — file picker + client-side CSV parsing + preview table + results panel with "Copy All Invite Links"
+- Wired into admin Players page with "Import CSV" button
+- 12 unit tests + 2 E2E tests (TC-0059, TC-0060)
+
+**9. Database reset + seed script**
+- `scripts/reset-and-seed.sh` — one-command reset: `supabase db reset` + `seed-users.ts`
+- `scripts/sample-data/players-import.csv` — 16-player sample CSV (4 teams of 4, with starting holes)
+
 ### Next Steps
 
-1. Invite real tournament players via magic link (admin dashboard → Players → Send Invite)
+1. Invite real tournament players via CSV import or magic link (admin dashboard → Players)
 2. Pre-tournament smoke test on June 22: login, submit score, verify leaderboard
 3. Consider upgrading eslint from v8 → v9 to remove `legacy-peer-deps` workaround (post-tournament)
 
