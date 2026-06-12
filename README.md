@@ -12,7 +12,7 @@ June 22 2026 · Granite Ridge Golf Club, Milton ON · 125 players · Best Ball +
 
 | Layer | Technology |
 |---|---|
-| Framework | Next.js 14 App Router + TypeScript |
+| Framework | Next.js 16 App Router + TypeScript |
 | Styling | Tailwind CSS + shadcn/ui |
 | Backend | Supabase (Postgres, Auth, Realtime, Edge Functions) |
 | Maps | Mapbox (`react-map-gl`) — satellite view for shot tracking + pin editor |

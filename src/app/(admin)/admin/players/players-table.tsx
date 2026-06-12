@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { toast } from 'sonner';
-import { UserPlus } from 'lucide-react';
+import { UserPlus, FileUp } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -14,22 +14,25 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { CsvImport } from './csv-import';
 import type { Player, PlayerRole, Team } from '@/lib/types';
 
 interface PlayersTableProps {
   players: Player[];
   teams: Pick<Team, 'id' | 'team_number' | 'team_name'>[];
+  tournamentId: string;
 }
 
 const ROLES: PlayerRole[] = ['player', 'admin', 'tournament_organizer'];
 
 const EMPTY_ADD_FORM = { name: '', email: '', company: '', title: '' };
 
-export function PlayersTable({ players: initial, teams }: PlayersTableProps) {
+export function PlayersTable({ players: initial, teams, tournamentId }: PlayersTableProps) {
   const [players, setPlayers] = useState(initial);
   const [search, setSearch] = useState('');
   const [invitingId, setInvitingId] = useState<string | null>(null);
   const [showAddForm, setShowAddForm] = useState(false);
+  const [showCsvImport, setShowCsvImport] = useState(false);
   const [addForm, setAddForm] = useState(EMPTY_ADD_FORM);
   const [adding, setAdding] = useState(false);
   const supabase = createClient();
@@ -113,15 +116,35 @@ export function PlayersTable({ players: initial, teams }: PlayersTableProps) {
           onChange={(e) => setSearch(e.target.value)}
           className="max-w-xs"
         />
-        <Button
-          size="sm"
-          className="bg-[#1a472a] hover:bg-[#143820]"
-          onClick={() => setShowAddForm((v) => !v)}
-        >
-          <UserPlus className="mr-2 h-4 w-4" />
-          Add Player
-        </Button>
+        <div className="flex gap-2">
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => {
+              setShowCsvImport((v) => !v);
+              setShowAddForm(false);
+            }}
+          >
+            <FileUp className="mr-2 h-4 w-4" />
+            Import CSV
+          </Button>
+          <Button
+            size="sm"
+            className="bg-[#1a472a] hover:bg-[#143820]"
+            onClick={() => {
+              setShowAddForm((v) => !v);
+              setShowCsvImport(false);
+            }}
+          >
+            <UserPlus className="mr-2 h-4 w-4" />
+            Add Player
+          </Button>
+        </div>
       </div>
+
+      {showCsvImport && (
+        <CsvImport tournamentId={tournamentId} onClose={() => setShowCsvImport(false)} />
+      )}
 
       {showAddForm && (
         <div className="border-b bg-green-50 p-4">
