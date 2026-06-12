@@ -46,8 +46,8 @@ remove the direct upsert and rely solely on the SyncEngine.
 BUG-0004: glob HIGH CVE (GHSA-5j98-mcp5-4vw2) via eslint-config-next dev dependency
 Severity: High
 Related Story: N/A (CI security scan)
-Status: Deferred — no runtime exposure; no non-breaking fix before tournament
-Fix Branch: N/A
+Status: Fixed — resolved by upgrading eslint-config-next to 16.2.9 (PR #14)
+Fix Branch: feature/upgrade-nextjs-16 (squash-merged to develop)
 Lesson Encoded: No
 
 `glob@10.2.0 - 10.4.5` bundled inside `@next/eslint-plugin-next` (a transitive dep of
@@ -57,21 +57,19 @@ via glob pattern input. The affected code path only runs in the ESLint toolchain
 development builds — it is never present in the production bundle and is not reachable
 at runtime on Vercel.
 
-`npm audit fix --force` resolves it by upgrading to `eslint-config-next@16.x`, which is
-a breaking change (requires Next.js 15+). CI audit gate changed to `--audit-level=critical`
-pending a post-tournament Next.js upgrade. Tracked in MEMORY.md.
+Fixed by upgrading `eslint-config-next` from 14.x to 16.2.9 in PR #14.
 
 Advisory: https://github.com/advisories/GHSA-5j98-mcp5-4vw2
 
 BUG-0005: next@14.x — 14 HIGH-severity CVEs with no non-breaking patch
 Severity: High
 Related Story: N/A (CI security scan)
-Status: Deferred — upgrade to next@15 blocked by tournament window (June 22 2026)
-Fix Branch: N/A
+Status: Fixed — resolved by upgrading next to 16.2.9 (PR #14)
+Fix Branch: feature/upgrade-nextjs-16 (squash-merged to develop)
 Lesson Encoded: No
 
-`next@14.2.35` (latest 14.x) contains 14 HIGH-severity advisories. All are fixed only
-in `next@15+` (no patch release in the 14.x line). The known CVEs:
+`next@14.2.35` (latest 14.x) contained 14 HIGH-severity advisories. All are fixed in
+`next@16.2.9`. The resolved CVEs:
 
 - GHSA-9g9p-9gw9-jx7f  DoS via Image Optimizer remotePatterns (self-hosted)
 - GHSA-h25m-26qc-wcjf  HTTP request deserialization DoS via RSC (self-hosted)
@@ -88,14 +86,8 @@ in `next@15+` (no patch release in the 14.x line). The known CVEs:
 - GHSA-wfc6-r584-vfw7  Cache poisoning in RSC responses
 - GHSA-36qx-fr4f-26g5  Middleware/Proxy bypass in Pages Router i18n
 
-The majority are "self-hosted" DoS variants; our deployment runs on Vercel's managed
-infrastructure, which mitigates most infrastructure-level attack vectors. No CVE is
-rated CRITICAL. CI `audit` job changed from `--audit-level=high` to
-`--audit-level=critical` in `.github/workflows/ci.yml` to unblock PRs.
-
-Action required post-tournament: upgrade `next` + `eslint-config-next` from 14.x → 15.x,
-audit breaking changes in the migration guide, run full E2E suite before re-promoting to
-production.
+Fixed by upgrading `next` from 14.2.35 to 16.2.9 and `eslint-config-next` from 14.2.35
+to 16.2.9 in PR #14. `npm audit --audit-level=high` now exits 0 (only 2 moderate remain).
 
 BUG-0006: CodeQL SARIF upload fails — Advanced Security requires GitHub Organization account
 Severity: Low
