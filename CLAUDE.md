@@ -52,7 +52,7 @@ NEXT_PUBLIC_MAPBOX_TOKEN=       # public token — satellite map in shot trackin
 
 ## Architecture
 
-**App**: Next.js 14 App Router + TypeScript. Route groups:
+**App**: Next.js 16 App Router + TypeScript. Route groups:
 
 | Group | Path | Auth |
 |-------|------|------|

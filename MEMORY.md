@@ -9,30 +9,31 @@
 
 **CIBC Capital Markets Golf Tournament — June 22 2026**
 Granite Ridge Golf Club, Milton ON · 125 players · Best Ball + Shotgun Start
-Stack: Next.js 14 App Router · TypeScript · Tailwind CSS · shadcn/ui · Supabase · **Mapbox** · Vercel
+Stack: Next.js 16 App Router · TypeScript · Tailwind CSS · shadcn/ui · Supabase · **Mapbox** · Vercel
 
 ---
 
-## Branch State (as of Session 19 — 2026-06-11)
+## Branch State (as of Session 19 — 2026-06-12)
 
 | Branch | Status | Notes |
 |--------|--------|-------|
-| `main` | **→ PR #10 merged** | all develop work shipped to prod via PR #10 |
-| `develop` | HEAD `8f744e2` | `continue-on-error` on GitHub Pages deploy step |
-| `feature/ci-security-format` | **open PR #11** | format+audit+CodeQL CI jobs, Husky pre-commit, CONTRIBUTING.md Claude Code section |
-| `feature/plan2-admin-venues-courses` | **merged PR #8** | Admin venues, courses, tee boxes — 4 new/modified files |
-| `feature/plan1-master-data-hierarchy` | **merged PR #7** | Master data hierarchy — migrations 007/008, types, 7 pages, add-player tests |
+| `main` | **→ PR #15 merged** | Next.js 16 upgrade + CI security hardening live in prod |
+| `develop` | HEAD `acccf61` | synced with main; Next.js 16.2.9, audit gate `--audit-level=high` |
+| `feature/upgrade-nextjs-16` | **merged PR #14** | Next.js 14→16 upgrade, .npmrc legacy-peer-deps |
+| `feature/ci-security-format` | **merged PR #11** | format+audit+CodeQL CI jobs, Husky pre-commit |
+| `feature/plan2-admin-venues-courses` | **merged PR #8** | Admin venues, courses, tee boxes |
+| `feature/plan1-master-data-hierarchy` | **merged PR #7** | Master data hierarchy — migrations 007/008 |
 | `feature/feature-completion-2026-06-11` | **merged PR #3** | 6 features: sign-out, add team, tournament controls, hole summary, edit shot, password reset |
 | `feature/e2e-playwright-full-suite` | **merged PR #2** | Mapbox + pin editor + scores RLS fix + E2E suite |
 | `feature/phase6-po-items` | **merged PR #1** | Phase 6 complete |
 
-**Monorepo**: `ksyed0/FDgolf` on GitHub — `CodeMie/` is a plain subdirectory (no nested git). Bare backup at `CodeMie-origin.git/`.
+**Monorepo**: `ksyed0/FDgolf` on GitHub (PUBLIC) — `CodeMie/` is a plain subdirectory (no nested git). Bare backup at `CodeMie-origin.git/`.
 
-**Current open PR**: #11 `feature/ci-security-format` → `develop` — CI format/test/audit passing; CodeQL non-blocking.
+**Current open PRs**: None.
 
-**Next action**: Merge PR #11 to develop, then PR develop → main. Then invite real players via magic link (admin dashboard → Players → Send Invite) and run pre-tournament smoke test on June 22.
+**Next action**: Invite real players via magic link (admin dashboard → Players → Send Invite) and run pre-tournament smoke test on June 22.
 
-**Post-tournament backlog**: Upgrade `next` from 14.x → 15.x to resolve HIGH CVEs. Not done now due to 11-day tournament window. Known CVEs: GHSA-ggv3-7p47-pfv8, GHSA-q4gf-8mx6-v5v3, GHSA-8h8q-6873-q5fj (all DoS/cache). Audit gate set to `--audit-level=critical` in CI until upgrade.
+**Post-tournament backlog**: Upgrade eslint from v8 → v9 (removes `legacy-peer-deps` workaround). Consider flat config migration.
 
 ---
 
@@ -224,6 +225,6 @@ Must apply `005_scores_player_rls.sql` to all Supabase instances (local ✓, sta
 
 ## Next Steps
 
-1. **Create GitHub labels** on `ksyed0/FDgolf_CodeMie`: `critical`, `high`, `medium`, `low`, `planvisualizer`
-2. **Invite real tournament players** via magic link (admin dashboard → Players → Send Invite)
-3. **Pre-tournament smoke test** on tournament day (June 22): confirm login, score submission, leaderboard update end-to-end
+1. **Invite real tournament players** via magic link (admin dashboard → Players → Send Invite)
+2. **Pre-tournament smoke test** on tournament day (June 22): confirm login, score submission, leaderboard update end-to-end
+3. **Post-tournament**: upgrade eslint v8 → v9 (flat config), remove `.npmrc` legacy-peer-deps workaround

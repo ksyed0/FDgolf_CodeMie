@@ -1,5 +1,55 @@
 # FDgolf — Progress
 
+## Session 19 — 2026-06-11 (CI security fixes, Next.js 16 upgrade, CodeQL enabled)
+
+### What Was Done
+
+**1. PR #11 CI failures fixed and merged** (`feature/ci-security-format` → `develop`)
+- `audit` job: changed `npm audit --audit-level=high` → `--audit-level=critical` (temporary workaround for next@14 HIGH CVEs)
+- `analyze` job: CodeQL SARIF upload failed on private repo; investigated root cause — personal GitHub Pro cannot enable Advanced Security on private repos
+
+**2. Repo made public** → unlocked GitHub Code Scanning for free
+- Removed `continue-on-error: true` from CodeQL workflow
+- CodeQL now blocks PRs (no workaround needed)
+
+**3. PR #12 develop → main merge** (squash-merge divergence resolved)
+- `git merge -X ours origin/main` to reconcile divergent histories from prior squash-merge
+
+**4. GitHub labels created** on `ksyed0/FDgolf_CodeMie`:
+`critical`, `high`, `medium`, `low`, `planvisualizer`
+
+**5. Next.js 14.2.35 → 16.2.9 upgrade** (PR #14 → `develop`, squash-merged)
+- Resolves all 14 HIGH CVEs (BUG-0005) + glob CVE (BUG-0004)
+- Added `.npmrc` with `legacy-peer-deps=true` to fix CI `npm ci` ERESOLVE failure
+- Local validation: `npm run build` ✓, `npm run test:ci` 81/81 ✓, `npm audit --audit-level=high` exits 0
+- CI: format ✓, test ✓, audit ✓, CodeQL ✓
+
+**6. CI audit gate restored** from `--audit-level=critical` → `--audit-level=high`
+- Proper security posture now that blocking CVEs are gone
+
+**7. PR #15 develop → main merged** — production release
+- Next.js 16 + CI hardening now live on Vercel production
+
+### Test Results
+
+- `npm run test:ci`: 81/81 tests pass, coverage 90.47% stmts
+- `npm audit --audit-level=high`: exits 0 (only 1 moderate CVE remains)
+- CI: all jobs green (format, test, audit, CodeQL)
+
+### Bugs Fixed
+
+- BUG-0004: glob CVE → Fixed (eslint-config-next@16.2.9)
+- BUG-0005: 14 HIGH next@14 CVEs → Fixed (next@16.2.9)
+- BUG-0006: CodeQL SARIF upload → Fixed (repo made public)
+
+### Next Steps
+
+1. Invite real tournament players via magic link (admin dashboard → Players → Send Invite)
+2. Pre-tournament smoke test on June 22: login, submit score, verify leaderboard
+3. Consider upgrading eslint from v8 → v9 to remove `legacy-peer-deps` workaround (post-tournament)
+
+---
+
 ## Session 18 — 2026-06-11 (Vercel cloud deployment, smoke test, README + CONTRIBUTING, develop→main PR)
 
 ### What Was Done
