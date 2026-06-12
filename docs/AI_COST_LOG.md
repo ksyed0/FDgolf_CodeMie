@@ -154,3 +154,4 @@ Pricing basis: Claude Sonnet 4.6 — Input $3/MTok · Output $15/MTok · Cache R
 | 2026-06-12 | ee16d133-7822-46ac-8734-7341edde5c12 | develop                           | 4548028      | 937731        | 177742283         | 84.4398  |
 | 2026-06-12 | ee16d133-7822-46ac-8734-7341edde5c12 | develop                           | 4549328      | 938077        | 178110323         | 84.5603  |
 | 2026-06-12 | ee16d133-7822-46ac-8734-7341edde5c12 | feature/csv-player-import         | 4747152      | 965622        | 187973029         | 88.6741  |
+| 2026-06-12 | ee16d133-7822-46ac-8734-7341edde5c12 | feature/csv-player-import         | 4787697      | 977009        | 194918977         | 91.0806  |
