@@ -13,17 +13,17 @@ Stack: Next.js 16 App Router · TypeScript · Tailwind CSS · shadcn/ui · Supab
 
 ---
 
-## Branch State (as of Session 20 — 2026-06-16)
+## Branch State (as of Session 20 close — 2026-06-16)
 
 | Branch | Status | Notes |
 |--------|--------|-------|
 | `main` | production | Next.js 16 + CSV import live |
-| `develop` | integration branch | target for session 20 PR |
-| `feature/US-holes-generator-csv` | **open PR** | Course/holes UI + Ruby data + migration 009 |
+| `develop` | HEAD `4d3f45c` | PR #18 merged — holes UI overhaul, Ruby scorecard, migration 009 |
+| `feature/US-holes-generator-csv` | **merged PR #18** | Course/holes UI + Ruby data + nullable tee GPS |
 
-**Current open PRs**: PR to develop from `feature/US-holes-generator-csv` (session 20 work)
+**Current open PRs**: None.
 
-**Next action**: Merge session 20 PR → invite 125 players → smoke test June 22
+**Next action**: Invite 125 players via CSV import → smoke test June 22 (login, score, leaderboard)
 
 ---
 
