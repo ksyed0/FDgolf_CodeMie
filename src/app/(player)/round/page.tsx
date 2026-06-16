@@ -370,8 +370,10 @@ export default function RoundPage() {
           />
         </div>
 
-        {/* Hole map */}
-        <HoleMap pinLat={currentHole.pin_lat} pinLng={currentHole.pin_lng} shots={holeShots} />
+        {/* Hole map — only render when real pin coordinates have been set */}
+        {(currentHole.pin_lat !== 0 || currentHole.pin_lng !== 0) && (
+          <HoleMap pinLat={currentHole.pin_lat} pinLng={currentHole.pin_lng} shots={holeShots} />
+        )}
 
         {/* Shot history */}
         {dbShots.length > 0 && !holeSunk && (

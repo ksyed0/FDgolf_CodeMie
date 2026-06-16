@@ -13,6 +13,20 @@ Stack: Next.js 16 App Router · TypeScript · Tailwind CSS · shadcn/ui · Supab
 
 ---
 
+## Branch State (as of Session 20 close — 2026-06-16)
+
+| Branch | Status | Notes |
+|--------|--------|-------|
+| `main` | production | Next.js 16 + CSV import live |
+| `develop` | HEAD `4d3f45c` | PR #18 merged — holes UI overhaul, Ruby scorecard, migration 009 |
+| `feature/US-holes-generator-csv` | **merged PR #18** | Course/holes UI + Ruby data + nullable tee GPS |
+
+**Current open PRs**: None.
+
+**Next action**: Invite 125 players via CSV import → smoke test June 22 (login, score, leaderboard)
+
+---
+
 ## Branch State (as of Session 19 — 2026-06-12)
 
 | Branch | Status | Notes |
@@ -65,6 +79,17 @@ This queries `players` from within a `players` policy → PostgreSQL evaluates t
 **Fix**: `supabase/migrations/004_fix_admin_rls.sql` — replaced `FOR ALL` with `FOR INSERT/UPDATE/DELETE` only. The existing `"Public read"` policy (`using (true)`) handles SELECT, so removing SELECT from the admin policy is safe.
 
 **Must apply to production** before deploy: `supabase db push --db-url <prod-url>`
+
+---
+
+## Ruby Course (production — as of Session 20)
+
+- **Course ID**: `20000000-0000-0000-0000-000000000001` (renamed from "Main Course" to "Ruby")
+- **Par**: 70 · **Stroke index**: official values from Granite Ridge scorecard
+- **Tee sets**: Blue, Blue/White, White, White/Red, Red — all 18 holes populated
+- **Pin GPS**: placeholder estimated values — real coordinates not yet set; HoleMap guards against 0,0
+- **Migrations applied to prod**: 001–009 ✓
+- **Migration 009**: `tee_boxes.lat` and `tee_boxes.lng` are nullable (no scoring logic uses them)
 
 ---
 
