@@ -1,5 +1,58 @@
 # FDgolf — Progress
 
+## Session 20 — 2026-06-16 (Course/holes UI overhaul, Ruby scorecard data, schema cleanup)
+
+### What Was Done
+
+**1. Diagnosed Course → Holes hierarchy gap**
+- Confirmed schema is correct (`holes.course_id` NOT NULL FK) but the standalone `/admin/holes` sidebar page was hardcoded to the active tournament's course with no picker
+- No UI existed to add holes to a new course; yardage was invisible because it lives in `tee_boxes`, not `holes`
+
+**2. Generate Holes + CSV import** (`holes-generator-panel.tsx`)
+- New panel shown when a course has zero holes
+- "Generate N Holes" button: inserts par-4 defaults (1..hole_count) in one click
+- "Import from CSV": parses `hole_number, par, handicap` — handicap column optional
+- `scripts/sample-data/ruby-holes-import.csv` added as a reference template
+- `router.refresh()` pattern used post-insert to re-run server component without full reload
+
+**3. Yards column in holes editor**
+- `HolesEditor` now accepts optional `yardsByHoleId: Record<string, number>` prop
+- Column appears automatically when tee box data exists; reads White tee first, falls back to first tee box
+- `CourseHolesPage` server component now fetches tee boxes and builds the map
+
+**4. Removed standalone Holes from admin sidebar**
+- "Holes" nav item and `Disc` icon import removed from `admin-sidebar.tsx`
+- Holes are now only accessible via Courses → Holes →, which is course-scoped and shows full data
+
+**5. Ruby course data corrected in production**
+- Par values fixed for all 18 holes (were still Cobalt/Main course seed values)
+- Stroke index (HCP) updated to official scorecard values: 13,17,15,1,3,9,7,5,11 / 4,12,16,2,8,6,18,14,10
+- All 5 tee sets inserted: Blue, Blue/White, White, White/Red, Red with exact scorecard yardages
+- Previous "White" tee boxes deleted (had wrong yardages from estimated image)
+
+**6. Migration 009: nullable tee box GPS** (`009_make_tee_box_coords_nullable.sql`)
+- `tee_boxes.lat` and `tee_boxes.lng` changed to nullable
+- All existing placeholder lat/lng values cleared to NULL
+- No scoring or leaderboard logic reads tee box GPS; it is informational only
+
+**7. HoleMap guard**
+- `HoleMap` on the round page now only renders when `pin_lat !== 0 || pin_lng !== 0`
+- Prevents map centering on 0,0 (Gulf of Guinea) for holes without real GPS set
+
+### Test Results
+- `npm run test:ci`: **93/93 tests pass**, coverage 84%+ stmts — all above thresholds
+- `npm run type-check`: 0 errors
+
+### Branch
+`feature/US-holes-generator-csv` → PR to `develop`
+
+### Next Steps
+1. Set real pin GPS coordinates for Ruby holes (use Edit Pin on Mapbox satellite, or Google Maps right-click)
+2. Invite the 125 tournament players via CSV import (`/admin/players` → Import CSV)
+3. Pre-tournament smoke test on June 22: login, submit score, verify leaderboard
+
+---
+
 ## Session 19 — 2026-06-11 (CI security fixes, Next.js 16 upgrade, CodeQL enabled)
 
 ### What Was Done

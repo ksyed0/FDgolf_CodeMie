@@ -10,9 +10,10 @@ import type { Hole } from '@/lib/types';
 
 interface HolesEditorProps {
   holes: Hole[];
+  yardsByHoleId?: Record<string, number>;
 }
 
-export function HolesEditor({ holes: initial }: HolesEditorProps) {
+export function HolesEditor({ holes: initial, yardsByHoleId = {} }: HolesEditorProps) {
   const [holes, setHoles] = useState(initial);
   const [saving, setSaving] = useState(false);
   const [editingPin, setEditingPin] = useState<Hole | null>(null);
@@ -56,6 +57,9 @@ export function HolesEditor({ holes: initial }: HolesEditorProps) {
             <th className="px-4 py-2 text-left">Hole</th>
             <th className="px-4 py-2 text-left">Par</th>
             <th className="px-4 py-2 text-left">Handicap</th>
+            {Object.keys(yardsByHoleId).length > 0 && (
+              <th className="px-4 py-2 text-left">Yards</th>
+            )}
             <th className="px-4 py-2 text-left">Pin (lat, lng)</th>
             <th className="px-4 py-2" />
           </tr>
@@ -84,6 +88,9 @@ export function HolesEditor({ holes: initial }: HolesEditorProps) {
                   onChange={(e) => updateHole(h.id, 'handicap', e.target.value)}
                 />
               </td>
+              {Object.keys(yardsByHoleId).length > 0 && (
+                <td className="px-4 py-2 text-gray-500">{yardsByHoleId[h.id] ?? '—'}</td>
+              )}
               <td className="px-4 py-2 font-mono text-xs text-gray-500">
                 {h.pin_lat.toFixed(5)}, {h.pin_lng.toFixed(5)}
               </td>
