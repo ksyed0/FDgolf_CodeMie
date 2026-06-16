@@ -3,17 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
-import {
-  Trophy,
-  Users,
-  UsersRound,
-  Disc,
-  Wrench,
-  ClipboardList,
-  Star,
-  MapPin,
-  Flag,
-} from 'lucide-react';
+import { Trophy, Users, UsersRound, Wrench, ClipboardList, Star, MapPin, Flag } from 'lucide-react';
 
 const NAV_ITEMS = [
   { href: '/admin/tournament', label: 'Tournament', Icon: Trophy },
@@ -21,7 +11,6 @@ const NAV_ITEMS = [
   { href: '/admin/courses', label: 'Courses', Icon: Flag },
   { href: '/admin/players', label: 'Players', Icon: Users },
   { href: '/admin/teams', label: 'Teams', Icon: UsersRound },
-  { href: '/admin/holes', label: 'Holes', Icon: Disc },
   { href: '/admin/clubs', label: 'Clubs', Icon: Wrench },
   { href: '/admin/scores', label: 'Scores', Icon: ClipboardList },
   { href: '/admin/sponsors', label: 'Sponsors', Icon: Star },

@@ -31,6 +31,14 @@ export default async function CourseHolesPage({
       ? await supabase.from('tee_boxes').select('*').in('hole_id', holeIds)
       : { data: [] };
 
+  // Build a yards map keyed by hole ID — picks the first tee box per hole (White first, then any)
+  const yardsByHoleId: Record<string, number> = {};
+  for (const hole of (holes as Hole[]) ?? []) {
+    const boxes = ((teeBoxes as TeeBox[]) ?? []).filter((t) => t.hole_id === hole.id);
+    const primary = boxes.find((t) => t.name.toLowerCase() === 'white') ?? boxes[0];
+    if (primary) yardsByHoleId[hole.id] = primary.distance_yards;
+  }
+
   const hasHoles = ((holes as Hole[]) ?? []).length > 0;
 
   return (
@@ -61,7 +69,7 @@ export default async function CourseHolesPage({
                 Pin Locations &amp; Par / Handicap
               </h2>
             </div>
-            <HolesEditor holes={(holes as Hole[]) ?? []} />
+            <HolesEditor holes={(holes as Hole[]) ?? []} yardsByHoleId={yardsByHoleId} />
           </div>
 
           {/* Tee box editor */}
