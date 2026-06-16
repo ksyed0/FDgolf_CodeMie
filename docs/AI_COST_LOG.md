@@ -169,3 +169,4 @@ Pricing basis: Claude Sonnet 4.6 — Input $3/MTok · Output $15/MTok · Cache R
 | 2026-06-16 | cfd07359-078b-4be1-92c4-3f33137e8ad2 | feature/US-holes-generator-csv    | 418149       | 76530         | 8849853           | 5.3659   |
 | 2026-06-16 | cfd07359-078b-4be1-92c4-3f33137e8ad2 | feature/US-holes-generator-csv    | 422074       | 82245         | 9626154           | 5.6992   |
 | 2026-06-16 | cfd07359-078b-4be1-92c4-3f33137e8ad2 | feature/US-holes-generator-csv    | 458025       | 107040        | 11823436          | 6.8651   |
+| 2026-06-16 | cfd07359-078b-4be1-92c4-3f33137e8ad2 | develop                           | 593315       | 120765        | 17799930          | 9.3712   |
