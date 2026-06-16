@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
 import { HolesEditor } from '@/app/(admin)/admin/holes/holes-editor';
 import { CourseHolesEditor } from './course-holes-editor';
+import { HolesGeneratorPanel } from './holes-generator-panel';
 import type { Hole, TeeBox, Course } from '@/lib/types';
 
 export default async function CourseHolesPage({
@@ -14,9 +15,9 @@ export default async function CourseHolesPage({
 
   const { data: course } = await supabase
     .from('courses')
-    .select('id, name')
+    .select('id, name, hole_count')
     .eq('id', courseId)
-    .single();
+    .single<Pick<Course, 'id' | 'name' | 'hole_count'>>();
 
   const { data: holes } = await supabase
     .from('holes')
@@ -30,6 +31,8 @@ export default async function CourseHolesPage({
       ? await supabase.from('tee_boxes').select('*').in('hole_id', holeIds)
       : { data: [] };
 
+  const hasHoles = ((holes as Hole[]) ?? []).length > 0;
+
   return (
     <div className="max-w-4xl space-y-6">
       {/* Breadcrumb */}
@@ -38,29 +41,36 @@ export default async function CourseHolesPage({
           Courses
         </Link>
         <span>/</span>
-        <span className="font-medium text-gray-900">
-          {(course as Pick<Course, 'name'> | null)?.name ?? 'Course'}
-        </span>
+        <span className="font-medium text-gray-900">{course?.name ?? 'Course'}</span>
         <span>/</span>
         <span>Holes</span>
       </div>
 
-      <h1 className="text-2xl font-bold text-gray-900">
-        {(course as Pick<Course, 'name'> | null)?.name} — Holes
-      </h1>
+      <h1 className="text-2xl font-bold text-gray-900">{course?.name} — Holes</h1>
 
-      {/* Hole pin + par/handicap editor */}
-      <div className="rounded-xl border bg-white shadow-sm">
-        <div className="border-b px-4 py-3">
-          <h2 className="text-sm font-semibold text-gray-700">
-            Pin Locations &amp; Par / Handicap
-          </h2>
-        </div>
-        <HolesEditor holes={(holes as Hole[]) ?? []} />
-      </div>
+      {!hasHoles && (
+        <HolesGeneratorPanel courseId={courseId} holeCount={course?.hole_count ?? 18} />
+      )}
 
-      {/* Tee box editor */}
-      <CourseHolesEditor holes={(holes as Hole[]) ?? []} teeBoxes={(teeBoxes as TeeBox[]) ?? []} />
+      {hasHoles && (
+        <>
+          {/* Hole pin + par/handicap editor */}
+          <div className="rounded-xl border bg-white shadow-sm">
+            <div className="border-b px-4 py-3">
+              <h2 className="text-sm font-semibold text-gray-700">
+                Pin Locations &amp; Par / Handicap
+              </h2>
+            </div>
+            <HolesEditor holes={(holes as Hole[]) ?? []} />
+          </div>
+
+          {/* Tee box editor */}
+          <CourseHolesEditor
+            holes={(holes as Hole[]) ?? []}
+            teeBoxes={(teeBoxes as TeeBox[]) ?? []}
+          />
+        </>
+      )}
     </div>
   );
 }
