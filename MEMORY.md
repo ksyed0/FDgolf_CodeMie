@@ -13,6 +13,21 @@ Stack: Next.js 16 App Router · TypeScript · Tailwind CSS · shadcn/ui · Supab
 
 ---
 
+## Branch State (as of Session 21 close — 2026-06-17)
+
+| Branch | Status | Notes |
+|--------|--------|-------|
+| `main` | production | Next.js 16 + CSV import live |
+| `develop` | HEAD `4dc0a76` | No new code — DB migration session only |
+
+**Current open PRs**: None.
+
+**New machine setup**: Supabase DB migrated to 192.168.1.100 via `pg_dump | ssh pg_restore`. Still need to copy `.env.local` to new machine.
+
+**Next action**: Copy `.env.local` to new machine → invite 125 players via CSV import → smoke test June 22
+
+---
+
 ## Branch State (as of Session 20 close — 2026-06-16)
 
 | Branch | Status | Notes |
