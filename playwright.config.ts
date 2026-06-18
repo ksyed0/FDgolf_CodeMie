@@ -91,6 +91,13 @@ export default defineConfig({
       use: { ...desktopDevice, screenshot: 'on', trace: 'on' },
       dependencies: ['admin-setup'],
     },
+
+    // ── TV leaderboard tests (public route, no auth needed) ───────────────────
+    {
+      name: 'chromium-tv',
+      testMatch: '**/tv-leaderboard.spec.ts',
+      use: { ...desktopDevice, viewport: { width: 1920, height: 1080 } },
+    },
   ],
 
   // Start the Next.js dev server automatically when not in CI
