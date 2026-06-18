@@ -1,5 +1,5 @@
 import { SupabaseClient } from '@supabase/supabase-js';
-import { distanceMeters } from './gps';
+import { distanceMeters, type GpsPosition } from './gps';
 
 // ---------------------------------------------------------------------------
 // Exported interfaces
@@ -380,10 +380,8 @@ export async function fetchShotStats(
       const tee = teeMap.get(holeNum);
       if (!tee) continue;
 
-      const meters = distanceMeters(
-        { lat: tee.lat, lng: tee.lng, accuracy: 0 },
-        { lat: shotLat, lng: shotLng }
-      );
+      const shotPos: GpsPosition = { lat: shotLat, lng: shotLng, accuracy: 0 };
+      const meters = distanceMeters(shotPos, { lat: tee.lat, lng: tee.lng });
 
       if (longestDriveMeters === null || meters > longestDriveMeters) {
         longestDriveMeters = meters;
@@ -401,6 +399,8 @@ export async function fetchShotStats(
     for (const shot of shots) {
       const key = `${shot.player_id as string}:${shot.hole_number as number}`;
       if (!bbPlayerHoleSet.has(key)) continue;
+
+      if (!shot.club_name) continue;
 
       const clubName: string = shot.club_name as string;
       clubCounts.set(clubName, (clubCounts.get(clubName) ?? 0) + 1);
