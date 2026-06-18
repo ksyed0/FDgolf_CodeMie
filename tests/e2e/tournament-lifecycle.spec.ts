@@ -202,12 +202,97 @@ test.describe.serial('Tournament Lifecycle — Lionhead Spring Classic 2026', ()
     // URL is now /admin/courses/[courseId]/holes
     await adminPage.waitForURL(/\/admin\/courses\/[^/]+\/holes$/, { timeout: 8000 })
 
-    // HolesGeneratorPanel shown when no holes exist yet
-    await adminPage.getByRole('button', { name: /generate 18 holes/i }).click()
+    // HolesGeneratorPanel is only shown when no holes exist yet.
+    // If holes already exist (idempotent re-run), skip generation and assert the grid.
+    const generateBtn = adminPage.getByRole('button', { name: /generate 18 holes/i })
+    const holeGridAlreadyPresent = await adminPage.getByText('Hole 1 —', { exact: false }).isVisible()
 
-    await expect(adminPage.getByText(/generated 18 holes/i)).toBeVisible({ timeout: 8000 })
+    if (!holeGridAlreadyPresent) {
+      await generateBtn.click()
+      await expect(adminPage.getByText(/generated 18 holes/i)).toBeVisible({ timeout: 8000 })
+    }
+
     // Hole grid should render — use exact match to avoid 'Hole 1' substring matching Hole 10–18
     await expect(adminPage.getByText('Hole 1 —', { exact: false }).first()).toBeVisible({ timeout: 5000 })
     await expect(adminPage.getByText('Hole 18 —', { exact: false }).first()).toBeVisible()
+  })
+
+  // ── Step 5: Create tournament ─────────────────────────────────────────────
+  test('step-05: admin creates Lionhead Spring Classic 2026', async () => {
+    // Idempotent: if the tournament already exists in DB (re-run), skip UI creation
+    const { data: existing } = await svc()
+      .from('tournaments').select('id').eq('slug', 'lionhead-spring-classic-2026').maybeSingle()
+    if (existing) {
+      tournamentId = existing.id
+      console.log('[step-05] tournament already exists, skipping creation')
+      return
+    }
+
+    await adminPage.goto('/admin/tournament')
+    await adminPage.getByRole('button', { name: /add tournament/i }).click()
+
+    // TournamentManager form wires htmlFor/id — page.getByLabel() works
+    await adminPage.getByLabel('Name *').fill('Lionhead Spring Classic 2026')
+
+    // Slug auto-fills from name — verify before proceeding
+    await expect(adminPage.getByLabel('URL slug *'))
+      .toHaveValue('lionhead-spring-classic-2026', { timeout: 3000 })
+
+    // Venue select (id="t-venue", htmlFor="t-venue") — Radix trigger is a button
+    await adminPage.getByLabel('Venue *').click()
+    await adminPage.getByRole('option', { name: /lionhead golf club/i }).first().click()
+
+    // Course select enabled after venue chosen
+    await adminPage.getByLabel('Course *').click()
+    await adminPage.getByRole('option', { name: /legends course/i }).first().click()
+
+    await adminPage.getByLabel('Date *').fill('2026-06-22')
+    // Format defaults to "Best Ball", Holes played defaults to 18 — no changes needed
+
+    await adminPage.getByRole('button', { name: /create tournament/i }).click()
+
+    await expect(adminPage.getByText(/tournament created/i)).toBeVisible({ timeout: 8000 })
+    await expect(adminPage.getByText('Lionhead Spring Classic 2026')).toBeVisible()
+
+    // Capture ID from DB for use in leaderboard assertion and is_best_ball fix
+    const { data } = await svc()
+      .from('tournaments').select('id').eq('slug', 'lionhead-spring-classic-2026').single()
+    if (!data) throw new Error('step-05: tournament not found in DB after creation')
+    tournamentId = data.id
+  })
+
+  // ── Step 6: Activate tournament ───────────────────────────────────────────
+  test('step-06: admin activates the Lionhead tournament', async () => {
+    // Navigate to tournament list (step-05 may have returned early without navigating)
+    await adminPage.goto('/admin/tournament')
+    await expect(adminPage.getByText('Lionhead Spring Classic 2026')).toBeVisible({ timeout: 8000 })
+
+    // Click the edit (pencil) button on the Lionhead row
+    await adminPage
+      .locator('tr')
+      .filter({ hasText: 'Lionhead Spring Classic 2026' })
+      .getByRole('button', { name: 'Edit tournament' })
+      .click()
+
+    await expect(adminPage.getByText(/edit tournament/i)).toBeVisible({ timeout: 5000 })
+
+    // Status select — Label has no htmlFor/id; use xpath parent traversal to scope to its div
+    await adminPage
+      .locator('label', { hasText: 'Status' })
+      .first()
+      .locator('xpath=..')
+      .locator('[role="combobox"]')
+      .first()
+      .click()
+    await adminPage.getByRole('option', { name: 'Active' }).first().click()
+
+    await adminPage.getByRole('button', { name: /save changes/i }).click()
+
+    await expect(adminPage.getByText(/tournament updated/i)).toBeVisible({ timeout: 8000 })
+
+    // Back to list view — the Lionhead row should show the Active badge
+    await expect(
+      adminPage.locator('tr').filter({ hasText: 'Lionhead Spring Classic 2026' }).getByText('Active')
+    ).toBeVisible({ timeout: 5000 })
   })
 })
