@@ -9,11 +9,11 @@ export const revalidate = 30;
 export const viewport = { width: '1920', initialScale: 1 };
 
 interface TvLeaderboardPageProps {
-  params: Promise<{ slug: string }>;
+  params: { slug: string };
 }
 
 export default async function TvLeaderboardPage({ params }: TvLeaderboardPageProps) {
-  const { slug } = await params;
+  const { slug } = params;
   const supabase = await createClient();
 
   type TournamentWithVenue = Tournament & {
