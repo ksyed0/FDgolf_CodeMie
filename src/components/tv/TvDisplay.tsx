@@ -69,6 +69,8 @@ export function TvDisplay({ tournament, initialLeaderboard }: TvDisplayProps) {
       setBestAchievement(best);
     }
 
+    void refreshAll();
+
     const dataInterval = setInterval(() => {
       void refreshAll();
     }, 30_000);
@@ -94,7 +96,8 @@ export function TvDisplay({ tournament, initialLeaderboard }: TvDisplayProps) {
         <div className="flex flex-col">
           <span className="text-xl font-bold">{tournament.name}</span>
           <span className="text-sm text-slate-400">
-            {venueName ? `${venueName} · ` : ''}Best Ball
+            {venueName ? `${venueName} · ` : ''}
+            {tournament.format}
           </span>
         </div>
         <div className="flex items-center gap-2 text-sm font-semibold text-green-400">
