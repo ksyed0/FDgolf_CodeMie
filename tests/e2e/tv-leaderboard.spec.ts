@@ -142,3 +142,43 @@ test('TC-0070: TV page accessible without any authentication', async ({ page }) 
   // Should render the leaderboard content
   await expect(page.getByText(/leaderboard/i).first()).toBeVisible({ timeout: 8000 })
 })
+
+// ── TC-0080: TV page shows overflow message when more than 18 teams ──────────
+
+test('TC-0080: TV page shows "more teams" message when leaderboard has >18 teams', async ({ page }) => {
+  // TvLeaderboard.tsx slices the first 18 rows and shows "… and N more teams"
+  // for moreCount = leaderboard.length - 18
+  const bigLeaderboard = Array.from({ length: 20 }, (_, i) => ({
+    team_id: `team-${String(i + 1).padStart(3, '0')}`,
+    team_name: `Team ${i + 1}`,
+    total_score: -10 + i,
+    holes_completed: 18 - i,
+    rank: i + 1,
+  }))
+
+  await mockAllTvTables(page, { leaderboard: bigLeaderboard })
+
+  await page.goto(`/live/${TOURNAMENT_SLUG}/tv`)
+  await page.waitForLoadState('networkidle')
+
+  // TvLeaderboard renders: "… and {moreCount} more teams"
+  // With 20 teams: moreCount = 2 → "… and 2 more teams"
+  await expect(page.getByText(/more teams?/i).first()).toBeVisible({ timeout: 8000 })
+})
+
+// ── TC-0081: TV page footer shows tournament name dynamically ─────────────────
+
+test('TC-0081: TV page footer contains the tournament name', async ({ page }) => {
+  // TvDisplay footer renders: {tournament.name} · {venue} · ...
+  // fakeTournament.name = 'CIBC Capital Markets Golf Tournament 2026'
+  await mockAllTvTables(page)
+
+  await page.goto(`/live/${TOURNAMENT_SLUG}/tv`)
+  await page.waitForLoadState('networkidle')
+
+  // The footer <span> in TvDisplay contains tournament.name
+  // Use a substring match since the full footer also appends venue and date
+  await expect(
+    page.getByText(new RegExp(fakeTournament.name.slice(0, 20), 'i')).first()
+  ).toBeVisible({ timeout: 8000 })
+})

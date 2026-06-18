@@ -71,7 +71,7 @@ export default defineConfig({
     // ── Player tests (round scoring + leaderboard) ───────────────────────────
     {
       name: 'chromium-mobile',
-      testMatch: ['**/round-scoring.spec.ts', '**/leaderboard.spec.ts'],
+      testMatch: ['**/round-scoring.spec.ts', '**/leaderboard.spec.ts', '**/dashboard.spec.ts', '**/scorecard.spec.ts'],
       use: { ...mobileDevice, storageState: PLAYER_AUTH_FILE },
       dependencies: ['player-setup'],
     },

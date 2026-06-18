@@ -297,6 +297,44 @@ test('TC-0060: CSV import shows validation errors for invalid rows', async ({ pa
   await expect(page.getByText('Missing email')).toBeVisible()
 })
 
+// ── TC-0078: Admin tournament page lists tournaments with status badges ────────
+
+test('TC-0078: admin tournament page renders tournament table with status badges', async ({ page }) => {
+  test.skip(!hasRealSupabase, 'Requires seeded local Supabase — /admin/tournament is SSR')
+
+  await page.goto('/admin/tournament')
+
+  // TournamentManager renders a table with column headers
+  await expect(page.getByRole('columnheader', { name: /name/i }).first()).toBeVisible({ timeout: 8000 })
+  await expect(page.getByRole('columnheader', { name: /status/i }).first()).toBeVisible({ timeout: 5000 })
+
+  // At least one tournament row should be present (seeded)
+  // The Edit button is rendered for each row
+  await expect(page.getByRole('button', { name: /edit tournament/i }).first()).toBeVisible({ timeout: 5000 })
+
+  // The Add Tournament button is always present
+  await expect(page.getByRole('button', { name: /add tournament/i })).toBeVisible({ timeout: 5000 })
+})
+
+// ── TC-0079: Admin venues page lists existing venues ─────────────────────────
+
+test('TC-0079: admin venues page lists existing venues', async ({ page }) => {
+  test.skip(!hasRealSupabase, 'Requires seeded local Supabase — /admin/venues is SSR')
+
+  // The venues page is SSR; provide a client-side mock for any re-fetches
+  await mockSupabaseTable(page, 'venues', [
+    { id: 'venue-001', name: 'Granite Ridge Golf Club', address1: '', address2: null, city: 'Milton', province_state: 'ON', postal_code: 'L9T 0A1', country: 'CA' },
+  ])
+
+  await page.goto('/admin/venues')
+
+  // VenueManager renders a table with a "Name" column header
+  await expect(page.getByText('Granite Ridge Golf Club').first()).toBeVisible({ timeout: 8000 })
+
+  // Location column: city + province_state joined by ", "
+  await expect(page.getByText('Milton, ON').first()).toBeVisible({ timeout: 5000 })
+})
+
 // ── TC-0058: Score override ────────────────────────────────────────────────
 // SKIPPED: /admin/scores is SSR — page.route() score/team mocks don't affect the initial
 // render. ScoresTable also uses Radix UI Select (not a native <select>), so Playwright's
