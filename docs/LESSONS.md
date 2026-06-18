@@ -7,6 +7,48 @@ PlanVisualizer installed and configured for CodeMie. All tooling bootstrapped fr
 
 ---
 
+## L-0003 — Playwright: use `xpath=..` for robust label→input traversal
+@session: 22 — 2026-06-18
+
+**Symptom**: `page.locator('div').filter({ has: labelLocator }).locator('input').first()` fills the wrong field — it returns the outermost ancestor div, so `.first()` picks the first input in the entire form.
+
+**Root cause**: `.filter({ has: ... })` accumulates every ancestor that contains the target — the result set may have 12+ divs. `.first()` resolves to the outermost one, not the immediate parent.
+
+**Fix pattern**:
+```typescript
+async function fillByLabel(page: Page, labelText: string, value: string) {
+  await page
+    .locator('label', { hasText: labelText })
+    .first()
+    .locator('xpath=..')   // walk up exactly one DOM level
+    .locator('input')
+    .first()
+    .fill(value)
+}
+```
+Same pattern applies to `[role="combobox"]` and any control that lives next to a label in a form row.
+
+**Applies to**: Any Playwright test where `htmlFor`/`id` associations are not set on form fields.
+
+---
+
+## L-0004 — Migrated DBs can drift from repo migration history
+@session: 22 — 2026-06-18
+
+**Symptom**: E2E test clicks `"Driver"` club option but selector finds nothing; actual DB has `"Driver (1W)"`.
+
+**Root cause**: `pg_dump | ssh pg_restore` copies rows verbatim. If seed data was edited in an earlier session before the repo's `seed.sql` was updated, the live DB contains old values. Test briefs and code comments both said `"Driver"`, but actual DB rows said `"Driver (1W)"`.
+
+**Fix pattern**: Before writing E2E selectors for seeded data, query the actual DB:
+```sql
+SELECT name FROM clubs ORDER BY name LIMIT 5;
+```
+Do NOT rely on seed files, code comments, or plan briefs — always verify against the running instance.
+
+**Applies to**: Any E2E test against a long-lived local Supabase instance that was migrated from another machine or seeded in an earlier session.
+
+---
+
 ## L-0002 — Radix Select: never use `value=""` on `<SelectItem>`
 @session: 15 — 2026-06-11
 

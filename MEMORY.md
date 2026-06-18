@@ -13,6 +13,28 @@ Stack: Next.js 16 App Router · TypeScript · Tailwind CSS · shadcn/ui · Supab
 
 ---
 
+## Branch State (as of Session 22 close — 2026-06-18)
+
+| Branch | Status | Notes |
+|--------|--------|-------|
+| `main` | production | Next.js 16 + CSV import live |
+| `develop` | HEAD `f6638d0` | PR #20 merged — full tournament lifecycle E2E test suite |
+| `feature/tournament-lifecycle-e2e` | **merged PR #20** | 10-step serial Playwright spec + reset-lionhead.ts |
+
+**Current open PRs**: None.
+
+**Supabase local**: migrated to new machine (192.168.1.100), port offset +20. `.env.local` still needs to be copied to new machine.
+
+**New E2E test accounts** (seeded by `scripts/reset-lionhead.ts`):
+- `e2e-lion-a@fdgolf.test` / `E2eLionA789!` (Alex Lion — Team Alpha captain)
+- `e2e-lion-b@fdgolf.test` / `E2eLionB789!` (Blake Lion — Team Beta)
+
+**Run lifecycle tests**: `npx tsx scripts/reset-lionhead.ts && npx playwright test --project=chromium-lifecycle`
+
+**Next action**: Set real pin GPS for Ruby holes → invite 125 players via CSV → smoke test June 22
+
+---
+
 ## Branch State (as of Session 21 close — 2026-06-17)
 
 | Branch | Status | Notes |
@@ -20,11 +42,7 @@ Stack: Next.js 16 App Router · TypeScript · Tailwind CSS · shadcn/ui · Supab
 | `main` | production | Next.js 16 + CSV import live |
 | `develop` | HEAD `4dc0a76` | No new code — DB migration session only |
 
-**Current open PRs**: None.
-
 **New machine setup**: Supabase DB migrated to 192.168.1.100 via `pg_dump | ssh pg_restore`. Still need to copy `.env.local` to new machine.
-
-**Next action**: Copy `.env.local` to new machine → invite 125 players via CSV import → smoke test June 22
 
 ---
 

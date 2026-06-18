@@ -734,3 +734,37 @@ Full agentic pipeline (Conductor → Pixel → Lens/Sentinel/Circuit → PR) exe
 - TypeScript: `npx tsc --noEmit` passes with zero errors across all 4 test files
 - Did NOT modify any source files or jest.config.js / package.json
 - Next: Circuit finishes Jest config → run `npm test` to confirm green suite
+
+## Session 22 — 2026-06-18 (Tournament Lifecycle E2E Test Suite)
+
+### What Was Done
+
+**Built and merged full tournament lifecycle E2E test suite (PR #20)**
+
+Executed 7-task implementation plan using subagent-driven development (DM_AGENT orchestration):
+
+- `scripts/reset-lionhead.ts` — wipe-and-reseed script; deletes all Lionhead test data, re-creates auth users + player profiles for `e2e-lion-a@fdgolf.test` and `e2e-lion-b@fdgolf.test`; idempotent
+- `tests/e2e/tournament-lifecycle.spec.ts` — 10-step serial Playwright spec covering the complete lifecycle: venue → course → 18 holes → tournament creation → activation → Team Alpha + Team Beta → player scoring → leaderboard ranking assertion
+- `playwright.config.ts` — added `chromium-lifecycle` project (testMatch: `**/tournament-lifecycle.spec.ts`, deps: `admin-setup`)
+- Fixed pre-existing `admin-setup` URL assertion (`/dashboard/` → `/(dashboard|admin)/`) — admin redirect changed to `/admin/tournament`
+- Fixed `fillByLabel` helper to use `xpath=..` parent-axis traversal (robust against DOM nesting depth)
+
+**Key discoveries during implementation:**
+- Club names in local DB are "Driver (1W)" not "Driver" (DB schema drifted from code comments)
+- Lionhead/round pages select tournament by `created_at DESC` (newest), not by active status — reset script guarantees Lionhead is newest
+- `is_best_ball` must be set manually in local dev (Edge Function only runs when `supabase functions serve` is active)
+- `div.filter({ has: label })` accumulates all ancestor divs; `.first()` picks outermost — use `label.locator('xpath=..')` for robust single-element parent traversal
+
+### Test Results
+- **11/11 Playwright lifecycle tests pass** (steps 02-08, 10-12 + admin-setup)
+- **93/93 Jest unit tests pass** — 90.67% statement coverage (threshold: 80%) ✓
+- **CI: all checks green** (CodeQL, audit, format, test, Vercel)
+- Final whole-branch review by opus: READY, no critical/important issues
+
+### Branch
+`feature/tournament-lifecycle-e2e` — **squash-merged to `develop` as PR #20** ✓
+
+### Next Steps
+1. Set real pin GPS coordinates for Ruby holes (Edit Pin on Mapbox satellite)
+2. Invite the 125 tournament players via CSV import (`/admin/players` → Import CSV)
+3. Pre-tournament smoke test on June 22: `npx tsx scripts/reset-lionhead.ts` + run lifecycle spec
