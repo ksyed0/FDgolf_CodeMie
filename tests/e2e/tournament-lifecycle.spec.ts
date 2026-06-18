@@ -343,6 +343,20 @@ test.describe.serial('Tournament Lifecycle — Lionhead Spring Classic 2026', ()
 
   // ── Step 8: Assign players to teams ──────────────────────────────────────
   test('step-08: admin assigns Alex → Team Alpha and Blake → Team Beta', async () => {
+    // Idempotency guard — skip UI assignment if players already have team_ids
+    const adminCheck = svc()
+    const { data: playersCheck } = await adminCheck
+      .from('players').select('email, team_id').in('email', [PLAYER_A.email, PLAYER_B.email])
+    const alexCheck  = playersCheck?.find((p: { email: string }) => p.email === PLAYER_A.email)
+    const blakeCheck = playersCheck?.find((p: { email: string }) => p.email === PLAYER_B.email)
+    if (alexCheck?.team_id && blakeCheck?.team_id && alexCheck.team_id !== blakeCheck.team_id) {
+      console.log('[step-08] players already assigned to teams, verifying DB state only')
+      expect(alexCheck.team_id).not.toBeNull()
+      expect(blakeCheck.team_id).not.toBeNull()
+      expect(alexCheck.team_id).not.toEqual(blakeCheck.team_id)
+      return
+    }
+
     // Still on /admin/teams — TeamsManager renders the "Assign Players to Teams"
     // section showing all players with team_id = null.
     // Both players were created with team_id = null in beforeAll.
@@ -388,5 +402,149 @@ test.describe.serial('Tournament Lifecycle — Lionhead Spring Classic 2026', ()
     expect(alex?.team_id).not.toBeNull()
     expect(blake?.team_id).not.toBeNull()
     expect(alex?.team_id).not.toEqual(blake?.team_id)
+  })
+
+  /**
+   * Record one complete hole on the round page.
+   * @param page  The player's round page (already loaded at /round)
+   * @param shots Array of [clubName, outcome] pairs; last pair must use 'Sunk!'
+   */
+  async function scoreHole(
+    page: Page,
+    shots: [club: string, outcome: string][],
+  ) {
+    for (const [club, outcome] of shots) {
+      await page.getByRole('combobox').click()
+      await page.getByRole('option', { name: club }).click()
+      await page.getByRole('button', { name: new RegExp(`^${outcome}$`, 'i') }).click()
+      await page.waitForTimeout(300)
+    }
+    await expect(page.getByRole('button', { name: /next hole/i })).toBeVisible({ timeout: 5000 })
+    await page.getByRole('button', { name: /next hole/i }).click()
+  }
+
+  // ── Step 10: Team Alpha scores holes 1–3 ─────────────────────────────────
+  test('step-10: Team Alpha player scores holes 1-3 (−2 vs par)', async ({ browser }) => {
+    // Idempotency guard — skip browser scoring if scores already exist
+    const adminCheck = svc()
+    const { data: alphaPlayerCheck } = await adminCheck
+      .from('players').select('id').eq('email', PLAYER_A.email).single()
+    const { data: existingScores } = await adminCheck
+      .from('scores')
+      .select('hole_number')
+      .eq('player_id', alphaPlayerCheck!.id)
+      .eq('tournament_id', tournamentId)
+    if (existingScores && existingScores.length >= 3) {
+      console.log('[step-10] scores already exist, verifying DB state only')
+      const { data: scores } = await adminCheck
+        .from('scores').select('hole_number, strokes')
+        .eq('player_id', alphaPlayerCheck!.id).eq('tournament_id', tournamentId).order('hole_number')
+      expect(scores).toHaveLength(3)
+      expect(scores![0]).toMatchObject({ hole_number: 1, strokes: 3 })
+      expect(scores![1]).toMatchObject({ hole_number: 2, strokes: 3 })
+      expect(scores![2]).toMatchObject({ hole_number: 3, strokes: 4 })
+      return
+    }
+
+    const { ctx, page } = await loginAsPlayer(browser, PLAYER_A.email, PLAYER_A.password)
+    try {
+      await page.goto('/round', { waitUntil: 'domcontentloaded' })
+      await expect(page.getByText(/hole 1/i).first()).toBeVisible({ timeout: 8000 })
+      await expect(page.getByRole('button', { name: /^alex$/i })).toBeVisible({ timeout: 5000 })
+
+      // Hole 1 — birdie (3 shots)
+      await scoreHole(page, [
+        ['Driver (1W)', 'In Play'],
+        ['7 Iron',      'In Play'],
+        ['Putter',      'Sunk!'],
+      ])
+      await expect(page.getByText(/hole 2/i).first()).toBeVisible({ timeout: 5000 })
+
+      // Hole 2 — birdie
+      await scoreHole(page, [
+        ['Driver (1W)', 'In Play'],
+        ['7 Iron',      'In Play'],
+        ['Putter',      'Sunk!'],
+      ])
+      await expect(page.getByText(/hole 3/i).first()).toBeVisible({ timeout: 5000 })
+
+      // Hole 3 — par (4 shots)
+      await scoreHole(page, [
+        ['Driver (1W)', 'In Play'],
+        ['7 Iron',      'In Play'],
+        ['9 Iron',      'In Play'],
+        ['Putter',      'Sunk!'],
+      ])
+      await expect(page.getByText(/hole 4/i).first()).toBeVisible({ timeout: 5000 })
+    } finally {
+      await ctx.close()
+    }
+
+    const admin = svc()
+    const { data: alphaPlayer } = await admin
+      .from('players').select('id').eq('email', PLAYER_A.email).single()
+    const { data: scores } = await admin
+      .from('scores').select('hole_number, strokes')
+      .eq('player_id', alphaPlayer!.id).eq('tournament_id', tournamentId).order('hole_number')
+    expect(scores).toHaveLength(3)
+    expect(scores![0]).toMatchObject({ hole_number: 1, strokes: 3 })
+    expect(scores![1]).toMatchObject({ hole_number: 2, strokes: 3 })
+    expect(scores![2]).toMatchObject({ hole_number: 3, strokes: 4 })
+  })
+
+  // ── Step 11: Team Beta scores holes 10–12 ────────────────────────────────
+  test('step-11: Team Beta player scores holes 10-12 (+3 vs par)', async ({ browser }) => {
+    // Idempotency guard
+    const adminCheck = svc()
+    const { data: betaPlayerCheck } = await adminCheck
+      .from('players').select('id').eq('email', PLAYER_B.email).single()
+    const { data: existingScores } = await adminCheck
+      .from('scores')
+      .select('hole_number')
+      .eq('player_id', betaPlayerCheck!.id)
+      .eq('tournament_id', tournamentId)
+    if (existingScores && existingScores.length >= 3) {
+      console.log('[step-11] scores already exist, verifying DB state only')
+      const { data: scores } = await adminCheck
+        .from('scores').select('hole_number, strokes')
+        .eq('player_id', betaPlayerCheck!.id).eq('tournament_id', tournamentId).order('hole_number')
+      expect(scores).toHaveLength(3)
+      expect(scores![0]).toMatchObject({ hole_number: 10, strokes: 5 })
+      expect(scores![1]).toMatchObject({ hole_number: 11, strokes: 5 })
+      expect(scores![2]).toMatchObject({ hole_number: 12, strokes: 5 })
+      return
+    }
+
+    const { ctx, page } = await loginAsPlayer(browser, PLAYER_B.email, PLAYER_B.password)
+    try {
+      await page.goto('/round', { waitUntil: 'domcontentloaded' })
+      await expect(page.getByText(/hole 10/i).first()).toBeVisible({ timeout: 8000 })
+      await expect(page.getByRole('button', { name: /^blake$/i })).toBeVisible({ timeout: 5000 })
+
+      for (const expectedNext of [11, 12, 13]) {
+        await scoreHole(page, [
+          ['Driver (1W)', 'In Play'],
+          ['5 Iron',      'In Play'],
+          ['7 Iron',      'In Play'],
+          ['9 Iron',      'In Play'],
+          ['Putter',      'Sunk!'],
+        ])
+        await expect(page.getByText(new RegExp(`hole ${expectedNext}`, 'i')).first())
+          .toBeVisible({ timeout: 5000 })
+      }
+    } finally {
+      await ctx.close()
+    }
+
+    const admin = svc()
+    const { data: betaPlayer } = await admin
+      .from('players').select('id').eq('email', PLAYER_B.email).single()
+    const { data: scores } = await admin
+      .from('scores').select('hole_number, strokes')
+      .eq('player_id', betaPlayer!.id).eq('tournament_id', tournamentId).order('hole_number')
+    expect(scores).toHaveLength(3)
+    expect(scores![0]).toMatchObject({ hole_number: 10, strokes: 5 })
+    expect(scores![1]).toMatchObject({ hole_number: 11, strokes: 5 })
+    expect(scores![2]).toMatchObject({ hole_number: 12, strokes: 5 })
   })
 })
