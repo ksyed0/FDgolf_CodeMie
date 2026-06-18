@@ -36,14 +36,16 @@ function svc() {
 /**
  * Fill a plain <Input> that sits inside a div alongside a <Label> without htmlFor association.
  * Used for VenueManager and CourseManager forms which omit id/htmlFor on their inputs.
+ *
+ * Strategy: locate the label by visible text, then get the input that is a sibling or
+ * child of its immediate parent div.  This avoids the ancestor-div ambiguity where a
+ * broad div.filter() picks the wrong input from a wrapper container.
  */
 async function fillByLabel(page: Page, labelText: string, value: string) {
-  await page
-    .locator('div')
-    .filter({ has: page.locator(`label:has-text("${labelText}")`) })
-    .locator('input')
-    .first()
-    .fill(value)
+  // Find the label, navigate to its direct parent, then locate the input inside that parent.
+  const label = page.locator('label', { hasText: labelText }).first()
+  const parentDiv = page.locator('div').filter({ has: label }).last()
+  await parentDiv.locator('input').first().fill(value)
 }
 
 /**
@@ -57,7 +59,7 @@ async function selectByLabel(page: Page, labelText: string, optionText: string) 
     .locator('[role="combobox"]')
     .first()
     .click()
-  await page.getByRole('option', { name: optionText }).click()
+  await page.getByRole('option', { name: optionText }).first().click()
 }
 
 /**
@@ -125,12 +127,79 @@ test.describe.serial('Tournament Lifecycle — Lionhead Spring Classic 2026', ()
     await adminCtx?.close()
   })
 
-  // Steps 2–12 added in Tasks 3–7
-  test('scaffold — beforeAll smoke check', async () => {
-    const admin = svc()
-    const { data: { users } } = await admin.auth.admin.listUsers()
-    const emailsInDb = users.map((u: { email?: string }) => u.email)
-    expect(emailsInDb).toContain(PLAYER_A.email)
-    expect(emailsInDb).toContain(PLAYER_B.email)
+  // ── Step 2: Venue ─────────────────────────────────────────────────────────
+  test('step-02: admin creates Lionhead Golf Club venue', async () => {
+    await adminPage.goto('/admin/venues')
+    await adminPage.getByRole('button', { name: /\+ add venue/i }).click()
+
+    await fillByLabel(adminPage, 'Venue name', 'Lionhead Golf Club')
+    await fillByLabel(adminPage, 'Address line 1', '8525 Mississauga Rd')
+    await fillByLabel(adminPage, 'City', 'Brampton')
+    await fillByLabel(adminPage, 'Province / State', 'ON')
+    await fillByLabel(adminPage, 'Postal code', 'L6Y 0C3')
+
+    // "Add Venue" button — use .last() because "+ Add Venue" header button may still render
+    await adminPage.getByRole('button', { name: /^add venue$/i }).last().click()
+
+    await expect(adminPage.getByText(/venue added/i)).toBeVisible({ timeout: 8000 })
+    await expect(adminPage.getByRole('cell', { name: 'Lionhead Golf Club' }).first()).toBeVisible()
+  })
+
+  // ── Step 3: Course ────────────────────────────────────────────────────────
+  test('step-03: admin creates Legends Course for Lionhead', async () => {
+    await adminPage.goto('/admin/courses')
+    await adminPage.getByRole('button', { name: /\+ add course/i }).click()
+
+    // Venue select — Label "Venue *" has no htmlFor; use selectByLabel
+    await selectByLabel(adminPage, 'Venue', 'Lionhead Golf Club')
+    await fillByLabel(adminPage, 'Course name', 'Legends Course')
+
+    // Clear default par total and enter 72
+    const parInput = adminPage
+      .locator('div')
+      .filter({ has: adminPage.locator('label:has-text("Par total")') })
+      .last()
+      .locator('input')
+      .first()
+    await parInput.clear()
+    await parInput.fill('72')
+
+    await adminPage
+      .locator('div')
+      .filter({ has: adminPage.locator('label:has-text("Course rating")') })
+      .last()
+      .locator('input').first().fill('73.2')
+
+    await adminPage
+      .locator('div')
+      .filter({ has: adminPage.locator('label:has-text("Slope rating")') })
+      .last()
+      .locator('input').first().fill('135')
+
+    await adminPage.getByRole('button', { name: /^add course$/i }).last().click()
+
+    await expect(adminPage.getByText(/course added/i)).toBeVisible({ timeout: 8000 })
+    await expect(adminPage.getByText('Legends Course')).toBeVisible()
+  })
+
+  // ── Step 4: Generate holes ────────────────────────────────────────────────
+  test('step-04: admin generates 18 holes for Legends Course', async () => {
+    // Click the "Holes →" button on the Legends Course row
+    await adminPage
+      .locator('tr')
+      .filter({ hasText: 'Legends Course' })
+      .getByRole('button', { name: /holes/i })
+      .click()
+
+    // URL is now /admin/courses/[courseId]/holes
+    await adminPage.waitForURL(/\/admin\/courses\/[^/]+\/holes$/, { timeout: 8000 })
+
+    // HolesGeneratorPanel shown when no holes exist yet
+    await adminPage.getByRole('button', { name: /generate 18 holes/i }).click()
+
+    await expect(adminPage.getByText(/generated 18 holes/i)).toBeVisible({ timeout: 8000 })
+    // Hole grid should render — use exact match to avoid 'Hole 1' substring matching Hole 10–18
+    await expect(adminPage.getByText('Hole 1 —', { exact: false }).first()).toBeVisible({ timeout: 5000 })
+    await expect(adminPage.getByText('Hole 18 —', { exact: false }).first()).toBeVisible()
   })
 })
