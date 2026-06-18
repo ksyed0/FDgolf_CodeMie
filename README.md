@@ -152,3 +152,24 @@ Coverage:    stmts 84.28% | branches 86.20% | fns 80% | lines 87.09%
 ```
 
 Coverage targets (CI enforced): ≥80% statements/functions/lines, ≥70% branches.
+
+### Tournament Lifecycle E2E Tests
+
+End-to-end test that exercises the full admin + player flow against a real local Supabase instance:
+
+**Prerequisites**: local Supabase running (`supabase start`) and `SUPABASE_SERVICE_ROLE_KEY` set in `.env.local`.
+
+```bash
+# 1. Seed Lionhead test data (idempotent — safe to re-run)
+npx tsx scripts/reset-lionhead.ts
+
+# 2. Run the lifecycle spec
+npx playwright test --project=chromium-lifecycle
+```
+
+The spec covers 10 serial steps: venue → course → 18 holes → tournament creation → activation → team setup → player assignment → two teams scoring holes → leaderboard ranking assertion.
+
+To run with a visible browser:
+```bash
+npx playwright test --project=chromium-lifecycle --headed
+```
