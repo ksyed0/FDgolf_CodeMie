@@ -547,4 +547,43 @@ test.describe.serial('Tournament Lifecycle — Lionhead Spring Classic 2026', ()
     expect(scores![1]).toMatchObject({ hole_number: 11, strokes: 5 })
     expect(scores![2]).toMatchObject({ hole_number: 12, strokes: 5 })
   })
+
+  // ── Step 12: Set is_best_ball and verify leaderboard ─────────────────────
+  test('step-12: leaderboard ranks Team Alpha above Team Beta', async () => {
+    // The get_leaderboard() RPC requires is_best_ball = true on scores.
+    // Since each team has one player, every score IS best ball — set it directly.
+    const admin = svc()
+    const { error: bbErr } = await admin
+      .from('scores')
+      .update({ is_best_ball: true })
+      .eq('tournament_id', tournamentId)
+    if (bbErr) throw new Error(`step-12: cannot set is_best_ball: ${bbErr.message}`)
+
+    // Navigate to the leaderboard as admin (any authenticated user can view it)
+    await adminPage.goto('/leaderboard')
+
+    // Wait for leaderboard data to render
+    await expect(adminPage.getByText(/team alpha/i).first()).toBeVisible({ timeout: 8000 })
+    await expect(adminPage.getByText(/team beta/i).first()).toBeVisible({ timeout: 5000 })
+
+    // Team Alpha should appear in the DOM before Team Beta (rank 1 before rank 2)
+    const alphaIndex = await adminPage.evaluate(() => {
+      const rows = Array.from(document.querySelectorAll('table tbody tr, [data-testid="leaderboard-row"]'))
+      return rows.findIndex(r => r.textContent?.includes('Team Alpha'))
+    })
+    const betaIndex = await adminPage.evaluate(() => {
+      const rows = Array.from(document.querySelectorAll('table tbody tr, [data-testid="leaderboard-row"]'))
+      return rows.findIndex(r => r.textContent?.includes('Team Beta'))
+    })
+
+    expect(alphaIndex).toBeGreaterThanOrEqual(0)
+    expect(betaIndex).toBeGreaterThanOrEqual(0)
+    expect(alphaIndex).toBeLessThan(betaIndex)
+
+    // Score display — leaderboard shows strokes_vs_par
+    // Team Alpha: −2 (displayed as "-2" or "−2")
+    await expect(adminPage.getByText(/[−-]2/).first()).toBeVisible({ timeout: 5000 })
+    // Team Beta: +3
+    await expect(adminPage.getByText(/\+3/).first()).toBeVisible({ timeout: 5000 })
+  })
 })
