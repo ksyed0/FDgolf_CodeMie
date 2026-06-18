@@ -1,5 +1,37 @@
 # FDgolf — Progress
 
+## Session 21 — 2026-06-17 (Local Supabase DB migration to new computer)
+
+### What Was Done
+
+**Database migrated from old machine to new machine (192.168.1.100) via LAN**
+
+- Diagnosed that Docker binds Supabase PostgreSQL to `127.0.0.1` only — direct pipe was not possible
+- Connected to new machine via SSH (enabled Remote Login, copied SSH key with `ssh-copy-id`)
+- Located Supabase CLI at `/opt/homebrew/bin/supabase` on remote (not in SSH PATH)
+- Started Supabase on remote: `supabase start` pulled Docker images and initialized all services
+- Piped dump directly to remote via SSH: `pg_dump | ssh pg_restore`
+- Errors on `auth`/`storage`/`_realtime` internal schemas were harmless — those are owned by `supabase_admin` and already present in the Docker image
+- Verified all 12 `public` schema tables transferred with correct data: 1 tournament, 1 course, 18 holes, 5 players, 2 teams
+
+### No Code Changes
+
+This was a pure infrastructure/ops session. No source files were modified.
+
+### Test Results
+- `npm run test:ci`: **93/93 tests pass** (unchanged from Session 20)
+
+### Branch
+`develop` (no new branch — no code changes)
+
+### Next Steps
+1. Copy `.env.local` to new machine (Supabase keys + Mapbox token)
+2. Set real pin GPS coordinates for Ruby holes (Edit Pin on Mapbox satellite)
+3. Invite the 125 tournament players via CSV import (`/admin/players` → Import CSV)
+4. Pre-tournament smoke test on June 22: login, submit score, verify leaderboard
+
+---
+
 ## Session 20 — 2026-06-16 (Course/holes UI overhaul, Ruby scorecard data, schema cleanup)
 
 ### What Was Done
