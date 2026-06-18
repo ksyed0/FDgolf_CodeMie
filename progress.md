@@ -1,5 +1,46 @@
 # FDgolf — Progress
 
+## Session 23 — 2026-06-18 (TV Leaderboard Display — US-0039)
+
+### What Was Done
+
+**Built `/live/[slug]/tv` — full-screen 1920×1080 TV leaderboard display** using Subagent-Driven Development (7 tasks, 12 commits, PR #21).
+
+**Architecture:**
+- `src/lib/tv-stats.ts` — 5 async query functions (birdies, momentum, hole difficulty, shot stats, best achievement) using actual DB schema (`shots.start_lat/lng`, `shots.club_name`, `outcome = 'out_of_bounds'`); no new migrations
+- `src/app/live/[slug]/tv/page.tsx` — server component shell; follows existing `/live/[slug]` pattern
+- `src/components/tv/TvDisplay.tsx` — root client component; 30s polling, 15s opacity-fade panel rotation
+- `src/components/tv/TvLeaderboard.tsx` — left 45% panel (rank/team/score/thru, top 18)
+- `src/components/tv/TvStatsRotator.tsx` — right 55% rotator; absolute panels, `transition-opacity duration-[400ms]`
+- `src/components/tv/panels/TvBirdiesPanel.tsx` — Panel A: birdie leaders + momentum sparklines
+- `src/components/tv/panels/TvHoleMapPanel.tsx` — Panel B: hole difficulty grid + eagle/birdie callout
+- `src/components/tv/panels/TvShotStatsPanel.tsx` — Panel C: longest drive, club of day, cleanest teams
+- `src/__tests__/tv-stats.test.ts` — 35 unit tests covering all 5 functions (error paths + happy paths)
+
+**Schema discovery:** Brief had stale schema assumptions; implementer correctly used actual DB schema (`hole_number` not `hole_id`, `start_lat/lng`, `club_name` text, `outcome = 'out_of_bounds'`).
+
+**Notable fixes found in review:**
+- `distanceMeters` argument order (semantically inverted — Haversine is symmetric so no wrong output, but fixed for clarity)
+- `refreshAll` called on mount (not just on 30s interval — stats were blank for first 30s)
+- Players query scoped to tournament teams (was fetching all players in DB)
+- Footer date made dynamic (`tournament.date` not hardcoded "June 22 2026")
+- Longest drive rounded to integer before display
+
+### Test Results
+- `npm run test:ci`: **128/128 tests pass**
+- Coverage: stmts 87.7% · branches 72.08% · fns 88.88% · lines 93.87% (all ≥ thresholds)
+- `npm run type-check`: **zero errors**
+
+### Branch / PR
+- `feature/tv-leaderboard` → PR #21 → `develop`
+
+### Next Steps
+1. Invite 125 players via CSV import (`/admin/players` → Import CSV)
+2. Set real GPS pin coordinates for Ruby course holes (Edit Pin in Mapbox)
+3. Pre-tournament smoke test June 22: login, score, TV display, leaderboard end-to-end
+
+---
+
 ## Session 21 — 2026-06-17 (Local Supabase DB migration to new computer)
 
 ### What Was Done

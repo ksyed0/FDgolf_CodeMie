@@ -13,6 +13,24 @@ Stack: Next.js 16 App Router · TypeScript · Tailwind CSS · shadcn/ui · Supab
 
 ---
 
+## Branch State (as of Session 23 close — 2026-06-18)
+
+| Branch | Status | Notes |
+|--------|--------|-------|
+| `main` | production | Next.js 16 + E2E suite live |
+| `develop` | HEAD (post PR #21 merge) | TV leaderboard feature merged |
+| `feature/tv-leaderboard` | **merged PR #21** | 12 commits — TV display at `/live/[slug]/tv` |
+
+**Current open PRs**: None (PR #21 merged, PR develop→main pending this session).
+
+**TV display route**: `/live/cibc-granite-ridge-2026/tv` — public, no auth. Polling 30s, panel rotation 15s.
+
+**New unit tests**: `src/__tests__/tv-stats.test.ts` — 35 tests, 128 total suite. Coverage ≥80% maintained.
+
+**Next action**: Invite 125 players via CSV → set real GPS pins for Ruby holes → smoke test June 22
+
+---
+
 ## Branch State (as of Session 22 close — 2026-06-18)
 
 | Branch | Status | Notes |

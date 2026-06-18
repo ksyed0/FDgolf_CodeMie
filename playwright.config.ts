@@ -88,7 +88,7 @@ export default defineConfig({
     {
       name: 'chromium-lifecycle',
       testMatch: '**/tournament-lifecycle.spec.ts',
-      use: { ...desktopDevice },
+      use: { ...desktopDevice, screenshot: 'on', trace: 'on' },
       dependencies: ['admin-setup'],
     },
   ],

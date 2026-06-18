@@ -49,6 +49,23 @@ Do NOT rely on seed files, code comments, or plan briefs — always verify again
 
 ---
 
+## L-0005 — Tailwind arbitrary values: `duration-[400ms]` not `duration-400`
+@session: 23 — 2026-06-18
+
+**Symptom**: Code reviewer flags `duration-[400ms]` as "non-standard" and suggests changing to `duration-400`.
+
+**Root cause**: Tailwind's default `transitionDuration` scale contains only: 75, 100, 150, 200, 300, 500, 700, 1000. There is **no** `duration-400`. Using `duration-400` without extending `tailwind.config` produces no CSS at all.
+
+**Correct pattern**: For any duration not in the default scale, use JIT arbitrary value syntax:
+```
+duration-[400ms]   ✅ correct — generates transition-duration: 400ms
+duration-400       ❌ generates nothing (no class match, silently ignored)
+```
+
+**Applies to**: Any Tailwind transition/animation class using a non-default value.
+
+---
+
 ## L-0002 — Radix Select: never use `value=""` on `<SelectItem>`
 @session: 15 — 2026-06-11
 

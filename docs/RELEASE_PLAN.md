@@ -603,6 +603,21 @@ Acceptance Criteria:
   - [x] AC-0132: Existing Playwright mock tests (chromium-desktop, chromium-mobile) unaffected
 ```
 
+```
+US-0039 (EPIC-0006): As a tournament organiser, I want a full-screen TV leaderboard display at /live/[slug]/tv, so that I can project live standings and stats on the clubhouse screen during the round.
+Priority: High
+Estimate: L
+Status: Done
+Branch: feature/tv-leaderboard
+Dependencies: US-0038
+Acceptance Criteria:
+  - [x] AC-0133: Route /live/[slug]/tv is public (no auth), returns 404 for unknown slug
+  - [x] AC-0134: Left panel shows ranked leaderboard (team/score/thru) refreshed every 30s
+  - [x] AC-0135: Right panel rotates Panel A → B → C every 15s with CSS opacity fade
+  - [x] AC-0136: All stat panels handle empty/zero data gracefully with defined empty-state copy
+  - [x] AC-0137: Unit tests for tv-stats.ts achieve ≥80% coverage; full suite still passes at ≥80%
+```
+
 ---
 
 ## Tasks
@@ -938,4 +953,13 @@ Assignee: Agent
 Status: Done
 Branch: feature/tournament-lifecycle-e2e
 Notes: Steps 2-8 + 10-12; admin creates venue/course/holes/tournament/teams; players score 3 holes each; leaderboard asserts Team Alpha (-2) ranked above Team Beta (+3). Requires reset-lionhead.ts + local Supabase running.
+```
+
+```
+TASK-0038 (US-0039): Build TV leaderboard feature — tv-stats.ts + page shell + TvDisplay + TvLeaderboard + TvStatsRotator + TvBirdiesPanel + TvHoleMapPanel + TvShotStatsPanel + unit tests
+Type: Dev
+Assignee: Agent
+Status: Done
+Branch: feature/tv-leaderboard
+Notes: 12 commits. tv-stats.ts queries birdies/momentum/hole-difficulty/shot-stats/best-achievement from existing tables (no new migrations). TvDisplay polls 30s + rotates panels 15s. All 5 stat functions catch errors and return empty. 35 unit tests added; coverage ≥80% restored.
 ```
