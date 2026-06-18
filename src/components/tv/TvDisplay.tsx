@@ -126,7 +126,8 @@ export function TvDisplay({ tournament, initialLeaderboard }: TvDisplayProps) {
       {/* Footer */}
       <div className="h-16 flex items-center justify-between px-8 bg-slate-900 border-t border-slate-800">
         <span className="text-slate-400 text-sm">
-          CIBC Capital Markets · Granite Ridge · June 22 2026
+          {tournament.name} · {tournament.venue?.name ?? ''}
+          {tournament.venue?.city ? ` · ${tournament.venue.city}` : ''} · {tournament.date}
         </span>
         <div className="flex items-center gap-2">
           {([0, 1, 2] as const).map((i) => (

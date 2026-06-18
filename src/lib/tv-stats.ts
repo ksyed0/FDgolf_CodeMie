@@ -384,7 +384,7 @@ export async function fetchShotStats(
       const meters = distanceMeters(shotPos, { lat: tee.lat, lng: tee.lng });
 
       if (longestDriveMeters === null || meters > longestDriveMeters) {
-        longestDriveMeters = meters;
+        longestDriveMeters = Math.round(meters);
         longestDrivePlayerId = shot.player_id as string;
       }
     }
@@ -429,10 +429,13 @@ export async function fetchShotStats(
 
     if (teamErr) throw teamErr;
 
+    const teamIds = teams?.map((t) => t.id as string) ?? [];
+
     const { data: players, error: playerErr } = await supabase
       .from('players')
       .select('id, team_id')
-      .not('team_id', 'is', null);
+      .not('team_id', 'is', null)
+      .in('team_id', teamIds);
 
     if (playerErr) throw playerErr;
 
