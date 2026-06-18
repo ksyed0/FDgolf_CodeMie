@@ -83,6 +83,14 @@ export default defineConfig({
       use: { ...desktopDevice, storageState: ADMIN_AUTH_FILE },
       dependencies: ['admin-setup'],
     },
+
+    // ── Full lifecycle test (real Supabase, desktop) ──────────────────────────
+    {
+      name: 'chromium-lifecycle',
+      testMatch: '**/tournament-lifecycle.spec.ts',
+      use: { ...desktopDevice, screenshot: 'on', trace: 'on' },
+      dependencies: ['admin-setup'],
+    },
   ],
 
   // Start the Next.js dev server automatically when not in CI

@@ -1,5 +1,78 @@
 # FDgolf — Progress
 
+## Session 23 — 2026-06-18 (TV Leaderboard Display — US-0039)
+
+### What Was Done
+
+**Built `/live/[slug]/tv` — full-screen 1920×1080 TV leaderboard display** using Subagent-Driven Development (7 tasks, 12 commits, PR #21).
+
+**Architecture:**
+- `src/lib/tv-stats.ts` — 5 async query functions (birdies, momentum, hole difficulty, shot stats, best achievement) using actual DB schema (`shots.start_lat/lng`, `shots.club_name`, `outcome = 'out_of_bounds'`); no new migrations
+- `src/app/live/[slug]/tv/page.tsx` — server component shell; follows existing `/live/[slug]` pattern
+- `src/components/tv/TvDisplay.tsx` — root client component; 30s polling, 15s opacity-fade panel rotation
+- `src/components/tv/TvLeaderboard.tsx` — left 45% panel (rank/team/score/thru, top 18)
+- `src/components/tv/TvStatsRotator.tsx` — right 55% rotator; absolute panels, `transition-opacity duration-[400ms]`
+- `src/components/tv/panels/TvBirdiesPanel.tsx` — Panel A: birdie leaders + momentum sparklines
+- `src/components/tv/panels/TvHoleMapPanel.tsx` — Panel B: hole difficulty grid + eagle/birdie callout
+- `src/components/tv/panels/TvShotStatsPanel.tsx` — Panel C: longest drive, club of day, cleanest teams
+- `src/__tests__/tv-stats.test.ts` — 35 unit tests covering all 5 functions (error paths + happy paths)
+
+**Schema discovery:** Brief had stale schema assumptions; implementer correctly used actual DB schema (`hole_number` not `hole_id`, `start_lat/lng`, `club_name` text, `outcome = 'out_of_bounds'`).
+
+**Notable fixes found in review:**
+- `distanceMeters` argument order (semantically inverted — Haversine is symmetric so no wrong output, but fixed for clarity)
+- `refreshAll` called on mount (not just on 30s interval — stats were blank for first 30s)
+- Players query scoped to tournament teams (was fetching all players in DB)
+- Footer date made dynamic (`tournament.date` not hardcoded "June 22 2026")
+- Longest drive rounded to integer before display
+
+### Test Results
+- `npm run test:ci`: **128/128 tests pass**
+- Coverage: stmts 87.7% · branches 72.08% · fns 88.88% · lines 93.87% (all ≥ thresholds)
+- `npm run type-check`: **zero errors**
+
+### Branch / PR
+- `feature/tv-leaderboard` → PR #21 → `develop`
+
+### Next Steps
+1. Invite 125 players via CSV import (`/admin/players` → Import CSV)
+2. Set real GPS pin coordinates for Ruby course holes (Edit Pin in Mapbox)
+3. Pre-tournament smoke test June 22: login, score, TV display, leaderboard end-to-end
+
+---
+
+## Session 21 — 2026-06-17 (Local Supabase DB migration to new computer)
+
+### What Was Done
+
+**Database migrated from old machine to new machine (192.168.1.100) via LAN**
+
+- Diagnosed that Docker binds Supabase PostgreSQL to `127.0.0.1` only — direct pipe was not possible
+- Connected to new machine via SSH (enabled Remote Login, copied SSH key with `ssh-copy-id`)
+- Located Supabase CLI at `/opt/homebrew/bin/supabase` on remote (not in SSH PATH)
+- Started Supabase on remote: `supabase start` pulled Docker images and initialized all services
+- Piped dump directly to remote via SSH: `pg_dump | ssh pg_restore`
+- Errors on `auth`/`storage`/`_realtime` internal schemas were harmless — those are owned by `supabase_admin` and already present in the Docker image
+- Verified all 12 `public` schema tables transferred with correct data: 1 tournament, 1 course, 18 holes, 5 players, 2 teams
+
+### No Code Changes
+
+This was a pure infrastructure/ops session. No source files were modified.
+
+### Test Results
+- `npm run test:ci`: **93/93 tests pass** (unchanged from Session 20)
+
+### Branch
+`develop` (no new branch — no code changes)
+
+### Next Steps
+1. Copy `.env.local` to new machine (Supabase keys + Mapbox token)
+2. Set real pin GPS coordinates for Ruby holes (Edit Pin on Mapbox satellite)
+3. Invite the 125 tournament players via CSV import (`/admin/players` → Import CSV)
+4. Pre-tournament smoke test on June 22: login, submit score, verify leaderboard
+
+---
+
 ## Session 20 — 2026-06-16 (Course/holes UI overhaul, Ruby scorecard data, schema cleanup)
 
 ### What Was Done
@@ -702,3 +775,37 @@ Full agentic pipeline (Conductor → Pixel → Lens/Sentinel/Circuit → PR) exe
 - TypeScript: `npx tsc --noEmit` passes with zero errors across all 4 test files
 - Did NOT modify any source files or jest.config.js / package.json
 - Next: Circuit finishes Jest config → run `npm test` to confirm green suite
+
+## Session 22 — 2026-06-18 (Tournament Lifecycle E2E Test Suite)
+
+### What Was Done
+
+**Built and merged full tournament lifecycle E2E test suite (PR #20)**
+
+Executed 7-task implementation plan using subagent-driven development (DM_AGENT orchestration):
+
+- `scripts/reset-lionhead.ts` — wipe-and-reseed script; deletes all Lionhead test data, re-creates auth users + player profiles for `e2e-lion-a@fdgolf.test` and `e2e-lion-b@fdgolf.test`; idempotent
+- `tests/e2e/tournament-lifecycle.spec.ts` — 10-step serial Playwright spec covering the complete lifecycle: venue → course → 18 holes → tournament creation → activation → Team Alpha + Team Beta → player scoring → leaderboard ranking assertion
+- `playwright.config.ts` — added `chromium-lifecycle` project (testMatch: `**/tournament-lifecycle.spec.ts`, deps: `admin-setup`)
+- Fixed pre-existing `admin-setup` URL assertion (`/dashboard/` → `/(dashboard|admin)/`) — admin redirect changed to `/admin/tournament`
+- Fixed `fillByLabel` helper to use `xpath=..` parent-axis traversal (robust against DOM nesting depth)
+
+**Key discoveries during implementation:**
+- Club names in local DB are "Driver (1W)" not "Driver" (DB schema drifted from code comments)
+- Lionhead/round pages select tournament by `created_at DESC` (newest), not by active status — reset script guarantees Lionhead is newest
+- `is_best_ball` must be set manually in local dev (Edge Function only runs when `supabase functions serve` is active)
+- `div.filter({ has: label })` accumulates all ancestor divs; `.first()` picks outermost — use `label.locator('xpath=..')` for robust single-element parent traversal
+
+### Test Results
+- **11/11 Playwright lifecycle tests pass** (steps 02-08, 10-12 + admin-setup)
+- **93/93 Jest unit tests pass** — 90.67% statement coverage (threshold: 80%) ✓
+- **CI: all checks green** (CodeQL, audit, format, test, Vercel)
+- Final whole-branch review by opus: READY, no critical/important issues
+
+### Branch
+`feature/tournament-lifecycle-e2e` — **squash-merged to `develop` as PR #20** ✓
+
+### Next Steps
+1. Set real pin GPS coordinates for Ruby holes (Edit Pin on Mapbox satellite)
+2. Invite the 125 tournament players via CSV import (`/admin/players` → Import CSV)
+3. Pre-tournament smoke test on June 22: `npx tsx scripts/reset-lionhead.ts` + run lifecycle spec

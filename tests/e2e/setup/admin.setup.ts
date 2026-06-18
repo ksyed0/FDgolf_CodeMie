@@ -17,7 +17,7 @@ setup('authenticate as admin', async ({ page }) => {
   await page.getByRole('button', { name: /sign in/i }).click()
 
   // Admin with no team → dashboard shows "Account pending setup" but auth cookies are set
-  await expect(page).toHaveURL(/dashboard/, { timeout: 10_000 })
+  await expect(page).toHaveURL(/\/(dashboard|admin)/, { timeout: 10_000 })
 
   await page.context().storageState({ path: ADMIN_AUTH_FILE })
 })

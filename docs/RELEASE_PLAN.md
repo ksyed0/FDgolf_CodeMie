@@ -588,6 +588,36 @@ Acceptance Criteria:
   - [x] AC-0127: New password accepted after clicking reset link
 ```
 
+```
+US-0038 (EPIC-0001): As a developer, I want a full tournament lifecycle E2E test suite, so that I can verify the complete admin + player flow against a real local Supabase instance before tournament day.
+Priority: High
+Estimate: L
+Status: Done
+Branch: feature/tournament-lifecycle-e2e
+Dependencies: US-0003, US-0033
+Acceptance Criteria:
+  - [x] AC-0128: Reset script (scripts/reset-lionhead.ts) wipes Lionhead test data and re-seeds both E2E players; idempotent
+  - [x] AC-0129: chromium-lifecycle Playwright project runs tournament-lifecycle.spec.ts against local Supabase
+  - [x] AC-0130: All 10 lifecycle steps pass (venue → course → holes → tournament → activate → teams → player assignment → scoring → leaderboard)
+  - [x] AC-0131: Existing Jest unit tests still pass at ≥80% coverage after E2E additions
+  - [x] AC-0132: Existing Playwright mock tests (chromium-desktop, chromium-mobile) unaffected
+```
+
+```
+US-0039 (EPIC-0006): As a tournament organiser, I want a full-screen TV leaderboard display at /live/[slug]/tv, so that I can project live standings and stats on the clubhouse screen during the round.
+Priority: High
+Estimate: L
+Status: Done
+Branch: feature/tv-leaderboard
+Dependencies: US-0038
+Acceptance Criteria:
+  - [x] AC-0133: Route /live/[slug]/tv is public (no auth), returns 404 for unknown slug
+  - [x] AC-0134: Left panel shows ranked leaderboard (team/score/thru) refreshed every 30s
+  - [x] AC-0135: Right panel rotates Panel A → B → C every 15s with CSS opacity fade
+  - [x] AC-0136: All stat panels handle empty/zero data gracefully with defined empty-state copy
+  - [x] AC-0137: Unit tests for tv-stats.ts achieve ≥80% coverage; full suite still passes at ≥80%
+```
+
 ---
 
 ## Tasks
@@ -905,4 +935,31 @@ Assignee: Agent
 Status: To Do
 Branch: feature/US-0021-edit-shot
 Notes: Shot history list, tap to edit, update via sync engine
+```
+
+```
+TASK-0036 (US-0038): Create scripts/reset-lionhead.ts — wipe and reseed Lionhead E2E test data
+Type: Test
+Assignee: Agent
+Status: Done
+Branch: feature/tournament-lifecycle-e2e
+Notes: Deletes Lionhead venue/course/holes/tournament/teams/scores + auth users; re-creates e2e-lion-a and e2e-lion-b with player profiles; idempotent
+```
+
+```
+TASK-0037 (US-0038): Create tests/e2e/tournament-lifecycle.spec.ts — 10-step serial Playwright lifecycle spec
+Type: Test
+Assignee: Agent
+Status: Done
+Branch: feature/tournament-lifecycle-e2e
+Notes: Steps 2-8 + 10-12; admin creates venue/course/holes/tournament/teams; players score 3 holes each; leaderboard asserts Team Alpha (-2) ranked above Team Beta (+3). Requires reset-lionhead.ts + local Supabase running.
+```
+
+```
+TASK-0038 (US-0039): Build TV leaderboard feature — tv-stats.ts + page shell + TvDisplay + TvLeaderboard + TvStatsRotator + TvBirdiesPanel + TvHoleMapPanel + TvShotStatsPanel + unit tests
+Type: Dev
+Assignee: Agent
+Status: Done
+Branch: feature/tv-leaderboard
+Notes: 12 commits. tv-stats.ts queries birdies/momentum/hole-difficulty/shot-stats/best-achievement from existing tables (no new migrations). TvDisplay polls 30s + rotates panels 15s. All 5 stat functions catch errors and return empty. 35 unit tests added; coverage ≥80% restored.
 ```
