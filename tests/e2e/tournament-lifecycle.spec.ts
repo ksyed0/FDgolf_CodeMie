@@ -37,15 +37,18 @@ function svc() {
  * Fill a plain <Input> that sits inside a div alongside a <Label> without htmlFor association.
  * Used for VenueManager and CourseManager forms which omit id/htmlFor on their inputs.
  *
- * Strategy: locate the label by visible text, then get the input that is a sibling or
- * child of its immediate parent div.  This avoids the ancestor-div ambiguity where a
- * broad div.filter() picks the wrong input from a wrapper container.
+ * Strategy: locate the label by visible text, then use xpath=.. parent traversal to navigate
+ * to the immediate parent element, then find the input. This is more reliable than div.filter()
+ * which relies on DOM traversal order and breaks silently with wrapper div changes.
  */
 async function fillByLabel(page: Page, labelText: string, value: string) {
-  // Find the label, navigate to its direct parent, then locate the input inside that parent.
-  const label = page.locator('label', { hasText: labelText }).first()
-  const parentDiv = page.locator('div').filter({ has: label }).last()
-  await parentDiv.locator('input').first().fill(value)
+  await page
+    .locator('label', { hasText: labelText })
+    .first()
+    .locator('xpath=..')
+    .locator('input')
+    .first()
+    .fill(value)
 }
 
 /**
@@ -156,30 +159,34 @@ test.describe.serial('Tournament Lifecycle — Lionhead Spring Classic 2026', ()
 
     // Clear default par total and enter 72
     const parInput = adminPage
-      .locator('div')
-      .filter({ has: adminPage.locator('label:has-text("Par total")') })
-      .last()
+      .locator('label', { hasText: 'Par total' })
+      .first()
+      .locator('xpath=..')
       .locator('input')
       .first()
     await parInput.clear()
     await parInput.fill('72')
 
     await adminPage
-      .locator('div')
-      .filter({ has: adminPage.locator('label:has-text("Course rating")') })
-      .last()
-      .locator('input').first().fill('73.2')
+      .locator('label', { hasText: 'Course rating' })
+      .first()
+      .locator('xpath=..')
+      .locator('input')
+      .first()
+      .fill('73.2')
 
     await adminPage
-      .locator('div')
-      .filter({ has: adminPage.locator('label:has-text("Slope rating")') })
-      .last()
-      .locator('input').first().fill('135')
+      .locator('label', { hasText: 'Slope rating' })
+      .first()
+      .locator('xpath=..')
+      .locator('input')
+      .first()
+      .fill('135')
 
     await adminPage.getByRole('button', { name: /^add course$/i }).last().click()
 
     await expect(adminPage.getByText(/course added/i)).toBeVisible({ timeout: 8000 })
-    await expect(adminPage.getByText('Legends Course')).toBeVisible()
+    await expect(adminPage.getByText('Legends Course').first()).toBeVisible()
   })
 
   // ── Step 4: Generate holes ────────────────────────────────────────────────
@@ -189,6 +196,7 @@ test.describe.serial('Tournament Lifecycle — Lionhead Spring Classic 2026', ()
       .locator('tr')
       .filter({ hasText: 'Legends Course' })
       .getByRole('button', { name: /holes/i })
+      .first()
       .click()
 
     // URL is now /admin/courses/[courseId]/holes
