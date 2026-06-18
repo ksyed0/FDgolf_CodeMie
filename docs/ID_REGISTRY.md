@@ -13,5 +13,5 @@ Rules:
 | US       | US-0040           | US-0039       |
 | TASK     | TASK-0039         | TASK-0038     |
 | AC       | AC-0138           | AC-0137       |
-| TC       | TC-0065           | TC-0064       |
+| TC       | TC-0082           | TC-0081       |
 | BUG      | BUG-0007          | BUG-0006      |
