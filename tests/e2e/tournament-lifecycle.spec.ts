@@ -295,4 +295,98 @@ test.describe.serial('Tournament Lifecycle — Lionhead Spring Classic 2026', ()
       adminPage.locator('tr').filter({ hasText: 'Lionhead Spring Classic 2026' }).getByText('Active')
     ).toBeVisible({ timeout: 5000 })
   })
+
+  // ── Step 7: Create teams ──────────────────────────────────────────────────
+  test('step-07: admin creates Team Alpha and Team Beta', async () => {
+    await adminPage.goto('/admin/teams')
+
+    // Idempotency: skip creation if teams already exist from a prior run.
+    // Team names are rendered as Input elements (editable), not plain text nodes.
+    const alphaExists = await adminPage.locator('input[value="Team Alpha"]').isVisible()
+    const betaExists  = await adminPage.locator('input[value="Team Beta"]').isVisible()
+
+    // ── Team Alpha ────────────────────────────────────────────────────────────
+    if (!alphaExists) {
+      await adminPage.getByRole('button', { name: /\+ add team/i }).click()
+      await adminPage.getByPlaceholder('Team name (optional)').fill('Team Alpha')
+      // Starting hole input — label text "Starting hole" without htmlFor
+      await adminPage
+        .locator('div')
+        .filter({ has: adminPage.locator('label:has-text("Starting hole")') })
+        .locator('input[type="number"]')
+        .fill('1')
+      await adminPage.getByRole('button', { name: /^add team$/i }).click()
+      await expect(adminPage.getByText(/team added/i)).toBeVisible({ timeout: 8000 })
+      // Team name is rendered as an editable Input, not plain text
+      await expect(adminPage.locator('input[value="Team Alpha"]')).toBeVisible()
+    } else {
+      console.log('[step-07] Team Alpha already exists, skipping creation')
+    }
+
+    // ── Team Beta ─────────────────────────────────────────────────────────────
+    if (!betaExists) {
+      await adminPage.getByRole('button', { name: /\+ add team/i }).click()
+      await adminPage.getByPlaceholder('Team name (optional)').fill('Team Beta')
+      await adminPage
+        .locator('div')
+        .filter({ has: adminPage.locator('label:has-text("Starting hole")') })
+        .locator('input[type="number"]')
+        .fill('10')
+      await adminPage.getByRole('button', { name: /^add team$/i }).click()
+      await expect(adminPage.getByText(/team added/i)).toBeVisible({ timeout: 8000 })
+      // Team name is rendered as an editable Input, not plain text
+      await expect(adminPage.locator('input[value="Team Beta"]')).toBeVisible()
+    } else {
+      console.log('[step-07] Team Beta already exists, skipping creation')
+    }
+  })
+
+  // ── Step 8: Assign players to teams ──────────────────────────────────────
+  test('step-08: admin assigns Alex → Team Alpha and Blake → Team Beta', async () => {
+    // Still on /admin/teams — TeamsManager renders the "Assign Players to Teams"
+    // section showing all players with team_id = null.
+    // Both players were created with team_id = null in beforeAll.
+
+    await expect(adminPage.getByText('Assign Players to Teams')).toBeVisible({ timeout: 5000 })
+
+    // Assign Alex Lion → Team Alpha
+    // Player rows: <div class="flex items-center gap-2"><span ...>Name</span><Select...>
+    // Use xpath: locate the span by text, go to parent div, then find the combobox within it.
+    // waitForResponse ensures the Supabase PATCH has committed before the DB assertion below.
+    await Promise.all([
+      adminPage.waitForResponse((r) => r.url().includes('/rest/v1/players') && r.request().method() === 'PATCH'),
+      adminPage
+        .locator(`span:text-is("${PLAYER_A.name}")`)
+        .locator('xpath=..')
+        .getByRole('combobox')
+        .click()
+        .then(() => adminPage.getByRole('option', { name: 'Team Alpha' }).click()),
+    ])
+    await expect(adminPage.getByText(/player assigned/i).first()).toBeVisible({ timeout: 5000 })
+
+    // Assign Blake Lion → Team Beta
+    await Promise.all([
+      adminPage.waitForResponse((r) => r.url().includes('/rest/v1/players') && r.request().method() === 'PATCH'),
+      adminPage
+        .locator(`span:text-is("${PLAYER_B.name}")`)
+        .locator('xpath=..')
+        .getByRole('combobox')
+        .click()
+        .then(() => adminPage.getByRole('option', { name: 'Team Beta' }).click()),
+    ])
+    await expect(adminPage.getByText(/player assigned/i).first()).toBeVisible({ timeout: 5000 })
+
+    // Verify DB state — both players should now have a non-null team_id
+    const admin = svc()
+    const { data: players } = await admin
+      .from('players')
+      .select('email, team_id')
+      .in('email', [PLAYER_A.email, PLAYER_B.email])
+
+    const alex  = players?.find((p: { email: string }) => p.email === PLAYER_A.email)
+    const blake = players?.find((p: { email: string }) => p.email === PLAYER_B.email)
+    expect(alex?.team_id).not.toBeNull()
+    expect(blake?.team_id).not.toBeNull()
+    expect(alex?.team_id).not.toEqual(blake?.team_id)
+  })
 })
