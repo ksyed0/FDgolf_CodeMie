@@ -8,10 +8,11 @@ import type { Sponsor, Tournament } from '@/lib/types';
 export const revalidate = 30;
 
 interface LiveLeaderboardPageProps {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }
 
 export default async function LiveLeaderboardPage({ params }: LiveLeaderboardPageProps) {
+  const { slug } = await params;
   const supabase = await createClient();
 
   type TournamentWithVenue = Tournament & {
@@ -21,7 +22,7 @@ export default async function LiveLeaderboardPage({ params }: LiveLeaderboardPag
   const { data: tournament } = await supabase
     .from('tournaments')
     .select('*, venue:venues!venue_id(name, city, province_state)')
-    .eq('slug', params.slug)
+    .eq('slug', slug)
     .single<TournamentWithVenue>();
 
   if (!tournament) {

@@ -1,5 +1,23 @@
 # Lessons Learned
 
+## L-0006 — Playwright `page.route()` cannot mock SSR Server Component fetches
+@session: 24 — 2026-06-18
+
+**Symptom**: E2E tests for `/dashboard` and `/scorecard` return stale or real DB data even though `mockSupabaseTable(page, 'tournaments', [...])` is set up in `beforeEach`.
+
+**Root cause**: Next.js App Router Server Components fetch data on the server (Node.js process), not in the browser. `page.route()` intercepts browser-side network requests only — it has no visibility into the server-side `supabase.from(...)` calls that run during SSR.
+
+**Rules**:
+- Pages rendered by **Server Components** (no `'use client'` at the top) → must use `hasRealSupabase` guard and assert against actual seeded DB data
+- Pages with **Client Components** that fetch on mount (TV display, round scoring) → fully mockable via `page.route()`
+- A Server Component page that passes initial data to a Client Component → only the client-side refetch leg is mockable; initial SSR data comes from the real DB
+
+**Fix pattern**: Gate SSR-dependent tests behind `test.skip(!hasRealSupabase, 'requires local Supabase')` and assert on known-seeded values (e.g. `e2e-admin@fdgolf.test` session, CIBC tournament name) rather than fixture strings.
+
+**Applies to**: Any Next.js App Router page that uses `await createClient()` / `supabase.from()` outside of a `useEffect` or event handler.
+
+---
+
 ## L-0001 — Initial project setup
 @agent: Conductor
 
