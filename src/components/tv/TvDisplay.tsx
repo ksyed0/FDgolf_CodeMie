@@ -180,7 +180,6 @@ export function TvDisplay({ tournament, initialLeaderboard, initialSponsors }: T
             momentumStats={momentumStats}
             holeDifficulty={holeDifficulty}
             shotStats={shotStats}
-            bestAchievement={bestAchievement}
             teamSpotlight={teamSpotlight}
           />
         </div>
