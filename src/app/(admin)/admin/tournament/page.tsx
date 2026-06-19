@@ -34,9 +34,8 @@ export default async function TournamentAdminPage() {
   if (activeTournament) {
     const [
       { data: teams },
-      { data: players },
       { data: holes },
-      { data: shots },
+      { count: shotsCount },
       { data: sponsors },
       { data: scores },
     ] = await Promise.all([
@@ -45,22 +44,12 @@ export default async function TournamentAdminPage() {
         .select('id, team_name, team_number, starting_hole')
         .eq('tournament_id', activeTournament.id),
       supabase
-        .from('players')
-        .select('id, team_id')
-        .not('team_id', 'is', null)
-        .in(
-          'team_id',
-          (
-            await supabase.from('teams').select('id').eq('tournament_id', activeTournament.id)
-          ).data?.map((t) => t.id as string) ?? []
-        ),
-      supabase
         .from('holes')
         .select('id, hole_number, pin_lat, pin_lng')
         .eq('course_id', activeTournament.course_id),
       supabase
         .from('shots')
-        .select('id', { count: 'exact' })
+        .select('*', { count: 'exact', head: true })
         .eq('tournament_id', activeTournament.id),
       supabase
         .from('sponsors')
@@ -80,6 +69,16 @@ export default async function TournamentAdminPage() {
       team_number: number;
       starting_hole: number;
     }[];
+
+    const teamIds = teamList.map((t) => t.id);
+    const { data: players } = teamIds.length
+      ? await supabase
+          .from('players')
+          .select('id, team_id')
+          .not('team_id', 'is', null)
+          .in('team_id', teamIds)
+      : { data: [] };
+
     const playerList = (players ?? []) as { id: string; team_id: string | null }[];
     const holeList = (holes ?? []) as {
       id: string;
@@ -134,7 +133,7 @@ export default async function TournamentAdminPage() {
           playerCount: playerList.length,
           holesSet,
           totalHoles: activeTournament.holes_played,
-          shotsLogged: (shots as unknown[])?.length ?? 0,
+          shotsLogged: shotsCount ?? 0,
           sponsorCount: (sponsors ?? []).length,
           magicLinksSent: false,
         }}
