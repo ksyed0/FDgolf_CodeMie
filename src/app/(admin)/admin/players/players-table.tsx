@@ -239,7 +239,7 @@ export function PlayersTable({ players: initial, teams, tournamentId }: PlayersT
             ✓ Linked {linkedCount}
           </span>
           <span className="rounded-full bg-[#fbf1df] px-2.5 py-0.5 font-semibold text-[#b3741b]">
-            ⏳ Pending 0
+            ⏳ Pending —
           </span>
           <span className="rounded-full bg-[#f0f4ee] px-2.5 py-0.5 font-semibold text-[#46554c]">
             Not sent {notSentCount}

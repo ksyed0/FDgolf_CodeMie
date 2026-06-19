@@ -207,9 +207,6 @@ export function VenueManager({ venues: initial }: VenueManagerProps) {
                     <span className="rounded-full px-2.5 py-0.5 text-[12px] font-semibold bg-[#e9f3ec] text-[#1a472a]">
                       Venue
                     </span>
-                    <span className="rounded-full px-2.5 py-0.5 text-[12px] font-semibold bg-[#fbf1df] text-[#b3741b]">
-                      GPS not configured
-                    </span>
                   </div>
                 </div>
 

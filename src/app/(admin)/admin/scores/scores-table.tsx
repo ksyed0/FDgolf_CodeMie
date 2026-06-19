@@ -140,10 +140,6 @@ export function ScoresTable({ scores: initial, players, teams, parMap }: ScoresT
                     {Array.from({ length: 18 }, (_, i) => {
                       const hole = i + 1;
                       const score = teamScores.find((s) => s.hole_number === hole);
-                      // Find any score for this team+hole to allow override (not just best ball)
-                      const anyScore = scores.find(
-                        (s) => s.team_id === team.id && s.hole_number === hole && s.is_best_ball
-                      );
                       const par = parMap[hole] ?? 4;
                       const vsPar = score ? score.strokes - par : null;
 
@@ -174,9 +170,9 @@ export function ScoresTable({ scores: initial, players, teams, parMap }: ScoresT
                             className="font-semibold text-[13px] rounded-[7px] mx-auto flex items-center justify-center"
                             style={{ width: 28, height: 28, background: bg, color: fg }}
                             onClick={() => {
-                              if (anyScore) {
-                                setOverrideTarget(anyScore);
-                                setOverrideStrokes(String(anyScore.strokes));
+                              if (score) {
+                                setOverrideTarget(score);
+                                setOverrideStrokes(String(score.strokes));
                               }
                             }}
                           >

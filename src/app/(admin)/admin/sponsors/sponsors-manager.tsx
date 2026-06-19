@@ -25,7 +25,31 @@ export function SponsorsManager({ sponsors: initial, tournamentId }: SponsorsMan
   const [editId, setEditId] = useState<string | null>(null);
   const [showAdd, setShowAdd] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [dragId, setDragId] = useState<string | null>(null);
+  const [dragOverId, setDragOverId] = useState<string | null>(null);
   const supabase = createClient();
+
+  function handleReorder(dropTargetId: string) {
+    if (!dragId || dragId === dropTargetId) {
+      setDragId(null);
+      setDragOverId(null);
+      return;
+    }
+    const from = sponsors.findIndex((s) => s.id === dragId);
+    const to = sponsors.findIndex((s) => s.id === dropTargetId);
+    const reordered = [...sponsors];
+    const [moved] = reordered.splice(from, 1);
+    reordered.splice(to, 0, moved);
+    const updated = reordered.map((s, i) => ({ ...s, display_order: i + 1 }));
+    setSponsors(updated);
+    setDragId(null);
+    setDragOverId(null);
+    Promise.all(
+      updated.map((s) =>
+        supabase.from('sponsors').update({ display_order: s.display_order }).eq('id', s.id)
+      )
+    ).catch(() => toast.error('Failed to reorder'));
+  }
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -148,6 +172,14 @@ export function SponsorsManager({ sponsors: initial, tournamentId }: SponsorsMan
             <div
               key={sponsor.id}
               className="bg-white rounded-2xl border border-[#e2e8df] px-[22px] py-[18px] flex items-center gap-4"
+              draggable
+              onDragStart={() => setDragId(sponsor.id)}
+              onDragOver={(e) => {
+                e.preventDefault();
+                setDragOverId(sponsor.id);
+              }}
+              onDrop={() => handleReorder(sponsor.id)}
+              style={{ opacity: dragOverId === sponsor.id && dragId !== sponsor.id ? 0.6 : 1 }}
             >
               {/* Drag handle */}
               <span className="text-[#90a094] text-[20px] cursor-grab shrink-0">⠿</span>
