@@ -93,7 +93,7 @@ export function SponsorsManager({ sponsors: initial, tournamentId }: SponsorsMan
     } else {
       const { data, error } = await supabase
         .from('sponsors')
-        .insert(payload)
+        .insert({ ...payload, display_order: sponsors.length + 1, is_active: true })
         .select()
         .single<Sponsor>();
       if (error) {
