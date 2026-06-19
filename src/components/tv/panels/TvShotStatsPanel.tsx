@@ -4,74 +4,119 @@ interface TvShotStatsPanelProps {
   shotStats: ShotStats;
 }
 
+function StatCard({
+  icon,
+  label,
+  primary,
+  secondary,
+  accent = false,
+}: {
+  icon: string;
+  label: string;
+  primary: React.ReactNode;
+  secondary?: string;
+  accent?: boolean;
+}) {
+  return (
+    <div
+      className={`flex-1 rounded-2xl flex flex-col p-6 gap-3 ${
+        accent
+          ? 'bg-gradient-to-br from-slate-700 to-slate-800 ring-1 ring-white/10'
+          : 'bg-slate-800/70'
+      }`}
+    >
+      <span className="text-3xl leading-none">{icon}</span>
+      <p className="text-slate-400 uppercase tracking-widest text-[10px] font-semibold">{label}</p>
+      <div className="mt-auto">
+        <div className="text-white font-bold leading-none">{primary}</div>
+        {secondary && <p className="text-slate-400 text-sm mt-2">{secondary}</p>}
+      </div>
+    </div>
+  );
+}
+
 export default function TvShotStatsPanel({ shotStats }: TvShotStatsPanelProps) {
   const { longestDriveMeters, longestDriveTeam, clubOfDay, clubOfDayPct, cleanestTeams } =
     shotStats;
 
-  // Determine if all teams are clean (zero bad shots)
   const allClean = cleanestTeams.length === 0 || cleanestTeams.every((t) => t.badShots === 0);
 
+  // Cleanest team content
+  let cleanPrimary: React.ReactNode;
+  let cleanSecondary: string | undefined;
+
+  if (allClean) {
+    cleanPrimary = <span className="text-green-400 text-2xl">All Clean ✓</span>;
+    cleanSecondary = 'No penalties recorded';
+  } else {
+    const top = cleanestTeams[0];
+    cleanPrimary = (
+      <span className={`text-2xl ${top.badShots === 0 ? 'text-green-400' : 'text-white'}`}>
+        {top.teamName}
+      </span>
+    );
+    cleanSecondary =
+      top.badShots === 0
+        ? '0 OB / Water'
+        : `${top.badShots} penalty ${top.badShots === 1 ? 'shot' : 'shots'}`;
+  }
+
   return (
-    <div className="flex flex-col h-full p-8">
-      {/* Title */}
-      <div className="text-slate-400 uppercase tracking-widest text-sm mb-8">Shot Stats</div>
+    <div className="flex flex-col h-full p-8 gap-6">
+      <p className="text-slate-400 uppercase tracking-widest text-xs font-semibold">Shot Stats</p>
 
-      {/* Three equal-width stat cards */}
-      <div className="flex gap-6 flex-1">
-        {/* Card 1: Longest Drive */}
-        <div className="bg-slate-800 rounded-2xl p-8 flex-1 flex flex-col">
-          <div className="text-4xl">📏</div>
-          <div className="text-6xl font-bold text-white mt-4">
-            {longestDriveMeters !== null ? `${longestDriveMeters}m` : 'GPS pending'}
-          </div>
-          <div className="text-slate-400 text-lg mt-2">
-            {longestDriveTeam !== null ? longestDriveTeam : '–'}
-          </div>
-        </div>
+      <div className="flex gap-4 flex-1">
+        <StatCard
+          icon="📏"
+          label="Longest Drive"
+          accent
+          primary={
+            longestDriveMeters !== null ? (
+              <span className="text-5xl">{longestDriveMeters}m</span>
+            ) : (
+              <span className="text-slate-500 text-2xl">GPS pending</span>
+            )
+          }
+          secondary={longestDriveTeam ?? undefined}
+        />
 
-        {/* Card 2: Club of the Day */}
-        <div className="bg-slate-800 rounded-2xl p-8 flex-1 flex flex-col">
-          <div className="text-4xl">🏌️</div>
-          <div className="text-5xl font-bold text-white mt-4">
-            {clubOfDay !== null ? clubOfDay : '–'}
-          </div>
-          <div className="text-slate-400 text-lg mt-2">
-            {clubOfDayPct !== null ? `${Math.round(clubOfDayPct)}% of scoring shots` : ''}
-          </div>
-        </div>
+        <StatCard
+          icon="🏌️"
+          label="Club of the Day"
+          primary={
+            clubOfDay !== null ? (
+              <span className="text-3xl">{clubOfDay}</span>
+            ) : (
+              <span className="text-slate-500 text-2xl">—</span>
+            )
+          }
+          secondary={clubOfDayPct !== null ? `${clubOfDayPct}% of scoring shots` : undefined}
+        />
 
-        {/* Card 3: Cleanest Teams */}
-        <div className="bg-slate-800 rounded-2xl p-8 flex-1 flex flex-col">
-          <div className="text-4xl">🚫</div>
-          {allClean ? (
-            <div className="text-green-400 text-xl mt-4 text-center">All teams playing clean!</div>
-          ) : (
-            <>
-              {/* Top team */}
-              <div className="text-3xl font-bold text-white mt-4">{cleanestTeams[0]?.teamName}</div>
-              <div className="text-slate-400 text-lg mt-1">
-                {cleanestTeams[0]?.badShots} OB / Water
-              </div>
-
-              {/* 2nd and 3rd place (if they exist) */}
-              {(cleanestTeams[1] || cleanestTeams[2]) && (
-                <div className="text-slate-500 text-sm mt-3 space-y-1">
-                  {cleanestTeams[1] && (
-                    <div>
-                      {cleanestTeams[1].teamName} — {cleanestTeams[1].badShots}
-                    </div>
-                  )}
-                  {cleanestTeams[2] && (
-                    <div>
-                      {cleanestTeams[2].teamName} — {cleanestTeams[2].badShots}
-                    </div>
-                  )}
-                </div>
-              )}
-            </>
-          )}
-        </div>
+        <StatCard
+          icon="🎯"
+          label="Cleanest Round"
+          primary={cleanPrimary}
+          secondary={cleanSecondary}
+        />
       </div>
+
+      {/* OB tally for other teams */}
+      {!allClean && cleanestTeams.length > 1 && (
+        <div className="flex gap-4">
+          {cleanestTeams.slice(1).map((t) => (
+            <div
+              key={t.teamName}
+              className="flex-1 flex items-center justify-between rounded-lg bg-slate-800/50 px-4 py-2"
+            >
+              <span className="text-slate-400 text-sm truncate">{t.teamName}</span>
+              <span className="text-slate-400 text-sm font-medium shrink-0 ml-2">
+                {t.badShots} {t.badShots === 1 ? 'penalty' : 'penalties'}
+              </span>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
