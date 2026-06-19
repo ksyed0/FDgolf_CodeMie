@@ -19,12 +19,6 @@ export default async function SponsorsAdminPage() {
     .order('display_order');
 
   return (
-    <div className="space-y-4">
-      <h1 className="text-2xl font-bold text-gray-900">Sponsors</h1>
-      <SponsorsManager
-        sponsors={(sponsors as Sponsor[]) ?? []}
-        tournamentId={tournament?.id ?? ''}
-      />
-    </div>
+    <SponsorsManager sponsors={(sponsors as Sponsor[]) ?? []} tournamentId={tournament?.id ?? ''} />
   );
 }
