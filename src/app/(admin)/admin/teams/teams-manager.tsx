@@ -30,6 +30,10 @@ export function TeamsManager({ teams: initialTeams, players, tournamentId }: Tea
   const [addForm, setAddForm] = useState({ team_name: '', starting_hole: 1, max_players: 4 });
   const [adding, setAdding] = useState(false);
   const [editingTeamId, setEditingTeamId] = useState<string | null>(null);
+  const [showAssignPanel, setShowAssignPanel] = useState(false);
+  const [editingStartingHoles, setEditingStartingHoles] = useState<Record<string, number>>(
+    Object.fromEntries(initialTeams.map((t) => [t.id, t.starting_hole ?? 1]))
+  );
   const supabase = createClient();
 
   async function updateTeamName(teamId: string) {
@@ -79,6 +83,16 @@ export function TeamsManager({ teams: initialTeams, players, tournamentId }: Tea
       return;
     }
     toast.success('Player assigned');
+  }
+
+  async function updateStartingHole(teamId: string, hole: number) {
+    const { error } = await supabase.from('teams').update({ starting_hole: hole }).eq('id', teamId);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    setTeams((prev) => prev.map((t) => (t.id === teamId ? { ...t, starting_hole: hole } : t)));
+    toast.success('Starting hole updated');
   }
 
   async function addTeam() {
@@ -265,7 +279,10 @@ export function TeamsManager({ teams: initialTeams, players, tournamentId }: Tea
                 >
                   {isEditing ? 'Done' : 'Edit team'}
                 </button>
-                <button className="flex-1 rounded-xl py-1.5 text-[13px] font-semibold bg-[#f4f7f1] text-[#46554c]">
+                <button
+                  className="flex-1 rounded-xl py-1.5 text-[13px] font-semibold bg-[#f4f7f1] text-[#46554c]"
+                  onClick={() => setShowAssignPanel(true)}
+                >
                   Manage players
                 </button>
               </div>
@@ -288,6 +305,32 @@ export function TeamsManager({ teams: initialTeams, players, tournamentId }: Tea
                       }}
                       placeholder={`Team ${team.team_number}`}
                       className="mt-1 h-8 font-semibold"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-[11px] font-semibold text-[#46554c] uppercase tracking-wide">
+                      Starting hole
+                    </label>
+                    <Input
+                      type="number"
+                      min={1}
+                      max={18}
+                      value={editingStartingHoles[team.id] ?? team.starting_hole ?? 1}
+                      onChange={(e) =>
+                        setEditingStartingHoles((prev) => ({
+                          ...prev,
+                          [team.id]: Number(e.target.value),
+                        }))
+                      }
+                      onBlur={() => {
+                        const hole = editingStartingHoles[team.id] ?? 1;
+                        if (hole >= 1 && hole <= 18) updateStartingHole(team.id, hole);
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') e.currentTarget.blur();
+                      }}
+                      className="mt-1 h-8 w-20"
                     />
                   </div>
 
@@ -344,30 +387,44 @@ export function TeamsManager({ teams: initialTeams, players, tournamentId }: Tea
       </div>
 
       {/* Assign unassigned players */}
-      {players.filter((p) => !p.team_id).length > 0 && (
+      {(showAssignPanel || players.filter((p) => !p.team_id).length > 0) && (
         <div className="mx-7 mb-7 rounded-xl border bg-white p-4 shadow-sm">
-          <h3 className="mb-3 font-semibold text-gray-900">Assign Players to Teams</h3>
-          <div className="space-y-2">
-            {players
-              .filter((p) => !p.team_id)
-              .map((p) => (
-                <div key={p.id} className="flex items-center gap-2">
-                  <span className="min-w-[140px] text-sm">{p.name}</span>
-                  <Select onValueChange={(v) => assignPlayer(p.id, v)}>
-                    <SelectTrigger className="h-8 w-40">
-                      <SelectValue placeholder="Assign to team" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {teams.map((t) => (
-                        <SelectItem key={t.id} value={t.id}>
-                          {t.team_name ?? `Team ${t.team_number}`}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              ))}
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="font-semibold text-gray-900">Assign Players to Teams</h3>
+            {showAssignPanel && (
+              <button
+                className="text-[12px] text-[#46554c] font-semibold"
+                onClick={() => setShowAssignPanel(false)}
+              >
+                Close
+              </button>
+            )}
           </div>
+          {players.filter((p) => !p.team_id).length === 0 ? (
+            <p className="text-sm text-[#90a094]">All players assigned.</p>
+          ) : (
+            <div className="space-y-2">
+              {players
+                .filter((p) => !p.team_id)
+                .map((p) => (
+                  <div key={p.id} className="flex items-center gap-2">
+                    <span className="min-w-[140px] text-sm">{p.name}</span>
+                    <Select onValueChange={(v) => assignPlayer(p.id, v)}>
+                      <SelectTrigger className="h-8 w-40">
+                        <SelectValue placeholder="Assign to team" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {teams.map((t) => (
+                          <SelectItem key={t.id} value={t.id}>
+                            {t.team_name ?? `Team ${t.team_number}`}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                ))}
+            </div>
+          )}
         </div>
       )}
     </div>
