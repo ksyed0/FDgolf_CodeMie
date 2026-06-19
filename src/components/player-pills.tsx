@@ -4,27 +4,58 @@ import { cn } from '@/lib/utils';
 interface PlayerPillsProps {
   players: Player[];
   activePlayerId: string | null;
+  currentPlayerId?: string;
   onSelect: (id: string) => void;
 }
 
-export function PlayerPills({ players, activePlayerId, onSelect }: PlayerPillsProps) {
+function getInitials(name: string): string {
+  const parts = name.trim().split(/\s+/);
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+}
+
+export function PlayerPills({
+  players,
+  activePlayerId,
+  currentPlayerId,
+  onSelect,
+}: PlayerPillsProps) {
   return (
-    <div className="flex flex-wrap gap-2">
+    <div className="flex gap-3">
       {players.map((player) => {
         const isActive = player.id === activePlayerId;
+        const isCurrentUser = player.id === currentPlayerId;
+        const initials = getInitials(player.name);
+        const firstName = player.name.split(' ')[0];
+
         return (
           <button
             key={player.id}
             onClick={() => onSelect(player.id)}
-            data-active={isActive ? 'true' : undefined}
-            className={cn(
-              'rounded-full border px-3 py-1.5 text-sm font-medium transition-colors',
-              isActive
-                ? 'border-[#1a472a] bg-[#1a472a] text-white'
-                : 'border-gray-300 bg-white text-gray-700 hover:border-[#1a472a] hover:text-[#1a472a]'
-            )}
+            className="flex flex-col items-center gap-1.5 focus:outline-none"
           >
-            {player.name.split(' ')[0]}
+            <div
+              className={cn(
+                'flex items-center justify-center rounded-xl font-bold transition-colors',
+                isActive ? 'text-white' : 'text-[#15241c]'
+              )}
+              style={{
+                width: 56,
+                height: 56,
+                fontSize: 16,
+                background: isActive ? '#1a472a' : '#fff',
+                border: isActive ? 'none' : '1px solid #e2e8df',
+                boxShadow: isActive ? 'none' : '0 2px 6px rgba(0,0,0,0.06)',
+              }}
+            >
+              {initials}
+            </div>
+            <span
+              className="text-center font-medium leading-none"
+              style={{ fontSize: 11, color: isActive ? '#1a472a' : '#6b7a70' }}
+            >
+              {isCurrentUser ? 'You' : firstName}
+            </span>
           </button>
         );
       })}
