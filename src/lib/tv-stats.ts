@@ -37,6 +37,34 @@ export interface BestAchievement {
   vspar: number;
 }
 
+export interface SparklineEntry {
+  teamId: string;
+  teamName: string;
+  track: number[]; // cumulative vs-par after each completed hole
+  holesCompleted: number;
+}
+
+export interface RosterPlayer {
+  playerId: string;
+  name: string;
+  title: string;
+  company: string;
+  bbHolesCount: number;
+}
+
+export interface TeamSpotlight {
+  teamId: string;
+  teamName: string;
+  score: number;
+  holesCompleted: number;
+  birdies: number;
+  eagles: number;
+  pars: number;
+  penalties: number;
+  roster: RosterPlayer[];
+  scorecard: { holeNumber: number; vspar: number }[];
+}
+
 // ---------------------------------------------------------------------------
 // Internal row shapes
 // ---------------------------------------------------------------------------
@@ -526,6 +554,185 @@ export async function fetchBestAchievement(
     }
 
     return best;
+  } catch (error: unknown) {
+    console.warn((error as Error).message);
+    return null;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// fetchSparklineTracks
+// ---------------------------------------------------------------------------
+
+export async function fetchSparklineTracks(
+  supabase: SupabaseClient,
+  tournamentId: string
+): Promise<SparklineEntry[]> {
+  try {
+    const { data: tournament, error: tErr } = await supabase
+      .from('tournaments')
+      .select('course_id')
+      .eq('id', tournamentId)
+      .single();
+    if (tErr) throw tErr;
+    if (!tournament) return [];
+
+    const [parMap, { data: scores, error: sErr }] = await Promise.all([
+      fetchParMap(supabase, tournament.course_id as string),
+      supabase
+        .from('scores')
+        .select('strokes, hole_number, team_id, teams!inner(id, team_name)')
+        .eq('tournament_id', tournamentId)
+        .eq('is_best_ball', true),
+    ]);
+    if (sErr) throw sErr;
+    if (!scores || scores.length === 0) return [];
+
+    const teamHoles = new Map<
+      string,
+      { teamId: string; teamName: string; holes: { holeNumber: number; vspar: number }[] }
+    >();
+
+    for (const row of scores) {
+      const par = parMap.get(row.hole_number as number);
+      if (par === undefined) continue;
+      const team = asTeam(row.teams);
+      if (!team) continue;
+      const tid: string = team.id;
+      if (!teamHoles.has(tid)) {
+        teamHoles.set(tid, { teamId: tid, teamName: team.team_name ?? `Team ${tid}`, holes: [] });
+      }
+      teamHoles.get(tid)!.holes.push({
+        holeNumber: row.hole_number as number,
+        vspar: (row.strokes as number) - par,
+      });
+    }
+
+    return Array.from(teamHoles.values()).map(({ teamId, teamName, holes }) => {
+      const sorted = holes.sort((a, b) => a.holeNumber - b.holeNumber);
+      const track: number[] = [];
+      let cum = 0;
+      for (const h of sorted) {
+        cum += h.vspar;
+        track.push(cum);
+      }
+      return { teamId, teamName, track, holesCompleted: sorted.length };
+    });
+  } catch (error: unknown) {
+    console.warn((error as Error).message);
+    return [];
+  }
+}
+
+// ---------------------------------------------------------------------------
+// fetchTeamSpotlight
+// ---------------------------------------------------------------------------
+
+export async function fetchTeamSpotlight(
+  supabase: SupabaseClient,
+  tournamentId: string,
+  teamId: string
+): Promise<TeamSpotlight | null> {
+  try {
+    const { data: tournament, error: tErr } = await supabase
+      .from('tournaments')
+      .select('course_id')
+      .eq('id', tournamentId)
+      .single();
+    if (tErr) throw tErr;
+    if (!tournament) return null;
+
+    const [
+      parMap,
+      { data: scores, error: sErr },
+      { data: players, error: pErr },
+      { data: shots, error: shErr },
+    ] = await Promise.all([
+      fetchParMap(supabase, tournament.course_id as string),
+      supabase
+        .from('scores')
+        .select('strokes, hole_number, player_id, is_best_ball')
+        .eq('tournament_id', tournamentId)
+        .eq('team_id', teamId),
+      supabase.from('players').select('id, name, title, company').eq('team_id', teamId),
+      supabase
+        .from('shots')
+        .select('outcome')
+        .eq('tournament_id', tournamentId)
+        .in(
+          'player_id',
+          (await supabase.from('players').select('id').eq('team_id', teamId)).data?.map(
+            (p) => p.id as string
+          ) ?? []
+        ),
+    ]);
+
+    if (sErr) throw sErr;
+    if (pErr) throw pErr;
+
+    const bbScores = (scores ?? []).filter((s) => s.is_best_ball);
+    const allScores = scores ?? [];
+
+    let score = 0;
+    const holesSet = new Set<number>();
+    let birdies = 0;
+    let eagles = 0;
+    let pars = 0;
+    const scorecard: { holeNumber: number; vspar: number }[] = [];
+
+    for (const row of bbScores) {
+      const par = parMap.get(row.hole_number as number);
+      if (par === undefined) continue;
+      const vspar = (row.strokes as number) - par;
+      score += vspar;
+      holesSet.add(row.hole_number as number);
+      scorecard.push({ holeNumber: row.hole_number as number, vspar });
+      if (vspar <= -2) {
+        eagles++;
+        birdies++;
+      } else if (vspar === -1) birdies++;
+      else if (vspar === 0) pars++;
+    }
+    scorecard.sort((a, b) => a.holeNumber - b.holeNumber);
+
+    const penalties = (shots ?? []).filter((s) => s.outcome === 'out_of_bounds').length;
+
+    // per-player best-ball holes contributed
+    const playerBbHoles = new Map<string, number>();
+    for (const row of allScores) {
+      if (!row.is_best_ball) continue;
+      const pid = row.player_id as string;
+      playerBbHoles.set(pid, (playerBbHoles.get(pid) ?? 0) + 1);
+    }
+
+    const roster: RosterPlayer[] = (players ?? [])
+      .map((p) => ({
+        playerId: p.id as string,
+        name: p.name as string,
+        title: (p.title as string) || '',
+        company: (p.company as string) || '',
+        bbHolesCount: playerBbHoles.get(p.id as string) ?? 0,
+      }))
+      .sort((a, b) => b.bbHolesCount - a.bbHolesCount);
+
+    const { data: teamRow } = await supabase
+      .from('teams')
+      .select('team_name')
+      .eq('id', teamId)
+      .single();
+
+    return {
+      teamId,
+      teamName: (teamRow?.team_name as string | null) ?? `Team ${teamId}`,
+      score,
+      holesCompleted: holesSet.size,
+      birdies,
+      eagles,
+      pars,
+      penalties,
+      roster,
+      scorecard,
+    };
   } catch (error: unknown) {
     console.warn((error as Error).message);
     return null;
