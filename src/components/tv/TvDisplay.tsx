@@ -1,7 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import type { Tournament } from '@/lib/types';
+import Image from 'next/image';
+import type { Tournament, Sponsor } from '@/lib/types';
 import type { LeaderboardRow } from '@/lib/types';
 import { createClient } from '@/lib/supabase/client';
 import {
@@ -10,11 +11,15 @@ import {
   fetchHoleDifficulty,
   fetchShotStats,
   fetchBestAchievement,
+  fetchSparklineTracks,
+  fetchTeamSpotlight,
   type BirdieStats,
   type MomentumEntry,
   type HoleDifficulty,
   type ShotStats,
   type BestAchievement,
+  type SparklineEntry,
+  type TeamSpotlight,
 } from '@/lib/tv-stats';
 import TvLeaderboard from './TvLeaderboard';
 import TvStatsRotator from './TvStatsRotator';
@@ -26,6 +31,7 @@ type TournamentWithVenue = Tournament & {
 interface TvDisplayProps {
   tournament: TournamentWithVenue;
   initialLeaderboard: LeaderboardRow[];
+  initialSponsors: Sponsor[];
 }
 
 const DEFAULT_SHOT_STATS: ShotStats = {
@@ -36,28 +42,37 @@ const DEFAULT_SHOT_STATS: ShotStats = {
   cleanestTeams: [],
 };
 
-const PANEL_LABELS = ['Birdies & Momentum', 'Hole Difficulty', 'Shot Stats'];
+const PANEL_LABELS = [
+  'Birdies & Momentum',
+  'Hole Difficulty',
+  'Shot Stats',
+  'Moment of the Day',
+  'Team Spotlight',
+];
 
-export function TvDisplay({ tournament, initialLeaderboard }: TvDisplayProps) {
+export function TvDisplay({ tournament, initialLeaderboard, initialSponsors }: TvDisplayProps) {
   const [leaderboard, setLeaderboard] = useState<LeaderboardRow[]>(initialLeaderboard);
   const [birdieStats, setBirdieStats] = useState<BirdieStats[]>([]);
   const [momentumStats, setMomentumStats] = useState<MomentumEntry[]>([]);
   const [holeDifficulty, setHoleDifficulty] = useState<HoleDifficulty[]>([]);
   const [shotStats, setShotStats] = useState<ShotStats>(DEFAULT_SHOT_STATS);
   const [bestAchievement, setBestAchievement] = useState<BestAchievement | null>(null);
-  const [activePanelIndex, setActivePanelIndex] = useState<0 | 1 | 2>(0);
+  const [sparklines, setSparklines] = useState<SparklineEntry[]>([]);
+  const [teamSpotlight, setTeamSpotlight] = useState<TeamSpotlight | null>(null);
+  const [activePanelIndex, setActivePanelIndex] = useState<0 | 1 | 2 | 3 | 4>(0);
 
   useEffect(() => {
     const supabase = createClient();
 
     async function refreshAll() {
-      const [lbResult, birdie, momentum, difficulty, shots, best] = await Promise.all([
+      const [lbResult, birdie, momentum, difficulty, shots, best, sparks] = await Promise.all([
         supabase.rpc('get_leaderboard', { p_tournament_id: tournament.id }),
         fetchBirdieStats(supabase, tournament.id),
         fetchMomentumStats(supabase, tournament.id),
         fetchHoleDifficulty(supabase, tournament.id),
         fetchShotStats(supabase, tournament.id),
         fetchBestAchievement(supabase, tournament.id),
+        fetchSparklineTracks(supabase, tournament.id),
       ]);
 
       if (lbResult.data) setLeaderboard(lbResult.data as LeaderboardRow[]);
@@ -66,6 +81,14 @@ export function TvDisplay({ tournament, initialLeaderboard }: TvDisplayProps) {
       setHoleDifficulty(difficulty);
       setShotStats(shots);
       setBestAchievement(best);
+      setSparklines(sparks);
+
+      // spotlight = leader team
+      if (lbResult.data && (lbResult.data as LeaderboardRow[]).length > 0) {
+        const leaderId = (lbResult.data as LeaderboardRow[])[0].team_id;
+        const spotlight = await fetchTeamSpotlight(supabase, tournament.id, leaderId);
+        setTeamSpotlight(spotlight);
+      }
     }
 
     void refreshAll();
@@ -75,39 +98,81 @@ export function TvDisplay({ tournament, initialLeaderboard }: TvDisplayProps) {
 
   useEffect(() => {
     const rotationInterval = setInterval(() => {
-      setActivePanelIndex((p) => ((p + 1) % 3) as 0 | 1 | 2);
+      setActivePanelIndex((p) => ((p + 1) % 5) as 0 | 1 | 2 | 3 | 4);
     }, 15_000);
     return () => clearInterval(rotationInterval);
   }, []);
 
   const venueLine = [tournament.venue?.name, tournament.venue?.city].filter(Boolean).join(', ');
+  const formatLabel = tournament.format.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
 
   return (
-    <div className="flex flex-col h-screen w-screen bg-[#0d1424] text-white overflow-hidden">
-      {/* ── Header ────────────────────────────────────────────────── */}
-      <header className="shrink-0 h-[72px] flex items-center justify-between px-8 bg-slate-900 border-b border-slate-700/60">
-        <div className="flex flex-col gap-0.5">
-          <span className="text-xl font-bold tracking-tight">{tournament.name}</span>
-          <span className="text-sm text-slate-400">
-            {venueLine ? `${venueLine} · ` : ''}
-            <span className="capitalize">{tournament.format.replace(/_/g, ' ')}</span>
+    <div
+      className="flex flex-col h-screen w-screen overflow-hidden"
+      style={{ background: '#f4f7f1' }}
+    >
+      {/* ── Header 108px ─────────────────────────────────────────── */}
+      <header
+        className="shrink-0 flex items-center px-8 relative"
+        style={{ height: 108, background: '#1a472a' }}
+      >
+        {/* Left: wordmark */}
+        <div className="flex items-center gap-3 z-10">
+          <div
+            className="flex items-center justify-center w-[54px] h-[54px] rounded-xl text-2xl shrink-0"
+            style={{ background: 'rgba(255,255,255,0.12)' }}
+          >
+            ⛳
+          </div>
+          <div className="flex flex-col">
+            <span
+              className="font-barlow font-extrabold text-white leading-none"
+              style={{ fontSize: 28, letterSpacing: '0.03em' }}
+            >
+              FDGOLF
+            </span>
+            <span
+              className="text-[11px] font-bold uppercase tracking-[0.22em]"
+              style={{ color: '#9fd6ad' }}
+            >
+              Live Scoring
+            </span>
+          </div>
+        </div>
+
+        {/* Center: tournament name — absolutely centred */}
+        <div
+          className="absolute flex flex-col items-center text-center"
+          style={{ left: '50%', transform: 'translateX(-50%)', whiteSpace: 'nowrap' }}
+        >
+          <span className="font-barlow font-bold text-white leading-tight" style={{ fontSize: 44 }}>
+            {tournament.name}
+          </span>
+          <span className="text-[18px] font-medium" style={{ color: '#bfe6c9' }}>
+            {[venueLine, formatLabel, tournament.date].filter(Boolean).join(' · ')}
           </span>
         </div>
 
-        <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-green-400">
-          <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
-          <span>Live</span>
+        {/* Right: LIVE pill */}
+        <div className="ml-auto flex items-center gap-2 z-10">
+          <div
+            className="flex items-center gap-2 px-4 py-2 rounded-full font-bold"
+            style={{ background: '#c0392b', fontSize: 14, letterSpacing: '0.12em', color: '#fff' }}
+          >
+            <span
+              className="w-2.5 h-2.5 rounded-full bg-white animate-pulse"
+              style={{ animationDuration: '1.5s' }}
+            />
+            LIVE
+          </div>
         </div>
       </header>
 
-      {/* ── Main ──────────────────────────────────────────────────── */}
+      {/* ── Body: 25% leaderboard | 75% panel ───────────────────── */}
       <div className="flex flex-1 overflow-hidden">
-        {/* Leaderboard — 38% */}
-        <div className="w-[38%] h-full border-r border-slate-700/50">
-          <TvLeaderboard leaderboard={leaderboard} />
+        <div className="h-full" style={{ width: '25%', borderRight: '1px solid #e2e8df' }}>
+          <TvLeaderboard leaderboard={leaderboard} sparklines={sparklines} />
         </div>
-
-        {/* Stats rotator — 62% */}
         <div className="flex-1 h-full">
           <TvStatsRotator
             activePanelIndex={activePanelIndex}
@@ -116,29 +181,86 @@ export function TvDisplay({ tournament, initialLeaderboard }: TvDisplayProps) {
             holeDifficulty={holeDifficulty}
             shotStats={shotStats}
             bestAchievement={bestAchievement}
+            teamSpotlight={teamSpotlight}
+            leaderboard={leaderboard}
           />
         </div>
       </div>
 
-      {/* ── Footer ────────────────────────────────────────────────── */}
-      <footer className="shrink-0 h-12 flex items-center justify-between px-8 bg-slate-900 border-t border-slate-700/60">
-        <span className="text-slate-500 text-xs truncate">
-          {tournament.name}
-          {tournament.venue?.name ? ` · ${tournament.venue.name}` : ''}
-          {tournament.venue?.city ? `, ${tournament.venue.city}` : ''}
-          {` · ${tournament.date}`}
-        </span>
+      {/* ── Footer sponsor bar 160px ─────────────────────────────── */}
+      <footer
+        className="shrink-0 flex items-center px-8 gap-8"
+        style={{ height: 160, background: '#15241c' }}
+      >
+        {/* Label */}
+        <div className="shrink-0 flex flex-col gap-1">
+          <span
+            className="text-[11px] font-bold uppercase"
+            style={{ letterSpacing: '0.15em', color: '#7d9486' }}
+          >
+            Proudly
+            <br />
+            Sponsored By
+          </span>
+        </div>
 
-        {/* Panel indicator + label */}
-        <div className="flex items-center gap-3 shrink-0">
-          <span className="text-slate-500 text-xs">{PANEL_LABELS[activePanelIndex]}</span>
+        {/* Sponsor lockups */}
+        <div className="flex items-center gap-5 flex-1 overflow-hidden">
+          {initialSponsors.map((sp) => (
+            <div
+              key={sp.id}
+              className="flex items-center gap-3 rounded-2xl px-4 shrink-0"
+              style={{
+                background: '#fff',
+                height: 100,
+                borderRadius: 16,
+                boxShadow: '0 3px 10px rgba(0,0,0,.22)',
+                minWidth: 160,
+              }}
+            >
+              {sp.logo_url ? (
+                <Image
+                  src={sp.logo_url}
+                  alt={sp.name}
+                  width={58}
+                  height={58}
+                  className="object-contain rounded-lg"
+                />
+              ) : (
+                <div
+                  className="flex items-center justify-center rounded-lg shrink-0 font-barlow font-bold text-white text-xl"
+                  style={{ width: 58, height: 58, background: '#1a472a' }}
+                >
+                  {sp.name.slice(0, 2).toUpperCase()}
+                </div>
+              )}
+              <div className="flex flex-col">
+                <span
+                  className="font-barlow font-extrabold leading-none"
+                  style={{ fontSize: 22, color: '#15241c' }}
+                >
+                  {sp.name}
+                </span>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Panel name + progress dots */}
+        <div className="shrink-0 flex flex-col items-end gap-2">
+          <span className="text-xs font-medium" style={{ color: '#7d9486' }}>
+            {PANEL_LABELS[activePanelIndex]}
+          </span>
           <div className="flex items-center gap-1.5">
-            {([0, 1, 2] as const).map((i) => (
+            {([0, 1, 2, 3, 4] as const).map((i) => (
               <div
                 key={i}
-                className={`rounded-full transition-all duration-300 ${
-                  activePanelIndex === i ? 'w-4 h-2 bg-white' : 'w-2 h-2 bg-slate-600'
-                }`}
+                className="rounded-full transition-all duration-300"
+                style={{
+                  width: activePanelIndex === i ? 22 : 8,
+                  height: 8,
+                  background: activePanelIndex === i ? '#fff' : '#3c5246',
+                }}
               />
             ))}
           </div>

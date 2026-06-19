@@ -6,7 +6,6 @@ import { toast } from 'sonner';
 import { createClient } from '@/lib/supabase/client';
 import { syncEngine } from '@/lib/sync-engine';
 import { useGps } from '@/hooks/use-gps';
-import { AppHeader } from '@/components/app-header';
 import { PlayerPills } from '@/components/player-pills';
 import { ClubSelector } from '@/components/club-selector';
 import { ShotOutcomeButtons } from '@/components/shot-outcome-buttons';
@@ -333,15 +332,51 @@ export default function RoundPage() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-gray-50">
-      <AppHeader
-        variant="compact"
-        holeInfo={{
-          holeNumber: currentHole.hole_number,
-          par: currentHole.par,
-          handicap: currentHole.handicap,
-        }}
-      />
+    <div className="flex flex-col h-screen" style={{ background: '#f4f7f1' }}>
+      {/* Header */}
+      <div className="px-5 pt-8 pb-4" style={{ background: '#1a472a' }}>
+        <div className="flex items-center justify-between mb-1">
+          <div className="flex items-center gap-2">
+            <span className="font-barlow font-bold text-white" style={{ fontSize: 18 }}>
+              FDgolf
+            </span>
+            <span
+              className="rounded-full px-2 py-0.5 text-[10px] font-semibold text-green-300"
+              style={{ background: 'rgba(255,255,255,0.12)' }}
+            >
+              AI/Run™
+            </span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span style={{ fontSize: 12, color: '#bfe6c9' }}>
+              Stroke Idx {currentHole?.handicap ?? '—'}
+            </span>
+            {position && (
+              <div
+                className="flex items-center gap-1.5 rounded-full px-2.5 py-1"
+                style={{ background: 'rgba(255,255,255,0.15)' }}
+              >
+                <span
+                  className="w-1.5 h-1.5 rounded-full animate-pulse"
+                  style={{ background: '#2f8f4e' }}
+                />
+                <span className="text-white text-[11px] font-semibold">GPS</span>
+              </div>
+            )}
+          </div>
+        </div>
+        <div className="flex items-baseline gap-2">
+          <span
+            className="font-barlow font-extrabold text-white"
+            style={{ fontSize: 46, whiteSpace: 'nowrap', lineHeight: 1.1 }}
+          >
+            Hole {roundState?.current_hole ?? 1}
+          </span>
+          <span className="text-white font-semibold" style={{ fontSize: 18 }}>
+            Par {currentHole?.par ?? '—'}
+          </span>
+        </div>
+      </div>
 
       {tournament?.status === 'paused' && (
         <div className="mx-auto w-full max-w-md px-4 pt-4">
@@ -356,18 +391,24 @@ export default function RoundPage() {
       )}
 
       <div
-        className={`mx-auto w-full max-w-md space-y-4 px-4 pb-24 pt-4 ${tournament?.status === 'paused' ? 'pointer-events-none opacity-50' : ''}`}
+        className={`mx-auto w-full max-w-md space-y-4 pb-24 pt-4 ${tournament?.status === 'paused' ? 'pointer-events-none opacity-50' : ''}`}
       >
         {/* Player selector */}
         <div>
-          <p className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-gray-500">
-            Who is hitting?
-          </p>
-          <PlayerPills
-            players={teammates}
-            activePlayerId={activePlayerId}
-            onSelect={setActivePlayerId}
-          />
+          <div
+            className="font-bold uppercase px-5 pt-5 pb-2"
+            style={{ fontSize: 11, letterSpacing: '0.14em', color: '#90a094' }}
+          >
+            Who&apos;s hitting?
+          </div>
+          <div className="px-5">
+            <PlayerPills
+              players={[player!, ...teammates].filter(Boolean)}
+              activePlayerId={activePlayerId}
+              currentPlayerId={player?.id}
+              onSelect={setActivePlayerId}
+            />
+          </div>
         </div>
 
         {/* Hole map — only render when real pin coordinates have been set */}
@@ -481,10 +522,12 @@ export default function RoundPage() {
 
         {/* Outcome buttons */}
         {!holeSunk ? (
-          <ShotOutcomeButtons
-            onOutcome={recordShot}
-            disabled={recording || !selectedClub || !activePlayerId}
-          />
+          <div
+            className="sticky bottom-0 p-4"
+            style={{ background: '#fff', borderTop: '1px solid #e2e8df' }}
+          >
+            <ShotOutcomeButtons onOutcome={recordShot} disabled={recording || holeSunk} />
+          </div>
         ) : (
           <div className="space-y-3 rounded-xl border bg-white p-4 shadow-sm">
             <p className="text-center text-lg font-bold text-[#1a472a]">
