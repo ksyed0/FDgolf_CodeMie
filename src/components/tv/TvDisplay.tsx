@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import type { Tournament } from '@/lib/types';
-import type { LeaderboardRow } from '@/components/leaderboard-table';
+import type { LeaderboardRow } from '@/lib/types';
 import { createClient } from '@/lib/supabase/client';
 import {
   fetchBirdieStats,

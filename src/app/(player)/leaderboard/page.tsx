@@ -5,8 +5,7 @@ import { createClient } from '@/lib/supabase/client';
 import { useRealtimeScores } from '@/hooks/use-realtime-scores';
 import { LeaderboardTable } from '@/components/leaderboard-table';
 import { SponsorBanner } from '@/components/sponsor-banner';
-import type { LeaderboardRow } from '@/components/leaderboard-table';
-import type { Sponsor } from '@/lib/types';
+import type { LeaderboardRow, Sponsor } from '@/lib/types';
 
 export default function LeaderboardPage() {
   const [tournamentId, setTournamentId] = useState<string>('');

@@ -1,4 +1,4 @@
-import type { LeaderboardRow } from '@/components/leaderboard-table';
+import type { LeaderboardRow } from '@/lib/types';
 import { formatVsPar } from '@/lib/scoring';
 
 interface TvLeaderboardProps {

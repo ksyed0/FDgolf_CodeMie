@@ -1,14 +1,8 @@
 import { cn } from '@/lib/utils';
 import { formatVsPar } from '@/lib/scoring';
+import type { LeaderboardRow } from '@/lib/types';
 
-export interface LeaderboardRow {
-  team_id: string;
-  team_number: number;
-  team_name: string | null;
-  total_score: number;
-  holes_completed: number;
-  par_total: number;
-}
+export type { LeaderboardRow };
 
 interface LeaderboardTableProps {
   rows: LeaderboardRow[];
