@@ -144,3 +144,12 @@ export interface PendingShot {
   synced: boolean;
   created_at: number;
 }
+
+export interface LeaderboardRow {
+  team_id: string;
+  team_number: number;
+  team_name: string | null;
+  total_score: number;
+  holes_completed: number;
+  par_total: number;
+}
