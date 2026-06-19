@@ -71,7 +71,7 @@ export default defineConfig({
     // ── Player tests (round scoring + leaderboard) ───────────────────────────
     {
       name: 'chromium-mobile',
-      testMatch: ['**/round-scoring.spec.ts', '**/leaderboard.spec.ts'],
+      testMatch: ['**/round-scoring.spec.ts', '**/leaderboard.spec.ts', '**/dashboard.spec.ts', '**/scorecard.spec.ts'],
       use: { ...mobileDevice, storageState: PLAYER_AUTH_FILE },
       dependencies: ['player-setup'],
     },
@@ -90,6 +90,13 @@ export default defineConfig({
       testMatch: '**/tournament-lifecycle.spec.ts',
       use: { ...desktopDevice, screenshot: 'on', trace: 'on' },
       dependencies: ['admin-setup'],
+    },
+
+    // ── TV leaderboard tests (public route, no auth needed) ───────────────────
+    {
+      name: 'chromium-tv',
+      testMatch: '**/tv-leaderboard.spec.ts',
+      use: { ...desktopDevice, viewport: { width: 1920, height: 1080 } },
     },
   ],
 

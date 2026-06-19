@@ -248,3 +248,9 @@ Pricing basis: Claude Sonnet 4.6 — Input $3/MTok · Output $15/MTok · Cache R
 | 2026-06-18 | ae3f62b1-57b3-40de-918b-58aac06f9976 | feature/tv-leaderboard            | 1579003      | 251835        | 46216073          | 23.5625  |
 | 2026-06-18 | ae3f62b1-57b3-40de-918b-58aac06f9976 | feature/tv-leaderboard            | 1579012      | 252144        | 46344875          | 23.6058  |
 | 2026-06-18 | ae3f62b1-57b3-40de-918b-58aac06f9976 | feature/tv-leaderboard            | 1581376      | 252403        | 46602809          | 23.6960  |
+| 2026-06-18 | ae3f62b1-57b3-40de-918b-58aac06f9976 | main                              | 1610102      | 270132        | 52904847          | 25.9602  |
+| 2026-06-18 | ae3f62b1-57b3-40de-918b-58aac06f9976 | feature/tv-leaderboard-e2e        | 1622184      | 281987        | 54575127          | 26.6844  |
+| 2026-06-18 | ae3f62b1-57b3-40de-918b-58aac06f9976 | feature/tv-leaderboard-e2e        | 1625011      | 284673        | 55365598          | 26.9724  |
+| 2026-06-18 | ae3f62b1-57b3-40de-918b-58aac06f9976 | feature/tv-leaderboard-e2e        | 1626132      | 288035        | 56008387          | 27.2199  |
+| 2026-06-18 | ae3f62b1-57b3-40de-918b-58aac06f9976 | feature/tv-leaderboard-e2e        | 1626146      | 288999        | 56332383          | 27.3316  |
+| 2026-06-18 | ae3f62b1-57b3-40de-918b-58aac06f9976 | feature/tv-leaderboard-e2e        | 1743672      | 306484        | 58004869          | 28.5363  |
