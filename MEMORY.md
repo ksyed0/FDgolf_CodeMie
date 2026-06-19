@@ -13,17 +13,23 @@ Stack: Next.js 16 App Router · TypeScript · Tailwind CSS · shadcn/ui · Supab
 
 ---
 
-## Branch State (as of Session 24 close — 2026-06-19)
+## Branch State (as of Session 25 close — 2026-06-19)
 
 | Branch | Status | Notes |
 |--------|--------|-------|
 | `main` | production | Next.js 16 + E2E suite live |
-| `develop` | HEAD `64f8db4` | post PR #30 — shots public read policy |
-| `bugfix/tv-display-stats-ux` | **PR #31 open → develop** | TV stats fix + UX redesign |
+| `develop` | HEAD `e23d13e` | post PR #33 — design redesign merged |
+| `feature/design-redesign` | **merged PR #33** | 13-task light-mode redesign |
 
-**Current open PRs**: PR #31 `bugfix/tv-display-stats-ux → develop`.
+**Current open PRs**: None.
 
 **TV display route**: `/live/cibc-granite-ridge-2026/tv` — public, no auth. Polling 30s, panel rotation 15s.
+
+**Design system (Session 25)**:
+- Barlow Condensed font via `next/font/google` — CSS var `--font-barlow`, Tailwind utility `font-barlow`, weights 500/600/700/800
+- Brand colors: `#1a472a` course green, `#c0392b` under-par red, `#e7c66b` gold, `#f4f7f1` panel surface
+- AppHeader provides FDgolf/AI/Run™ brand on all player pages via `(player)/layout.tsx` — page-level headers should NOT repeat the wordmark
+- 5-panel TV rotator: 0=Birdies, 1=HoleDifficulty, 2=ShotStats, 3=MomentOfDay, 4=TeamSpotlight
 
 **Critical schema fact**: `scores.hole_number` is a plain `integer` (no FK to `holes.id`).
 PostgREST `holes!inner(...)` joins from scores will FAIL with PGRST200. Always use `fetchParMap()`

@@ -1,5 +1,53 @@
 # FDgolf — Progress
 
+## Session 25 — 2026-06-19 (Light-Mode Design Redesign — PR #33)
+
+### What Was Done
+
+**Full visual redesign of three surfaces using 13-task Subagent-Driven Development plan.**
+
+**TV Leaderboard** (`/live/[slug]/tv`):
+- 108px dark-green header with tournament name + LIVE pill
+- 5-panel stats rotator (15s intervals, 400ms cross-fade opacity transition):
+  - Birdies — stat cards, gradient bars, momentum chips
+  - Hole Difficulty — diverging bar chart, toughest/easiest callouts
+  - Shot Stats — Longest Drive card (`meters × 1.09361 → yards`), DonutRing SVG (R=52, stroke 14), trajectory arc
+  - Moment of Day — eagle/birdie spotlight with shot diagram SVG, null state
+  - Team Spotlight — roster with initials, best-ball scorecard strip, head-to-head race
+- TvLeaderboard: crest badges (gold/silver/bronze for ranks 1–3), sparkline SVG column, U+2212 minus signs
+- 160px dark-green sponsor footer with logo lockups + panel progress dots
+- New data functions in `tv-stats.ts`: `fetchSparklineTracks`, `fetchTeamSpotlight`
+- 17 new unit tests for tv-stats functions (coverage jumped from 77% → 92% statements)
+
+**Admin Tournament Control** (`/admin/tournament`):
+- Redesigned sidebar: dark-green `#1a472a` background, Barlow wordmark, "Signed In" card at bottom
+- New `TournamentControlDashboard`: 4-card stat row (Teams/Players/Holes/Shots), teams-on-course list with status pills, 6-item setup checklist, round controls (Pause/Resume + Mark Complete), "Open TV Leaderboard" link
+- DB queries optimised: shot count uses `select('*', { count: 'exact', head: true })` HEAD request; players query runs after teams resolve (removed nested `await` inside `Promise.all`)
+
+**Player Shot Tracker** (`/round`):
+- Green `#1a472a` header with "Now Playing" label, Hole N (Barlow 46px) + Par label + GPS chip
+- Player pills: 56px initials circles, "You" label for current user, active=green/inactive=white
+- Shot outcome buttons: 2-column grid with design-token colours (in_play/out_of_bounds/mulligan/sunk)
+
+**Font**: Barlow Condensed via `next/font/google` — CSS var `--font-barlow`, Tailwind `font-barlow`
+
+**AppHeader branding note**: `FDgolf / AI/Run™` brand appears on ALL player pages via `(player)/layout.tsx` AppHeader. Page-level context headers (like round's green header) should show contextual labels ("Now Playing") not the wordmark — no double branding.
+
+### Test Results
+- `npm run type-check`: **0 errors**
+- `npm run test:ci`: **145/145 tests pass**, coverage 92% stmts / 83% branches / 89% fns / 97% lines
+- CI: all checks green (CodeQL, audit, format, test ×2, Vercel)
+
+### Branch / PR
+- `feature/design-redesign` → **PR #33 → develop (squash-merged)**
+
+### Next Steps
+1. Invite 125 players via CSV import (`scripts/sample-data/players-import.csv` as template)
+2. Set real GPS pin coordinates for Ruby holes (Edit Pin in Mapbox satellite)
+3. Pre-tournament smoke test June 22: login, score, TV display, leaderboard end-to-end
+
+---
+
 ## Session 24 — 2026-06-19 (TV Display Stats Fix + UX Redesign)
 
 ### What Was Done
