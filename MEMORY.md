@@ -13,15 +13,16 @@ Stack: Next.js 16 App Router · TypeScript · Tailwind CSS · shadcn/ui · Supab
 
 ---
 
-## Branch State (as of Session 25 close — 2026-06-19)
+## Branch State (as of Session 26 close — 2026-06-19)
 
 | Branch | Status | Notes |
 |--------|--------|-------|
 | `main` | production | Next.js 16 + E2E suite live |
 | `develop` | HEAD `e23d13e` | post PR #33 — design redesign merged |
 | `feature/design-redesign` | **merged PR #33** | 13-task light-mode redesign |
+| `feature/admin-pages-redesign` | **open PR #34** | 7 admin pages + AdminTopBar |
 
-**Current open PRs**: None.
+**Current open PRs**: PR #34 (`feature/admin-pages-redesign` → `develop`) — admin pages visual redesign.
 
 **TV display route**: `/live/cibc-granite-ridge-2026/tv` — public, no auth. Polling 30s, panel rotation 15s.
 

@@ -1,5 +1,49 @@
 # FDgolf — Progress
 
+## Session 26 — 2026-06-19 (Admin Pages Visual Redesign — PR #34)
+
+### What Was Done
+
+**Full visual redesign of all 7 admin sidebar pages + new shared `AdminTopBar` component.**
+
+Used Subagent-Driven Development (SDD) — 9-task plan, fresh implementer + reviewer per task, fix subagents for all Important findings, final whole-branch review before PR.
+
+**New component: `src/components/admin-top-bar.tsx`**
+- White bar, `border-b border-[#e2e8df]`, `px-7 py-[18px]`
+- Props: `eyebrow` (11px bold uppercase `#90a094`) + `title` (Barlow Condensed 800 28px `#15241c`) + `children` slot (action buttons)
+
+**Admin layout (`src/app/(admin)/layout.tsx`)**
+- `<main>` bg changed to `bg-[#f4f7f1]` — pages own their own padding, no global `p-6`
+
+**Pages redesigned (restyle-only — all mutations preserved):**
+- **Venues**: card list, 52px rounded tiles, green "Venue" pill only (GPS pill removed — always-wrong)
+- **Courses**: per-course white card, 18-hole grid (Front 9 / Back 9), GPS dot per hole
+- **Players**: filter bar with Linked/Pending—/Not-sent pills; green 32px avatar initials; magic-link status column; `sendAllLinks()`
+- **Teams**: 3-col card grid; dark-green leader header; amber warning header (<4 players); starting-hole edit wired
+- **Clubs**: drag-to-reorder list (HTML5 DnD, persists `sort_order`); category chip; usage bar; Add Club form
+- **Scores**: color-coded best-ball matrix (Eagle `#1a472a`, Birdie `#c0392b`, Par `#e8eee4`, Bogey `#f0e4e0`); `parMap` from holes table; sticky team + total columns
+- **Sponsors**: drag-to-reorder cards; Show on TV toggle; TV footer preview; `display_order: sponsors.length + 1` on insert; `is_active: true`
+
+**Final review findings addressed:**
+- "Pending 0" → "Pending —" (no DB pending state)
+- GPS pill removed from Venues (accurate only on Courses)
+- Sponsors drag handle wired (was decorative)
+- `anyScore` dead variable removed from scores-table.tsx
+
+### Test Results
+- `npm run type-check`: **0 errors**
+- `npm run test:ci`: **145/145 tests pass**, coverage 92% stmts / 80% branches / 90% fns / 97% lines
+
+### Branch / PR
+- `feature/admin-pages-redesign` → **PR #34 → develop**
+
+### Next Steps
+1. Invite 125 players via CSV import (`/admin/players` → Import CSV)
+2. Set real GPS pin coordinates for Ruby course holes (Edit Pin in Mapbox)
+3. Pre-tournament smoke test June 22: login, score, TV display, admin pages, leaderboard
+
+---
+
 ## Session 25 — 2026-06-19 (Light-Mode Design Redesign — PR #33)
 
 ### What Was Done

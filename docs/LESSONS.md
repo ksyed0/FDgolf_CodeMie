@@ -1,5 +1,22 @@
 # Lessons Learned
 
+## L-0008 — Admin UI: avoid static hardcoded status values that will never be true
+@session: 26 — 2026-06-19
+
+**Symptom**: Final branch reviewer flagged "Pending 0" pill in the players filter bar and "GPS not configured" pill on venues page as showing incorrect information.
+
+**Root cause**: Both were rendered unconditionally without any real computed state — the pending count was hardcoded `0` and GPS status had no underlying data source.
+
+**Rule**: Any status indicator (pill, badge, count) in admin UI must either (a) derive its value from real DB data, or (b) be omitted entirely. A pill that shows a hardcoded value that is never true is worse than no pill — it misleads operators making real decisions.
+
+**Fix pattern**:
+- If the state doesn't exist in the DB yet, either remove the pill or show `—` (en-dash) as the value: `⏳ Pending —`
+- If the data source is on a different page/entity, move the indicator there (GPS per-hole status belongs on Courses, not Venues)
+
+**Applies to**: Any admin status indicator, count badge, or warning pill.
+
+---
+
 ## L-0007 — PostgREST joins require a database FK constraint
 @session: 24 — 2026-06-19
 
