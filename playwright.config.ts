@@ -30,6 +30,7 @@ export default defineConfig({
   testDir: './tests/e2e',
   testMatch: '**/*.spec.ts',
   globalSetup: './tests/e2e/global-setup.ts',
+  outputDir: './tests/e2e/screenshots',
 
   fullyParallel: true,
   forbidOnly: !!process.env.CI,

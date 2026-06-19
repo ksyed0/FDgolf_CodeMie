@@ -32,6 +32,7 @@ supabase/.temp/
 .vercel
 
 # Dev screenshots (playwright captures)
+tests/e2e/screenshots/
 *.png
 *.jpg
 *.jpeg
