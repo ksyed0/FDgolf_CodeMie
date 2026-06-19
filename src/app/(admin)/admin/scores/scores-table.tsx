@@ -6,48 +6,30 @@ import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogFooter,
 } from '@/components/ui/dialog';
+import { AdminTopBar } from '@/components/admin-top-bar';
 import type { Score, Player, Team } from '@/lib/types';
 
 interface ScoresTableProps {
   scores: Score[];
   players: Pick<Player, 'id' | 'name'>[];
   teams: Pick<Team, 'id' | 'team_number' | 'team_name'>[];
+  parMap: Record<number, number>;
 }
 
-export function ScoresTable({ scores: initial, players, teams }: ScoresTableProps) {
+export function ScoresTable({ scores: initial, players, teams, parMap }: ScoresTableProps) {
   const [scores, setScores] = useState(initial);
-  const [filterTeam, setFilterTeam] = useState<string>('all');
-  const [filterHole, setFilterHole] = useState<string>('all');
   const [overrideTarget, setOverrideTarget] = useState<Score | null>(null);
   const [overrideStrokes, setOverrideStrokes] = useState<string>('');
   const [saving, setSaving] = useState(false);
   const supabase = createClient();
 
   const playerMap = Object.fromEntries(players.map((p) => [p.id, p.name]));
-  const teamMap = Object.fromEntries(
-    teams.map((t) => [t.id, t.team_name ?? `Team ${t.team_number}`])
-  );
-
-  const holes = Array.from(new Set(scores.map((s) => s.hole_number))).sort((a, b) => a - b);
-
-  const filtered = scores.filter((s) => {
-    if (filterTeam !== 'all' && s.team_id !== filterTeam) return false;
-    if (filterHole !== 'all' && String(s.hole_number) !== filterHole) return false;
-    return true;
-  });
 
   async function saveOverride() {
     if (!overrideTarget) return;
@@ -89,79 +71,144 @@ export function ScoresTable({ scores: initial, players, teams }: ScoresTableProp
   }
 
   return (
-    <>
-      {/* Filters */}
-      <div className="flex gap-2 p-3 border-b flex-wrap">
-        <Select value={filterTeam} onValueChange={setFilterTeam}>
-          <SelectTrigger className="h-8 w-40">
-            <SelectValue placeholder="All teams" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All teams</SelectItem>
-            {teams.map((t) => (
-              <SelectItem key={t.id} value={t.id}>
-                {teamMap[t.id]}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        <Select value={filterHole} onValueChange={setFilterHole}>
-          <SelectTrigger className="h-8 w-28">
-            <SelectValue placeholder="All holes" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All holes</SelectItem>
-            {holes.map((h) => (
-              <SelectItem key={h} value={String(h)}>
-                Hole {h}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
+    <div>
+      <AdminTopBar eyebrow="TOURNAMENT MANAGEMENT" title="Scores">
+        <div className="flex items-center gap-2 text-[13px] text-[#6b7a70]">
+          <span className="w-2 h-2 rounded-full bg-[#2f8f4e] animate-pulse" />
+          <span>Auto-refreshing</span>
+        </div>
+        <div className="flex items-center gap-2">
+          {(
+            [
+              ['Eagle', '#1a472a', '#fff'],
+              ['Birdie', '#c0392b', '#fff'],
+              ['Par', '#e8eee4', '#46554c'],
+              ['Bogey+', '#f0e4e0', '#a8513f'],
+            ] as [string, string, string][]
+          ).map(([l, bg, fg]) => (
+            <span
+              key={l}
+              className="rounded-lg px-2.5 py-0.5 text-[12px] font-semibold"
+              style={{ background: bg, color: fg }}
+            >
+              {l}
+            </span>
+          ))}
+        </div>
+      </AdminTopBar>
 
-      <div className="overflow-x-auto rounded-xl border bg-white shadow-sm">
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="border-b bg-gray-50 text-xs uppercase text-gray-500">
-              <th className="px-4 py-2 text-left">Player</th>
-              <th className="px-4 py-2 text-left">Team</th>
-              <th className="px-4 py-2 text-left">Hole</th>
-              <th className="px-4 py-2 text-left">Strokes</th>
-              <th className="px-4 py-2 text-left">Best Ball</th>
-              <th className="px-4 py-2 text-left">Override</th>
-              <th className="px-4 py-2 text-left"></th>
-            </tr>
-          </thead>
-          <tbody>
-            {filtered.map((s) => (
-              <tr key={s.id} className="border-b hover:bg-gray-50">
-                <td className="px-4 py-2">{playerMap[s.player_id] ?? s.player_id.slice(0, 8)}</td>
-                <td className="px-4 py-2">{teamMap[s.team_id] ?? '—'}</td>
-                <td className="px-4 py-2">{s.hole_number}</td>
-                <td className="px-4 py-2 font-medium">{s.strokes}</td>
-                <td className="px-4 py-2">{s.is_best_ball ? '★' : ''}</td>
-                <td className="px-4 py-2 text-xs text-gray-400">{s.override_by ? 'Yes' : '—'}</td>
-                <td className="px-4 py-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="h-7 text-xs"
-                    onClick={() => {
-                      setOverrideTarget(s);
-                      setOverrideStrokes(String(s.strokes));
-                    }}
+      <div className="px-7 py-6">
+        <div className="bg-white rounded-2xl border border-[#e2e8df] overflow-auto">
+          <table className="w-full border-collapse">
+            <thead>
+              <tr style={{ background: '#f4f7f1' }}>
+                <th
+                  className="text-left px-5 py-3 font-barlow font-bold text-[16px] text-[#15241c] sticky left-0 bg-[#f4f7f1]"
+                  style={{ minWidth: 160 }}
+                >
+                  Team
+                </th>
+                {Array.from({ length: 18 }, (_, i) => (
+                  <th
+                    key={i + 1}
+                    className="font-barlow font-bold text-[16px] text-[#15241c] px-1 py-3 text-center"
+                    style={{ minWidth: 44 }}
                   >
-                    Override
-                  </Button>
-                </td>
+                    {i + 1}
+                  </th>
+                ))}
+                <th
+                  className="font-barlow font-bold text-[16px] text-[#15241c] px-4 py-3 text-center sticky right-0 bg-[#f4f7f1]"
+                  style={{ borderLeft: '2px solid #d6ddd2', minWidth: 72 }}
+                >
+                  Tot
+                </th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-        {filtered.length === 0 && (
-          <p className="py-8 text-center text-sm text-gray-500">No scores.</p>
-        )}
+            </thead>
+            <tbody>
+              {teams.map((team) => {
+                const teamScores = scores.filter((s) => s.team_id === team.id && s.is_best_ball);
+                const totalVsPar = teamScores.reduce(
+                  (acc, s) => acc + (s.strokes - (parMap[s.hole_number] ?? 4)),
+                  0
+                );
+                return (
+                  <tr key={team.id} className="border-t border-[#f0f4ee] hover:bg-[#fafcf9]">
+                    <td className="px-5 py-2 font-semibold text-[14px] text-[#15241c] sticky left-0 bg-white">
+                      {team.team_name ?? `Team ${team.team_number}`}
+                    </td>
+                    {Array.from({ length: 18 }, (_, i) => {
+                      const hole = i + 1;
+                      const score = teamScores.find((s) => s.hole_number === hole);
+                      // Find any score for this team+hole to allow override (not just best ball)
+                      const anyScore = scores.find(
+                        (s) => s.team_id === team.id && s.hole_number === hole && s.is_best_ball
+                      );
+                      const par = parMap[hole] ?? 4;
+                      const vsPar = score ? score.strokes - par : null;
+
+                      let bg = '#f9faf8';
+                      let fg = '#c2ccc4';
+                      let label = '·';
+
+                      if (score) {
+                        label = String(score.strokes);
+                        if (vsPar! <= -2) {
+                          bg = '#1a472a';
+                          fg = '#fff';
+                        } else if (vsPar! === -1) {
+                          bg = '#c0392b';
+                          fg = '#fff';
+                        } else if (vsPar! === 0) {
+                          bg = '#e8eee4';
+                          fg = '#46554c';
+                        } else {
+                          bg = '#f0e4e0';
+                          fg = '#a8513f';
+                        }
+                      }
+
+                      return (
+                        <td key={hole} className="px-1 py-2 text-center">
+                          <button
+                            className="font-semibold text-[13px] rounded-[7px] mx-auto flex items-center justify-center"
+                            style={{ width: 28, height: 28, background: bg, color: fg }}
+                            onClick={() => {
+                              if (anyScore) {
+                                setOverrideTarget(anyScore);
+                                setOverrideStrokes(String(anyScore.strokes));
+                              }
+                            }}
+                          >
+                            {label}
+                          </button>
+                        </td>
+                      );
+                    })}
+                    {/* Total */}
+                    <td
+                      className="px-4 py-2 text-center font-barlow font-extrabold text-[22px] sticky right-0 bg-white"
+                      style={{
+                        borderLeft: '2px solid #d6ddd2',
+                        color:
+                          totalVsPar < 0 ? '#c0392b' : totalVsPar === 0 ? '#1a472a' : '#33413a',
+                      }}
+                    >
+                      {totalVsPar < 0
+                        ? `−${Math.abs(totalVsPar)}`
+                        : totalVsPar === 0
+                          ? 'E'
+                          : `+${totalVsPar}`}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+          {teams.length === 0 && (
+            <p className="py-8 text-center text-sm text-[#6b7a70]">No teams or scores yet.</p>
+          )}
+        </div>
       </div>
 
       {/* Override dialog */}
@@ -177,7 +224,10 @@ export function ScoresTable({ scores: initial, players, teams }: ScoresTableProp
           </DialogHeader>
           <div className="space-y-3 py-2">
             <p className="text-sm text-gray-600">
-              Player: <strong>{overrideTarget ? playerMap[overrideTarget.player_id] : ''}</strong>
+              Player:{' '}
+              <strong>
+                {overrideTarget ? (playerMap[overrideTarget.player_id] ?? 'Unknown') : ''}
+              </strong>
               &nbsp;— Hole {overrideTarget?.hole_number}
             </p>
             <div className="space-y-1">
@@ -206,6 +256,6 @@ export function ScoresTable({ scores: initial, players, teams }: ScoresTableProp
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </>
+    </div>
   );
 }
