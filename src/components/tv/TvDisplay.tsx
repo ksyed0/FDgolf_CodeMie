@@ -36,6 +36,8 @@ const DEFAULT_SHOT_STATS: ShotStats = {
   cleanestTeams: [],
 };
 
+const PANEL_LABELS = ['Birdies & Momentum', 'Hole Difficulty', 'Shot Stats'];
+
 export function TvDisplay({ tournament, initialLeaderboard }: TvDisplayProps) {
   const [leaderboard, setLeaderboard] = useState<LeaderboardRow[]>(initialLeaderboard);
   const [birdieStats, setBirdieStats] = useState<BirdieStats[]>([]);
@@ -45,7 +47,6 @@ export function TvDisplay({ tournament, initialLeaderboard }: TvDisplayProps) {
   const [bestAchievement, setBestAchievement] = useState<BestAchievement | null>(null);
   const [activePanelIndex, setActivePanelIndex] = useState<0 | 1 | 2>(0);
 
-  // Data refresh every 30 seconds
   useEffect(() => {
     const supabase = createClient();
 
@@ -59,9 +60,7 @@ export function TvDisplay({ tournament, initialLeaderboard }: TvDisplayProps) {
         fetchBestAchievement(supabase, tournament.id),
       ]);
 
-      if (lbResult.data) {
-        setLeaderboard(lbResult.data as LeaderboardRow[]);
-      }
+      if (lbResult.data) setLeaderboard(lbResult.data as LeaderboardRow[]);
       setBirdieStats(birdie);
       setMomentumStats(momentum);
       setHoleDifficulty(difficulty);
@@ -70,48 +69,46 @@ export function TvDisplay({ tournament, initialLeaderboard }: TvDisplayProps) {
     }
 
     void refreshAll();
-
-    const dataInterval = setInterval(() => {
-      void refreshAll();
-    }, 30_000);
-
+    const dataInterval = setInterval(() => void refreshAll(), 30_000);
     return () => clearInterval(dataInterval);
   }, [tournament.id]);
 
-  // Panel rotation every 15 seconds
   useEffect(() => {
     const rotationInterval = setInterval(() => {
       setActivePanelIndex((p) => ((p + 1) % 3) as 0 | 1 | 2);
     }, 15_000);
-
     return () => clearInterval(rotationInterval);
   }, []);
 
-  const venueName = tournament.venue?.name ?? null;
+  const venueLine = [tournament.venue?.name, tournament.venue?.city].filter(Boolean).join(', ');
 
   return (
-    <div className="flex flex-col h-screen w-screen bg-[#0f172a] text-white overflow-hidden">
-      {/* Header */}
-      <div className="h-20 flex items-center justify-between px-8 bg-slate-900 border-b border-slate-800">
-        <div className="flex flex-col">
-          <span className="text-xl font-bold">{tournament.name}</span>
+    <div className="flex flex-col h-screen w-screen bg-[#0d1424] text-white overflow-hidden">
+      {/* ── Header ────────────────────────────────────────────────── */}
+      <header className="shrink-0 h-[72px] flex items-center justify-between px-8 bg-slate-900 border-b border-slate-700/60">
+        <div className="flex flex-col gap-0.5">
+          <span className="text-xl font-bold tracking-tight">{tournament.name}</span>
           <span className="text-sm text-slate-400">
-            {venueName ? `${venueName} · ` : ''}
-            {tournament.format}
+            {venueLine ? `${venueLine} · ` : ''}
+            <span className="capitalize">{tournament.format.replace(/_/g, ' ')}</span>
           </span>
         </div>
-        <div className="flex items-center gap-2 text-sm font-semibold text-green-400">
-          <span className="animate-pulse">●</span>
-          <span>LIVE</span>
-        </div>
-      </div>
 
-      {/* Main row */}
+        <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-green-400">
+          <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
+          <span>Live</span>
+        </div>
+      </header>
+
+      {/* ── Main ──────────────────────────────────────────────────── */}
       <div className="flex flex-1 overflow-hidden">
-        <div className="w-[45%] h-full">
+        {/* Leaderboard — 38% */}
+        <div className="w-[38%] h-full border-r border-slate-700/50">
           <TvLeaderboard leaderboard={leaderboard} />
         </div>
-        <div className="w-[55%] h-full">
+
+        {/* Stats rotator — 62% */}
+        <div className="flex-1 h-full">
           <TvStatsRotator
             activePanelIndex={activePanelIndex}
             birdieStats={birdieStats}
@@ -123,23 +120,30 @@ export function TvDisplay({ tournament, initialLeaderboard }: TvDisplayProps) {
         </div>
       </div>
 
-      {/* Footer */}
-      <div className="h-16 flex items-center justify-between px-8 bg-slate-900 border-t border-slate-800">
-        <span className="text-slate-400 text-sm">
-          {tournament.name} · {tournament.venue?.name ?? ''}
-          {tournament.venue?.city ? ` · ${tournament.venue.city}` : ''} · {tournament.date}
+      {/* ── Footer ────────────────────────────────────────────────── */}
+      <footer className="shrink-0 h-12 flex items-center justify-between px-8 bg-slate-900 border-t border-slate-700/60">
+        <span className="text-slate-500 text-xs truncate">
+          {tournament.name}
+          {tournament.venue?.name ? ` · ${tournament.venue.name}` : ''}
+          {tournament.venue?.city ? `, ${tournament.venue.city}` : ''}
+          {` · ${tournament.date}`}
         </span>
-        <div className="flex items-center gap-2">
-          {([0, 1, 2] as const).map((i) => (
-            <div
-              key={i}
-              className={`w-2.5 h-2.5 rounded-full transition-colors duration-[400ms] ${
-                activePanelIndex === i ? 'bg-white' : 'bg-slate-600'
-              }`}
-            />
-          ))}
+
+        {/* Panel indicator + label */}
+        <div className="flex items-center gap-3 shrink-0">
+          <span className="text-slate-500 text-xs">{PANEL_LABELS[activePanelIndex]}</span>
+          <div className="flex items-center gap-1.5">
+            {([0, 1, 2] as const).map((i) => (
+              <div
+                key={i}
+                className={`rounded-full transition-all duration-300 ${
+                  activePanelIndex === i ? 'w-4 h-2 bg-white' : 'w-2 h-2 bg-slate-600'
+                }`}
+              />
+            ))}
+          </div>
         </div>
-      </div>
+      </footer>
     </div>
   );
 }
