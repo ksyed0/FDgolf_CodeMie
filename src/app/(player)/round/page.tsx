@@ -336,12 +336,17 @@ export default function RoundPage() {
       {/* Header */}
       <div className="px-5 pt-8 pb-4" style={{ background: '#1a472a' }}>
         <div className="flex items-center justify-between mb-1">
-          <span
-            className="font-bold uppercase"
-            style={{ fontSize: 11, letterSpacing: '0.18em', color: '#9fd6ad' }}
-          >
-            Now Playing
-          </span>
+          <div className="flex items-center gap-2">
+            <span className="font-barlow font-bold text-white" style={{ fontSize: 18 }}>
+              FDgolf
+            </span>
+            <span
+              className="rounded-full px-2 py-0.5 text-[10px] font-semibold text-green-300"
+              style={{ background: 'rgba(255,255,255,0.12)' }}
+            >
+              AI/Run™
+            </span>
+          </div>
           <div className="flex items-center gap-2">
             <span style={{ fontSize: 12, color: '#bfe6c9' }}>
               Stroke Idx {currentHole?.handicap ?? '—'}
