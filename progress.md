@@ -1,5 +1,60 @@
 # FDgolf — Progress
 
+## Session 24 — 2026-06-19 (TV Display Stats Fix + UX Redesign)
+
+### What Was Done
+
+**Fixed 3 root-cause bugs in TV stats panels and redesigned all TV components.**
+
+**Bug 1 — Blank birdies / momentum / hole difficulty / best achievement (PGRST200)**
+`scores.hole_number` is a plain `integer` with no FK to `holes.id`. All four stat functions
+used `holes!inner(hole_number, par, course_id)` in PostgREST queries, which fails with
+`PGRST200 — no relationship found`. The catch block swallowed the error, returning empty
+arrays silently. Fixed by extracting a shared `fetchParMap(supabase, courseId)` helper that
+fetches holes separately (`from('holes').select('hole_number, par').eq('course_id', ...)`)
+and builds an in-memory `Map<number, number>`. All four functions now use this map.
+
+**Bug 2 — Longest drive showing 451m (putts winning)**
+`fetchShotStats` measured distance from every shot's `start_lat/lng` to the tee box for all
+200 shots. Putts starting near the green were 350–450m from tee, always "winning". Fixed to
+filter on `shot_number = 1` AND club name matching `/\b(driver|1w|3w|5w|wood)\b/i`. Result:
+correct 266m driver distance.
+
+**Bug 3 — "Putter" as club of day**
+Every best-ball hole ends with a putt, so putters dominated the count. Fixed by excluding
+club names matching `/putter/i`. Result: Driver (1W) at 44%.
+
+**Also fixed:** PostgREST schema cache needed `pg_notify('pgrst', 'reload schema')` after
+applying migration 010 via raw psql (cache doesn't auto-reload on manual DDL).
+
+**UX Redesign — all 5 TV components rewritten for broadcast quality:**
+- `TvLeaderboard`: rank badge medals (gold/silver/bronze circles), gold accent for leader row,
+  `—` for unplayed holes, tighter column layout (2.5rem rank + fill + 5rem score + 4rem thru)
+- `TvBirdiesPanel`: birdie progress bars relative to leader, eagle badge count, momentum grid
+  with per-hole labels (H7/H8/H9) and bird/eagle/par emojis, sum shown as `E` for even
+- `TvHoleMapPanel`: Front 9 / Back 9 sections with sub-labels, "X holes played" counter,
+  eagle/birdie callout with coloured border card, cleaner legend with 4 states
+- `TvShotStatsPanel`: icon + label + value stat cards, OB penalty tally row for runners-up
+- `TvDisplay`: layout shifted to 38%/62% (leaderboard/stats), footer pill indicators now show
+  current panel name, header formats `format` with `replace(/_/g, ' ')`
+
+**Tests:** 35 unit tests rewritten to match `fetchParMap` pattern (holes fetched separately,
+not embedded in score rows). 128/128 total tests pass. Type-check clean. Coverage ≥80%.
+
+### Test Results
+- `npm run test:ci`: **128/128 tests pass**
+- `npm run type-check`: **zero errors**
+
+### Branch / PR
+- `bugfix/tv-display-stats-ux` → PR #31 → `develop`
+
+### Next Steps
+1. Invite 125 players via CSV import (`/admin/players` → Import CSV)
+2. Set real GPS pin coordinates for Ruby course holes (Edit Pin in Mapbox)
+3. Pre-tournament smoke test June 22: login, score, TV display, leaderboard end-to-end
+
+---
+
 ## Session 23 — 2026-06-18 (TV Leaderboard Display — US-0039)
 
 ### What Was Done

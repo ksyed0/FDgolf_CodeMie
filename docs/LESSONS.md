@@ -1,5 +1,33 @@
 # Lessons Learned
 
+## L-0007 — PostgREST joins require a database FK constraint
+@session: 24 — 2026-06-19
+
+**Symptom**: TV stats panels (birdies, momentum, hole difficulty, best achievement) silently returned
+empty results. No error visible — the catch block consumed the PostgREST error.
+
+**Root cause**: `scores.hole_number` is a plain `integer` column — there is no FK to `holes.id`.
+PostgREST requires an actual database FK constraint to resolve `table!inner(...)` joins. Without one,
+the query fails with `PGRST200 — Could not find a relationship between 'scores' and 'holes'`.
+
+**Fix pattern**: When no FK exists (and adding one would require a schema migration), fetch the related
+table separately and join in TypeScript:
+```typescript
+const parMap = new Map<number, number>();
+const { data } = await supabase.from('holes').select('hole_number, par').eq('course_id', courseId);
+for (const h of data ?? []) parMap.set(h.hole_number, h.par);
+// Then: const par = parMap.get(row.hole_number)
+```
+
+**PostgREST schema cache**: After adding a policy via raw `psql` (not `supabase db push`), run
+`psql ... -c "NOTIFY pgrst, 'reload schema';"` — the REST API caches the schema at startup and won't
+see manual DDL until notified.
+
+**Applies to**: Any Supabase query using `relatedTable!inner(...)` or `relatedTable(...)` syntax —
+verify a FK exists in the migration before using join syntax.
+
+---
+
 ## L-0006 — Playwright `page.route()` cannot mock SSR Server Component fetches
 @session: 24 — 2026-06-18
 

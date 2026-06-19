@@ -13,6 +13,35 @@ Stack: Next.js 16 App Router · TypeScript · Tailwind CSS · shadcn/ui · Supab
 
 ---
 
+## Branch State (as of Session 24 close — 2026-06-19)
+
+| Branch | Status | Notes |
+|--------|--------|-------|
+| `main` | production | Next.js 16 + E2E suite live |
+| `develop` | HEAD `64f8db4` | post PR #30 — shots public read policy |
+| `bugfix/tv-display-stats-ux` | **PR #31 open → develop** | TV stats fix + UX redesign |
+
+**Current open PRs**: PR #31 `bugfix/tv-display-stats-ux → develop`.
+
+**TV display route**: `/live/cibc-granite-ridge-2026/tv` — public, no auth. Polling 30s, panel rotation 15s.
+
+**Critical schema fact**: `scores.hole_number` is a plain `integer` (no FK to `holes.id`).
+PostgREST `holes!inner(...)` joins from scores will FAIL with PGRST200. Always use `fetchParMap()`
+pattern (fetch holes separately, build in-memory map) when you need par data alongside scores.
+
+**PostgREST schema cache**: After applying migrations via raw `psql`, run
+`psql ... -c "NOTIFY pgrst, 'reload schema';"` or restart Supabase — otherwise the REST API
+won't see the new policy/FK/function until cache refresh.
+
+**Seed data in local DB** (`00000000-0000-0000-0000-000000000001`):
+- 4 teams: Fairway Falcons (−6), Birdie Brigade (−4), Eagle Eye (−3), Par Hunters (+1)
+- 8 players, 9 holes, 200 shots with GPS, 72 scores, 36 is_best_ball=true
+- Migration 010: `Public read shots` policy applied — shots now readable by anon client
+
+**Next action**: Invite 125 players via CSV → set real GPS pins for Ruby holes → smoke test June 22
+
+---
+
 ## Branch State (as of Session 23 close — 2026-06-18)
 
 | Branch | Status | Notes |
