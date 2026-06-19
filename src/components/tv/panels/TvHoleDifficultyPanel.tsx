@@ -71,7 +71,10 @@ export default function TvHoleDifficultyPanel({ holeDifficulty }: Props) {
       </div>
 
       {/* Bar chart */}
-      <div className="flex flex-1 items-end gap-0 min-h-0 overflow-hidden">
+      <div
+        className="flex flex-1 items-end gap-0 min-h-0 overflow-hidden"
+        style={{ position: 'relative' }}
+      >
         {holes.map((hole, i) => {
           const avg = hole.avgVsPar;
           const { color } = getBarStyle(avg);
