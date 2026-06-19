@@ -12,6 +12,8 @@ import {
   fetchHoleDifficulty,
   fetchShotStats,
   fetchBestAchievement,
+  fetchSparklineTracks,
+  fetchTeamSpotlight,
 } from '@/lib/tv-stats';
 
 // ---------------------------------------------------------------------------
@@ -720,5 +722,389 @@ describe('fetchBestAchievement', () => {
 
     const result = await fetchBestAchievement(supabase as never, TOURNAMENT_ID);
     expect(result!.teamName).toBe('Team team-99');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// fetchSparklineTracks
+// ---------------------------------------------------------------------------
+
+describe('fetchSparklineTracks', () => {
+  it('returns [] when tournament query errors', async () => {
+    const tournamentChain = makeTournamentChain(null, { message: 'db error' });
+    const supabase = {
+      from: jest.fn().mockImplementation((table: string) => {
+        if (table === 'tournaments') return tournamentChain;
+        return buildChain([], null);
+      }),
+    };
+    expect(await fetchSparklineTracks(supabase as never, TOURNAMENT_ID)).toEqual([]);
+  });
+
+  it('returns [] when tournament is not found', async () => {
+    const tournamentChain = makeTournamentChain(null, null);
+    const supabase = {
+      from: jest.fn().mockImplementation((table: string) => {
+        if (table === 'tournaments') return tournamentChain;
+        return buildChain([], null);
+      }),
+    };
+    expect(await fetchSparklineTracks(supabase as never, TOURNAMENT_ID)).toEqual([]);
+  });
+
+  it('returns [] when scores are empty', async () => {
+    const tournamentChain = makeTournamentChain();
+    const supabase = {
+      from: jest.fn().mockImplementation((table: string) => {
+        if (table === 'tournaments') return tournamentChain;
+        if (table === 'holes') return buildChain(MOCK_HOLES_PAR, null);
+        return buildChain([], null);
+      }),
+    };
+    expect(await fetchSparklineTracks(supabase as never, TOURNAMENT_ID)).toEqual([]);
+  });
+
+  it('returns [] when scores query errors', async () => {
+    const tournamentChain = makeTournamentChain();
+    const supabase = {
+      from: jest.fn().mockImplementation((table: string) => {
+        if (table === 'tournaments') return tournamentChain;
+        if (table === 'holes') return buildChain(MOCK_HOLES_PAR, null);
+        return buildChain(null, { message: 'scores error' });
+      }),
+    };
+    expect(await fetchSparklineTracks(supabase as never, TOURNAMENT_ID)).toEqual([]);
+  });
+
+  it('builds cumulative vspar track per team sorted by hole number', async () => {
+    const tournamentChain = makeTournamentChain();
+    const rows = [
+      {
+        strokes: 3,
+        hole_number: 1,
+        team_id: 'team-1',
+        teams: [{ id: 'team-1', team_name: 'Eagles' }],
+      },
+      {
+        strokes: 5,
+        hole_number: 2,
+        team_id: 'team-1',
+        teams: [{ id: 'team-1', team_name: 'Eagles' }],
+      },
+      {
+        strokes: 4,
+        hole_number: 3,
+        team_id: 'team-1',
+        teams: [{ id: 'team-1', team_name: 'Eagles' }],
+      },
+    ];
+    const supabase = {
+      from: jest.fn().mockImplementation((table: string) => {
+        if (table === 'tournaments') return tournamentChain;
+        if (table === 'holes') return buildChain(MOCK_HOLES_PAR, null);
+        return buildChain(rows, null);
+      }),
+    };
+    const result = await fetchSparklineTracks(supabase as never, TOURNAMENT_ID);
+    expect(result).toHaveLength(1);
+    // hole1: 3-4=-1 (cum=-1), hole2: 5-3=+2 (cum=+1), hole3: 4-5=-1 (cum=0)
+    expect(result[0].teamId).toBe('team-1');
+    expect(result[0].teamName).toBe('Eagles');
+    expect(result[0].track).toEqual([-1, 1, 0]);
+    expect(result[0].holesCompleted).toBe(3);
+  });
+
+  it('groups multiple teams independently', async () => {
+    const tournamentChain = makeTournamentChain();
+    const rows = [
+      {
+        strokes: 3,
+        hole_number: 1,
+        team_id: 'team-1',
+        teams: [{ id: 'team-1', team_name: 'Eagles' }],
+      },
+      {
+        strokes: 5,
+        hole_number: 1,
+        team_id: 'team-2',
+        teams: [{ id: 'team-2', team_name: 'Hawks' }],
+      },
+    ];
+    const supabase = {
+      from: jest.fn().mockImplementation((table: string) => {
+        if (table === 'tournaments') return tournamentChain;
+        if (table === 'holes') return buildChain(MOCK_HOLES_PAR, null);
+        return buildChain(rows, null);
+      }),
+    };
+    const result = await fetchSparklineTracks(supabase as never, TOURNAMENT_ID);
+    expect(result).toHaveLength(2);
+    const eagles = result.find((r) => r.teamId === 'team-1');
+    const hawks = result.find((r) => r.teamId === 'team-2');
+    // team-1 hole1: 3-4=-1
+    expect(eagles?.track).toEqual([-1]);
+    // team-2 hole1: 5-4=+1
+    expect(hawks?.track).toEqual([1]);
+  });
+
+  it('skips scores where par data is missing', async () => {
+    const tournamentChain = makeTournamentChain();
+    // hole_number 99 has no par in MOCK_HOLES_PAR
+    const rows = [
+      {
+        strokes: 3,
+        hole_number: 99,
+        team_id: 'team-1',
+        teams: [{ id: 'team-1', team_name: 'Eagles' }],
+      },
+    ];
+    const supabase = {
+      from: jest.fn().mockImplementation((table: string) => {
+        if (table === 'tournaments') return tournamentChain;
+        if (table === 'holes') return buildChain(MOCK_HOLES_PAR, null);
+        return buildChain(rows, null);
+      }),
+    };
+    const result = await fetchSparklineTracks(supabase as never, TOURNAMENT_ID);
+    // no valid rows → returns []
+    expect(result).toEqual([]);
+  });
+
+  it('uses team_name fallback when team_name is null', async () => {
+    const tournamentChain = makeTournamentChain();
+    const rows = [
+      {
+        strokes: 3,
+        hole_number: 1,
+        team_id: 'team-99',
+        teams: [{ id: 'team-99', team_name: null }],
+      },
+    ];
+    const supabase = {
+      from: jest.fn().mockImplementation((table: string) => {
+        if (table === 'tournaments') return tournamentChain;
+        if (table === 'holes') return buildChain(MOCK_HOLES_PAR, null);
+        return buildChain(rows, null);
+      }),
+    };
+    const result = await fetchSparklineTracks(supabase as never, TOURNAMENT_ID);
+    expect(result[0].teamName).toBe('Team team-99');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// fetchTeamSpotlight
+// ---------------------------------------------------------------------------
+
+const TEAM_ID = 'team-1';
+
+describe('fetchTeamSpotlight', () => {
+  it('returns null when tournament query errors', async () => {
+    const tournamentChain = makeTournamentChain(null, { message: 'db error' });
+    const supabase = {
+      from: jest.fn().mockImplementation((table: string) => {
+        if (table === 'tournaments') return tournamentChain;
+        return buildChain([], null);
+      }),
+    };
+    expect(await fetchTeamSpotlight(supabase as never, TOURNAMENT_ID, TEAM_ID)).toBeNull();
+  });
+
+  it('returns null when tournament is not found', async () => {
+    const tournamentChain = makeTournamentChain(null, null);
+    const supabase = {
+      from: jest.fn().mockImplementation((table: string) => {
+        if (table === 'tournaments') return tournamentChain;
+        return buildChain([], null);
+      }),
+    };
+    expect(await fetchTeamSpotlight(supabase as never, TOURNAMENT_ID, TEAM_ID)).toBeNull();
+  });
+
+  it('returns null when scores query errors', async () => {
+    const tournamentChain = makeTournamentChain();
+    const supabase = {
+      from: jest.fn().mockImplementation((table: string) => {
+        if (table === 'tournaments') return tournamentChain;
+        if (table === 'holes') return buildChain(MOCK_HOLES_PAR, null);
+        if (table === 'players') return buildChain([], null);
+        if (table === 'shots') return buildChain([], null);
+        if (table === 'teams') return buildChain({ team_name: 'Eagles' }, null);
+        return buildChain(null, { message: 'scores error' });
+      }),
+    };
+    expect(await fetchTeamSpotlight(supabase as never, TOURNAMENT_ID, TEAM_ID)).toBeNull();
+  });
+
+  it('returns null when players query errors', async () => {
+    const tournamentChain = makeTournamentChain();
+    const supabase = {
+      from: jest.fn().mockImplementation((table: string) => {
+        if (table === 'tournaments') return tournamentChain;
+        if (table === 'holes') return buildChain(MOCK_HOLES_PAR, null);
+        if (table === 'scores') return buildChain([], null);
+        if (table === 'shots') return buildChain([], null);
+        if (table === 'teams') return buildChain({ team_name: 'Eagles' }, null);
+        // players error
+        return buildChain(null, { message: 'players error' });
+      }),
+    };
+    expect(await fetchTeamSpotlight(supabase as never, TOURNAMENT_ID, TEAM_ID)).toBeNull();
+  });
+
+  it('calculates score, birdies, eagles, pars correctly from best-ball scores', async () => {
+    const tournamentChain = makeTournamentChain();
+    const bbScores = [
+      { strokes: 3, hole_number: 1, player_id: 'p1', is_best_ball: true }, // -1 birdie
+      { strokes: 1, hole_number: 2, player_id: 'p1', is_best_ball: true }, // -2 eagle
+      { strokes: 5, hole_number: 3, player_id: 'p2', is_best_ball: true }, // 0 par
+    ];
+    const teamChain = buildChain({ team_name: 'Eagles' }, null);
+    (teamChain.single as jest.Mock).mockResolvedValue({
+      data: { team_name: 'Eagles' },
+      error: null,
+    });
+
+    const supabase = {
+      from: jest.fn().mockImplementation((table: string) => {
+        if (table === 'tournaments') return tournamentChain;
+        if (table === 'holes') return buildChain(MOCK_HOLES_PAR, null);
+        if (table === 'scores') return buildChain(bbScores, null);
+        if (table === 'players')
+          return buildChain([{ id: 'p1', name: 'Alice', title: 'CEO', company: 'Acme' }], null);
+        if (table === 'shots') return buildChain([], null);
+        if (table === 'teams') return teamChain;
+        return buildChain([], null);
+      }),
+    };
+
+    const result = await fetchTeamSpotlight(supabase as never, TOURNAMENT_ID, TEAM_ID);
+    expect(result).not.toBeNull();
+    // score: (-1) + (-2) + 0 = -3
+    expect(result!.score).toBe(-3);
+    expect(result!.birdies).toBe(2); // eagle also counts as birdie
+    expect(result!.eagles).toBe(1);
+    expect(result!.pars).toBe(1);
+    expect(result!.holesCompleted).toBe(3);
+    expect(result!.teamName).toBe('Eagles');
+    expect(result!.penalties).toBe(0);
+  });
+
+  it('counts out_of_bounds shots as penalties', async () => {
+    const tournamentChain = makeTournamentChain();
+    const teamChain = buildChain({ team_name: 'Hawks' }, null);
+    (teamChain.single as jest.Mock).mockResolvedValue({
+      data: { team_name: 'Hawks' },
+      error: null,
+    });
+
+    const supabase = {
+      from: jest.fn().mockImplementation((table: string) => {
+        if (table === 'tournaments') return tournamentChain;
+        if (table === 'holes') return buildChain(MOCK_HOLES_PAR, null);
+        if (table === 'scores') return buildChain([], null);
+        if (table === 'players')
+          return buildChain([{ id: 'p1', name: 'Bob', title: '', company: '' }], null);
+        if (table === 'shots')
+          return buildChain(
+            [{ outcome: 'out_of_bounds' }, { outcome: 'out_of_bounds' }, { outcome: 'in_play' }],
+            null
+          );
+        if (table === 'teams') return teamChain;
+        return buildChain([], null);
+      }),
+    };
+
+    const result = await fetchTeamSpotlight(supabase as never, TOURNAMENT_ID, TEAM_ID);
+    expect(result!.penalties).toBe(2);
+  });
+
+  it('builds roster sorted by bbHolesCount descending', async () => {
+    const tournamentChain = makeTournamentChain();
+    const scores = [
+      { strokes: 3, hole_number: 1, player_id: 'p1', is_best_ball: true },
+      { strokes: 3, hole_number: 2, player_id: 'p1', is_best_ball: true },
+      { strokes: 4, hole_number: 1, player_id: 'p2', is_best_ball: true },
+    ];
+    const players = [
+      { id: 'p2', name: 'Bob', title: 'CFO', company: 'Corp' },
+      { id: 'p1', name: 'Alice', title: 'CEO', company: 'Acme' },
+    ];
+    const teamChain = buildChain({ team_name: 'Eagles' }, null);
+    (teamChain.single as jest.Mock).mockResolvedValue({
+      data: { team_name: 'Eagles' },
+      error: null,
+    });
+
+    const supabase = {
+      from: jest.fn().mockImplementation((table: string) => {
+        if (table === 'tournaments') return tournamentChain;
+        if (table === 'holes') return buildChain(MOCK_HOLES_PAR, null);
+        if (table === 'scores') return buildChain(scores, null);
+        if (table === 'players') return buildChain(players, null);
+        if (table === 'shots') return buildChain([], null);
+        if (table === 'teams') return teamChain;
+        return buildChain([], null);
+      }),
+    };
+
+    const result = await fetchTeamSpotlight(supabase as never, TOURNAMENT_ID, TEAM_ID);
+    expect(result!.roster).toHaveLength(2);
+    // p1 has 2 bb holes, p2 has 1 — so p1 comes first
+    expect(result!.roster[0].playerId).toBe('p1');
+    expect(result!.roster[0].bbHolesCount).toBe(2);
+    expect(result!.roster[1].playerId).toBe('p2');
+    expect(result!.roster[1].bbHolesCount).toBe(1);
+  });
+
+  it('uses team_name fallback when teams row is null', async () => {
+    const tournamentChain = makeTournamentChain();
+    const teamChain = buildChain(null, null);
+    (teamChain.single as jest.Mock).mockResolvedValue({ data: null, error: null });
+
+    const supabase = {
+      from: jest.fn().mockImplementation((table: string) => {
+        if (table === 'tournaments') return tournamentChain;
+        if (table === 'holes') return buildChain(MOCK_HOLES_PAR, null);
+        if (table === 'scores') return buildChain([], null);
+        if (table === 'players') return buildChain([], null);
+        if (table === 'shots') return buildChain([], null);
+        if (table === 'teams') return teamChain;
+        return buildChain([], null);
+      }),
+    };
+
+    const result = await fetchTeamSpotlight(supabase as never, TOURNAMENT_ID, TEAM_ID);
+    expect(result!.teamName).toBe(`Team ${TEAM_ID}`);
+  });
+
+  it('scorecard is sorted by hole number', async () => {
+    const tournamentChain = makeTournamentChain();
+    const scores = [
+      { strokes: 5, hole_number: 3, player_id: 'p1', is_best_ball: true },
+      { strokes: 3, hole_number: 1, player_id: 'p1', is_best_ball: true },
+      { strokes: 4, hole_number: 2, player_id: 'p1', is_best_ball: true },
+    ];
+    const teamChain = buildChain({ team_name: 'Eagles' }, null);
+    (teamChain.single as jest.Mock).mockResolvedValue({
+      data: { team_name: 'Eagles' },
+      error: null,
+    });
+
+    const supabase = {
+      from: jest.fn().mockImplementation((table: string) => {
+        if (table === 'tournaments') return tournamentChain;
+        if (table === 'holes') return buildChain(MOCK_HOLES_PAR, null);
+        if (table === 'scores') return buildChain(scores, null);
+        if (table === 'players') return buildChain([], null);
+        if (table === 'shots') return buildChain([], null);
+        if (table === 'teams') return teamChain;
+        return buildChain([], null);
+      }),
+    };
+
+    const result = await fetchTeamSpotlight(supabase as never, TOURNAMENT_ID, TEAM_ID);
+    const holeNums = result!.scorecard.map((s) => s.holeNumber);
+    expect(holeNums).toEqual([1, 2, 3]);
   });
 });
