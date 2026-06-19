@@ -1,6 +1,6 @@
 import { createClient } from '@/lib/supabase/server';
 import { TvDisplay } from '@/components/tv/TvDisplay';
-import type { LeaderboardRow } from '@/components/leaderboard-table';
+import type { LeaderboardRow } from '@/lib/types';
 import type { Tournament } from '@/lib/types';
 import { notFound } from 'next/navigation';
 
