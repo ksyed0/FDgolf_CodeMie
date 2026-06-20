@@ -25,27 +25,11 @@ create table courses (
   created_at timestamptz not null default now()
 );
 
--- 3. Add course_id to holes (nullable first so we can backfill)
+-- 3. Add course_id to holes (nullable first; seed.sql backfills after all migrations run)
 alter table holes add column course_id uuid references courses(id) on delete cascade;
 
--- 4. Seed venue and course for existing CIBC tournament
-insert into venues (id, name, address1, city, province_state, postal_code, country) values
-  ('10000000-0000-0000-0000-000000000001',
-   'Granite Ridge Golf Club',
-   '7441 Bell School Line',
-   'Milton', 'ON', 'L9T 2X5', 'CA');
-
-insert into courses (id, venue_id, name, hole_count, par_total) values
-  ('20000000-0000-0000-0000-000000000001',
-   '10000000-0000-0000-0000-000000000001',
-   'Main Course', 18, 72);
-
--- 5. Backfill course_id on existing holes
-update holes
-set course_id = '20000000-0000-0000-0000-000000000001'
-where tournament_id = '00000000-0000-0000-0000-000000000001';
-
--- 6. Make course_id NOT NULL, drop tournament_id, update unique constraint
+-- 4. Make course_id NOT NULL, drop tournament_id, update unique constraint
+-- (course_id is populated by seed.sql; on a fresh db reset no rows exist here)
 alter table holes alter column course_id set not null;
 alter table holes drop column tournament_id;
 alter table holes drop constraint if exists holes_tournament_id_hole_number_key;
@@ -62,7 +46,7 @@ create table tee_boxes (
   unique (hole_id, name)
 );
 
--- 8. Add new columns to tournaments (nullable first for backfill)
+-- 8. Add new columns to tournaments; seed.sql inserts the tournament with these values set directly
 alter table tournaments add column venue_id uuid references venues(id);
 alter table tournaments add column course_id uuid references courses(id);
 alter table tournaments add column start_time time;
@@ -74,17 +58,11 @@ alter table tournaments add constraint tournaments_nine_hole_check
     or (holes_played = 9 and nine_hole_selection in ('front', 'back'))
   );
 
--- 9. Backfill tournament FKs
-update tournaments
-set venue_id = '10000000-0000-0000-0000-000000000001',
-    course_id = '20000000-0000-0000-0000-000000000001'
-where id = '00000000-0000-0000-0000-000000000001';
-
--- 10. Make venue_id and course_id NOT NULL after backfill, drop old text columns
+-- 9. Make venue_id/course_id NOT NULL (no rows exist at migration time — seed.sql inserts with both set)
 alter table tournaments alter column venue_id set not null;
 alter table tournaments alter column course_id set not null;
-alter table tournaments drop column venue;
-alter table tournaments drop column course;
+alter table tournaments drop column if exists venue;
+alter table tournaments drop column if exists course;
 
 -- 11. RLS for new tables
 alter table venues enable row level security;

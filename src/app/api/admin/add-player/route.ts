@@ -46,7 +46,7 @@ export async function POST(request: NextRequest) {
     .eq('auth_user_id', user.id)
     .single();
 
-  if (!caller || caller.role !== 'admin') {
+  if (!caller || (caller.role !== 'system_admin' && caller.role !== 'tournament_admin')) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
   }
 

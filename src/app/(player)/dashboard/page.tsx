@@ -40,7 +40,8 @@ export default async function DashboardPage() {
       .single<TournamentWithVenue>(),
   ]);
 
-  if (player?.role === 'admin') redirect('/admin/tournament');
+  if (player?.role === 'system_admin' || player?.role === 'tournament_admin')
+    redirect('/admin/tournament');
 
   if (!player) {
     return (

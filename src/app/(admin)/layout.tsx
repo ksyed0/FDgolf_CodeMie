@@ -16,7 +16,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     .eq('auth_user_id', user.id)
     .single();
 
-  if (!player || player.role !== 'admin') {
+  if (!player || (player.role !== 'system_admin' && player.role !== 'tournament_admin')) {
     redirect('/dashboard');
   }
 
