@@ -1,5 +1,137 @@
 # FDgolf — Progress
 
+## Session 27 — 2026-06-20 (E2E Tests + Seed Fixes — PR #34 continued)
+
+### What Was Done
+
+**E2E tests updated for admin pages redesign:**
+- Added TC-0082–TC-0089 (new tests for redesigned admin pages: AdminTopBar titles, venues cards, courses Front/Back grid, players filter pills, teams cards, clubs drag handle, scores legend, sponsors TV preview)
+- Updated TC-0079 (venues page: table → card layout)
+- Fixed 13 pre-existing E2E selector regressions from session 25 redesign:
+  - Admin: TC-0047 (sidebar sections), TC-0049/TC-0050/TC-0078 (TournamentControlDashboard replaces TournamentManager when tournament active), TC-0055 ("Send" not "Send Invite")
+  - TV: TC-0067 ("Sc" not "Scr"), TC-0068 (birdie empty state copy), TC-0069 (5 panel dots not 3)
+  - Leaderboard: TC-0043/TC-0044 ("live leaderboard" subtitle removed → use heading)
+  - Round: TC-0020/TC-0021 (no data-active attr, button name mismatch), TC-0030 ("Out of Bounds" not "OOB"), TC-0076 (emoji prefix broke regex anchor)
+
+**Seed data gaps filled:**
+- `seed.sql` — added 18 Blue tee boxes (all holes, ON CONFLICT DO NOTHING) so TV longest-drive panel is fully populated after every reset
+- `seed.sql` — added 3 sponsors (CIBC Capital Markets, Deloitte, Manulife) so TV carousel and `/admin/sponsors` are non-empty
+
+**README rewritten:**
+- New "Local Database" section: reset command, what each seed layer loads, test credentials table
+- Play simulation options: `seed-tv-data.ts` (fast demo) vs `chromium-lifecycle` Playwright spec
+- Table explaining what gameplay creates automatically vs must be seeded
+- Updated Testing section with current counts (145 tests, 92% coverage) + Playwright project table
+- Scripts section includes all seed/reset commands
+
+### Test Results
+- `npm run type-check`: **0 errors**
+- `npm run test:ci`: **145/145 tests pass**
+- Playwright: **61/61 pass, 2 skipped** (real Supabase gates; confirmed intentional)
+
+### Branch / PR
+- All commits on `feature/admin-pages-redesign` → **PR #34 → develop**
+
+### Next Steps
+1. Merge PR #34 to develop
+2. Invite 125 players via CSV import (`/admin/players` → Import CSV)
+3. Set real GPS pin coordinates for all 18 Granite Ridge holes (Edit Pin in Mapbox)
+4. Pre-tournament smoke test June 22: login, score, TV display, admin pages, leaderboard
+
+---
+
+## Session 26 — 2026-06-19 (Admin Pages Visual Redesign — PR #34)
+
+### What Was Done
+
+**Full visual redesign of all 7 admin sidebar pages + new shared `AdminTopBar` component.**
+
+Used Subagent-Driven Development (SDD) — 9-task plan, fresh implementer + reviewer per task, fix subagents for all Important findings, final whole-branch review before PR.
+
+**New component: `src/components/admin-top-bar.tsx`**
+- White bar, `border-b border-[#e2e8df]`, `px-7 py-[18px]`
+- Props: `eyebrow` (11px bold uppercase `#90a094`) + `title` (Barlow Condensed 800 28px `#15241c`) + `children` slot (action buttons)
+
+**Admin layout (`src/app/(admin)/layout.tsx`)**
+- `<main>` bg changed to `bg-[#f4f7f1]` — pages own their own padding, no global `p-6`
+
+**Pages redesigned (restyle-only — all mutations preserved):**
+- **Venues**: card list, 52px rounded tiles, green "Venue" pill only (GPS pill removed — always-wrong)
+- **Courses**: per-course white card, 18-hole grid (Front 9 / Back 9), GPS dot per hole
+- **Players**: filter bar with Linked/Pending—/Not-sent pills; green 32px avatar initials; magic-link status column; `sendAllLinks()`
+- **Teams**: 3-col card grid; dark-green leader header; amber warning header (<4 players); starting-hole edit wired
+- **Clubs**: drag-to-reorder list (HTML5 DnD, persists `sort_order`); category chip; usage bar; Add Club form
+- **Scores**: color-coded best-ball matrix (Eagle `#1a472a`, Birdie `#c0392b`, Par `#e8eee4`, Bogey `#f0e4e0`); `parMap` from holes table; sticky team + total columns
+- **Sponsors**: drag-to-reorder cards; Show on TV toggle; TV footer preview; `display_order: sponsors.length + 1` on insert; `is_active: true`
+
+**Final review findings addressed:**
+- "Pending 0" → "Pending —" (no DB pending state)
+- GPS pill removed from Venues (accurate only on Courses)
+- Sponsors drag handle wired (was decorative)
+- `anyScore` dead variable removed from scores-table.tsx
+
+### Test Results
+- `npm run type-check`: **0 errors**
+- `npm run test:ci`: **145/145 tests pass**, coverage 92% stmts / 80% branches / 90% fns / 97% lines
+
+### Branch / PR
+- `feature/admin-pages-redesign` → **PR #34 → develop**
+
+### Next Steps
+1. Invite 125 players via CSV import (`/admin/players` → Import CSV)
+2. Set real GPS pin coordinates for Ruby course holes (Edit Pin in Mapbox)
+3. Pre-tournament smoke test June 22: login, score, TV display, admin pages, leaderboard
+
+---
+
+## Session 25 — 2026-06-19 (Light-Mode Design Redesign — PR #33)
+
+### What Was Done
+
+**Full visual redesign of three surfaces using 13-task Subagent-Driven Development plan.**
+
+**TV Leaderboard** (`/live/[slug]/tv`):
+- 108px dark-green header with tournament name + LIVE pill
+- 5-panel stats rotator (15s intervals, 400ms cross-fade opacity transition):
+  - Birdies — stat cards, gradient bars, momentum chips
+  - Hole Difficulty — diverging bar chart, toughest/easiest callouts
+  - Shot Stats — Longest Drive card (`meters × 1.09361 → yards`), DonutRing SVG (R=52, stroke 14), trajectory arc
+  - Moment of Day — eagle/birdie spotlight with shot diagram SVG, null state
+  - Team Spotlight — roster with initials, best-ball scorecard strip, head-to-head race
+- TvLeaderboard: crest badges (gold/silver/bronze for ranks 1–3), sparkline SVG column, U+2212 minus signs
+- 160px dark-green sponsor footer with logo lockups + panel progress dots
+- New data functions in `tv-stats.ts`: `fetchSparklineTracks`, `fetchTeamSpotlight`
+- 17 new unit tests for tv-stats functions (coverage jumped from 77% → 92% statements)
+
+**Admin Tournament Control** (`/admin/tournament`):
+- Redesigned sidebar: dark-green `#1a472a` background, Barlow wordmark, "Signed In" card at bottom
+- New `TournamentControlDashboard`: 4-card stat row (Teams/Players/Holes/Shots), teams-on-course list with status pills, 6-item setup checklist, round controls (Pause/Resume + Mark Complete), "Open TV Leaderboard" link
+- DB queries optimised: shot count uses `select('*', { count: 'exact', head: true })` HEAD request; players query runs after teams resolve (removed nested `await` inside `Promise.all`)
+
+**Player Shot Tracker** (`/round`):
+- Green `#1a472a` header with "Now Playing" label, Hole N (Barlow 46px) + Par label + GPS chip
+- Player pills: 56px initials circles, "You" label for current user, active=green/inactive=white
+- Shot outcome buttons: 2-column grid with design-token colours (in_play/out_of_bounds/mulligan/sunk)
+
+**Font**: Barlow Condensed via `next/font/google` — CSS var `--font-barlow`, Tailwind `font-barlow`
+
+**AppHeader branding note**: `FDgolf / AI/Run™` brand appears on ALL player pages via `(player)/layout.tsx` AppHeader. Page-level context headers (like round's green header) should show contextual labels ("Now Playing") not the wordmark — no double branding.
+
+### Test Results
+- `npm run type-check`: **0 errors**
+- `npm run test:ci`: **145/145 tests pass**, coverage 92% stmts / 83% branches / 89% fns / 97% lines
+- CI: all checks green (CodeQL, audit, format, test ×2, Vercel)
+
+### Branch / PR
+- `feature/design-redesign` → **PR #33 → develop (squash-merged)**
+
+### Next Steps
+1. Invite 125 players via CSV import (`scripts/sample-data/players-import.csv` as template)
+2. Set real GPS pin coordinates for Ruby holes (Edit Pin in Mapbox satellite)
+3. Pre-tournament smoke test June 22: login, score, TV display, leaderboard end-to-end
+
+---
+
 ## Session 24 — 2026-06-19 (TV Display Stats Fix + UX Redesign)
 
 ### What Was Done

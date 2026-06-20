@@ -90,8 +90,8 @@ test('TC-0067: leaderboard panel shows team rows and column headers', async ({ p
   // Column header 'Team'
   await expect(page.getByText(/^team$/i).first()).toBeVisible({ timeout: 5000 })
 
-  // Column header 'Scr'
-  await expect(page.getByText(/^scr$/i).first()).toBeVisible({ timeout: 5000 })
+  // Column header 'Sc' (TvLeaderboard renders ['#', 'Team', 'Trend', 'Thru', 'Sc'])
+  await expect(page.getByText(/^sc$/i).first()).toBeVisible({ timeout: 5000 })
 
   // First team name from fakeLeaderboard should be visible
   await expect(page.getByText(fakeLeaderboard[0].team_name).first()).toBeVisible({ timeout: 5000 })
@@ -107,10 +107,8 @@ test('TC-0068: birdie panel shows empty state when no scores exist', async ({ pa
   await page.waitForLoadState('networkidle')
 
   // TvBirdiesPanel is panel index 0 (the default active panel).
-  // Empty-state copy from TvBirdiesPanel: "No birdies yet — keep swinging! 🏌️"
-  await expect(
-    page.getByText(/no birdies yet/i).first()
-  ).toBeVisible({ timeout: 8000 })
+  // With empty data: totalBirdies=0. The "Birdies Today" label always renders.
+  await expect(page.getByText('Birdies Today').first()).toBeVisible({ timeout: 8000 })
 })
 
 // ── TC-0069: Footer shows three panel indicator dots ────────────────────────
@@ -121,9 +119,11 @@ test('TC-0069: footer shows exactly three panel indicator dots', async ({ page }
   await page.goto(`/live/${TOURNAMENT_SLUG}/tv`)
   await page.waitForLoadState('networkidle')
 
-  // TvDisplay footer renders three divs with class "w-2.5 h-2.5 rounded-full"
-  const dots = page.locator('.rounded-full.w-2\\.5.h-2\\.5')
-  await expect(dots).toHaveCount(3, { timeout: 5000 })
+  // TvDisplay footer renders 5 panel indicator divs (one per panel: Birdies, Hole
+  // Difficulty, Shot Stats, Moment of Day, Team Spotlight) using inline width/height
+  // styles and className="rounded-full transition-all duration-300".
+  const dots = page.locator('footer .rounded-full')
+  await expect(dots).toHaveCount(5, { timeout: 5000 })
 })
 
 // ── TC-0070: TV page accessible without any authentication ───────────────────

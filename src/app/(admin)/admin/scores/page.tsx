@@ -14,17 +14,23 @@ export default async function ScoresAdminPage() {
 
   const tid = tournament?.id ?? '';
 
-  const [{ data: scores }, { data: players }, { data: teams }, { data: mulliganShots }] =
-    await Promise.all([
-      supabase.from('scores').select('*').eq('tournament_id', tid).order('hole_number'),
-      supabase.from('players').select('id, name, team_id'),
-      supabase.from('teams').select('id, team_number, team_name'),
-      supabase
-        .from('shots')
-        .select('player_id, hole_number')
-        .eq('tournament_id', tid)
-        .eq('outcome', 'mulligan'),
-    ]);
+  const [
+    { data: scores },
+    { data: players },
+    { data: teams },
+    { data: mulliganShots },
+    { data: holes },
+  ] = await Promise.all([
+    supabase.from('scores').select('*').eq('tournament_id', tid).order('hole_number'),
+    supabase.from('players').select('id, name, team_id'),
+    supabase.from('teams').select('id, team_number, team_name'),
+    supabase
+      .from('shots')
+      .select('player_id, hole_number')
+      .eq('tournament_id', tid)
+      .eq('outcome', 'mulligan'),
+    supabase.from('holes').select('hole_number, par').order('hole_number'),
+  ]);
 
   const playerList =
     (players as (Pick<Player, 'id' | 'name'> & { team_id: string | null })[]) ?? [];
@@ -33,6 +39,11 @@ export default async function ScoresAdminPage() {
   const playerMap = Object.fromEntries(playerList.map((p) => [p.id, p]));
   const teamMap = Object.fromEntries(
     teamList.map((t) => [t.id, t.team_name ?? `Team ${t.team_number}`])
+  );
+
+  // Build parMap from holes data; default to empty object (ScoresTable defaults to par=4)
+  const parMap: Record<number, number> = Object.fromEntries(
+    ((holes ?? []) as { hole_number: number; par: number }[]).map((h) => [h.hole_number, h.par])
   );
 
   // Group mulligans by player
@@ -53,51 +64,53 @@ export default async function ScoresAdminPage() {
     .sort((a, b) => b.count - a.count);
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-2xl font-bold text-gray-900">Scores</h1>
+    <div>
       <ScoresTable
         scores={(scores as Score[]) ?? []}
         players={playerList.map(({ id, name }) => ({ id, name }))}
         teams={teamList}
+        parMap={parMap}
       />
 
       {/* Mulligan Report */}
-      <div>
-        <h2 className="mb-3 text-lg font-semibold text-gray-900">Mulligan Report</h2>
-        {mulliganRows.length === 0 ? (
-          <p className="text-sm text-gray-500">No mulligans recorded.</p>
-        ) : (
-          <div className="overflow-hidden rounded-xl border bg-white shadow-sm">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b bg-gray-50 text-xs uppercase text-gray-500">
-                  <th className="px-4 py-2 text-left">Player</th>
-                  <th className="px-4 py-2 text-left">Team</th>
-                  <th className="px-4 py-2 text-right">Mulligans</th>
-                </tr>
-              </thead>
-              <tbody>
-                {mulliganRows.map(({ playerId, name, team, count }) => (
-                  <tr key={playerId} className="border-b last:border-0 hover:bg-gray-50">
-                    <td className="px-4 py-2 font-medium">{name}</td>
-                    <td className="px-4 py-2 text-gray-600">{team}</td>
-                    <td className="px-4 py-2 text-right font-semibold">{count}</td>
+      <div className="px-7 py-6 flex flex-col gap-6">
+        <div>
+          <h2 className="mb-3 font-barlow font-bold text-[18px] text-[#15241c]">Mulligan Report</h2>
+          {mulliganRows.length === 0 ? (
+            <p className="text-sm text-gray-500">No mulligans recorded.</p>
+          ) : (
+            <div className="overflow-hidden bg-white rounded-2xl border border-[#e2e8df]">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b bg-gray-50 text-xs uppercase text-gray-500">
+                    <th className="px-4 py-2 text-left">Player</th>
+                    <th className="px-4 py-2 text-left">Team</th>
+                    <th className="px-4 py-2 text-right">Mulligans</th>
                   </tr>
-                ))}
-              </tbody>
-              <tfoot>
-                <tr className="border-t-2 bg-gray-50 font-semibold">
-                  <td className="px-4 py-2" colSpan={2}>
-                    Total
-                  </td>
-                  <td className="px-4 py-2 text-right">
-                    {mulliganRows.reduce((s, r) => s + r.count, 0)}
-                  </td>
-                </tr>
-              </tfoot>
-            </table>
-          </div>
-        )}
+                </thead>
+                <tbody>
+                  {mulliganRows.map(({ playerId, name, team, count }) => (
+                    <tr key={playerId} className="border-b last:border-0 hover:bg-gray-50">
+                      <td className="px-4 py-2 font-medium">{name}</td>
+                      <td className="px-4 py-2 text-gray-600">{team}</td>
+                      <td className="px-4 py-2 text-right font-semibold">{count}</td>
+                    </tr>
+                  ))}
+                </tbody>
+                <tfoot>
+                  <tr className="border-t-2 bg-gray-50 font-semibold">
+                    <td className="px-4 py-2" colSpan={2}>
+                      Total
+                    </td>
+                    <td className="px-4 py-2 text-right">
+                      {mulliganRows.reduce((s, r) => s + r.count, 0)}
+                    </td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

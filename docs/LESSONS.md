@@ -1,5 +1,39 @@
 # Lessons Learned
 
+## L-0009 — E2E test selectors must track UI text exactly — not spec intent
+@session: 27 — 2026-06-20
+
+**Symptom**: 13 Playwright tests failed after session-25 UI redesign: button labels changed ("Send Invite" → "Send", "OOB" → "Out of Bounds"), column headers changed ("Scr" → "Sc"), page sections replaced (`TournamentManager` → `TournamentControlDashboard`), and subtitle text removed ("Live Leaderboard" → absent).
+
+**Root cause**: Tests were written against the old UI text and structure. When the UI was redesigned, the tests weren't updated alongside the components.
+
+**Rules**:
+- When redesigning a page, always audit existing E2E tests for that route in the same PR — treat failing selectors as regressions to fix before merging.
+- Read the actual rendered component source (not the spec/plan) to confirm button text, heading levels, and CSS classes before writing a selector. `/^OOB$/i` looks plausible but the component says "Out of Bounds".
+- Emoji prefixes break `^` regex anchors: `/^sunk!?$/i` fails against "⛳ Sunk". Always test selectors with `/word/i` (no anchors) when the label might have leading decoration.
+- `data-active` attributes on interactive elements are valuable for testability — document them as a contract in the component if you add them; removing them silently breaks tests.
+
+**Applies to**: Any E2E test suite — run Playwright on the branch before opening a PR whenever page-level UI has changed.
+
+---
+
+## L-0008 — Admin UI: avoid static hardcoded status values that will never be true
+@session: 26 — 2026-06-19
+
+**Symptom**: Final branch reviewer flagged "Pending 0" pill in the players filter bar and "GPS not configured" pill on venues page as showing incorrect information.
+
+**Root cause**: Both were rendered unconditionally without any real computed state — the pending count was hardcoded `0` and GPS status had no underlying data source.
+
+**Rule**: Any status indicator (pill, badge, count) in admin UI must either (a) derive its value from real DB data, or (b) be omitted entirely. A pill that shows a hardcoded value that is never true is worse than no pill — it misleads operators making real decisions.
+
+**Fix pattern**:
+- If the state doesn't exist in the DB yet, either remove the pill or show `—` (en-dash) as the value: `⏳ Pending —`
+- If the data source is on a different page/entity, move the indicator there (GPS per-hole status belongs on Courses, not Venues)
+
+**Applies to**: Any admin status indicator, count badge, or warning pill.
+
+---
+
 ## L-0007 — PostgREST joins require a database FK constraint
 @session: 24 — 2026-06-19
 

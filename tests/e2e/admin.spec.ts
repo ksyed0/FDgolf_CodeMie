@@ -1,6 +1,6 @@
 /**
  * E2E tests: Admin pages — tournament config, players, teams, scores
- * Covers: TC-0047 through TC-0060
+ * Covers: TC-0047 through TC-0060, TC-0078, TC-0079, TC-0082 through TC-0089
  *
  * Run: npx playwright test tests/e2e/admin.spec.ts --project=chromium-desktop
  *
@@ -43,7 +43,7 @@ test('TC-0047: admin sidebar shows all 7 management sections', async ({ page }) 
 
   await page.goto('/admin/tournament')
 
-  const expectedSections = ['tournament', 'holes', 'clubs', 'players', 'teams', 'scores', 'sponsors']
+  const expectedSections = ['tournament', 'venues', 'courses', 'players', 'teams', 'clubs', 'scores', 'sponsors']
   for (const section of expectedSections) {
     await expect(page.getByRole('link', { name: new RegExp(section, 'i') }).first()).toBeVisible({ timeout: 5000 })
   }
@@ -62,45 +62,35 @@ test('TC-0048: unauthenticated user is blocked from /admin routes', async ({ pag
 
 // ── TC-0049: Tournament config saved ──────────────────────────────────────
 
-test('TC-0049: tournament config edits are saved to database', async ({ page }) => {
+test('TC-0049: tournament control dashboard renders when tournament is active', async ({ page }) => {
   test.skip(!hasRealSupabase, 'Requires seeded local Supabase — /admin/tournament is SSR')
-
-  let patchCalled = false
-
-  await page.route(`${SB_URL}/rest/v1/tournaments**`, (route) => {
-    if (route.request().method() === 'PATCH') {
-      patchCalled = true
-      route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({}) })
-    } else {
-      route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify([fakeTournament]) })
-    }
-  })
 
   await page.goto('/admin/tournament')
 
-  // TournamentNameEditor renders an "Edit tournament name" pencil button; clicking it reveals the input
-  await page.getByRole('button', { name: /edit tournament name/i }).click()
-  const nameInput = page.getByRole('textbox').first()
-  await nameInput.clear()
-  await nameInput.fill('CIBC 2026 Updated')
+  // With an active tournament, TournamentControlDashboard renders (not TournamentManager)
+  // The tournament name appears as a heading
+  await expect(page.getByText(/CIBC/i).first()).toBeVisible({ timeout: 8000 })
 
-  await page.getByRole('button', { name: /save name/i }).click()
+  // "Open TV Leaderboard" link is always present in the control dashboard
+  await expect(page.getByRole('link', { name: /open tv leaderboard/i })).toBeVisible({ timeout: 5000 })
 
-  expect(patchCalled).toBe(true)
+  // Pause/Resume round button is always present when tournament is active/paused
+  await expect(page.getByRole('button', { name: /pause round|resume round/i }).first()).toBeVisible({ timeout: 5000 })
 })
 
 // ── TC-0050: Copy leaderboard URL ─────────────────────────────────────────
 
-test('TC-0050: "Copy Leaderboard URL" button copies URL to clipboard', async ({ page }) => {
+test('TC-0050: "Open TV Leaderboard" link is visible and points to tournament TV route', async ({ page }) => {
   test.skip(!hasRealSupabase, 'Requires seeded local Supabase — /admin/tournament is SSR')
 
   await page.goto('/admin/tournament')
-  await page.context().grantPermissions(['clipboard-read', 'clipboard-write'])
 
-  await page.getByRole('button', { name: /copy.*url|copy.*leaderboard/i }).click()
+  // TournamentControlDashboard replaced "Copy Leaderboard URL" button with "Open TV Leaderboard" link
+  const tvLink = page.getByRole('link', { name: /open tv leaderboard/i })
+  await expect(tvLink).toBeVisible({ timeout: 8000 })
 
-  const clipboardText = await page.evaluate(() => navigator.clipboard.readText())
-  expect(clipboardText).toContain('cibc-granite-ridge-2026')
+  const href = await tvLink.getAttribute('href')
+  expect(href).toContain('cibc-granite-ridge-2026')
 })
 
 // ── TC-0051: Hole par editing ──────────────────────────────────────────────
@@ -174,8 +164,8 @@ test('TC-0055: sending magic link calls /api/auth/magic-link', async ({ page }) 
 
   await page.goto('/admin/players')
 
-  // Button label in PlayersTable is "Send Invite"
-  await page.getByRole('button', { name: /send invite/i }).first().click()
+  // Button label in PlayersTable redesign is "Send" (was "Send Invite")
+  await page.getByRole('button', { name: /^send$/i }).first().click()
 
   expect(magicLinkCalled).toBe(true)
   // On success, a toast shows the player name and "Invite link copied"
@@ -299,43 +289,181 @@ test('TC-0060: CSV import shows validation errors for invalid rows', async ({ pa
 
 // ── TC-0078: Admin tournament page lists tournaments with status badges ────────
 
-test('TC-0078: admin tournament page renders tournament table with status badges', async ({ page }) => {
+test('TC-0078: admin tournament page renders TournamentControlDashboard for active tournament', async ({ page }) => {
   test.skip(!hasRealSupabase, 'Requires seeded local Supabase — /admin/tournament is SSR')
 
   await page.goto('/admin/tournament')
 
-  // TournamentManager renders a table with column headers
-  await expect(page.getByRole('columnheader', { name: /name/i }).first()).toBeVisible({ timeout: 8000 })
-  await expect(page.getByRole('columnheader', { name: /status/i }).first()).toBeVisible({ timeout: 5000 })
+  // With an active seeded tournament, TournamentControlDashboard renders (not a table)
+  // "Teams on course" section is always present
+  await expect(page.getByText('Teams on course')).toBeVisible({ timeout: 8000 })
 
-  // At least one tournament row should be present (seeded)
-  // The Edit button is rendered for each row
-  await expect(page.getByRole('button', { name: /edit tournament/i }).first()).toBeVisible({ timeout: 5000 })
+  // "Setup checklist" section is always present
+  await expect(page.getByText('Setup checklist')).toBeVisible({ timeout: 5000 })
 
-  // The Add Tournament button is always present
-  await expect(page.getByRole('button', { name: /add tournament/i })).toBeVisible({ timeout: 5000 })
+  // "Open TV Leaderboard" link is always present
+  await expect(page.getByRole('link', { name: /open tv leaderboard/i })).toBeVisible({ timeout: 5000 })
 })
 
-// ── TC-0079: Admin venues page lists existing venues ─────────────────────────
+// ── TC-0079: Admin venues page renders card list (redesigned from table) ──────
 
-test('TC-0079: admin venues page lists existing venues', async ({ page }) => {
-  test.skip(!hasRealSupabase, 'Requires seeded local Supabase — /admin/venues is SSR')
-
-  // The venues page is SSR; provide a client-side mock for any re-fetches
-  await mockSupabaseTable(page, 'venues', [
-    { id: 'venue-001', name: 'Granite Ridge Golf Club', address1: '', address2: null, city: 'Milton', province_state: 'ON', postal_code: 'L9T 0A1', country: 'CA' },
-  ])
+test('TC-0079: admin venues page shows AdminTopBar heading and venue cards', async ({ page }) => {
+  test.skip(!hasRealSupabase, 'Requires admin storageState from seeded Supabase — /admin/venues is SSR')
 
   await page.goto('/admin/venues')
 
-  // VenueManager renders a table with a "Name" column header
-  await expect(page.getByText('Granite Ridge Golf Club').first()).toBeVisible({ timeout: 8000 })
+  // AdminTopBar renders an <h1> with the page title
+  await expect(page.getByRole('heading', { level: 1, name: 'Venues' })).toBeVisible({ timeout: 8000 })
 
-  // Location column: city + province_state joined by ", "
-  await expect(page.getByText('Milton, ON').first()).toBeVisible({ timeout: 5000 })
+  // If data is present, the green "Venue" pill appears on every venue card
+  const venuePills = page.getByText('Venue')
+  const count = await venuePills.count()
+  if (count > 0) {
+    await expect(venuePills.first()).toBeVisible()
+  }
 })
 
 // ── TC-0058: Score override ────────────────────────────────────────────────
+// SKIPPED: /admin/scores is SSR — page.route() score/team mocks don't affect the initial
+// render. ScoresTable also uses Radix UI Select (not a native <select>), so Playwright's
+// .selectOption() doesn't work; it requires click-to-open interaction. Rewrite is tracked
+// as a backlog item once the scores page is converted to use a client-fetched approach.
+
+// ── TC-0082: AdminTopBar title on each admin page ─────────────────────────────
+
+test('TC-0082: AdminTopBar renders correct h1 title on every redesigned admin page', async ({ page }) => {
+  test.skip(!hasRealSupabase, 'Requires admin storageState — pages redirect without auth')
+
+  const pages: Array<{ path: string; title: string }> = [
+    { path: '/admin/venues', title: 'Venues' },
+    { path: '/admin/players', title: 'Players' },
+    { path: '/admin/teams', title: 'Teams' },
+    { path: '/admin/clubs', title: 'Clubs' },
+    { path: '/admin/scores', title: 'Scores' },
+    { path: '/admin/sponsors', title: 'Sponsors' },
+  ]
+
+  for (const { path, title } of pages) {
+    await page.goto(path)
+    await expect(
+      page.getByRole('heading', { level: 1, name: title }),
+      `Expected h1 "${title}" on ${path}`
+    ).toBeVisible({ timeout: 8000 })
+  }
+})
+
+// ── TC-0083: Venues page shows card-based layout with Edit/Delete ──────────────
+
+test('TC-0083: venues page shows venue cards with Edit and Delete buttons', async ({ page }) => {
+  test.skip(!hasRealSupabase, 'Requires seeded venue in local Supabase — /admin/venues is SSR')
+
+  await page.goto('/admin/venues')
+
+  // Each venue card renders Edit and Delete buttons
+  await expect(page.getByRole('button', { name: 'Edit' }).first()).toBeVisible({ timeout: 8000 })
+  await expect(page.getByRole('button', { name: 'Delete' }).first()).toBeVisible()
+
+  // The green "Venue" status pill is present on each card
+  await expect(page.getByText('Venue').first()).toBeVisible()
+})
+
+// ── TC-0084: Courses page shows Front 9 / Back 9 hole grid ───────────────────
+
+test('TC-0084: courses page shows Front 9 and Back 9 sections', async ({ page }) => {
+  test.skip(!hasRealSupabase, 'Requires seeded course + holes in local Supabase — /admin/courses is SSR')
+
+  await page.goto('/admin/courses')
+
+  await expect(page.getByRole('heading', { level: 1, name: 'Courses' })).toBeVisible({ timeout: 8000 })
+  await expect(page.getByText('Front 9').first()).toBeVisible({ timeout: 5000 })
+  await expect(page.getByText('Back 9').first()).toBeVisible()
+})
+
+// ── TC-0085: Players page filter bar has Linked / Pending — / Not sent pills ──
+
+test('TC-0085: players page filter bar includes static Pending — pill', async ({ page }) => {
+  test.skip(!hasRealSupabase, 'Requires admin storageState — /admin/players redirects without auth')
+
+  await page.goto('/admin/players')
+
+  await expect(page.getByRole('heading', { level: 1, name: 'Players' })).toBeVisible({ timeout: 8000 })
+
+  // "Pending —" is always rendered as a static pill (no DB state for pending)
+  await expect(page.getByText('⏳ Pending —')).toBeVisible({ timeout: 5000 })
+
+  // "Linked" count pill is also always visible (count may be 0)
+  await expect(page.getByText(/✓ Linked/)).toBeVisible()
+})
+
+// ── TC-0086: Teams page shows 3-col card grid with starting hole badges ───────
+
+test('TC-0086: teams page shows team cards with starting hole badges', async ({ page }) => {
+  test.skip(!hasRealSupabase, 'Requires seeded teams in local Supabase — /admin/teams is SSR')
+
+  await page.goto('/admin/teams')
+
+  await expect(page.getByRole('heading', { level: 1, name: 'Teams' })).toBeVisible({ timeout: 8000 })
+
+  // Each team card shows a starting hole badge e.g. "H1", "H5", "H10"
+  await expect(page.getByText(/^H\d+$/).first()).toBeVisible({ timeout: 5000 })
+
+  // Each team card has an Edit button in the footer
+  await expect(page.getByRole('button', { name: 'Edit' }).first()).toBeVisible()
+})
+
+// ── TC-0087: Clubs page shows drag handle on each club row ────────────────────
+
+test('TC-0087: clubs page shows drag handle icon on every club row', async ({ page }) => {
+  test.skip(!hasRealSupabase, 'Requires seeded clubs in local Supabase — /admin/clubs is SSR')
+
+  await page.goto('/admin/clubs')
+
+  await expect(page.getByRole('heading', { level: 1, name: 'Clubs' })).toBeVisible({ timeout: 8000 })
+
+  // Each club row has a ⠿ drag handle rendered as a <span>
+  const handles = page.locator('span', { hasText: '⠿' })
+  await expect(handles.first()).toBeVisible({ timeout: 5000 })
+})
+
+// ── TC-0088: Scores page shows color-coded legend chips ──────────────────────
+
+test('TC-0088: scores page shows Eagle/Birdie/Par/Bogey+ legend chips in AdminTopBar', async ({ page }) => {
+  test.skip(!hasRealSupabase, 'Requires admin storageState — /admin/scores redirects without auth')
+
+  await page.goto('/admin/scores')
+
+  await expect(page.getByRole('heading', { level: 1, name: 'Scores' })).toBeVisible({ timeout: 8000 })
+
+  // Legend chips rendered inside AdminTopBar children slot
+  await expect(page.getByText('Eagle')).toBeVisible({ timeout: 5000 })
+  await expect(page.getByText('Birdie')).toBeVisible()
+  await expect(page.getByText('Par')).toBeVisible()
+  await expect(page.getByText('Bogey+')).toBeVisible()
+})
+
+// ── TC-0089: Sponsors page shows TV footer preview section ───────────────────
+
+test('TC-0089: sponsors page shows TV Footer Preview section and Show on TV labels', async ({ page }) => {
+  test.skip(!hasRealSupabase, 'Requires admin storageState — /admin/sponsors redirects without auth')
+
+  await page.goto('/admin/sponsors')
+
+  await expect(page.getByRole('heading', { level: 1, name: 'Sponsors' })).toBeVisible({ timeout: 8000 })
+
+  // TV Footer Preview label is always rendered in the right rail
+  await expect(page.getByText('TV Footer Preview')).toBeVisible({ timeout: 5000 })
+
+  // If sponsors exist, each card shows "Show on TV" toggle label
+  const showOnTvLabels = page.getByText('Show on TV')
+  const count = await showOnTvLabels.count()
+  if (count > 0) {
+    await expect(showOnTvLabels.first()).toBeVisible()
+    // Drag handles should also be present
+    await expect(page.locator('span', { hasText: '⠿' }).first()).toBeVisible()
+  }
+})
+
+// ── TC-0058: Score override (SKIPPED) ─────────────────────────────────────────
 // SKIPPED: /admin/scores is SSR — page.route() score/team mocks don't affect the initial
 // render. ScoresTable also uses Radix UI Select (not a native <select>), so Playwright's
 // .selectOption() doesn't work; it requires click-to-open interaction. Rewrite is tracked

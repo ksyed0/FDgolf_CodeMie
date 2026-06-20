@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { toast } from 'sonner';
 import { createClient } from '@/lib/supabase/client';
+import { AdminTopBar } from '@/components/admin-top-bar';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -14,7 +15,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import type { Course, Venue } from '@/lib/types';
+import type { Course, Venue, Hole } from '@/lib/types';
 
 export type CourseRow = Course & { venue_name: string };
 
@@ -39,15 +40,17 @@ const EMPTY_FORM: CourseForm = {
 interface CourseManagerProps {
   courses: CourseRow[];
   venues: Venue[];
+  holesByCourseId: Record<string, Hole[]>;
 }
 
-export function CourseManager({ courses: initial, venues }: CourseManagerProps) {
+export function CourseManager({ courses: initial, venues, holesByCourseId }: CourseManagerProps) {
   const [courses, setCourses] = useState(initial);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [showAdd, setShowAdd] = useState(false);
   const [form, setForm] = useState<CourseForm>(EMPTY_FORM);
   const [saving, setSaving] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
+  const [venueFilter, setVenueFilter] = useState<string>('__all__');
   const supabase = createClient();
 
   function startEdit(c: CourseRow) {
@@ -241,103 +244,200 @@ export function CourseManager({ courses: initial, venues }: CourseManagerProps) 
     </div>
   );
 
+  const filteredCourses =
+    venueFilter === '__all__' ? courses : courses.filter((c) => c.venue_id === venueFilter);
+
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900">Courses</h1>
+    <div>
+      <AdminTopBar eyebrow="TOURNAMENT MANAGEMENT" title="Courses">
+        {/* Venue filter dropdown */}
+        <select
+          value={venueFilter}
+          onChange={(e) => setVenueFilter(e.target.value)}
+          className="rounded-[10px] border border-[#d6ddd2] px-3 py-1.5 text-[14px] bg-white text-[#15241c]"
+        >
+          <option value="__all__">All venues</option>
+          {venues.map((v) => (
+            <option key={v.id} value={v.id}>
+              {v.name}
+            </option>
+          ))}
+        </select>
+
         {!showAdd && !editingId && (
-          <Button
-            size="sm"
+          <button
             onClick={() => {
               setShowAdd(true);
               setForm(EMPTY_FORM);
             }}
-            className="bg-[#1a472a] hover:bg-[#143820]"
+            className="rounded-[10px] px-3 py-1.5 text-[14px] font-semibold bg-[#1a472a] text-white hover:bg-[#143820]"
           >
             + Add Course
-          </Button>
+          </button>
         )}
-      </div>
+      </AdminTopBar>
 
-      {showAdd && FormPanel}
+      <div className="px-7 py-6 flex flex-col gap-5">
+        {showAdd && <div>{FormPanel}</div>}
 
-      <div className="rounded-xl border bg-white shadow-sm">
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="border-b bg-gray-50 text-xs uppercase text-gray-500">
-              <th className="px-4 py-2 text-left">Course</th>
-              <th className="px-4 py-2 text-left">Venue</th>
-              <th className="px-4 py-2 text-left">Holes / Par</th>
-              <th className="px-4 py-2" />
-            </tr>
-          </thead>
-          <tbody>
-            {courses.length === 0 && (
-              <tr>
-                <td colSpan={4} className="px-4 py-6 text-center text-sm text-gray-400">
-                  No courses yet — add one above.
-                </td>
-              </tr>
-            )}
-            {courses.map((c) => (
-              <React.Fragment key={c.id}>
-                <tr className="border-b hover:bg-gray-50">
-                  <td className="px-4 py-2 font-medium">{c.name}</td>
-                  <td className="px-4 py-2 text-gray-500">{c.venue_name}</td>
-                  <td className="px-4 py-2 text-gray-500">
-                    {c.hole_count} holes · par {c.par_total}
-                  </td>
-                  <td className="px-4 py-2 text-right">
-                    {confirmDelete === c.id ? (
-                      <span className="flex items-center justify-end gap-2 text-xs">
-                        Delete?
-                        <button
-                          onClick={() => deleteCourse(c.id)}
-                          className="font-medium text-red-600 hover:underline"
-                        >
-                          Yes
-                        </button>
-                        <button
-                          onClick={() => setConfirmDelete(null)}
-                          className="text-gray-400 hover:underline"
-                        >
-                          No
-                        </button>
-                      </span>
-                    ) : (
-                      <span className="flex items-center justify-end gap-2">
-                        <Link href={`/admin/courses/${c.id}/holes`}>
-                          <Button variant="outline" size="sm">
-                            Holes →
-                          </Button>
-                        </Link>
-                        <Button variant="outline" size="sm" onClick={() => startEdit(c)}>
-                          Edit
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="text-red-600 hover:border-red-300 hover:text-red-700"
-                          onClick={() => setConfirmDelete(c.id)}
-                        >
-                          Delete
-                        </Button>
-                      </span>
+        {filteredCourses.length === 0 && !showAdd && (
+          <p className="text-center text-sm text-[#90a094] py-10">
+            No courses yet — add one above.
+          </p>
+        )}
+
+        {filteredCourses.map((course) => {
+          const holes = holesByCourseId[course.id] ?? [];
+          const front9 = holes.filter((h) => h.hole_number <= 9);
+          const back9 = holes.filter((h) => h.hole_number >= 10);
+          const gpsCount = holes.filter((h) => h.pin_lat !== 0 && h.pin_lng !== 0).length;
+          const totalHoles = course.hole_count;
+
+          return (
+            <div
+              key={course.id}
+              className="bg-white rounded-2xl border border-[#e2e8df] overflow-hidden"
+            >
+              {/* Course header row */}
+              <div className="flex items-center justify-between px-6 py-4 border-b border-[#e8eee4]">
+                <div className="flex items-center gap-3 flex-wrap">
+                  <span className="font-semibold text-[17px] text-[#15241c]">{course.name}</span>
+                  <span className="rounded-full px-2.5 py-0.5 text-[12px] font-semibold bg-[#e9f3ec] text-[#1a472a]">
+                    {totalHoles} holes
+                  </span>
+                  <span className="rounded-full px-2.5 py-0.5 text-[12px] font-semibold bg-[#eef2ea] text-[#46554c]">
+                    Par {course.par_total}
+                  </span>
+                  <span className="rounded-full px-2.5 py-0.5 text-[12px] font-semibold bg-[#fbf1df] text-[#b3741b]">
+                    GPS: {gpsCount}/{totalHoles}
+                  </span>
+                  {course.venue_name && (
+                    <span className="text-[12px] text-[#90a094]">{course.venue_name}</span>
+                  )}
+                </div>
+                <div className="flex items-center gap-2">
+                  {confirmDelete === course.id ? (
+                    <span className="flex items-center gap-2 text-xs">
+                      Delete?{' '}
+                      <button
+                        onClick={() => deleteCourse(course.id)}
+                        className="font-medium text-red-600 hover:underline"
+                      >
+                        Yes
+                      </button>{' '}
+                      <button
+                        onClick={() => setConfirmDelete(null)}
+                        className="text-gray-400 hover:underline"
+                      >
+                        No
+                      </button>
+                    </span>
+                  ) : (
+                    <>
+                      <button
+                        onClick={() => startEdit(course)}
+                        className="rounded-xl px-3 py-1.5 text-[13px] font-semibold bg-[#eef2ea] text-[#1a472a] hover:bg-[#e2ecde]"
+                      >
+                        Edit Course
+                      </button>
+                      <button
+                        onClick={() => setConfirmDelete(course.id)}
+                        className="rounded-xl px-3 py-1.5 text-[13px] font-semibold bg-[#fef2f2] text-red-600 hover:bg-[#fee2e2]"
+                      >
+                        Delete
+                      </button>
+                    </>
+                  )}
+                </div>
+              </div>
+
+              {/* Edit form (inline) */}
+              {editingId === course.id && (
+                <div className="px-6 py-4 border-b border-[#e8eee4] bg-[#f8faf6]">{FormPanel}</div>
+              )}
+
+              {/* 18-hole grid */}
+              <div className="p-5">
+                {holes.length === 0 ? (
+                  <div className="text-center py-4">
+                    <p className="text-[13px] text-[#90a094] mb-2">No holes configured yet.</p>
+                    <Link
+                      href={`/admin/courses/${course.id}/holes`}
+                      className="text-[13px] font-semibold text-[#1a472a] hover:underline"
+                    >
+                      Set up holes →
+                    </Link>
+                  </div>
+                ) : (
+                  <>
+                    {/* Front 9 */}
+                    {front9.length > 0 && (
+                      <>
+                        <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#90a094] mb-2">
+                          Front 9
+                        </p>
+                        <div className="grid grid-cols-9 gap-2 mb-4">
+                          {front9.map((hole) => (
+                            <HoleTile key={hole.id} hole={hole} courseId={course.id} />
+                          ))}
+                        </div>
+                      </>
                     )}
-                  </td>
-                </tr>
-                {editingId === c.id && (
-                  <tr>
-                    <td colSpan={4} className="bg-gray-50 px-4 py-3">
-                      {FormPanel}
-                    </td>
-                  </tr>
+
+                    {/* Back 9 */}
+                    {back9.length > 0 && (
+                      <>
+                        <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#90a094] mb-2">
+                          Back 9
+                        </p>
+                        <div className="grid grid-cols-9 gap-2">
+                          {back9.map((hole) => (
+                            <HoleTile key={hole.id} hole={hole} courseId={course.id} />
+                          ))}
+                        </div>
+                      </>
+                    )}
+                  </>
                 )}
-              </React.Fragment>
-            ))}
-          </tbody>
-        </table>
+
+                {/* Holes editor link */}
+                {holes.length > 0 && (
+                  <div className="mt-3 text-right">
+                    <Link
+                      href={`/admin/courses/${course.id}/holes`}
+                      className="text-[12px] font-semibold text-[#1a472a] hover:underline"
+                    >
+                      Edit holes & GPS →
+                    </Link>
+                  </div>
+                )}
+              </div>
+            </div>
+          );
+        })}
       </div>
     </div>
+  );
+}
+
+function HoleTile({ hole, courseId }: { hole: Hole; courseId: string }) {
+  const hasGps = hole.pin_lat !== 0 && hole.pin_lng !== 0;
+  const gpsDotColor = hasGps ? '#2f8f4e' : '#e9b73a';
+
+  return (
+    <Link href={`/admin/courses/${courseId}/holes`}>
+      <div className="bg-[#f4f7f1] rounded-[10px] p-2.5 text-center cursor-pointer hover:bg-[#e9f3ec] transition-colors">
+        <p className="font-barlow font-bold text-[20px] text-[#15241c] leading-none">
+          {hole.hole_number}
+        </p>
+        <p className="text-[11px] text-[#6b7a70] mt-0.5">P{hole.par}</p>
+        <p className="text-[10px] text-[#90a094]">— yd</p>
+        <p className="text-[10px] text-[#90a094]">SI {hole.handicap}</p>
+        <span
+          className="inline-block w-2 h-2 rounded-full mt-1"
+          style={{ background: gpsDotColor }}
+        />
+      </div>
+    </Link>
   );
 }
