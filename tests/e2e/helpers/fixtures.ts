@@ -99,6 +99,11 @@ export const fakeHoles = Array.from({ length: 18 }, (_, i) => ({
   pin_lng: -79.9 + i * 0.001,
 }))
 
+export const fakeSponsors = [
+  { id: 'sponsor-001', name: 'CIBC Capital Markets', logo_url: null, display_order: 1, is_active: true, tournament_id: 'tournament-001' },
+  { id: 'sponsor-002', name: 'Deloitte', logo_url: null, display_order: 2, is_active: false, tournament_id: 'tournament-001' },
+]
+
 export const fakeLeaderboard = [
   { team_id: 'team-001', team_name: 'Eagles', total_score: -5, holes_completed: 12, rank: 1 },
   { team_id: 'team-002', team_name: 'Birdies', total_score: -3, holes_completed: 11, rank: 2 },
