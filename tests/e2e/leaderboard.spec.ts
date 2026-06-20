@@ -94,8 +94,8 @@ test('TC-0043: public leaderboard /live/slug loads without authentication', asyn
   // Tournament is found → page does not show the "not found" fallback
   await expect(page.getByText(/tournament not found/i)).not.toBeVisible({ timeout: 5000 })
 
-  // "Live Leaderboard" text is always present when tournament exists
-  await expect(page.getByText(/live leaderboard/i).first()).toBeVisible({ timeout: 8000 })
+  // /live/[slug] now redirects to /live/[slug]/tv — check the TV leaderboard heading
+  await expect(page.getByText(/leaderboard/i).first()).toBeVisible({ timeout: 8000 })
 })
 
 // ── TC-0044: LIVE badge on public leaderboard ──────────────────────────────
@@ -105,8 +105,8 @@ test('TC-0044: LIVE badge visible on public leaderboard header', async ({ page }
 
   await page.goto('/live/cibc-granite-ridge-2026')
 
-  // Page renders "Live Leaderboard" subtitle when tournament is found
-  await expect(page.getByText(/live leaderboard/i).first()).toBeVisible({ timeout: 5000 })
+  // /live/[slug] redirects to the TV page; the LIVE badge is rendered in TvDisplay header
+  await expect(page.getByText('LIVE').first()).toBeVisible({ timeout: 5000 })
 })
 
 // ── TC-0045: Sponsor logos visible ────────────────────────────────────────

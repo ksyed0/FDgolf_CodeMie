@@ -311,3 +311,11 @@ Pricing basis: Claude Sonnet 4.6 — Input $3/MTok · Output $15/MTok · Cache R
 | 2026-06-19 | e68d26c9-3d9b-4fe8-8f3d-2696f27dee96 | feature/admin-pages-redesign      | 1326182      | 226967        | 47679558          | 22.6810  |
 | 2026-06-19 | e68d26c9-3d9b-4fe8-8f3d-2696f27dee96 | feature/admin-pages-redesign      | 1336205      | 230243        | 49707403          | 23.3760  |
 | 2026-06-19 | e68d26c9-3d9b-4fe8-8f3d-2696f27dee96 | feature/admin-pages-redesign      | 1346508      | 235232        | 50510961          | 23.7306  |
+| 2026-06-19 | e68d26c9-3d9b-4fe8-8f3d-2696f27dee96 | feature/admin-pages-redesign      | 1497651      | 241591        | 52741465          | 25.0619  |
+| 2026-06-20 | e68d26c9-3d9b-4fe8-8f3d-2696f27dee96 | feature/admin-pages-redesign      | 1719762      | 243453        | 52883677          | 25.9654  |
+| 2026-06-20 | e68d26c9-3d9b-4fe8-8f3d-2696f27dee96 | feature/admin-pages-redesign      | 1746078      | 258770        | 53184674          | 26.3841  |
+| 2026-06-20 | e68d26c9-3d9b-4fe8-8f3d-2696f27dee96 | feature/admin-pages-redesign      | 1749002      | 260006        | 53615715          | 26.5429  |
+| 2026-06-20 | e68d26c9-3d9b-4fe8-8f3d-2696f27dee96 | feature/admin-pages-redesign      | 1794540      | 271883        | 55483973          | 27.4523  |
+| 2026-06-20 | e68d26c9-3d9b-4fe8-8f3d-2696f27dee96 | feature/admin-pages-redesign      | 1804437      | 280590        | 55920076          | 27.7508  |
+| 2026-06-20 | e68d26c9-3d9b-4fe8-8f3d-2696f27dee96 | feature/admin-pages-redesign      | 1806090      | 283519        | 56375646          | 27.9376  |
+| 2026-06-20 | e68d26c9-3d9b-4fe8-8f3d-2696f27dee96 | feature/admin-pages-redesign      | 1813874      | 285477        | 56606078          | 28.0653  |

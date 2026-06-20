@@ -43,7 +43,7 @@ test('TC-0047: admin sidebar shows all 7 management sections', async ({ page }) 
 
   await page.goto('/admin/tournament')
 
-  const expectedSections = ['tournament', 'holes', 'clubs', 'players', 'teams', 'scores', 'sponsors']
+  const expectedSections = ['tournament', 'venues', 'courses', 'players', 'teams', 'clubs', 'scores', 'sponsors']
   for (const section of expectedSections) {
     await expect(page.getByRole('link', { name: new RegExp(section, 'i') }).first()).toBeVisible({ timeout: 5000 })
   }
@@ -62,45 +62,35 @@ test('TC-0048: unauthenticated user is blocked from /admin routes', async ({ pag
 
 // ── TC-0049: Tournament config saved ──────────────────────────────────────
 
-test('TC-0049: tournament config edits are saved to database', async ({ page }) => {
+test('TC-0049: tournament control dashboard renders when tournament is active', async ({ page }) => {
   test.skip(!hasRealSupabase, 'Requires seeded local Supabase — /admin/tournament is SSR')
-
-  let patchCalled = false
-
-  await page.route(`${SB_URL}/rest/v1/tournaments**`, (route) => {
-    if (route.request().method() === 'PATCH') {
-      patchCalled = true
-      route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({}) })
-    } else {
-      route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify([fakeTournament]) })
-    }
-  })
 
   await page.goto('/admin/tournament')
 
-  // TournamentNameEditor renders an "Edit tournament name" pencil button; clicking it reveals the input
-  await page.getByRole('button', { name: /edit tournament name/i }).click()
-  const nameInput = page.getByRole('textbox').first()
-  await nameInput.clear()
-  await nameInput.fill('CIBC 2026 Updated')
+  // With an active tournament, TournamentControlDashboard renders (not TournamentManager)
+  // The tournament name appears as a heading
+  await expect(page.getByText(/CIBC/i).first()).toBeVisible({ timeout: 8000 })
 
-  await page.getByRole('button', { name: /save name/i }).click()
+  // "Open TV Leaderboard" link is always present in the control dashboard
+  await expect(page.getByRole('link', { name: /open tv leaderboard/i })).toBeVisible({ timeout: 5000 })
 
-  expect(patchCalled).toBe(true)
+  // Pause/Resume round button is always present when tournament is active/paused
+  await expect(page.getByRole('button', { name: /pause round|resume round/i }).first()).toBeVisible({ timeout: 5000 })
 })
 
 // ── TC-0050: Copy leaderboard URL ─────────────────────────────────────────
 
-test('TC-0050: "Copy Leaderboard URL" button copies URL to clipboard', async ({ page }) => {
+test('TC-0050: "Open TV Leaderboard" link is visible and points to tournament TV route', async ({ page }) => {
   test.skip(!hasRealSupabase, 'Requires seeded local Supabase — /admin/tournament is SSR')
 
   await page.goto('/admin/tournament')
-  await page.context().grantPermissions(['clipboard-read', 'clipboard-write'])
 
-  await page.getByRole('button', { name: /copy.*url|copy.*leaderboard/i }).click()
+  // TournamentControlDashboard replaced "Copy Leaderboard URL" button with "Open TV Leaderboard" link
+  const tvLink = page.getByRole('link', { name: /open tv leaderboard/i })
+  await expect(tvLink).toBeVisible({ timeout: 8000 })
 
-  const clipboardText = await page.evaluate(() => navigator.clipboard.readText())
-  expect(clipboardText).toContain('cibc-granite-ridge-2026')
+  const href = await tvLink.getAttribute('href')
+  expect(href).toContain('cibc-granite-ridge-2026')
 })
 
 // ── TC-0051: Hole par editing ──────────────────────────────────────────────
@@ -174,8 +164,8 @@ test('TC-0055: sending magic link calls /api/auth/magic-link', async ({ page }) 
 
   await page.goto('/admin/players')
 
-  // Button label in PlayersTable is "Send Invite"
-  await page.getByRole('button', { name: /send invite/i }).first().click()
+  // Button label in PlayersTable redesign is "Send" (was "Send Invite")
+  await page.getByRole('button', { name: /^send$/i }).first().click()
 
   expect(magicLinkCalled).toBe(true)
   // On success, a toast shows the player name and "Invite link copied"
@@ -299,21 +289,20 @@ test('TC-0060: CSV import shows validation errors for invalid rows', async ({ pa
 
 // ── TC-0078: Admin tournament page lists tournaments with status badges ────────
 
-test('TC-0078: admin tournament page renders tournament table with status badges', async ({ page }) => {
+test('TC-0078: admin tournament page renders TournamentControlDashboard for active tournament', async ({ page }) => {
   test.skip(!hasRealSupabase, 'Requires seeded local Supabase — /admin/tournament is SSR')
 
   await page.goto('/admin/tournament')
 
-  // TournamentManager renders a table with column headers
-  await expect(page.getByRole('columnheader', { name: /name/i }).first()).toBeVisible({ timeout: 8000 })
-  await expect(page.getByRole('columnheader', { name: /status/i }).first()).toBeVisible({ timeout: 5000 })
+  // With an active seeded tournament, TournamentControlDashboard renders (not a table)
+  // "Teams on course" section is always present
+  await expect(page.getByText('Teams on course')).toBeVisible({ timeout: 8000 })
 
-  // At least one tournament row should be present (seeded)
-  // The Edit button is rendered for each row
-  await expect(page.getByRole('button', { name: /edit tournament/i }).first()).toBeVisible({ timeout: 5000 })
+  // "Setup checklist" section is always present
+  await expect(page.getByText('Setup checklist')).toBeVisible({ timeout: 5000 })
 
-  // The Add Tournament button is always present
-  await expect(page.getByRole('button', { name: /add tournament/i })).toBeVisible({ timeout: 5000 })
+  // "Open TV Leaderboard" link is always present
+  await expect(page.getByRole('link', { name: /open tv leaderboard/i })).toBeVisible({ timeout: 5000 })
 })
 
 // ── TC-0079: Admin venues page renders card list (redesigned from table) ──────
