@@ -98,7 +98,7 @@ async function main() {
     console.log(`  ✓ auth user: ${email}`)
 
     const { error: profErr } = await db.from('players').insert({
-      auth_user_id: created.user.id, name, email, role: 'player', team_id: null,
+      auth_user_id: created.user.id, name, email, role: 'player',
     })
     if (profErr) console.warn(`  [warn] profile ${email}:`, profErr.message)
     else         console.log(`  ✓ player profile: ${name}`)

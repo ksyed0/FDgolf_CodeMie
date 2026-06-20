@@ -64,10 +64,24 @@ export default async function DashboardPage() {
     ]);
     sponsors = (sponsorData as Sponsor[]) ?? [];
 
-    if (player.team_id) {
+    const { data: membership } = await supabase
+      .from('tournament_players')
+      .select('team_id')
+      .eq('player_id', player.id)
+      .eq('tournament_id', tournament.id)
+      .single<{ team_id: string }>();
+
+    if (membership) {
+      const { data: tpData } = await supabase
+        .from('tournament_players')
+        .select('player_id')
+        .eq('team_id', membership.team_id)
+        .eq('tournament_id', tournament.id);
+      const teammateIds = (tpData ?? []).map((r: { player_id: string }) => r.player_id);
+
       const [{ data: teamData }, { data: teammateData }] = await Promise.all([
-        supabase.from('teams').select('*').eq('id', player.team_id).single<Team>(),
-        supabase.from('players').select('*').eq('team_id', player.team_id),
+        supabase.from('teams').select('*').eq('id', membership.team_id).single<Team>(),
+        supabase.from('players').select('*').in('id', teammateIds),
       ]);
       team = teamData;
       teammates = (teammateData as Player[]) ?? [];

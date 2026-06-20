@@ -449,7 +449,8 @@ describe('fetchShotStats', () => {
         if (table === 'scores') return buildChain([], null);
         if (table === 'teams')
           return buildChain([{ id: 'team-1', team_name: 'Rough Riders' }], null);
-        if (table === 'players') return buildChain([{ id: 'player-1', team_id: 'team-1' }], null);
+        if (table === 'tournament_players')
+          return buildChain([{ player_id: 'player-1', team_id: 'team-1' }], null);
         return buildChain(null, null);
       }),
     };
@@ -478,7 +479,8 @@ describe('fetchShotStats', () => {
         if (table === 'holes') return buildChain([], null);
         if (table === 'scores') return buildChain([], null);
         if (table === 'teams') return buildChain([{ id: 'team-1', team_name: 'Eagles' }], null);
-        if (table === 'players') return buildChain([{ id: 'player-1', team_id: 'team-1' }], null);
+        if (table === 'tournament_players')
+          return buildChain([{ player_id: 'player-1', team_id: 'team-1' }], null);
         return buildChain(null, null);
       }),
     };
@@ -1003,6 +1005,7 @@ describe('fetchTeamSpotlight', () => {
         if (table === 'tournaments') return tournamentChain;
         if (table === 'holes') return buildChain(MOCK_HOLES_PAR, null);
         if (table === 'scores') return buildChain([], null);
+        if (table === 'tournament_players') return buildChain([{ player_id: 'p1' }], null);
         if (table === 'players')
           return buildChain([{ id: 'p1', name: 'Bob', title: '', company: '' }], null);
         if (table === 'shots')
@@ -1041,6 +1044,8 @@ describe('fetchTeamSpotlight', () => {
         if (table === 'tournaments') return tournamentChain;
         if (table === 'holes') return buildChain(MOCK_HOLES_PAR, null);
         if (table === 'scores') return buildChain(scores, null);
+        if (table === 'tournament_players')
+          return buildChain([{ player_id: 'p1' }, { player_id: 'p2' }], null);
         if (table === 'players') return buildChain(players, null);
         if (table === 'shots') return buildChain([], null);
         if (table === 'teams') return teamChain;

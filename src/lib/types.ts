@@ -72,8 +72,15 @@ export interface Player {
   phone: string;
   year_of_birth: number | null;
   gender: Gender | null;
-  team_id: string | null;
   role: PlayerRole;
+  created_at: string;
+}
+
+export interface TournamentPlayer {
+  id: string;
+  player_id: string;
+  team_id: string;
+  tournament_id: string;
   created_at: string;
 }
 

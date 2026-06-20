@@ -17,12 +17,14 @@ export default async function ScoresAdminPage() {
   const [
     { data: scores },
     { data: players },
+    { data: tournamentPlayers },
     { data: teams },
     { data: mulliganShots },
     { data: holes },
   ] = await Promise.all([
     supabase.from('scores').select('*').eq('tournament_id', tid).order('hole_number'),
-    supabase.from('players').select('id, name, team_id'),
+    supabase.from('players').select('id, name'),
+    supabase.from('tournament_players').select('player_id, team_id').eq('tournament_id', tid),
     supabase.from('teams').select('id, team_number, team_name'),
     supabase
       .from('shots')
@@ -32,8 +34,16 @@ export default async function ScoresAdminPage() {
     supabase.from('holes').select('hole_number, par').order('hole_number'),
   ]);
 
-  const playerList =
-    (players as (Pick<Player, 'id' | 'name'> & { team_id: string | null })[]) ?? [];
+  const tpMap = Object.fromEntries(
+    ((tournamentPlayers ?? []) as { player_id: string; team_id: string }[]).map((tp) => [
+      tp.player_id,
+      tp.team_id,
+    ])
+  );
+  const playerList = ((players ?? []) as Pick<Player, 'id' | 'name'>[]).map((p) => ({
+    ...p,
+    team_id: tpMap[p.id] ?? null,
+  }));
   const teamList = (teams as Pick<Team, 'id' | 'team_number' | 'team_name'>[]) ?? [];
 
   const playerMap = Object.fromEntries(playerList.map((p) => [p.id, p]));
