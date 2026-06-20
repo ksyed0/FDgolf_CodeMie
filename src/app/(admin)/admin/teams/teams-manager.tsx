@@ -19,10 +19,17 @@ interface TeamsManagerProps {
   teams: Team[];
   players: Player[];
   tournamentId: string;
+  memberships: { player_id: string; team_id: string }[];
 }
 
-export function TeamsManager({ teams: initialTeams, players, tournamentId }: TeamsManagerProps) {
+export function TeamsManager({
+  teams: initialTeams,
+  players,
+  tournamentId,
+  memberships: initialMemberships,
+}: TeamsManagerProps) {
   const [teams, setTeams] = useState(initialTeams);
+  const [membershipList, setMembershipList] = useState(initialMemberships);
   const [teamNames, setTeamNames] = useState<Record<string, string>>(
     Object.fromEntries(initialTeams.map((t) => [t.id, t.team_name ?? '']))
   );
@@ -75,13 +82,19 @@ export function TeamsManager({ teams: initialTeams, players, tournamentId }: Tea
 
   async function assignPlayer(playerId: string, teamId: string) {
     const { error } = await supabase
-      .from('players')
-      .update({ team_id: teamId === 'none' ? null : teamId })
-      .eq('id', playerId);
+      .from('tournament_players')
+      .upsert(
+        { player_id: playerId, team_id: teamId, tournament_id: tournamentId },
+        { onConflict: 'player_id,tournament_id' }
+      );
     if (error) {
       toast.error(error.message);
       return;
     }
+    setMembershipList((prev) => [
+      ...prev.filter((m) => m.player_id !== playerId),
+      { player_id: playerId, team_id: teamId },
+    ]);
     toast.success('Player assigned');
   }
 
@@ -120,6 +133,8 @@ export function TeamsManager({ teams: initialTeams, players, tournamentId }: Tea
     }
     setAdding(false);
   }
+
+  const membershipMap = new Map(membershipList.map((m) => [m.player_id, m.team_id]));
 
   // Sort teams by team_number — the first one (lowest number) is the leader
   const sortedTeams = [...teams].sort((a, b) => a.team_number - b.team_number);
@@ -201,9 +216,9 @@ export function TeamsManager({ teams: initialTeams, players, tournamentId }: Tea
       <div className="px-7 py-6 grid gap-[18px]" style={{ gridTemplateColumns: 'repeat(3, 1fr)' }}>
         {sortedTeams.map((team) => {
           const isLeader = team.id === leaderTeamId;
-          const memberCount = players.filter((p) => p.team_id === team.id).length;
+          const teamPlayers = players.filter((p) => membershipMap.get(p.id) === team.id);
+          const memberCount = teamPlayers.length;
           const isWarning = memberCount < 4;
-          const teamPlayers = players.filter((p) => p.team_id === team.id);
           const isEditing = editingTeamId === team.id;
 
           return (
@@ -387,7 +402,7 @@ export function TeamsManager({ teams: initialTeams, players, tournamentId }: Tea
       </div>
 
       {/* Assign unassigned players */}
-      {(showAssignPanel || players.filter((p) => !p.team_id).length > 0) && (
+      {(showAssignPanel || players.filter((p) => !membershipMap.has(p.id)).length > 0) && (
         <div className="mx-7 mb-7 rounded-xl border bg-white p-4 shadow-sm">
           <div className="flex items-center justify-between mb-3">
             <h3 className="font-semibold text-gray-900">Assign Players to Teams</h3>
@@ -400,12 +415,12 @@ export function TeamsManager({ teams: initialTeams, players, tournamentId }: Tea
               </button>
             )}
           </div>
-          {players.filter((p) => !p.team_id).length === 0 ? (
+          {players.filter((p) => !membershipMap.has(p.id)).length === 0 ? (
             <p className="text-sm text-[#90a094]">All players assigned.</p>
           ) : (
             <div className="space-y-2">
               {players
-                .filter((p) => !p.team_id)
+                .filter((p) => !membershipMap.has(p.id))
                 .map((p) => (
                   <div key={p.id} className="flex items-center gap-2">
                     <span className="min-w-[140px] text-sm">{p.name}</span>

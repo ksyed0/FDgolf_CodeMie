@@ -71,15 +71,14 @@ export default async function TournamentAdminPage() {
     }[];
 
     const teamIds = teamList.map((t) => t.id);
-    const { data: players } = teamIds.length
+    const { data: tpData } = teamIds.length
       ? await supabase
-          .from('players')
-          .select('id, team_id')
-          .not('team_id', 'is', null)
+          .from('tournament_players')
+          .select('player_id, team_id')
           .in('team_id', teamIds)
       : { data: [] };
 
-    const playerList = (players ?? []) as { id: string; team_id: string | null }[];
+    const tpList = (tpData ?? []) as { player_id: string; team_id: string }[];
     const holeList = (holes ?? []) as {
       id: string;
       hole_number: number;
@@ -90,9 +89,8 @@ export default async function TournamentAdminPage() {
 
     // Count players per team
     const playerCountPerTeam = new Map<string, number>();
-    for (const p of playerList) {
-      if (p.team_id)
-        playerCountPerTeam.set(p.team_id, (playerCountPerTeam.get(p.team_id) ?? 0) + 1);
+    for (const tp of tpList) {
+      playerCountPerTeam.set(tp.team_id, (playerCountPerTeam.get(tp.team_id) ?? 0) + 1);
     }
 
     // Count holes completed per team
@@ -130,7 +128,7 @@ export default async function TournamentAdminPage() {
         teamsOnCourse={teamsOnCourse}
         stats={{
           teamCount: teamList.length,
-          playerCount: playerList.length,
+          playerCount: tpList.length,
           holesSet,
           totalHoles: activeTournament.holes_played,
           shotsLogged: shotsCount ?? 0,

@@ -1,19 +1,22 @@
 /**
  * Seed script: TV leaderboard demo data
  *
- * Populates the local Supabase instance with 4 teams, 8 players, 9-hole
- * best-ball scores, and ~50 GPS shots so all three TV stats panels show
- * real numbers during a demo.
+ * Populates the local Supabase instance with 4 teams, 8 players, 18-hole
+ * best-ball scores, and GPS shots so all TV stats panels show real numbers.
  *
  * Run:   npx tsx scripts/seed-tv-data.ts
  * Safe:  idempotent — uses upsert everywhere; never deletes existing data.
  *
- * Actual par values for CIBC course holes 1-9 (from DB):
- *   H1=4, H2=3, H3=5, H4=4, H5=3, H6=4, H7=4, H8=5, H9=4  (front 9 par 36)
+ * Par values for CIBC Granite Ridge (from seed.sql):
+ *   Front 9 — H1=4, H2=3, H3=5, H4=4, H5=3, H6=4, H7=4, H8=5, H9=4  (par 36)
+ *   Back  9 — H10=4, H11=3, H12=5, H13=4, H14=4, H15=3, H16=4, H17=5, H18=4 (par 36)
+ *   Total par: 72
  *
- * Tee boxes: DB has one Blue tee row for H1 (43.5181, -79.9072) with GPS.
- * The TV longest-drive panel will show a value if shots are within ~300m of
- * any hole's tee box GPS.  We seed tee boxes for H1-H9 so all holes resolve.
+ * 18-hole leaderboard (vs par 72):
+ *   Fairway Falcons  -11
+ *   Birdie Brigade    -7
+ *   Eagle Eye         -5
+ *   Par Hunters       +3
  */
 
 import { createClient } from "@supabase/supabase-js";
@@ -39,23 +42,35 @@ const db = createClient(SUPABASE_URL, SERVICE_KEY, {
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 
-// Actual par values from the CIBC Granite Ridge course (verified from DB)
 const HOLE_PARS: Record<number, number> = {
+  // Front 9
   1: 4, 2: 3, 3: 5, 4: 4, 5: 3, 6: 4, 7: 4, 8: 5, 9: 4,
+  // Back 9
+  10: 4, 11: 3, 12: 5, 13: 4, 14: 4, 15: 3, 16: 4, 17: 5, 18: 4,
 };
 
-// Tee box GPS for holes 1-9 (Blue tee, approximate positions from seed.sql pin coords)
-// H1 already exists in DB; we upsert all of them so longest-drive resolves correctly.
+// Blue tee GPS coords matching seed.sql (approx pin positions used as tee proxy)
 const TEE_GPS: Record<number, { lat: number; lng: number }> = {
-  1: { lat: 43.5191, lng: -79.9085 },
-  2: { lat: 43.5188, lng: -79.9078 },
-  3: { lat: 43.5182, lng: -79.9071 },
-  4: { lat: 43.5176, lng: -79.9063 },
-  5: { lat: 43.5170, lng: -79.9056 },
-  6: { lat: 43.5164, lng: -79.9049 },
-  7: { lat: 43.5158, lng: -79.9042 },
-  8: { lat: 43.5152, lng: -79.9035 },
-  9: { lat: 43.5146, lng: -79.9028 },
+  // Front 9
+  1:  { lat: 43.5191, lng: -79.9085 },
+  2:  { lat: 43.5188, lng: -79.9078 },
+  3:  { lat: 43.5182, lng: -79.9071 },
+  4:  { lat: 43.5176, lng: -79.9063 },
+  5:  { lat: 43.5170, lng: -79.9056 },
+  6:  { lat: 43.5164, lng: -79.9049 },
+  7:  { lat: 43.5158, lng: -79.9042 },
+  8:  { lat: 43.5152, lng: -79.9035 },
+  9:  { lat: 43.5146, lng: -79.9028 },
+  // Back 9
+  10: { lat: 43.5193, lng: -79.9060 },
+  11: { lat: 43.5199, lng: -79.9053 },
+  12: { lat: 43.5205, lng: -79.9046 },
+  13: { lat: 43.5211, lng: -79.9039 },
+  14: { lat: 43.5217, lng: -79.9032 },
+  15: { lat: 43.5223, lng: -79.9025 },
+  16: { lat: 43.5229, lng: -79.9018 },
+  17: { lat: 43.5235, lng: -79.9011 },
+  18: { lat: 43.5241, lng: -79.9004 },
 };
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -85,8 +100,8 @@ interface TeamDef {
 }
 
 const TEAM_DEFS: TeamDef[] = [
-  { tournament_id: TOURNAMENT_ID, team_number: 1, team_name: "Fairway Falcons", starting_hole: 1 },
-  { tournament_id: TOURNAMENT_ID, team_number: 2, team_name: "Birdie Brigade",  starting_hole: 5 },
+  { tournament_id: TOURNAMENT_ID, team_number: 1, team_name: "Fairway Falcons", starting_hole: 1  },
+  { tournament_id: TOURNAMENT_ID, team_number: 2, team_name: "Birdie Brigade",  starting_hole: 5  },
   { tournament_id: TOURNAMENT_ID, team_number: 3, team_name: "Eagle Eye",       starting_hole: 10 },
   { tournament_id: TOURNAMENT_ID, team_number: 4, team_name: "Par Hunters",     starting_hole: 14 },
 ];
@@ -117,19 +132,17 @@ interface PlayerDef {
   name: string;
   email: string;
   role: "player";
-  team_id: string;
 }
 
-// Fixed fake auth UUIDs — won't clash with real auth users (no auth.users rows created)
 const PLAYER_DEFS_RAW = [
-  { auth_user_id: "00000000-aaaa-0000-0000-000000000001", name: "Marcus Webb",    email: "marcus@fdgolf.test",  team: "Fairway Falcons" },
-  { auth_user_id: "00000000-aaaa-0000-0000-000000000002", name: "Priya Sharma",   email: "priya@fdgolf.test",   team: "Fairway Falcons" },
-  { auth_user_id: "00000000-aaaa-0000-0000-000000000003", name: "Daniel Kim",     email: "daniel@fdgolf.test",  team: "Birdie Brigade"  },
-  { auth_user_id: "00000000-aaaa-0000-0000-000000000004", name: "Sarah Chen",     email: "sarah@fdgolf.test",   team: "Birdie Brigade"  },
-  { auth_user_id: "00000000-aaaa-0000-0000-000000000005", name: "James O'Brien",  email: "james@fdgolf.test",   team: "Eagle Eye"       },
-  { auth_user_id: "00000000-aaaa-0000-0000-000000000006", name: "Aisha Patel",    email: "aisha@fdgolf.test",   team: "Eagle Eye"       },
-  { auth_user_id: "00000000-aaaa-0000-0000-000000000007", name: "Tom Nguyen",     email: "tom@fdgolf.test",     team: "Par Hunters"     },
-  { auth_user_id: "00000000-aaaa-0000-0000-000000000008", name: "Lisa Park",      email: "lisa@fdgolf.test",    team: "Par Hunters"     },
+  { auth_user_id: "00000000-aaaa-0000-0000-000000000001", name: "Marcus Webb",   email: "marcus@fdgolf.test", team: "Fairway Falcons" },
+  { auth_user_id: "00000000-aaaa-0000-0000-000000000002", name: "Priya Sharma",  email: "priya@fdgolf.test",  team: "Fairway Falcons" },
+  { auth_user_id: "00000000-aaaa-0000-0000-000000000003", name: "Daniel Kim",    email: "daniel@fdgolf.test", team: "Birdie Brigade"  },
+  { auth_user_id: "00000000-aaaa-0000-0000-000000000004", name: "Sarah Chen",    email: "sarah@fdgolf.test",  team: "Birdie Brigade"  },
+  { auth_user_id: "00000000-aaaa-0000-0000-000000000005", name: "James O'Brien", email: "james@fdgolf.test",  team: "Eagle Eye"       },
+  { auth_user_id: "00000000-aaaa-0000-0000-000000000006", name: "Aisha Patel",   email: "aisha@fdgolf.test",  team: "Eagle Eye"       },
+  { auth_user_id: "00000000-aaaa-0000-0000-000000000007", name: "Tom Nguyen",    email: "tom@fdgolf.test",    team: "Par Hunters"     },
+  { auth_user_id: "00000000-aaaa-0000-0000-000000000008", name: "Lisa Park",     email: "lisa@fdgolf.test",   team: "Par Hunters"     },
 ];
 
 async function seedPlayers(
@@ -142,7 +155,6 @@ async function seedPlayers(
     name: p.name,
     email: p.email,
     role: "player" as const,
-    team_id: teamMap[p.team],
   }));
 
   const rows = await query(
@@ -153,36 +165,54 @@ async function seedPlayers(
       .select("id, name, email")
   );
 
-  const map: Record<string, string> = {}; // email → player id
+  const map: Record<string, string> = {};
   for (const r of rows as { id: string; name: string; email: string }[]) {
     map[r.email] = r.id;
     console.log(`  + ${r.name}: ${r.id}`);
   }
+
+  // Seed tournament_players memberships
+  const memberships = PLAYER_DEFS_RAW.map((p) => ({
+    player_id: map[p.email],
+    team_id: teamMap[p.team],
+    tournament_id: TOURNAMENT_ID,
+  }));
+  await query(
+    "upsert tournament_players",
+    db
+      .from("tournament_players")
+      .upsert(memberships, { onConflict: "player_id,tournament_id" })
+      .select("player_id")
+  );
+  console.log(`  + ${memberships.length} tournament_players memberships upserted`);
+
   return map;
 }
 
 // ── Step 3: Tee Boxes ─────────────────────────────────────────────────────────
-//
-// We need hole_id values to upsert tee_boxes.  Fetch them from the DB first.
-// Conflict target: (hole_id, name) — unique constraint in migration 007.
 
 async function seedTeeBoxes(): Promise<void> {
   console.log("\nStep 3: Tee boxes (for longest-drive GPS)");
 
-  // Fetch hole UUIDs for this course
   const holes = await query(
     "fetch holes",
     db
       .from("holes")
       .select("id, hole_number")
       .eq("course_id", COURSE_ID)
-      .in("hole_number", [1, 2, 3, 4, 5, 6, 7, 8, 9])
+      .in("hole_number", Array.from({ length: 18 }, (_, i) => i + 1))
   );
 
   const holeIdMap: Record<number, string> = {};
   for (const h of holes as { id: string; hole_number: number }[]) {
     holeIdMap[h.hole_number] = h.id;
   }
+
+  // distance_yards from seed.sql: par3 ~155-175, par4 ~355-410, par5 ~510-530
+  const DIST: Record<number, number> = {
+    1: 380, 2: 155, 3: 520, 4: 365, 5: 170, 6: 395, 7: 375, 8: 510, 9: 355,
+    10: 385, 11: 160, 12: 530, 13: 370, 14: 410, 15: 175, 16: 390, 17: 515, 18: 400,
+  };
 
   const teeBoxRows = Object.entries(TEE_GPS)
     .filter(([hn]) => holeIdMap[Number(hn)])
@@ -191,7 +221,7 @@ async function seedTeeBoxes(): Promise<void> {
       name: "Blue",
       lat: gps.lat,
       lng: gps.lng,
-      distance_yards: 380 - (Number(hn) % 3) * 20, // plausible yardage variation
+      distance_yards: DIST[Number(hn)],
     }));
 
   await query(
@@ -202,30 +232,26 @@ async function seedTeeBoxes(): Promise<void> {
       .select("id")
   );
 
-  console.log(`  + ${teeBoxRows.length} Blue tee boxes upserted for holes 1-9`);
+  console.log(`  + ${teeBoxRows.length} Blue tee boxes upserted for holes 1-18`);
 }
 
 // ── Step 4: Scores ────────────────────────────────────────────────────────────
 //
-// Best Ball format: one score row per player per hole (is_best_ball=true marks
-// the winning score).  The scores unique constraint is (player_id, tournament_id,
-// hole_number), so we upsert once per player per hole.
+// Best Ball: one score row per player per hole. is_best_ball=true marks the
+// team's counting score. The conflict key is (player_id, tournament_id, hole_number).
 //
-// Strategy: for each hole we generate a best-ball stroke count per team, then
-// attribute it to player[0] of that team (is_best_ball=true).  Player[1] gets
-// the same hole recorded with strokes+1 (their individual score, not best ball).
-//
-// This gives the TV panels real data without over-complicating the seed.
+// 18-hole totals (vs par 72):
+//   Fairway Falcons  -11  (front -6, back -5)
+//   Birdie Brigade    -7  (front -4, back -3)
+//   Eagle Eye         -5  (front -3, back -2)
+//   Par Hunters       +3  (front +1, back +2)
 
-// Best-ball scores per team per hole.  vspar values:
-//   - Negative = eagle/birdie, 0 = par, positive = bogey
-// Designed so: Falcons lead, Brigade 2nd, Eagle Eye 3rd, Par Hunters 4th
 const TEAM_SCORES_VSPAR: Record<string, number[]> = {
-  //                           H1   H2   H3   H4   H5   H6   H7   H8   H9
-  "Fairway Falcons":          [ -1,  -1,   0,  -2,   0,  -1,   0,   0,  -1 ], // -6  (6 under)
-  "Birdie Brigade":           [  0,  -1,  -1,   0,  -1,   0,  -1,   0,   0 ], // -4  (4 under)
-  "Eagle Eye":                [  0,   0,  -1,   0,   0,  -1,   0,  -1,   0 ], // -3  (3 under)
-  "Par Hunters":              [  1,   0,   0,   0,  -1,   0,   0,   0,   1 ], // +1  (1 over)
+  //                          H1   H2   H3   H4   H5   H6   H7   H8   H9  H10  H11  H12  H13  H14  H15  H16  H17  H18
+  "Fairway Falcons":        [ -1,  -1,   0,  -2,   0,  -1,   0,   0,  -1,  -1,  -1,   0,  -1,   0,  -1,   0,  -1,   0 ], // -11
+  "Birdie Brigade":         [  0,  -1,  -1,   0,  -1,   0,  -1,   0,   0,   0,  -1,  -1,   0,  -1,   0,   0,   0,   0 ], //  -7
+  "Eagle Eye":              [  0,   0,  -1,   0,   0,  -1,   0,  -1,   0,  -1,   0,   0,  -1,   0,   0,   0,   0,   0 ], //  -5
+  "Par Hunters":            [  1,   0,   0,   0,  -1,   0,   0,   0,   1,   0,   0,   1,   0,   1,   0,   0,   0,   0 ], //  +3
 };
 
 interface ScoreRow {
@@ -241,9 +267,8 @@ async function seedScores(
   teamMap: Record<string, string>,
   playerMap: Record<string, string>
 ): Promise<void> {
-  console.log("\nStep 4: Scores (9 holes × 4 teams)");
+  console.log("\nStep 4: Scores (18 holes × 4 teams)");
 
-  // Build player lists per team (ordered by PLAYER_DEFS_RAW)
   const teamPlayers: Record<string, string[]> = {
     "Fairway Falcons": [playerMap["marcus@fdgolf.test"], playerMap["priya@fdgolf.test"]],
     "Birdie Brigade":  [playerMap["daniel@fdgolf.test"], playerMap["sarah@fdgolf.test"]],
@@ -262,7 +287,6 @@ async function seedScores(
       const par = HOLE_PARS[holeNumber];
       const bestStrokes = par + vsPar;
 
-      // Best-ball player (p1): the winning score
       scoreRows.push({
         player_id: p1,
         team_id: teamId,
@@ -272,19 +296,17 @@ async function seedScores(
         is_best_ball: true,
       });
 
-      // Second player (p2): individual score (par or bogey — not best ball)
       scoreRows.push({
         player_id: p2,
         team_id: teamId,
         tournament_id: TOURNAMENT_ID,
         hole_number: holeNumber,
-        strokes: par + Math.max(0, vsPar + 1), // always ≥ par, never better than p1
+        strokes: par + Math.max(0, vsPar + 1),
         is_best_ball: false,
       });
     });
   }
 
-  // Upsert — conflict on (player_id, tournament_id, hole_number)
   await query(
     "upsert scores",
     db
@@ -296,28 +318,24 @@ async function seedScores(
   const bbRows = scoreRows.filter((r) => r.is_best_ball).length;
   console.log(`  + ${scoreRows.length} score rows upserted (${bbRows} best-ball)`);
 
-  // Log summary
   for (const [teamName, vsParArray] of Object.entries(TEAM_SCORES_VSPAR)) {
     const total = vsParArray.reduce((a, b) => a + b, 0);
     const sign = total <= 0 ? "" : "+";
-    console.log(`    ${teamName.padEnd(18)} ${sign}${total} (vs par 36)`);
+    console.log(`    ${teamName.padEnd(18)} ${sign}${total} (vs par 72)`);
   }
 }
 
 // ── Step 5: Shots ─────────────────────────────────────────────────────────────
 //
-// GPS shots for the TV Panel C (shot stats):
-//   - longestDrive: computed from distance between shot start_lat/lng and tee box
-//   - clubOfDay:    most-used club_name across best-ball hole shots
-//   - cleanestTeams: fewest out_of_bounds shots
+// GPS shots for TV Panel C (shot stats): longest drive, club of day, OB counts.
 //
-// Shot distribution plan:
-//   ~50 shots, holes 1-9, all 8 players
-//   Driver ~40%, 7 Iron ~20%, Pitching Wedge 15%, Sand Wedge 10%, Putter 15%
-//   Par Hunters: 0 OB  |  Eagle Eye: 1 OB  |  Falcons: 2 OB  |  Brigade: 2 OB
+// OB distribution (front 9 unchanged, back 9 adds 3 more):
+//   Par Hunters:     0 OB  (cleanest)
+//   Eagle Eye:       2 OB  (H4 + H13)
+//   Fairway Falcons: 3 OB  (H6, H9, H15)
+//   Birdie Brigade:  3 OB  (H1, H7, H16)
 //
-// For longest drive: tee shot (shot_number=1, club=Driver) start coords are
-// offset slightly from the tee box to simulate a drive landing ~220-280m away.
+// Longest drive: Sarah Chen ~265m on every par-4/5 tee shot (highest offset).
 
 type Outcome = "in_play" | "out_of_bounds" | "mulligan" | "sunk";
 
@@ -332,8 +350,6 @@ interface ShotRow {
   outcome: Outcome;
 }
 
-// Approximate degrees for metres at ~43.5°N
-// 1° lat ≈ 111,000m;  1° lng ≈ 80,000m at this latitude
 const M_PER_DEG_LAT = 111_000;
 const M_PER_DEG_LNG = 80_000;
 
@@ -349,12 +365,11 @@ function offsetGps(
   };
 }
 
-// Tee-shot landing coords (the shot start_lat/lng = where ball lands after the drive)
-// Measured from tee box toward the green — roughly 220-270m out
+// Per-player drive landing offsets (metres from tee toward green)
 const DRIVE_OFFSETS: Array<{ dLat: number; dLng: number }> = [
-  { dLat: -230, dLng:  15 },  // Marcus  — 230m straight
-  { dLat: -255, dLng: -10 },  // Priya   — 255m slight left
-  { dLat: -240, dLng:  20 },  // Daniel  — 240m slight right
+  { dLat: -230, dLng:  15 },  // Marcus  — 230m
+  { dLat: -255, dLng: -10 },  // Priya   — 255m
+  { dLat: -240, dLng:  20 },  // Daniel  — 240m
   { dLat: -265, dLng:   5 },  // Sarah   — 265m (longest)
   { dLat: -220, dLng:  12 },  // James   — 220m
   { dLat: -245, dLng:  -8 },  // Aisha   — 245m
@@ -362,29 +377,42 @@ const DRIVE_OFFSETS: Array<{ dLat: number; dLng: number }> = [
   { dLat: -250, dLng:   3 },  // Lisa    — 250m
 ];
 
+// OB events keyed by teamName+holeNumber+playerIndex (global 0-7)
+const OB_EVENTS = new Set([
+  "Birdie Brigade:1:2",    // Brigade OB #1  (front 9)
+  "Birdie Brigade:7:3",    // Brigade OB #2  (front 9)
+  "Birdie Brigade:16:2",   // Brigade OB #3  (back 9)
+  "Fairway Falcons:6:0",   // Falcons  OB #1 (front 9)
+  "Fairway Falcons:9:1",   // Falcons  OB #2 (front 9)
+  "Fairway Falcons:15:0",  // Falcons  OB #3 (back 9)
+  "Eagle Eye:4:4",         // Eagle Eye OB #1 (front 9)
+  "Eagle Eye:13:5",        // Eagle Eye OB #2 (back 9)
+]);
+
 function buildShotsForPlayer(
   playerEmail: string,
   playerIndex: number,
   playerMap: Record<string, string>,
-  teamId: string,
   teamName: string
 ): ShotRow[] {
   const playerId = playerMap[playerEmail];
   const shots: ShotRow[] = [];
 
-  for (let holeNum = 1; holeNum <= 9; holeNum++) {
+  for (let holeNum = 1; holeNum <= 18; holeNum++) {
     const tee = TEE_GPS[holeNum];
     const par = HOLE_PARS[holeNum];
-
-    // Shot 1: Tee shot (Driver on par 4/5, mid-iron on par 3)
-    const isParThree = par === 3;
-    const teeClub = isParThree ? "7 Iron" : "Driver (1W)";
-    const teeOutcome: Outcome = "in_play";
     const driveOffset = DRIVE_OFFSETS[playerIndex];
-    const landingPos = isParThree
-      ? offsetGps(tee.lat, tee.lng, driveOffset.dLat * 0.45, driveOffset.dLng * 0.45)
-      : offsetGps(tee.lat, tee.lng, driveOffset.dLat, driveOffset.dLng);
+    const isParThree = par === 3;
 
+    // Shot 1: tee shot
+    const teeClub = isParThree ? "7 Iron" : "Driver (1W)";
+    const scaleFactor = isParThree ? 0.45 : 1;
+    const landingPos = offsetGps(
+      tee.lat,
+      tee.lng,
+      driveOffset.dLat * scaleFactor,
+      driveOffset.dLng * scaleFactor
+    );
     shots.push({
       player_id: playerId,
       tournament_id: TOURNAMENT_ID,
@@ -393,28 +421,19 @@ function buildShotsForPlayer(
       club_name: teeClub,
       start_lat: landingPos.lat,
       start_lng: landingPos.lng,
-      outcome: teeOutcome,
+      outcome: "in_play",
     });
 
-    // Shot 2: approach / chip (par 4+)
+    // Shot 2: approach (par 4+), may be OB
     if (par >= 4) {
       const approachClub = par === 5 ? "7 Iron" : "Pitching Wedge";
-      const approachPos = offsetGps(tee.lat, tee.lng, driveOffset.dLat * 1.4, driveOffset.dLng * 1.4);
-
-      // OB shots per design (team/hole/player specific)
-      let shot2Outcome: Outcome = "in_play";
-      if (teamName === "Eagle Eye" && holeNum === 4 && playerIndex === 4) {
-        shot2Outcome = "out_of_bounds"; // Eagle Eye 1 OB
-      } else if (teamName === "Fairway Falcons" && holeNum === 6 && playerIndex === 0) {
-        shot2Outcome = "out_of_bounds"; // Falcons OB #1
-      } else if (teamName === "Fairway Falcons" && holeNum === 9 && playerIndex === 1) {
-        shot2Outcome = "out_of_bounds"; // Falcons OB #2
-      } else if (teamName === "Birdie Brigade" && holeNum === 1 && playerIndex === 2) {
-        shot2Outcome = "out_of_bounds"; // Brigade OB #1
-      } else if (teamName === "Birdie Brigade" && holeNum === 7 && playerIndex === 3) {
-        shot2Outcome = "out_of_bounds"; // Brigade OB #2
-      }
-
+      const approachPos = offsetGps(
+        tee.lat,
+        tee.lng,
+        driveOffset.dLat * 1.4,
+        driveOffset.dLng * 1.4
+      );
+      const obKey = `${teamName}:${holeNum}:${playerIndex}`;
       shots.push({
         player_id: playerId,
         tournament_id: TOURNAMENT_ID,
@@ -423,12 +442,17 @@ function buildShotsForPlayer(
         club_name: approachClub,
         start_lat: approachPos.lat,
         start_lng: approachPos.lng,
-        outcome: shot2Outcome,
+        outcome: OB_EVENTS.has(obKey) ? "out_of_bounds" : "in_play",
       });
     }
 
-    // Shot 3: putt
-    const pinPos = offsetGps(tee.lat, tee.lng, driveOffset.dLat * 1.7, driveOffset.dLng * 1.7);
+    // Shot 3: putt (always sunk)
+    const pinPos = offsetGps(
+      tee.lat,
+      tee.lng,
+      driveOffset.dLat * 1.7,
+      driveOffset.dLng * 1.7
+    );
     shots.push({
       player_id: playerId,
       tournament_id: TOURNAMENT_ID,
@@ -448,7 +472,7 @@ async function seedShots(
   teamMap: Record<string, string>,
   playerMap: Record<string, string>
 ): Promise<void> {
-  console.log("\nStep 5: Shots (~50 GPS shots across 9 holes)");
+  console.log("\nStep 5: Shots (18 holes × 8 players)");
 
   const playerDefs = [
     { email: "marcus@fdgolf.test", team: "Fairway Falcons", idx: 0 },
@@ -462,22 +486,11 @@ async function seedShots(
   ];
 
   const allShots: ShotRow[] = [];
-
   for (const p of playerDefs) {
-    const teamId = teamMap[p.team];
-    const playerShots = buildShotsForPlayer(
-      p.email,
-      p.idx,
-      playerMap,
-      teamId,
-      p.team
-    );
-    allShots.push(...playerShots);
+    allShots.push(...buildShotsForPlayer(p.email, p.idx, playerMap, p.team));
   }
 
-  // Delete existing TV-seed shots before upsert (shots has no unique key suitable
-  // for conflict resolution beyond id, and we want a clean slate on re-runs).
-  // Only delete shots for our 8 seeded players (safe: ignores other players' data).
+  // Delete prior TV-seed shots for these 8 players so re-runs stay clean
   const seededPlayerIds = Object.values(playerMap);
   const { error: delErr } = await db
     .from("shots")
@@ -486,24 +499,25 @@ async function seedShots(
     .eq("tournament_id", TOURNAMENT_ID);
   if (delErr) throw new Error(`delete shots: ${delErr.message}`);
 
-  // Insert in batches of 50 to avoid request size limits
+  // Insert in batches of 50
   const BATCH = 50;
   let inserted = 0;
   for (let i = 0; i < allShots.length; i += BATCH) {
     const batch = allShots.slice(i, i + BATCH);
     await query(
-      `insert shots batch ${i / BATCH + 1}`,
+      `insert shots batch ${Math.floor(i / BATCH) + 1}`,
       db.from("shots").insert(batch).select("id")
     );
     inserted += batch.length;
   }
 
-  // Log OB summary per team for verification
+  // OB summary per team
   const obByTeam: Record<string, number> = {};
   for (const p of playerDefs) {
     const pid = playerMap[p.email];
-    const teamShots = allShots.filter((s) => s.player_id === pid);
-    const ob = teamShots.filter((s) => s.outcome === "out_of_bounds").length;
+    const ob = allShots
+      .filter((s) => s.player_id === pid && s.outcome === "out_of_bounds")
+      .length;
     obByTeam[p.team] = (obByTeam[p.team] ?? 0) + ob;
   }
 
@@ -517,7 +531,7 @@ async function seedShots(
 
 async function main() {
   console.log(`Connecting to ${SUPABASE_URL}\n`);
-  console.log("=== TV Demo Seed ===\n");
+  console.log("=== TV Demo Seed (18 holes) ===\n");
 
   const teamMap = await seedTeams();
   const playerMap = await seedPlayers(teamMap);
@@ -528,26 +542,32 @@ async function main() {
   console.log(`
 === Summary ===
 
-  4 teams, 8 players, 9-hole scores, ~50 GPS shots
+  4 teams, 8 players, 18-hole scores, GPS shots for all holes
 
-  TV Panel A — Birdie/Eagle Leaders:
-    Fairway Falcons:  6 birdies + 1 eagle (eagle counts in both)
-    Birdie Brigade:   4 birdies
-    Eagle Eye:        3 birdies
+  Leaderboard (vs par 72):
+    Fairway Falcons  -11  (front -6, back -5)
+    Birdie Brigade    -7  (front -4, back -3)
+    Eagle Eye         -5  (front -3, back -2)
+    Par Hunters       +3  (front +1, back +2)
+
+  TV Panel A — Birdie Leaders (18 holes):
+    Fairway Falcons:  9 birdies + 1 eagle
+    Birdie Brigade:   7 birdies
+    Eagle Eye:        5 birdies
     Par Hunters:      1 birdie
 
-  TV Panel B — Momentum (last 3 holes, H7-H9):
-    Fairway Falcons:  H7 E, H8 par, H9 birdie
-    Birdie Brigade:   H7 birdie, H8 par, H9 par
-    Eagle Eye:        H7 par, H8 birdie, H9 par
-    Par Hunters:      H7 par, H8 par, H9 bogey
+  TV Panel B — Last 3 holes (H16-H18):
+    Fairway Falcons:  par, birdie, par
+    Birdie Brigade:   par, par, par
+    Eagle Eye:        par, par, par
+    Par Hunters:      par, bogey, par
 
   TV Panel C — Shot Stats:
     Longest drive:    Sarah Chen (Brigade) ~265m
     Club of day:      Driver (1W) — ~40% of shots
-    Cleanest teams:   Par Hunters (0 OB) > Eagle Eye (1 OB) > Falcons/Brigade (2 OB each)
+    Cleanest team:    Par Hunters (0 OB)
 
-  Tee box GPS seeded for H1-H9 → longest drive will resolve ✓
+  Tee box GPS seeded for all 18 holes → longest drive resolves ✓
 
   Supabase Studio: http://127.0.0.1:54343
 `);

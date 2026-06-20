@@ -22,6 +22,7 @@ interface PlayersTableProps {
   players: Player[];
   teams: Pick<Team, 'id' | 'team_number' | 'team_name'>[];
   tournamentId: string;
+  membershipMap: Record<string, string>;
 }
 
 const ROLES: PlayerRole[] = ['player', 'admin', 'tournament_organizer'];
@@ -29,6 +30,13 @@ const ROLES: PlayerRole[] = ['player', 'admin', 'tournament_organizer'];
 const EMPTY_ADD_FORM = { name: '', email: '', company: '', title: '' };
 
 const GRID_COLS = '28px 1fr 160px 120px 80px 140px 120px 80px';
+
+interface EditForm {
+  name: string;
+  email: string;
+  company: string;
+  title: string;
+}
 
 function getInitials(name: string): string {
   return name
@@ -39,7 +47,12 @@ function getInitials(name: string): string {
     .toUpperCase();
 }
 
-export function PlayersTable({ players: initial, teams, tournamentId }: PlayersTableProps) {
+export function PlayersTable({
+  players: initial,
+  teams,
+  tournamentId,
+  membershipMap,
+}: PlayersTableProps) {
   const [players, setPlayers] = useState(initial);
   const [search, setSearch] = useState('');
   const [invitingId, setInvitingId] = useState<string | null>(null);
@@ -47,7 +60,69 @@ export function PlayersTable({ players: initial, teams, tournamentId }: PlayersT
   const [showCsvImport, setShowCsvImport] = useState(false);
   const [addForm, setAddForm] = useState(EMPTY_ADD_FORM);
   const [adding, setAdding] = useState(false);
+  const [editId, setEditId] = useState<string | null>(null);
+  const [editForm, setEditForm] = useState<EditForm>({
+    name: '',
+    email: '',
+    company: '',
+    title: '',
+  });
+  const [saving, setSaving] = useState(false);
   const supabase = createClient();
+
+  function startEdit(player: Player) {
+    setEditId(player.id);
+    setEditForm({
+      name: player.name,
+      email: player.email ?? '',
+      company: player.company ?? '',
+      title: player.title ?? '',
+    });
+  }
+
+  function cancelEdit() {
+    setEditId(null);
+  }
+
+  async function saveEdit(playerId: string) {
+    if (!editForm.name.trim() || !editForm.email.trim()) {
+      toast.error('Name and email are required');
+      return;
+    }
+    setSaving(true);
+    try {
+      const { error } = await supabase
+        .from('players')
+        .update({
+          name: editForm.name.trim(),
+          email: editForm.email.trim(),
+          company: editForm.company.trim() || null,
+          title: editForm.title.trim() || null,
+        })
+        .eq('id', playerId);
+      if (error) {
+        toast.error(error.message);
+        return;
+      }
+      setPlayers((prev) =>
+        prev.map((p) =>
+          p.id === playerId
+            ? {
+                ...p,
+                name: editForm.name.trim(),
+                email: editForm.email.trim(),
+                company: editForm.company.trim(),
+                title: editForm.title.trim(),
+              }
+            : p
+        )
+      );
+      setEditId(null);
+      toast.success('Player updated');
+    } finally {
+      setSaving(false);
+    }
+  }
 
   async function addPlayer() {
     if (!addForm.name.trim() || !addForm.email.trim()) {
@@ -274,87 +349,160 @@ export function PlayersTable({ players: initial, teams, tournamentId }: PlayersT
           </div>
 
           {/* Table rows */}
-          {filtered.map((player) => (
-            <div
-              key={player.id}
-              className="grid items-center border-b border-[#f0f4ee] px-4 py-3 hover:bg-[#fafcf9]"
-              style={{ gridTemplateColumns: GRID_COLS, minHeight: 52 }}
-            >
-              <input type="checkbox" aria-label={`Select ${player.name}`} />
-
-              {/* Player: green avatar + name + status */}
-              <div className="flex min-w-0 items-center gap-3">
-                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#1a472a] text-[12px] font-bold text-white">
-                  {getInitials(player.name)}
+          {filtered.map((player) =>
+            editId === player.id ? (
+              /* ── Inline edit row ── */
+              <div key={player.id} className="border-b border-[#eef2ea] bg-[#f4f7f1] px-4 py-3">
+                <div className="grid gap-3 sm:grid-cols-4">
+                  <div className="space-y-1">
+                    <Label className="text-[11px] font-bold uppercase tracking-[0.08em] text-[#90a094]">
+                      Name *
+                    </Label>
+                    <Input
+                      value={editForm.name}
+                      onChange={(e) => setEditForm((f) => ({ ...f, name: e.target.value }))}
+                      className="h-8 text-[13px]"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-[11px] font-bold uppercase tracking-[0.08em] text-[#90a094]">
+                      Email *
+                    </Label>
+                    <Input
+                      type="email"
+                      value={editForm.email}
+                      onChange={(e) => setEditForm((f) => ({ ...f, email: e.target.value }))}
+                      className="h-8 text-[13px]"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-[11px] font-bold uppercase tracking-[0.08em] text-[#90a094]">
+                      Company
+                    </Label>
+                    <Input
+                      value={editForm.company}
+                      onChange={(e) => setEditForm((f) => ({ ...f, company: e.target.value }))}
+                      className="h-8 text-[13px]"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-[11px] font-bold uppercase tracking-[0.08em] text-[#90a094]">
+                      Title
+                    </Label>
+                    <Input
+                      value={editForm.title}
+                      onChange={(e) => setEditForm((f) => ({ ...f, title: e.target.value }))}
+                      className="h-8 text-[13px]"
+                    />
+                  </div>
                 </div>
-                <div className="min-w-0">
-                  <p className="truncate text-[14px] font-semibold text-[#15241c]">{player.name}</p>
-                  <p className="truncate text-[11px] text-[#90a094]">
-                    {player.auth_user_id ? 'linked' : 'no account'}
-                  </p>
+                <div className="mt-3 flex gap-2">
+                  <button
+                    className="rounded-lg bg-[#1a472a] px-3 py-1.5 text-[12px] font-semibold text-white hover:bg-[#143820] disabled:opacity-50"
+                    onClick={() => saveEdit(player.id)}
+                    disabled={saving}
+                  >
+                    {saving ? 'Saving…' : 'Save'}
+                  </button>
+                  <button
+                    className="rounded-lg border border-[#e2e8df] bg-white px-3 py-1.5 text-[12px] font-semibold text-[#46554c] hover:bg-[#f0f4ee]"
+                    onClick={cancelEdit}
+                  >
+                    Cancel
+                  </button>
                 </div>
               </div>
+            ) : (
+              /* ── Normal row ── */
+              <div
+                key={player.id}
+                className="grid items-center border-b border-[#f0f4ee] px-4 py-3 hover:bg-[#fafcf9]"
+                style={{ gridTemplateColumns: GRID_COLS, minHeight: 52 }}
+              >
+                <input type="checkbox" aria-label={`Select ${player.name}`} />
 
-              {/* Company */}
-              <div className="truncate text-[13px] text-[#46554c]">{player.company || '—'}</div>
+                {/* Player: green avatar + name + status */}
+                <div className="flex min-w-0 items-center gap-3">
+                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#1a472a] text-[12px] font-bold text-white">
+                    {getInitials(player.name)}
+                  </div>
+                  <div className="min-w-0">
+                    <p className="truncate text-[14px] font-semibold text-[#15241c]">
+                      {player.name}
+                    </p>
+                    <p className="truncate text-[11px] text-[#90a094]">
+                      {player.auth_user_id ? 'linked' : 'no account'}
+                    </p>
+                  </div>
+                </div>
 
-              {/* Title */}
-              <div className="truncate text-[12px] text-[#6b7a70]">{player.title || '—'}</div>
+                {/* Company */}
+                <div className="truncate text-[13px] text-[#46554c]">{player.company || '—'}</div>
 
-              {/* HCP */}
-              <div className="text-center text-[14px] font-semibold text-[#46554c]">—</div>
+                {/* Title */}
+                <div className="truncate text-[12px] text-[#6b7a70]">{player.title || '—'}</div>
 
-              {/* Team pill */}
-              <div>
-                {player.team_id ? (
-                  <span className="rounded-full bg-[#e9f3ec] px-2.5 py-0.5 text-[12px] font-semibold text-[#1a472a]">
-                    {teamMap[player.team_id] ?? 'Team'}
+                {/* HCP */}
+                <div className="text-center text-[14px] font-semibold text-[#46554c]">—</div>
+
+                {/* Team pill */}
+                <div>
+                  {membershipMap[player.id] ? (
+                    <span className="rounded-full bg-[#e9f3ec] px-2.5 py-0.5 text-[12px] font-semibold text-[#1a472a]">
+                      {teamMap[membershipMap[player.id]] ?? 'Team'}
+                    </span>
+                  ) : (
+                    <span className="text-[12px] text-[#90a094]">—</span>
+                  )}
+                </div>
+
+                {/* Magic link status + role selector */}
+                <div className="flex flex-col gap-1">
+                  <span
+                    className={`w-fit rounded-full px-2.5 py-0.5 text-[12px] font-semibold ${
+                      player.auth_user_id
+                        ? 'bg-[#e9f3ec] text-[#1a472a]'
+                        : 'bg-[#f0f4ee] text-[#46554c]'
+                    }`}
+                  >
+                    {player.auth_user_id ? 'Linked' : 'Not sent'}
                   </span>
-                ) : (
-                  <span className="text-[12px] text-[#90a094]">—</span>
-                )}
-              </div>
+                  <Select
+                    value={player.role}
+                    onValueChange={(v) => updateRole(player.id, v as PlayerRole)}
+                  >
+                    <SelectTrigger className="h-6 w-full text-[11px]">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {ROLES.map((r) => (
+                        <SelectItem key={r} value={r} className="text-[11px]">
+                          {r.replace('_', ' ')}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
 
-              {/* Magic link status + role selector */}
-              <div className="flex flex-col gap-1">
-                <span
-                  className={`w-fit rounded-full px-2.5 py-0.5 text-[12px] font-semibold ${
-                    player.auth_user_id
-                      ? 'bg-[#e9f3ec] text-[#1a472a]'
-                      : 'bg-[#f0f4ee] text-[#46554c]'
-                  }`}
-                >
-                  {player.auth_user_id ? 'Linked' : 'Not sent'}
-                </span>
-                <Select
-                  value={player.role}
-                  onValueChange={(v) => updateRole(player.id, v as PlayerRole)}
-                >
-                  <SelectTrigger className="h-6 w-full text-[11px]">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {ROLES.map((r) => (
-                      <SelectItem key={r} value={r} className="text-[11px]">
-                        {r.replace('_', ' ')}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                {/* Actions */}
+                <div className="flex flex-col gap-1">
+                  <button
+                    className="rounded-lg bg-[#eef2ea] px-2.5 py-1 text-[12px] font-semibold text-[#1a472a] hover:bg-[#e2eadf] disabled:opacity-50"
+                    disabled={invitingId === player.id || !player.email}
+                    onClick={() => sendInvite(player)}
+                  >
+                    {invitingId === player.id ? 'Sending…' : 'Send'}
+                  </button>
+                  <button
+                    className="rounded-lg bg-[#f0f4ee] px-2.5 py-1 text-[12px] font-semibold text-[#46554c] hover:bg-[#e2e8df]"
+                    onClick={() => startEdit(player)}
+                  >
+                    Edit
+                  </button>
+                </div>
               </div>
-
-              {/* Actions */}
-              <div>
-                <button
-                  className="rounded-lg bg-[#eef2ea] px-2.5 py-1 text-[12px] font-semibold text-[#1a472a] hover:bg-[#e2eadf] disabled:opacity-50"
-                  disabled={invitingId === player.id || !player.email}
-                  onClick={() => sendInvite(player)}
-                >
-                  {invitingId === player.id ? 'Sending…' : 'Send'}
-                </button>
-              </div>
-            </div>
-          ))}
+            )
+          )}
 
           {filtered.length === 0 && (
             <p className="py-8 text-center text-sm text-[#90a094]">No players found.</p>

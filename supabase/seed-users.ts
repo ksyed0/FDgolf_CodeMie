@@ -54,7 +54,6 @@ async function upsertPlayer(params: {
   name: string;
   email: string;
   role: "player" | "admin" | "tournament_organizer";
-  team_id?: string;
 }): Promise<string> {
   const { data, error } = await db
     .from("players")
@@ -108,12 +107,23 @@ async function main() {
   console.log("\nStep 3: Players");
   const [, alicePid, johnPid, bobPid, janePid] = await Promise.all([
     upsertPlayer({ auth_user_id: adminUid, name: "Tournament Admin", email: "admin@fdgolf.local", role: "admin" }),
-    upsertPlayer({ auth_user_id: aliceUid, name: "Alice Smith", email: "alice@fdgolf.local", role: "player", team_id: teamAId }),
-    upsertPlayer({ auth_user_id: johnUid, name: "John Doe", email: "john@fdgolf.local", role: "player", team_id: teamAId }),
-    upsertPlayer({ auth_user_id: bobUid, name: "Bob Johnson", email: "bob@fdgolf.local", role: "player", team_id: teamBId }),
-    upsertPlayer({ auth_user_id: janeUid, name: "Jane Lee", email: "jane@fdgolf.local", role: "player", team_id: teamBId }),
+    upsertPlayer({ auth_user_id: aliceUid, name: "Alice Smith", email: "alice@fdgolf.local", role: "player" }),
+    upsertPlayer({ auth_user_id: johnUid, name: "John Doe", email: "john@fdgolf.local", role: "player" }),
+    upsertPlayer({ auth_user_id: bobUid, name: "Bob Johnson", email: "bob@fdgolf.local", role: "player" }),
+    upsertPlayer({ auth_user_id: janeUid, name: "Jane Lee", email: "jane@fdgolf.local", role: "player" }),
   ]);
   console.log("  + 5 player records upserted");
+
+  // ── 3b. Tournament memberships ────────────────────────────────────────────
+  console.log("\nStep 3b: Tournament player memberships");
+  const { error: tpErr } = await db.from("tournament_players").upsert([
+    { player_id: alicePid, team_id: teamAId, tournament_id: TOURNAMENT_ID },
+    { player_id: johnPid,  team_id: teamAId, tournament_id: TOURNAMENT_ID },
+    { player_id: bobPid,   team_id: teamBId, tournament_id: TOURNAMENT_ID },
+    { player_id: janePid,  team_id: teamBId, tournament_id: TOURNAMENT_ID },
+  ], { onConflict: "player_id,tournament_id" });
+  if (tpErr) console.warn("  ! tournament_players:", tpErr.message);
+  else console.log("  + 4 memberships upserted");
 
   // ── 4. Set captains ──────────────────────────────────────────────────────
   console.log("\nStep 4: Team captains");

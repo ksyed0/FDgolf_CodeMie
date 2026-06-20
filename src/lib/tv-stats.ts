@@ -458,17 +458,17 @@ export async function fetchShotStats(
 
     const teamIds = teams?.map((t) => t.id as string) ?? [];
 
-    const { data: players, error: playerErr } = await supabase
-      .from('players')
-      .select('id, team_id')
-      .not('team_id', 'is', null)
+    const { data: tpRows, error: playerErr } = await supabase
+      .from('tournament_players')
+      .select('player_id, team_id')
+      .eq('tournament_id', tournamentId)
       .in('team_id', teamIds);
 
     if (playerErr) throw playerErr;
 
     const playerToTeamId = new Map<string, string>();
-    for (const p of players ?? []) {
-      if (p.team_id) playerToTeamId.set(p.id as string, p.team_id as string);
+    for (const tp of tpRows ?? []) {
+      playerToTeamId.set(tp.player_id as string, tp.team_id as string);
     }
 
     const badShotMap = new Map<string, { teamName: string; badShots: number }>();
@@ -634,13 +634,19 @@ export async function fetchTeamSpotlight(
   teamId: string
 ): Promise<TeamSpotlight | null> {
   try {
-    const { data: tournament, error: tErr } = await supabase
-      .from('tournaments')
-      .select('course_id')
-      .eq('id', tournamentId)
-      .single();
+    const [{ data: tournament, error: tErr }, { data: tpData, error: tpErr }] = await Promise.all([
+      supabase.from('tournaments').select('course_id').eq('id', tournamentId).single(),
+      supabase
+        .from('tournament_players')
+        .select('player_id')
+        .eq('team_id', teamId)
+        .eq('tournament_id', tournamentId),
+    ]);
     if (tErr) throw tErr;
+    if (tpErr) throw tpErr;
     if (!tournament) return null;
+
+    const teamPlayerIds = (tpData ?? []).map((r) => r.player_id as string);
 
     const [
       parMap,
@@ -654,17 +660,16 @@ export async function fetchTeamSpotlight(
         .select('strokes, hole_number, player_id, is_best_ball')
         .eq('tournament_id', tournamentId)
         .eq('team_id', teamId),
-      supabase.from('players').select('id, name, title, company').eq('team_id', teamId),
-      supabase
-        .from('shots')
-        .select('outcome')
-        .eq('tournament_id', tournamentId)
-        .in(
-          'player_id',
-          (await supabase.from('players').select('id').eq('team_id', teamId)).data?.map(
-            (p) => p.id as string
-          ) ?? []
-        ),
+      teamPlayerIds.length
+        ? supabase.from('players').select('id, name, title, company').in('id', teamPlayerIds)
+        : Promise.resolve({ data: [], error: null }),
+      teamPlayerIds.length
+        ? supabase
+            .from('shots')
+            .select('outcome')
+            .eq('tournament_id', tournamentId)
+            .in('player_id', teamPlayerIds)
+        : Promise.resolve({ data: [], error: null }),
     ]);
 
     if (sErr) throw sErr;
