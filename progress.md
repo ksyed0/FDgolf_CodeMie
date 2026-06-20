@@ -1,5 +1,45 @@
 # FDgolf — Progress
 
+## Session 27 — 2026-06-20 (E2E Tests + Seed Fixes — PR #34 continued)
+
+### What Was Done
+
+**E2E tests updated for admin pages redesign:**
+- Added TC-0082–TC-0089 (new tests for redesigned admin pages: AdminTopBar titles, venues cards, courses Front/Back grid, players filter pills, teams cards, clubs drag handle, scores legend, sponsors TV preview)
+- Updated TC-0079 (venues page: table → card layout)
+- Fixed 13 pre-existing E2E selector regressions from session 25 redesign:
+  - Admin: TC-0047 (sidebar sections), TC-0049/TC-0050/TC-0078 (TournamentControlDashboard replaces TournamentManager when tournament active), TC-0055 ("Send" not "Send Invite")
+  - TV: TC-0067 ("Sc" not "Scr"), TC-0068 (birdie empty state copy), TC-0069 (5 panel dots not 3)
+  - Leaderboard: TC-0043/TC-0044 ("live leaderboard" subtitle removed → use heading)
+  - Round: TC-0020/TC-0021 (no data-active attr, button name mismatch), TC-0030 ("Out of Bounds" not "OOB"), TC-0076 (emoji prefix broke regex anchor)
+
+**Seed data gaps filled:**
+- `seed.sql` — added 18 Blue tee boxes (all holes, ON CONFLICT DO NOTHING) so TV longest-drive panel is fully populated after every reset
+- `seed.sql` — added 3 sponsors (CIBC Capital Markets, Deloitte, Manulife) so TV carousel and `/admin/sponsors` are non-empty
+
+**README rewritten:**
+- New "Local Database" section: reset command, what each seed layer loads, test credentials table
+- Play simulation options: `seed-tv-data.ts` (fast demo) vs `chromium-lifecycle` Playwright spec
+- Table explaining what gameplay creates automatically vs must be seeded
+- Updated Testing section with current counts (145 tests, 92% coverage) + Playwright project table
+- Scripts section includes all seed/reset commands
+
+### Test Results
+- `npm run type-check`: **0 errors**
+- `npm run test:ci`: **145/145 tests pass**
+- Playwright: **61/61 pass, 2 skipped** (real Supabase gates; confirmed intentional)
+
+### Branch / PR
+- All commits on `feature/admin-pages-redesign` → **PR #34 → develop**
+
+### Next Steps
+1. Merge PR #34 to develop
+2. Invite 125 players via CSV import (`/admin/players` → Import CSV)
+3. Set real GPS pin coordinates for all 18 Granite Ridge holes (Edit Pin in Mapbox)
+4. Pre-tournament smoke test June 22: login, score, TV display, admin pages, leaderboard
+
+---
+
 ## Session 26 — 2026-06-19 (Admin Pages Visual Redesign — PR #34)
 
 ### What Was Done
