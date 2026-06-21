@@ -18,8 +18,12 @@ import { CsvImport } from './csv-import';
 import { AdminTopBar } from '@/components/admin-top-bar';
 import type { Player, PlayerRole, Team } from '@/lib/types';
 
+interface PlayerWithTournaments extends Player {
+  tournamentNames: string[];
+}
+
 interface PlayersTableProps {
-  players: Player[];
+  players: PlayerWithTournaments[];
   teams: Pick<Team, 'id' | 'team_number' | 'team_name'>[];
   tournamentId: string;
   membershipMap: Record<string, string>;
@@ -29,7 +33,7 @@ const ROLES: PlayerRole[] = ['player', 'system_admin', 'tournament_admin', 'tour
 
 const EMPTY_ADD_FORM = { name: '', email: '', company: '', title: '' };
 
-const GRID_COLS = '28px 1fr 160px 120px 80px 140px 120px 80px';
+const GRID_COLS = '28px 1fr 160px 120px 80px 140px 180px 120px 80px';
 
 interface EditForm {
   name: string;
@@ -141,7 +145,7 @@ export function PlayersTable({
         toast.error(json.error ?? 'Failed to add player');
         return;
       }
-      setPlayers((prev) => [...prev, json.player!]);
+      setPlayers((prev) => [...prev, { ...json.player!, tournamentNames: [] }]);
       setAddForm(EMPTY_ADD_FORM);
       setShowAddForm(false);
       toast.success(`${json.player.name} added`);
@@ -344,6 +348,7 @@ export function PlayersTable({
             <div>Title</div>
             <div className="text-center">HCP</div>
             <div>Team</div>
+            <div>Tournaments</div>
             <div>Magic Link</div>
             <div>Actions</div>
           </div>
@@ -453,6 +458,15 @@ export function PlayersTable({
                     </span>
                   ) : (
                     <span className="text-[12px] text-[#90a094]">—</span>
+                  )}
+                </div>
+
+                {/* Tournaments */}
+                <div className="text-[13px] text-[#6b7a70]">
+                  {player.tournamentNames.length > 0 ? (
+                    player.tournamentNames.join(', ')
+                  ) : (
+                    <span className="italic text-[#90a094]">—</span>
                   )}
                 </div>
 
