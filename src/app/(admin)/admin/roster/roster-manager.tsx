@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { toast } from 'sonner';
 import { createClient } from '@/lib/supabase/client';
 import { AdminTopBar } from '@/components/admin-top-bar';
@@ -40,6 +40,10 @@ export function RosterManager({
   const [newForm, setNewForm] = useState(EMPTY_NEW);
   const [saving, setSaving] = useState(false);
 
+  // Keep enrolled IDs current via ref to avoid unnecessary re-queries on enrollment/removal
+  const enrolledIdsRef = useRef<Set<string>>(new Set());
+  enrolledIdsRef.current = new Set(players.map((p) => p.player_id));
+
   // 250ms debounce — supabase is module-level, intentionally NOT in dep array
   useEffect(() => {
     if (!searchQuery.trim()) {
@@ -47,18 +51,17 @@ export function RosterManager({
       return;
     }
     const timer = setTimeout(async () => {
-      const enrolledPlayerIds = new Set(players.map((p) => p.player_id));
       const { data } = await supabase
         .from('players')
         .select('id, name, email')
         .or(`name.ilike.%${searchQuery}%,email.ilike.%${searchQuery}%`)
         .limit(8);
       setSearchResults(
-        ((data ?? []) as PlayerSearchResult[]).filter((p) => !enrolledPlayerIds.has(p.id))
+        ((data ?? []) as PlayerSearchResult[]).filter((p) => !enrolledIdsRef.current.has(p.id))
       );
     }, 250);
     return () => clearTimeout(timer);
-  }, [searchQuery, players]);
+  }, [searchQuery]);
 
   async function enrollExisting(player: PlayerSearchResult) {
     setSaving(true);
@@ -132,6 +135,8 @@ export function RosterManager({
       .single();
 
     if (tpErr) {
+      // Clean up the orphaned player row
+      await supabase.from('players').delete().eq('id', p.id);
       toast.error(tpErr.message);
       setSaving(false);
       return;
