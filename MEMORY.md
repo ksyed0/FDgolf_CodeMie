@@ -13,24 +13,26 @@ Stack: Next.js 16 App Router · TypeScript · Tailwind CSS · shadcn/ui · Supab
 
 ---
 
-## Branch State (as of Session 27 close — 2026-06-20)
+## Branch State (as of Session 28 close — 2026-06-21)
 
 | Branch | Status | Notes |
 |--------|--------|-------|
-| `main` | production | Next.js 16 + E2E suite live |
-| `develop` | HEAD `e23d13e` | post PR #33 — design redesign merged |
-| `feature/design-redesign` | **merged PR #33** | 13-task light-mode redesign |
-| `feature/admin-pages-redesign` | **open PR #34** | 7 admin pages + AdminTopBar + E2E fixes + seed fixes |
+| `main` | **v0.6 released** | Multi-tournament + role hierarchy + redesigns live |
+| `develop` | HEAD `b4c1cc6` | post PR #36 — role hierarchy merged |
+| `feature/role-hierarchy` | **merged PR #36** | migration 012 + role hierarchy + seed cleanup |
+| `feature/tournament-players` | **merged PR #35** | tournament_players join table |
 
-**Current open PRs**: PR #34 (`feature/admin-pages-redesign` → `develop`) — ready to merge.
+**Current open PRs**: None.
 
-**Playwright E2E suite state (as of Session 27):** 61/61 passing, 2 skipped. All session-25 regressions fixed. New admin test cases TC-0082–TC-0089 added.
+**v0.6 tag** on `main` — includes PRs #32–#36 (TV stats fix, design redesigns, multi-tournament, role hierarchy).
 
-**Seed state after `./scripts/reset-and-seed.sh`:**
+**Playwright E2E suite state (as of Session 27):** 61/61 passing, 2 skipped.
+
+**Seed state after `supabase db reset` + `npx tsx supabase/seed-users.ts`:**
+- Venue (Granite Ridge) + Course (Main Course) now inserted by `seed.sql` (NOT migration 007 — fixed in Session 28)
 - 18 tee boxes (Blue tee, all holes) — TV longest-drive resolves for all 18 holes
-- 3 sponsors (CIBC Capital Markets, Deloitte, Manulife, all active) — TV carousel populated
+- 5 sponsors (CIBC Capital Markets, Deloitte, Manulife, EPAM, First Derivative, all active)
 - Scores and shots still require `npx tsx scripts/seed-tv-data.ts` OR real gameplay
-- `sponsors` and `tee_boxes` are the only tables not created by gameplay; must be seeded/admin-configured
 
 **TV display route**: `/live/cibc-granite-ridge-2026/tv` — public, no auth. Polling 30s, panel rotation 15s.
 
@@ -49,11 +51,12 @@ pattern (fetch holes separately, build in-memory map) when you need par data alo
 won't see the new policy/FK/function until cache refresh.
 
 **Seed data in local DB** (`00000000-0000-0000-0000-000000000001`):
-- 4 teams: Fairway Falcons (−6), Birdie Brigade (−4), Eagle Eye (−3), Par Hunters (+1)
-- 8 players, 9 holes, 200 shots with GPS, 72 scores, 36 is_best_ball=true
-- Migration 010: `Public read shots` policy applied — shots now readable by anon client
+- 4 teams: Fairway Falcons, Birdie Brigade, Eagle Eye, Par Hunters (seeded by seed-tv-data.ts)
+- 16 players, 18 holes, 400 shots with GPS, 144 scores — all seeded by `npx tsx scripts/seed-tv-data.ts`
+- Migration 010: `Public read shots` policy — shots readable by anon client
+- `tournament_players` rows created by seed-tv-data.ts (one per player per tournament)
 
-**Next action**: Invite 125 players via CSV → set real GPS pins for Ruby holes → smoke test June 22
+**Next action (Session 28 close):** Design + implement system admin UI and scoped tournament admin dashboard (brainstorm initiated)
 
 ---
 
@@ -192,8 +195,16 @@ This queries `players` from within a `players` policy → PostgreSQL evaluates t
 
 - **`teams.captain_id`**: `uuid` column with NO inline FK. Deferred FK added via `ALTER TABLE` after `players` is defined (circular reference pattern).
 - **`teams.max_players`**: `int not null default 4 check (max_players between 2 and 6)` — variable team size.
-- **`PlayerRole`**: `'player' | 'admin' | 'tournament_organizer'` — three roles.
+- **`PlayerRole`**: `'player' | 'system_admin' | 'tournament_admin' | 'tournament_organizer'` — `'admin'` no longer exists (renamed to `'system_admin'` in migration 012).
 - **`scores.override_by` / `override_at`**: audit trail columns for admin overrides.
+- **`tournament_players(player_id, team_id, tournament_id)`**: join table replacing `players.team_id`. `unique(player_id, tournament_id)` — one team per player per tournament. Added in migration 011.
+- **`tournament_admin_assignments(player_id, tournament_id)`**: scoping table for tournament-admin role. `unique(player_id, tournament_id)`. Added in migration 012. **No UI yet — schema is ready.**
+- **`is_system_admin()`**: security-definer SQL function — returns true if calling user has `role = 'system_admin'`. Runs as DB owner to avoid RLS recursion.
+- **`is_tournament_admin(uuid)`**: security-definer SQL function — returns true if calling user has a row in `tournament_admin_assignments` for the given tournament_id.
+- **Seed UUIDs** (in `seed.sql` — NOT in migrations after Session 28 cleanup):
+  - Venue: `10000000-0000-0000-0000-000000000001` — Granite Ridge Golf Club
+  - Course: `20000000-0000-0000-0000-000000000001` — Main Course (18 holes, par 72)
+  - Tournament: `00000000-0000-0000-0000-000000000001` — CIBC Capital Markets Golf Tournament 2026
 
 ---
 

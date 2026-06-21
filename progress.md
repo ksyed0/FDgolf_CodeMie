@@ -1,5 +1,66 @@
 # FDgolf — Progress
 
+## Session 28 — 2026-06-20/21 (Multi-Tournament + Role Hierarchy — v0.6 released)
+
+### What Was Done
+
+**Merged PR #35 — tournament_players join table (multi-tournament player support)**
+- `tournament_players(player_id, team_id, tournament_id)` replaces `players.team_id`
+- `unique(player_id, tournament_id)` — one team per player per tournament
+- RLS for shots/scores/round_states rewritten to join through `tournament_players`
+- `players.team_id` column dropped
+- 145 tests passing, type-check clean
+
+**Implemented PR #36 — role hierarchy (feature/role-hierarchy)**
+
+*Migration 007 cleanup:*
+- Removed CIBC-specific `INSERT`/`UPDATE` statements from migration 007 — migrations are now schema-only
+- Venue (Granite Ridge) and course (Main Course) inserts moved to `seed.sql` with `ON CONFLICT (id) DO NOTHING`
+
+*seed.sql additions:*
+- Venue + course inserts at top (before tournament insert, since tournament FKs them)
+- Holes insert made idempotent with `ON CONFLICT (course_id, hole_number) DO NOTHING`
+- EPAM and First Derivative sponsors added (display_order 4–5)
+
+*Migration 012 — role hierarchy:*
+- `players_role_check` widened to `('player', 'system_admin', 'tournament_admin', 'tournament_organizer')`
+- Existing `'admin'` rows data-migrated to `'system_admin'`
+- `tournament_admin_assignments(player_id, tournament_id)` with `unique(player_id, tournament_id)` and RLS
+- `is_system_admin()` and `is_tournament_admin(uuid)` security-definer helper functions
+- RLS rewritten across all tables:
+  - `venues`, `courses`, `holes`, `tee_boxes`, `clubs`, `round_states`, `shots` → `system_admin` only
+  - `tournaments` → `system_admin` full + `tournament_admin` update-own
+  - `teams`, `scores`, `tournament_players`, `sponsors` → either role (scoped by `tournament_id`)
+  - `players` → `system_admin` full + `tournament_admin` update (scoped via `tournament_players`)
+
+*Application code:*
+- `PlayerRole` type: `'admin'` removed, `'system_admin' | 'tournament_admin'` added
+- `TournamentAdminAssignment` interface added to `types.ts`
+- All `role !== 'admin'` checks updated to `system_admin`/`tournament_admin`
+- `seed-users.ts`: admin user seeded as `system_admin`
+- 3 test files: mock role updated from `'admin'` to `'system_admin'`
+
+**Release v0.6:**
+- PR #37 (`develop → main`): all 10 CI/Vercel checks passed; merged
+- Tagged `v0.6` on main
+
+### Test Results
+- `npm run type-check`: **0 errors**
+- `npm run test:ci`: **145/145 tests pass**
+- CI: all green (format, audit, test ×2, analyze, CodeQL, Vercel)
+
+### Branch / PRs
+- `feature/role-hierarchy` → **PR #36 → develop** (squash-merged)
+- `develop` → **PR #37 → main** (merge commit — v0.6 release)
+- **Tag**: `v0.6` on `main`
+
+### Next Steps
+1. Design + implement **system admin UI** — screens to create/manage venues, courses, tournaments; assign tournament admins (`tournament_admin_assignments`)
+2. Design + implement **scoped tournament admin dashboard** — shows only the assigned tournament's players/teams/scores
+3. Apply migrations 011 + 012 to cloud Supabase (`supabase db push --db-url <prod-url>`)
+
+---
+
 ## Session 27 — 2026-06-20 (E2E Tests + Seed Fixes — PR #34 continued)
 
 ### What Was Done
