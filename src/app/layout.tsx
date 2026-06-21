@@ -12,7 +12,7 @@ const barlowCondensed = Barlow_Condensed({
 });
 
 export const metadata: Metadata = {
-  title: 'FDgolf',
+  title: 'FDgolf-CM',
   description: 'Real-time golf score tracking — CIBC Capital Markets Tournament',
 };
 

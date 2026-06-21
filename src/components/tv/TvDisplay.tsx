@@ -129,7 +129,7 @@ export function TvDisplay({ tournament, initialLeaderboard, initialSponsors }: T
               className="font-barlow font-extrabold text-white leading-none"
               style={{ fontSize: 28, letterSpacing: '0.03em' }}
             >
-              FDGOLF
+              FDGOLF-CM
             </span>
             <span
               className="text-[11px] font-bold uppercase tracking-[0.22em]"

@@ -33,7 +33,7 @@ export function AdminSidebar() {
             className="font-barlow font-extrabold text-white"
             style={{ fontSize: 18, letterSpacing: '0.04em' }}
           >
-            FDGOLF
+            FDGOLF-CM
           </div>
           <div
             className="text-[10px] font-bold uppercase"

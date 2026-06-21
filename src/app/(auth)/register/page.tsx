@@ -67,7 +67,7 @@ export default function RegisterPage() {
       return;
     }
 
-    toast.success('Account created! Welcome to FDgolf.');
+    toast.success('Account created! Welcome to FDgolf-CM.');
     router.push('/dashboard');
   }
 

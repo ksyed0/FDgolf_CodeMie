@@ -353,7 +353,7 @@ export default function RoundPage() {
         <div className="flex items-center justify-between mb-1">
           <div className="flex items-center gap-2">
             <span className="font-barlow font-bold text-white" style={{ fontSize: 18 }}>
-              FDgolf
+              FDgolf-CM
             </span>
             <span
               className="rounded-full px-2 py-0.5 text-[10px] font-semibold text-green-300"

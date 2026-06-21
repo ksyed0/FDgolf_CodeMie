@@ -111,7 +111,7 @@ describe('SyncEngine', () => {
 
     it('persists the queue to localStorage', () => {
       engine.enqueue('shots', { player_id: 'p1' });
-      const raw = localStorage.getItem('fdgolf_sync_queue');
+      const raw = localStorage.getItem('fdgolf-cm_sync_queue');
       expect(raw).not.toBeNull();
       const parsed: unknown[] = JSON.parse(raw!);
       expect(parsed).toHaveLength(1);
@@ -133,7 +133,7 @@ describe('SyncEngine', () => {
       // and causing any subsequent manual flush() call to short-circuit immediately.
       mockInsert = jest.fn().mockReturnValue({ error: null });
       localStorage.setItem(
-        'fdgolf_sync_queue',
+        'fdgolf-cm_sync_queue',
         JSON.stringify([
           { id: 'a', table: 'shots', payload: { player_id: 'p1' }, created_at: 1, retries: 0 },
           { id: 'b', table: 'shots', payload: { player_id: 'p2' }, created_at: 2, retries: 0 },
@@ -146,7 +146,7 @@ describe('SyncEngine', () => {
 
     it('removes successfully synced items from the queue', async () => {
       localStorage.setItem(
-        'fdgolf_sync_queue',
+        'fdgolf-cm_sync_queue',
         JSON.stringify([
           { id: 'a', table: 'shots', payload: { player_id: 'p1' }, created_at: 1, retries: 0 },
         ])
@@ -160,7 +160,7 @@ describe('SyncEngine', () => {
 
     it('keeps failed items in the queue', async () => {
       localStorage.setItem(
-        'fdgolf_sync_queue',
+        'fdgolf-cm_sync_queue',
         JSON.stringify([
           { id: 'a', table: 'shots', payload: { player_id: 'p1' }, created_at: 1, retries: 0 },
         ])
@@ -174,7 +174,7 @@ describe('SyncEngine', () => {
 
     it('increments retryCount (retries field) when an insert fails', async () => {
       localStorage.setItem(
-        'fdgolf_sync_queue',
+        'fdgolf-cm_sync_queue',
         JSON.stringify([
           { id: 'a', table: 'shots', payload: { player_id: 'p1' }, created_at: 1, retries: 0 },
         ])
@@ -189,7 +189,7 @@ describe('SyncEngine', () => {
     it('drops items whose retries reach 5 (max retries exceeded)', async () => {
       // retries = 4 → after failure becomes 5, but < 5 check fails → dropped
       localStorage.setItem(
-        'fdgolf_sync_queue',
+        'fdgolf-cm_sync_queue',
         JSON.stringify([
           { id: 'a', table: 'shots', payload: { player_id: 'p1' }, created_at: 1, retries: 4 },
         ])
@@ -204,7 +204,7 @@ describe('SyncEngine', () => {
 
     it('retains items that fail until they exceed the max retry limit', async () => {
       localStorage.setItem(
-        'fdgolf_sync_queue',
+        'fdgolf-cm_sync_queue',
         JSON.stringify([
           { id: 'keep', table: 'shots', payload: { player_id: 'p1' }, created_at: 1, retries: 3 },
           { id: 'drop', table: 'shots', payload: { player_id: 'p2' }, created_at: 2, retries: 4 },
@@ -222,7 +222,7 @@ describe('SyncEngine', () => {
 
     it('does not process when already flushing (idempotent guard)', async () => {
       localStorage.setItem(
-        'fdgolf_sync_queue',
+        'fdgolf-cm_sync_queue',
         JSON.stringify([
           { id: 'a', table: 'shots', payload: { player_id: 'p1' }, created_at: 1, retries: 0 },
         ])
@@ -246,7 +246,7 @@ describe('SyncEngine', () => {
 
     it('reflects the number of pending items correctly', () => {
       localStorage.setItem(
-        'fdgolf_sync_queue',
+        'fdgolf-cm_sync_queue',
         JSON.stringify([
           { id: 'a', table: 'shots', payload: {}, created_at: 1, retries: 0 },
           { id: 'b', table: 'shots', payload: {}, created_at: 2, retries: 2 },
@@ -257,7 +257,7 @@ describe('SyncEngine', () => {
 
     it('decreases after a successful flush', async () => {
       localStorage.setItem(
-        'fdgolf_sync_queue',
+        'fdgolf-cm_sync_queue',
         JSON.stringify([
           { id: 'a', table: 'shots', payload: { player_id: 'p1' }, created_at: 1, retries: 0 },
         ])
@@ -278,7 +278,7 @@ describe('SyncEngine', () => {
 
     it('parses the persisted queue from localStorage', () => {
       const entry = { id: 'x', table: 'scores', payload: { hole: 1 }, created_at: 999, retries: 0 };
-      localStorage.setItem('fdgolf_sync_queue', JSON.stringify([entry]));
+      localStorage.setItem('fdgolf-cm_sync_queue', JSON.stringify([entry]));
       const queue = engine.getQueue();
       expect(queue).toHaveLength(1);
       expect(queue[0].table).toBe('scores');

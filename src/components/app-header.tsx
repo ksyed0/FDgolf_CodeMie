@@ -26,7 +26,7 @@ export function AppHeader({
     return (
       <header className="sticky top-0 z-40 flex items-center justify-between bg-[#1a472a] px-3 py-2 shadow-md">
         <div className="flex items-center gap-2">
-          <span className="text-base font-bold tracking-tight text-white">FDgolf</span>
+          <span className="text-base font-bold tracking-tight text-white">FDgolf-CM</span>
           <span className="h-1.5 w-1.5 rounded-full bg-green-400" />
         </div>
         {holeInfo && (
@@ -48,7 +48,7 @@ export function AppHeader({
   return (
     <header className="sticky top-0 z-40 flex items-center justify-between bg-[#1a472a] px-4 py-3 shadow-md">
       <div className="flex items-center gap-2">
-        <span className="text-xl font-bold tracking-tight text-white">FDgolf</span>
+        <span className="text-xl font-bold tracking-tight text-white">FDgolf-CM</span>
         <span className="rounded-full bg-green-800 px-2 py-0.5 text-[10px] font-semibold text-green-300">
           AI/Run™
         </span>
