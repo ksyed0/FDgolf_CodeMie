@@ -1,7 +1,7 @@
 export type TournamentStatus = 'setup' | 'active' | 'paused' | 'completed';
 export type RoundStatus = 'not_started' | 'in_progress' | 'completed';
 export type ShotOutcome = 'in_play' | 'out_of_bounds' | 'mulligan' | 'sunk';
-export type PlayerRole = 'player' | 'admin' | 'tournament_organizer';
+export type PlayerRole = 'player' | 'system_admin' | 'tournament_admin' | 'tournament_organizer';
 export type Gender = 'male' | 'female' | 'prefer_not_to_say';
 export type ClubCategory = 'wood' | 'hybrid' | 'iron' | 'wedge' | 'putter';
 
@@ -80,6 +80,13 @@ export interface TournamentPlayer {
   id: string;
   player_id: string;
   team_id: string;
+  tournament_id: string;
+  created_at: string;
+}
+
+export interface TournamentAdminAssignment {
+  id: string;
+  player_id: string;
   tournament_id: string;
   created_at: string;
 }

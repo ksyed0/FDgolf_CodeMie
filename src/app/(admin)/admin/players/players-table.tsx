@@ -25,7 +25,7 @@ interface PlayersTableProps {
   membershipMap: Record<string, string>;
 }
 
-const ROLES: PlayerRole[] = ['player', 'admin', 'tournament_organizer'];
+const ROLES: PlayerRole[] = ['player', 'system_admin', 'tournament_admin', 'tournament_organizer'];
 
 const EMPTY_ADD_FORM = { name: '', email: '', company: '', title: '' };
 

@@ -51,7 +51,7 @@ export async function updateSession(request: NextRequest) {
       .eq('auth_user_id', user.id)
       .single();
 
-    if (player?.role !== 'admin') {
+    if (player?.role !== 'system_admin' && player?.role !== 'tournament_admin') {
       const url = request.nextUrl.clone();
       url.pathname = '/dashboard';
       return NextResponse.redirect(url);

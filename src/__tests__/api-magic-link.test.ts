@@ -19,7 +19,7 @@ let mockFrom: jest.Mock;
 
 function buildServerClientMock(
   user: { id: string } | null = { id: 'user-1' },
-  playerRole: string | null = 'admin'
+  playerRole: string | null = 'system_admin'
 ) {
   mockGetUser = jest.fn().mockResolvedValue({
     data: { user },

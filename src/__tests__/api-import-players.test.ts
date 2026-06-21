@@ -46,7 +46,7 @@ function makeRequest(body: unknown) {
 function setupAdmin() {
   mockGetUser.mockResolvedValue({ data: { user: { id: 'admin-uid' } }, error: null });
   mockFrom.mockReturnValue({
-    select: () => ({ eq: () => ({ single: () => ({ data: { role: 'admin' } }) }) }),
+    select: () => ({ eq: () => ({ single: () => ({ data: { role: 'system_admin' } }) }) }),
   });
 }
 

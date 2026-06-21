@@ -35,7 +35,7 @@ export default function LoginPage() {
         .eq('auth_user_id', data.user.id)
         .single();
 
-      if (player?.role === 'admin') {
+      if (player?.role === 'system_admin' || player?.role === 'tournament_admin') {
         router.push('/admin/tournament');
         return;
       }

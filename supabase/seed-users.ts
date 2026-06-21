@@ -3,7 +3,7 @@
  * Run: npx tsx supabase/seed-users.ts
  *
  * Users created:
- *   admin@fdgolf.local   / Password1!   (role: admin)
+ *   admin@fdgolf.local   / Password1!   (role: system_admin)
  *   alice@fdgolf.local   / Password1!   (Team Alpha — captain)
  *   john@fdgolf.local    / Password1!   (Team Alpha)
  *   bob@fdgolf.local     / Password1!   (Team Bravo — captain)
@@ -53,7 +53,7 @@ async function upsertPlayer(params: {
   auth_user_id: string;
   name: string;
   email: string;
-  role: "player" | "admin" | "tournament_organizer";
+  role: "player" | "system_admin" | "tournament_admin" | "tournament_organizer";
 }): Promise<string> {
   const { data, error } = await db
     .from("players")
@@ -106,7 +106,7 @@ async function main() {
   // ── 3. Players ───────────────────────────────────────────────────────────
   console.log("\nStep 3: Players");
   const [, alicePid, johnPid, bobPid, janePid] = await Promise.all([
-    upsertPlayer({ auth_user_id: adminUid, name: "Tournament Admin", email: "admin@fdgolf.local", role: "admin" }),
+    upsertPlayer({ auth_user_id: adminUid, name: "System Admin", email: "admin@fdgolf.local", role: "system_admin" }),
     upsertPlayer({ auth_user_id: aliceUid, name: "Alice Smith", email: "alice@fdgolf.local", role: "player" }),
     upsertPlayer({ auth_user_id: johnUid, name: "John Doe", email: "john@fdgolf.local", role: "player" }),
     upsertPlayer({ auth_user_id: bobUid, name: "Bob Johnson", email: "bob@fdgolf.local", role: "player" }),
