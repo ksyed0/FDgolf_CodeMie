@@ -1,4 +1,45 @@
-# FDgolf — Progress
+# FDgolf-CM — Progress
+
+## Session 29 — 2026-06-21 (Admin Role Dashboards — Design Spec + Plan)
+
+### What Was Done
+
+**App rename: FDgolf → FDgolf-CM (commit fddb59f)**
+- Updated all display text: admin sidebar wordmark, app headers, TV display, auth screen titles
+- `sync-engine.ts` localStorage key changed to `fdgolf-cm_sync_queue`
+- `package.json` name/description updated
+- 10 files changed
+
+**Design spec written: `docs/superpowers/specs/2026-06-21-admin-role-dashboards-design.md`**
+- Full spec for system admin UI and scoped tournament admin dashboard
+- Role-aware `AdminLayout` fetches `tournament_admin_assignments` at boundary
+- `x-active-tournament` cookie for scoping (httpOnly, sameSite: lax)
+- Single `AdminSidebar` with role-conditional GLOBAL section
+- New pages: `/admin/tournaments`, `/admin/roster`, `/admin/select-tournament`
+- Modified pages: `AdminLayout`, `AdminSidebar`, `/admin/tournament` (Admins panel), `/admin/players` (Tournaments column)
+
+**Implementation plan written: `docs/superpowers/plans/2026-06-21-admin-role-dashboards.md`**
+- 10 tasks on branch `feature/admin-role-dashboards`
+- Plan corrected to follow design language: design tokens, AdminTopBar, sonner toast, shadcn Input/Label, right-side add panels
+
+**Design standards created: `docs/DESIGN_STANDARDS.md` (commit 921acc3)**
+- Canonical reference for all admin page development going forward
+- Color palette, card layout, buttons, badges, form inputs, form placement, toast feedback, confirm delete, typography
+
+### Test Results
+- No code changes this session — carrying over Session 28 results: **145/145 jest, 61/61 playwright**
+
+### Branch / PRs
+- Docs-only commits on `develop` — no new feature branch this session
+- `develop` HEAD: `921acc3` (docs: add admin design standards reference)
+
+### Next Steps
+1. **Execute `docs/superpowers/plans/2026-06-21-admin-role-dashboards.md`** using `superpowers:subagent-driven-development`
+   - Branch: `feature/admin-role-dashboards` off `develop`
+   - 10 tasks: cookie helper, AdminLayout update, role-aware sidebar, picker page, scoped page fixes, /admin/tournaments, Admins panel, /admin/roster, players Tournaments column, PR
+2. Apply migrations 011 + 012 to cloud Supabase (`supabase db push --db-url <prod-url>`) before tournament day
+
+---
 
 ## Session 28 — 2026-06-20/21 (Multi-Tournament + Role Hierarchy — v0.6 released)
 

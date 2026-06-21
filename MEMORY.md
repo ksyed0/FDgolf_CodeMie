@@ -13,12 +13,12 @@ Stack: Next.js 16 App Router · TypeScript · Tailwind CSS · shadcn/ui · Supab
 
 ---
 
-## Branch State (as of Session 28 close — 2026-06-21)
+## Branch State (as of Session 29 close — 2026-06-21)
 
 | Branch | Status | Notes |
 |--------|--------|-------|
 | `main` | **v0.6 released** | Multi-tournament + role hierarchy + redesigns live |
-| `develop` | HEAD `b4c1cc6` | post PR #36 — role hierarchy merged |
+| `develop` | HEAD `921acc3` | docs only — design standards + plan committed |
 | `feature/role-hierarchy` | **merged PR #36** | migration 012 + role hierarchy + seed cleanup |
 | `feature/tournament-players` | **merged PR #35** | tournament_players join table |
 
@@ -27,6 +27,10 @@ Stack: Next.js 16 App Router · TypeScript · Tailwind CSS · shadcn/ui · Supab
 **v0.6 tag** on `main` — includes PRs #32–#36 (TV stats fix, design redesigns, multi-tournament, role hierarchy).
 
 **Playwright E2E suite state (as of Session 27):** 61/61 passing, 2 skipped.
+
+**App name**: Display name is now **FDgolf-CM** everywhere (sidebar, headers, TV, auth). Repo folder name `FDgolf_CodeMie` unchanged. localStorage key: `fdgolf-cm_sync_queue`.
+
+**Admin design standards**: `docs/DESIGN_STANDARDS.md` — canonical reference for all admin page work. Read this before writing any admin UI. Key points: hex palette only (no Tailwind grays), `rounded-2xl` cards, `rounded-xl` buttons, `AdminTopBar` required, shadcn `Input`/`Label`, `sonner` toasts, right-side add panel layout.
 
 **Seed state after `supabase db reset` + `npx tsx supabase/seed-users.ts`:**
 - Venue (Granite Ridge) + Course (Main Course) now inserted by `seed.sql` (NOT migration 007 — fixed in Session 28)
@@ -39,7 +43,7 @@ Stack: Next.js 16 App Router · TypeScript · Tailwind CSS · shadcn/ui · Supab
 **Design system (Session 25)**:
 - Barlow Condensed font via `next/font/google` — CSS var `--font-barlow`, Tailwind utility `font-barlow`, weights 500/600/700/800
 - Brand colors: `#1a472a` course green, `#c0392b` under-par red, `#e7c66b` gold, `#f4f7f1` panel surface
-- AppHeader provides FDgolf/AI/Run™ brand on all player pages via `(player)/layout.tsx` — page-level headers should NOT repeat the wordmark
+- AppHeader provides FDgolf-CM / AI/Run™ brand on all player pages via `(player)/layout.tsx` — page-level headers should NOT repeat the wordmark
 - 5-panel TV rotator: 0=Birdies, 1=HoleDifficulty, 2=ShotStats, 3=MomentOfDay, 4=TeamSpotlight
 
 **Critical schema fact**: `scores.hole_number` is a plain `integer` (no FK to `holes.id`).
@@ -56,7 +60,7 @@ won't see the new policy/FK/function until cache refresh.
 - Migration 010: `Public read shots` policy — shots readable by anon client
 - `tournament_players` rows created by seed-tv-data.ts (one per player per tournament)
 
-**Next action (Session 28 close):** Design + implement system admin UI and scoped tournament admin dashboard (brainstorm initiated)
+**Next action (Session 29 close):** Execute `docs/superpowers/plans/2026-06-21-admin-role-dashboards.md` — 10 tasks, branch `feature/admin-role-dashboards`. Always read `docs/DESIGN_STANDARDS.md` before writing any admin UI code.
 
 ---
 

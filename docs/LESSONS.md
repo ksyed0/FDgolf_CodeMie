@@ -1,5 +1,18 @@
 # Lessons Learned
 
+## L-0010 — Admin pages have a strict design system — always check DESIGN_STANDARDS.md
+@session: 29 — 2026-06-21
+
+**Symptom**: New page components written with generic Tailwind classes (`rounded-lg`, `border-gray-200`, `text-sm`, `text-gray-500`, raw `<input>` elements) that don't match the existing admin design language.
+
+**Root cause**: AI agents default to generic Tailwind patterns when design tokens aren't explicitly specified. The existing admin pages use a strict custom palette (`#15241c`, `#e2e8df`, etc.), `rounded-2xl` cards, `AdminTopBar`, shadcn `Input`/`Label`, and `sonner` toasts — none of which are defaults.
+
+**Rule**: Before writing any admin UI, read `docs/DESIGN_STANDARDS.md`. Implementer agents must be explicitly told to read it — include it in every admin implementation task brief.
+
+**Applies to**: Any new admin page or component under `src/app/(admin)/admin/`.
+
+---
+
 ## L-0009 — E2E test selectors must track UI text exactly — not spec intent
 @session: 27 — 2026-06-20
 
