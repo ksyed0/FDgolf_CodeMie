@@ -18,8 +18,9 @@ interface PlayerResult {
   email: string;
 }
 
+const supabase = createClient();
+
 export function TournamentAdmins({ tournamentId }: { tournamentId: string }) {
-  const supabase = createClient();
   const [admins, setAdmins] = useState<AdminRow[]>([]);
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<PlayerResult[]>([]);
@@ -40,7 +41,7 @@ export function TournamentAdmins({ tournamentId }: { tournamentId: string }) {
       );
     }
     load();
-  }, [tournamentId, supabase]);
+  }, [tournamentId]);
 
   useEffect(() => {
     if (!query.trim()) {
@@ -53,10 +54,11 @@ export function TournamentAdmins({ tournamentId }: { tournamentId: string }) {
         .select('id, name, email')
         .or(`name.ilike.%${query}%,email.ilike.%${query}%`)
         .limit(8);
-      setResults((data ?? []) as PlayerResult[]);
+      const existingIds = new Set(admins.map((a) => a.player_id));
+      setResults(((data ?? []) as PlayerResult[]).filter((p) => !existingIds.has(p.id)));
     }, 250);
     return () => clearTimeout(timer);
-  }, [query, supabase]);
+  }, [query, admins]);
 
   async function assign(player: PlayerResult) {
     setLoading(true);
