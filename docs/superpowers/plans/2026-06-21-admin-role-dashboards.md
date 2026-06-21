@@ -19,6 +19,19 @@
 - No new npm dependencies
 - Run `npm run type-check` and `npm run test:ci` after each task; both must pass before committing
 - Branch: `feature/admin-role-dashboards` off `develop`
+- **Design tokens** (match existing pages exactly):
+  - Colors: `#15241c` (dark text), `#1a472a` (primary green), `#6b7a70` (secondary text), `#eef2ea` (light green bg), `#e2e8df` (border), `#90a094` (muted label), `#a8513f` (danger text), `#f7ece9` (danger bg)
+  - Cards: `bg-white rounded-2xl border border-[#e2e8df] p-5`
+  - Icon tiles: 52×52px `rounded-[13px] bg-[#eef2ea]` with emoji at `fontSize: 22`
+  - Buttons — primary: `rounded-xl px-4 py-2 text-[13px] font-semibold bg-[#1a472a] text-white`; secondary/cancel: `rounded-xl px-3 py-2 text-[13px] font-semibold bg-[#eef2ea] text-[#15241c]`; delete: `rounded-xl px-3 py-1.5 text-[13px] font-semibold bg-[#f7ece9] text-[#a8513f]`
+  - Inline confirm-delete: `"Delete? Yes / No"` text pattern in the card (no modal)
+  - All client page components use `<AdminTopBar eyebrow="UPPERCASE LABEL" title="Page Title" />` from `@/components/admin-top-bar` for the header
+  - Feedback via `toast.success()` / `toast.error()` from `sonner` — no `setError` state for network errors
+  - Form fields: `<Input>` from `@/components/ui/input` and `<Label>` from `@/components/ui/label`
+  - Add form placement: right-side `w-80 shrink-0 bg-white rounded-2xl border border-[#e2e8df] p-6` panel
+  - Edit form placement: inline below the card being edited
+  - Content area padding: `px-7 py-6`
+  - Typography: card titles `font-semibold text-[17px] text-[#15241c]`, subtitles `text-[13px] text-[#6b7a70]`, form section titles `font-barlow font-bold text-[18px] text-[#15241c]`
 
 ---
 
@@ -501,17 +514,21 @@ export default async function SelectTournamentPage() {
   return (
     <div className="min-h-screen bg-[#f4f7f1] flex items-center justify-center p-6">
       <div className="w-full max-w-md">
-        <h1 className="text-2xl font-bold text-[#1a472a] mb-2">Select Tournament</h1>
-        <p className="text-sm text-gray-500 mb-6">Choose the tournament you want to manage.</p>
+        <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#90a094] mb-1">
+          TOURNAMENT MANAGEMENT
+        </p>
+        <h1 className="font-barlow font-extrabold text-[28px] leading-none text-[#15241c] mb-6">
+          Select Tournament
+        </h1>
         <div className="flex flex-col gap-3">
           {tournaments.map((t) => (
             <form key={t.id} action={selectTournament.bind(null, t.id)}>
               <button
                 type="submit"
-                className="w-full text-left rounded-xl border border-gray-200 bg-white px-5 py-4 hover:border-[#1a472a] hover:shadow-sm transition-all"
+                className="w-full text-left bg-white rounded-2xl border border-[#e2e8df] px-5 py-4 hover:border-[#1a472a] hover:shadow-sm transition-all"
               >
-                <div className="font-semibold text-[#1a472a]">{t.name}</div>
-                <div className="text-xs text-gray-400 mt-0.5">
+                <div className="font-semibold text-[17px] text-[#15241c]">{t.name}</div>
+                <div className="text-[13px] text-[#6b7a70] mt-0.5">
                   {t.date} · <span className="capitalize">{t.status}</span>
                 </div>
               </button>
@@ -664,9 +681,13 @@ Create `src/app/(admin)/admin/tournaments/tournaments-list.tsx`:
 ```typescript
 'use client';
 
-import { useState, useTransition } from 'react';
+import React, { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
+import { toast } from 'sonner';
 import { createClient } from '@/lib/supabase/client';
+import { AdminTopBar } from '@/components/admin-top-bar';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { setActiveTournamentAction } from '@/lib/actions/set-active-tournament';
 import type { TournamentStatus } from '@/lib/types';
 
@@ -684,11 +705,11 @@ interface TournamentRow {
 interface Venue { id: string; name: string }
 interface Course { id: string; name: string; venue_id: string }
 
-const STATUS_COLORS: Record<TournamentStatus, string> = {
-  setup:    'bg-gray-100 text-gray-600',
-  active:   'bg-green-100 text-green-700',
-  paused:   'bg-yellow-100 text-yellow-700',
-  complete: 'bg-blue-100 text-blue-700',
+const STATUS_STYLES: Record<TournamentStatus, string> = {
+  setup:    'bg-[#eef2ea] text-[#1a472a]',
+  active:   'bg-[#e3f4e8] text-[#166534]',
+  paused:   'bg-[#fef9c3] text-[#854d0e]',
+  complete: 'bg-[#e0eeff] text-[#1e4fa0]',
 };
 
 const EMPTY_FORM = { name: '', slug: '', date: '', format: 'best_ball', venueId: '', courseId: '' };
@@ -703,23 +724,26 @@ export function TournamentsList({
   courses: Course[];
 }) {
   const router = useRouter();
+  const supabase = createClient();
   const [tournaments, setTournaments] = useState(initial);
-  const [showCreate, setShowCreate] = useState(false);
+  const [showAdd, setShowAdd] = useState(false);
   const [form, setForm] = useState(EMPTY_FORM);
   const [saving, setSaving] = useState(false);
-  const [error, setError] = useState('');
   const [isPending, startTransition] = useTransition();
 
   const filteredCourses = form.venueId
     ? courses.filter((c) => c.venue_id === form.venueId)
     : courses;
 
+  function cancel() {
+    setShowAdd(false);
+    setForm(EMPTY_FORM);
+  }
+
   async function handleCreate(e: React.FormEvent) {
     e.preventDefault();
     setSaving(true);
-    setError('');
-    const supabase = createClient();
-    const { data, error: err } = await supabase
+    const { data, error } = await supabase
       .from('tournaments')
       .insert({
         name: form.name.trim(),
@@ -730,113 +754,122 @@ export function TournamentsList({
         course_id: form.courseId,
         status: 'setup' as TournamentStatus,
       })
-      .select(`id, name, slug, date, status, format, venue:venues!venue_id(name), course:courses!course_id(name)`)
+      .select('id, name, slug, date, status, format, venue:venues!venue_id(name), course:courses!course_id(name)')
       .single();
 
-    if (err) { setError(err.message); setSaving(false); return; }
+    if (error) { toast.error(error.message); setSaving(false); return; }
     setTournaments((prev) => [data as TournamentRow, ...prev]);
-    setShowCreate(false);
-    setForm(EMPTY_FORM);
+    toast.success('Tournament created.');
+    cancel();
     setSaving(false);
   }
 
-  async function handleSelect(tournament: TournamentRow) {
+  async function handleManage(tournament: TournamentRow) {
     startTransition(async () => {
       await setActiveTournamentAction(tournament.id);
       router.push('/admin/tournament');
     });
   }
 
-  return (
-    <div className="space-y-4">
-      <div className="flex justify-end">
-        <button
-          onClick={() => setShowCreate((v) => !v)}
-          className="rounded-lg bg-[#1a472a] px-4 py-2 text-sm font-semibold text-white hover:bg-[#153a22] transition-colors"
-        >
-          {showCreate ? 'Cancel' : '+ New Tournament'}
+  const isAdding = showAdd;
+
+  const FormPanel = (
+    <form onSubmit={handleCreate} className="flex flex-col gap-3">
+      <div className="flex flex-col gap-1">
+        <Label className="text-xs text-[#6b7a70]">Name *</Label>
+        <Input required value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} className="h-8 text-sm" />
+      </div>
+      <div className="flex flex-col gap-1">
+        <Label className="text-xs text-[#6b7a70]">Slug *</Label>
+        <Input required value={form.slug} placeholder="my-tournament-2026" onChange={(e) => setForm((f) => ({ ...f, slug: e.target.value }))} className="h-8 text-sm" />
+      </div>
+      <div className="flex flex-col gap-1">
+        <Label className="text-xs text-[#6b7a70]">Date *</Label>
+        <Input required type="date" value={form.date} onChange={(e) => setForm((f) => ({ ...f, date: e.target.value }))} className="h-8 text-sm" />
+      </div>
+      <div className="flex flex-col gap-1">
+        <Label className="text-xs text-[#6b7a70]">Venue *</Label>
+        <select required value={form.venueId} onChange={(e) => setForm((f) => ({ ...f, venueId: e.target.value, courseId: '' }))}
+          className="h-8 rounded-md border border-input px-3 text-sm focus:border-[#1a472a] focus:outline-none">
+          <option value="">Select venue…</option>
+          {venues.map((v) => <option key={v.id} value={v.id}>{v.name}</option>)}
+        </select>
+      </div>
+      <div className="flex flex-col gap-1">
+        <Label className="text-xs text-[#6b7a70]">Course *</Label>
+        <select required value={form.courseId} onChange={(e) => setForm((f) => ({ ...f, courseId: e.target.value }))}
+          className="h-8 rounded-md border border-input px-3 text-sm focus:border-[#1a472a] focus:outline-none">
+          <option value="">Select course…</option>
+          {filteredCourses.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+        </select>
+      </div>
+      <div className="flex gap-2 pt-1">
+        <button type="button" onClick={cancel}
+          className="flex-1 rounded-xl px-3 py-2 text-[13px] font-semibold bg-[#eef2ea] text-[#15241c]">
+          Cancel
+        </button>
+        <button type="submit" disabled={saving}
+          className="flex-1 rounded-xl px-3 py-2 text-[13px] font-semibold bg-[#1a472a] text-white disabled:opacity-50">
+          {saving ? 'Saving…' : 'Save Tournament'}
         </button>
       </div>
+    </form>
+  );
 
-      {showCreate && (
-        <form onSubmit={handleCreate} className="rounded-xl border border-[#1a472a]/20 bg-white p-5 space-y-3">
-          <h2 className="font-semibold text-[#1a472a]">New Tournament</h2>
-          {error && <p className="text-sm text-red-600">{error}</p>}
-          <div className="grid grid-cols-2 gap-3">
-            <div className="col-span-2">
-              <label className="text-xs font-medium text-gray-600">Name</label>
-              <input required value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
-                className="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-[#1a472a] focus:outline-none" />
-            </div>
-            <div>
-              <label className="text-xs font-medium text-gray-600">Slug</label>
-              <input required value={form.slug} onChange={(e) => setForm((f) => ({ ...f, slug: e.target.value }))}
-                placeholder="my-tournament-2026"
-                className="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-[#1a472a] focus:outline-none" />
-            </div>
-            <div>
-              <label className="text-xs font-medium text-gray-600">Date</label>
-              <input required type="date" value={form.date} onChange={(e) => setForm((f) => ({ ...f, date: e.target.value }))}
-                className="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-[#1a472a] focus:outline-none" />
-            </div>
-            <div>
-              <label className="text-xs font-medium text-gray-600">Venue</label>
-              <select required value={form.venueId} onChange={(e) => setForm((f) => ({ ...f, venueId: e.target.value, courseId: '' }))}
-                className="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-[#1a472a] focus:outline-none">
-                <option value="">Select venue…</option>
-                {venues.map((v) => <option key={v.id} value={v.id}>{v.name}</option>)}
-              </select>
-            </div>
-            <div>
-              <label className="text-xs font-medium text-gray-600">Course</label>
-              <select required value={form.courseId} onChange={(e) => setForm((f) => ({ ...f, courseId: e.target.value }))}
-                className="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-[#1a472a] focus:outline-none">
-                <option value="">Select course…</option>
-                {filteredCourses.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
-              </select>
-            </div>
-          </div>
-          <div className="flex justify-end gap-2 pt-1">
-            <button type="button" onClick={() => setShowCreate(false)}
-              className="rounded-lg border border-gray-200 px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50">
-              Cancel
-            </button>
-            <button type="submit" disabled={saving}
-              className="rounded-lg bg-[#1a472a] px-4 py-2 text-sm font-semibold text-white hover:bg-[#153a22] disabled:opacity-60">
-              {saving ? 'Creating…' : 'Create Tournament'}
-            </button>
-          </div>
-        </form>
-      )}
+  return (
+    <div className="flex flex-col">
+      <AdminTopBar eyebrow="TOURNAMENT MANAGEMENT" title="Tournaments">
+        <button
+          onClick={() => { setShowAdd(true); }}
+          className="rounded-xl px-4 py-2 text-[13px] font-semibold bg-[#1a472a] text-white"
+        >
+          + Add Tournament
+        </button>
+      </AdminTopBar>
 
-      <div className="space-y-3">
-        {tournaments.length === 0 && (
-          <div className="rounded-xl border border-dashed border-gray-200 p-8 text-center text-sm text-gray-400">
-            No tournaments yet. Create one above.
-          </div>
-        )}
-        {tournaments.map((t) => (
-          <div key={t.id} className="rounded-xl border border-gray-200 bg-white px-5 py-4 flex items-center justify-between">
-            <div>
-              <div className="font-semibold text-[#1a472a]">{t.name}</div>
-              <div className="text-xs text-gray-400 mt-0.5">
-                {t.date} · {t.venue?.name ?? '—'} · {t.course?.name ?? '—'}
+      <div className="px-7 py-6 flex gap-6">
+        {/* Left: tournament card list */}
+        <div className="flex-1 flex flex-col gap-4">
+          {tournaments.length === 0 && (
+            <p className="text-[14px] text-[#6b7a70]">No tournaments yet — add one.</p>
+          )}
+          {tournaments.map((t) => (
+            <div key={t.id} className="bg-white rounded-2xl border border-[#e2e8df] p-5 flex items-start gap-4">
+              <div
+                className="rounded-[13px] bg-[#eef2ea] flex items-center justify-center shrink-0"
+                style={{ width: 52, height: 52 }}
+              >
+                <span style={{ fontSize: 22 }}>🏆</span>
               </div>
-            </div>
-            <div className="flex items-center gap-3">
-              <span className={`rounded-full px-2.5 py-0.5 text-xs font-semibold capitalize ${STATUS_COLORS[t.status]}`}>
-                {t.status}
-              </span>
+              <div className="flex-1 min-w-0">
+                <p className="font-semibold text-[17px] text-[#15241c]">{t.name}</p>
+                <p className="text-[13px] text-[#6b7a70] mt-0.5">
+                  {t.date} · {t.venue?.name ?? '—'} · {t.course?.name ?? '—'}
+                </p>
+                <div className="flex gap-2 mt-2">
+                  <span className={`rounded-full px-2.5 py-0.5 text-[12px] font-semibold capitalize ${STATUS_STYLES[t.status]}`}>
+                    {t.status}
+                  </span>
+                </div>
+              </div>
               <button
-                onClick={() => handleSelect(t)}
+                onClick={() => handleManage(t)}
                 disabled={isPending}
-                className="rounded-lg bg-[#1a472a] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#153a22] disabled:opacity-60"
+                className="rounded-xl px-3 py-1.5 text-[13px] font-semibold bg-[#eef2ea] text-[#1a472a] shrink-0 disabled:opacity-50"
               >
                 Manage
               </button>
             </div>
+          ))}
+        </div>
+
+        {/* Right: Add form */}
+        {isAdding && (
+          <div className="w-80 shrink-0 bg-white rounded-2xl border border-[#e2e8df] p-6 self-start">
+            <p className="font-barlow font-bold text-[18px] text-[#15241c] mb-4">Add Tournament</p>
+            {FormPanel}
           </div>
-        ))}
+        )}
       </div>
     </div>
   );
@@ -879,11 +912,12 @@ Create `src/app/(admin)/admin/tournament/tournament-admins.tsx`:
 'use client';
 
 import { useState, useEffect } from 'react';
+import { toast } from 'sonner';
 import { createClient } from '@/lib/supabase/client';
-import { Trash2 } from 'lucide-react';
+import { Input } from '@/components/ui/input';
 
 interface AdminRow {
-  id: string;  // assignment id
+  id: string;
   player_id: string;
   name: string;
   email: string;
@@ -901,7 +935,7 @@ export function TournamentAdmins({ tournamentId }: { tournamentId: string }) {
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<PlayerResult[]>([]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [confirmRemoveId, setConfirmRemoveId] = useState<string | null>(null);
 
   useEffect(() => {
     async function load() {
@@ -934,16 +968,14 @@ export function TournamentAdmins({ tournamentId }: { tournamentId: string }) {
 
   async function assign(player: PlayerResult) {
     setLoading(true);
-    setError('');
-    const { data, error: err } = await supabase
+    const { data, error } = await supabase
       .from('tournament_admin_assignments')
       .insert({ player_id: player.id, tournament_id: tournamentId })
       .select('id, player_id')
       .single();
 
-    if (err) { setError(err.message); setLoading(false); return; }
+    if (error) { toast.error(error.message); setLoading(false); return; }
 
-    // Also ensure the player's role is tournament_admin
     await supabase
       .from('players')
       .update({ role: 'tournament_admin' })
@@ -951,43 +983,45 @@ export function TournamentAdmins({ tournamentId }: { tournamentId: string }) {
       .eq('role', 'player');
 
     setAdmins((prev) => [...prev, { id: data.id, player_id: data.player_id, name: player.name, email: player.email }]);
+    toast.success(`${player.name} assigned as tournament admin.`);
     setQuery('');
     setResults([]);
     setLoading(false);
   }
 
   async function remove(assignmentId: string) {
-    const { error: err } = await supabase
+    const { error } = await supabase
       .from('tournament_admin_assignments')
       .delete()
       .eq('id', assignmentId);
-    if (err) { setError(err.message); return; }
+    if (error) { toast.error(error.message); return; }
     setAdmins((prev) => prev.filter((a) => a.id !== assignmentId));
+    toast.success('Admin removed.');
+    setConfirmRemoveId(null);
   }
 
   return (
-    <section className="rounded-xl border border-gray-200 bg-white p-5 space-y-4">
-      <h2 className="font-semibold text-[#1a472a]">Tournament Admins</h2>
-      {error && <p className="text-sm text-red-600">{error}</p>}
+    <section className="bg-white rounded-2xl border border-[#e2e8df] p-5 space-y-4">
+      <p className="font-barlow font-bold text-[18px] text-[#15241c]">Tournament Admins</p>
 
       <div className="relative">
-        <input
+        <Input
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search player by name or email…"
-          className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-[#1a472a] focus:outline-none"
+          className="h-8 text-sm"
         />
         {results.length > 0 && (
-          <div className="absolute z-10 top-full mt-1 w-full rounded-lg border border-gray-200 bg-white shadow-lg">
+          <div className="absolute z-10 top-full mt-1 w-full rounded-2xl border border-[#e2e8df] bg-white shadow-lg overflow-hidden">
             {results.map((p) => (
               <button
                 key={p.id}
                 onClick={() => assign(p)}
                 disabled={loading}
-                className="w-full text-left px-3 py-2 text-sm hover:bg-[#f4f7f1] flex justify-between"
+                className="w-full text-left px-4 py-2.5 text-[13px] hover:bg-[#eef2ea] flex justify-between items-center"
               >
-                <span className="font-medium">{p.name}</span>
-                <span className="text-gray-400">{p.email}</span>
+                <span className="font-medium text-[#15241c]">{p.name}</span>
+                <span className="text-[#6b7a70]">{p.email}</span>
               </button>
             ))}
           </div>
@@ -995,18 +1029,29 @@ export function TournamentAdmins({ tournamentId }: { tournamentId: string }) {
       </div>
 
       {admins.length === 0 ? (
-        <p className="text-sm text-gray-400 italic">No admins assigned yet.</p>
+        <p className="text-[13px] text-[#6b7a70] italic">No admins assigned yet.</p>
       ) : (
-        <ul className="divide-y divide-gray-100">
+        <ul className="divide-y divide-[#e2e8df]">
           {admins.map((a) => (
-            <li key={a.id} className="flex items-center justify-between py-2">
+            <li key={a.id} className="flex items-center justify-between py-2.5">
               <div>
-                <div className="text-sm font-medium">{a.name}</div>
-                <div className="text-xs text-gray-400">{a.email}</div>
+                <div className="text-[13px] font-semibold text-[#15241c]">{a.name}</div>
+                <div className="text-[12px] text-[#6b7a70]">{a.email}</div>
               </div>
-              <button onClick={() => remove(a.id)} className="text-gray-400 hover:text-red-500 transition-colors">
-                <Trash2 className="h-4 w-4" />
-              </button>
+              {confirmRemoveId === a.id ? (
+                <div className="flex items-center gap-2 text-[13px]">
+                  <span className="text-[#6b7a70]">Remove?</span>
+                  <button onClick={() => remove(a.id)} className="font-semibold text-[#a8513f] hover:underline">Yes</button>
+                  <button onClick={() => setConfirmRemoveId(null)} className="text-[#6b7a70] hover:underline">No</button>
+                </div>
+              ) : (
+                <button
+                  onClick={() => setConfirmRemoveId(a.id)}
+                  className="rounded-xl px-3 py-1.5 text-[13px] font-semibold bg-[#f7ece9] text-[#a8513f]"
+                >
+                  Remove
+                </button>
+              )}
             </li>
           ))}
         </ul>
@@ -1136,9 +1181,12 @@ Create `src/app/(admin)/admin/roster/roster-manager.tsx`:
 ```typescript
 'use client';
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
+import { toast } from 'sonner';
 import { createClient } from '@/lib/supabase/client';
-import { Trash2, UserPlus, Plus } from 'lucide-react';
+import { AdminTopBar } from '@/components/admin-top-bar';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import type { Team } from '@/lib/types';
 import type { RosterPlayer } from './page';
 
@@ -1157,17 +1205,16 @@ export function RosterManager({
 }) {
   const supabase = createClient();
   const [players, setPlayers] = useState(initial);
-  const [mode, setMode] = useState<null | 'add-existing' | 'create-new'>(null);
+  const [showAdd, setShowAdd] = useState(false);
+  const [showNew, setShowNew] = useState(false);
+  const [confirmRemoveId, setConfirmRemoveId] = useState<string | null>(null);
 
-  // Search existing players
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<PlayerSearchResult[]>([]);
   const [searchTeamId, setSearchTeamId] = useState('');
 
-  // New player form
   const [newForm, setNewForm] = useState(EMPTY_NEW);
   const [saving, setSaving] = useState(false);
-  const [error, setError] = useState('');
 
   useEffect(() => {
     if (!searchQuery.trim()) { setSearchResults([]); return; }
@@ -1184,38 +1231,34 @@ export function RosterManager({
 
   async function enrollExisting(player: PlayerSearchResult) {
     setSaving(true);
-    setError('');
-    const { data, error: err } = await supabase
+    const { data, error } = await supabase
       .from('tournament_players')
       .insert({ player_id: player.id, tournament_id: tournamentId, team_id: searchTeamId || null })
       .select('id, player_id, team_id, teams!team_id(team_name)')
       .single();
 
-    if (err) { setError(err.message); setSaving(false); return; }
+    if (error) { toast.error(error.message); setSaving(false); return; }
     const t = data.teams as unknown as { team_name: string } | null;
     setPlayers((prev) => [...prev, {
       id: data.id, player_id: data.player_id,
       name: player.name, email: player.email, company: '', title: '',
       team_id: data.team_id, team_name: t?.team_name ?? null,
     }]);
-    setSearchQuery('');
-    setSearchResults([]);
-    setSearchTeamId('');
-    setSaving(false);
-    setMode(null);
+    toast.success(`${player.name} added to roster.`);
+    setSearchQuery(''); setSearchResults([]); setSearchTeamId('');
+    setSaving(false); setShowAdd(false);
   }
 
   async function createAndEnroll(e: React.FormEvent) {
     e.preventDefault();
     setSaving(true);
-    setError('');
     const { data: p, error: pErr } = await supabase
       .from('players')
       .insert({ name: newForm.name.trim(), email: newForm.email.trim(), company: newForm.company.trim(), title: newForm.title.trim(), role: 'player' })
       .select('id, name, email')
       .single();
 
-    if (pErr) { setError(pErr.message); setSaving(false); return; }
+    if (pErr) { toast.error(pErr.message); setSaving(false); return; }
 
     const { data: tp, error: tpErr } = await supabase
       .from('tournament_players')
@@ -1223,158 +1266,171 @@ export function RosterManager({
       .select('id, player_id, team_id, teams!team_id(team_name)')
       .single();
 
-    if (tpErr) { setError(tpErr.message); setSaving(false); return; }
+    if (tpErr) { toast.error(tpErr.message); setSaving(false); return; }
     const t = tp.teams as unknown as { team_name: string } | null;
     setPlayers((prev) => [...prev, {
       id: tp.id, player_id: tp.player_id,
       name: p.name, email: p.email, company: newForm.company, title: newForm.title,
       team_id: tp.team_id, team_name: t?.team_name ?? null,
     }]);
-    setNewForm(EMPTY_NEW);
-    setSaving(false);
-    setMode(null);
+    toast.success(`${p.name} created and enrolled.`);
+    setNewForm(EMPTY_NEW); setSaving(false); setShowNew(false);
   }
 
   async function removeFromTournament(membershipId: string) {
-    const { error: err } = await supabase
-      .from('tournament_players')
-      .delete()
-      .eq('id', membershipId);
-    if (err) { setError(err.message); return; }
+    const { error } = await supabase.from('tournament_players').delete().eq('id', membershipId);
+    if (error) { toast.error(error.message); return; }
     setPlayers((prev) => prev.filter((p) => p.id !== membershipId));
+    toast.success('Player removed from tournament.');
+    setConfirmRemoveId(null);
   }
 
-  return (
-    <div className="space-y-4">
-      {error && <p className="text-sm text-red-600">{error}</p>}
-
-      <div className="flex gap-2 justify-end">
-        <button
-          onClick={() => setMode(mode === 'add-existing' ? null : 'add-existing')}
-          className="flex items-center gap-1.5 rounded-lg border border-[#1a472a] px-3 py-2 text-sm font-semibold text-[#1a472a] hover:bg-[#f4f7f1]"
-        >
-          <UserPlus className="h-4 w-4" /> Add Existing Player
-        </button>
-        <button
-          onClick={() => setMode(mode === 'create-new' ? null : 'create-new')}
-          className="flex items-center gap-1.5 rounded-lg bg-[#1a472a] px-3 py-2 text-sm font-semibold text-white hover:bg-[#153a22]"
-        >
-          <Plus className="h-4 w-4" /> New Player
+  const AddExistingForm = (
+    <div className="w-80 shrink-0 bg-white rounded-2xl border border-[#e2e8df] p-6 self-start">
+      <p className="font-barlow font-bold text-[18px] text-[#15241c] mb-4">Add Existing Player</p>
+      <div className="flex flex-col gap-3">
+        <div className="relative">
+          <Input
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search by name or email…"
+            className="h-8 text-sm"
+          />
+          {searchResults.length > 0 && (
+            <div className="absolute z-10 top-full mt-1 w-full rounded-2xl border border-[#e2e8df] bg-white shadow-lg overflow-hidden">
+              {searchResults.map((p) => (
+                <button key={p.id} onClick={() => enrollExisting(p)} disabled={saving}
+                  className="w-full text-left px-4 py-2.5 text-[13px] hover:bg-[#eef2ea] flex justify-between">
+                  <span className="font-medium text-[#15241c]">{p.name}</span>
+                  <span className="text-[#6b7a70]">{p.email}</span>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+        <div className="flex flex-col gap-1">
+          <Label className="text-xs text-[#6b7a70]">Assign to team</Label>
+          <select value={searchTeamId} onChange={(e) => setSearchTeamId(e.target.value)}
+            className="h-8 rounded-md border border-input px-3 text-sm focus:border-[#1a472a] focus:outline-none">
+            <option value="">No team yet</option>
+            {teams.map((t) => <option key={t.id} value={t.id}>{t.team_name}</option>)}
+          </select>
+        </div>
+        <button onClick={() => { setShowAdd(false); setSearchQuery(''); setSearchResults([]); }}
+          className="rounded-xl px-3 py-2 text-[13px] font-semibold bg-[#eef2ea] text-[#15241c]">
+          Cancel
         </button>
       </div>
+    </div>
+  );
 
-      {mode === 'add-existing' && (
-        <div className="rounded-xl border border-gray-200 bg-white p-5 space-y-3">
-          <h2 className="font-semibold text-[#1a472a]">Add Existing Player</h2>
-          <div className="relative">
-            <input
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search by name or email…"
-              className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-[#1a472a] focus:outline-none"
-            />
-            {searchResults.length > 0 && (
-              <div className="absolute z-10 top-full mt-1 w-full rounded-lg border border-gray-200 bg-white shadow-lg">
-                {searchResults.map((p) => (
-                  <button key={p.id} onClick={() => enrollExisting(p)} disabled={saving}
-                    className="w-full text-left px-3 py-2 text-sm hover:bg-[#f4f7f1] flex justify-between">
-                    <span className="font-medium">{p.name}</span>
-                    <span className="text-gray-400">{p.email}</span>
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-          <div>
-            <label className="text-xs font-medium text-gray-600">Assign to team (optional)</label>
-            <select value={searchTeamId} onChange={(e) => setSearchTeamId(e.target.value)}
-              className="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-[#1a472a] focus:outline-none">
-              <option value="">No team yet</option>
-              {teams.map((t) => <option key={t.id} value={t.id}>{t.team_name}</option>)}
-            </select>
-          </div>
+  const NewPlayerForm = (
+    <div className="w-80 shrink-0 bg-white rounded-2xl border border-[#e2e8df] p-6 self-start">
+      <p className="font-barlow font-bold text-[18px] text-[#15241c] mb-4">New Player</p>
+      <form onSubmit={createAndEnroll} className="flex flex-col gap-3">
+        <div className="flex flex-col gap-1">
+          <Label className="text-xs text-[#6b7a70]">Name *</Label>
+          <Input required value={newForm.name} onChange={(e) => setNewForm((f) => ({ ...f, name: e.target.value }))} className="h-8 text-sm" />
         </div>
-      )}
+        <div className="flex flex-col gap-1">
+          <Label className="text-xs text-[#6b7a70]">Email *</Label>
+          <Input required type="email" value={newForm.email} onChange={(e) => setNewForm((f) => ({ ...f, email: e.target.value }))} className="h-8 text-sm" />
+        </div>
+        <div className="flex flex-col gap-1">
+          <Label className="text-xs text-[#6b7a70]">Company</Label>
+          <Input value={newForm.company} onChange={(e) => setNewForm((f) => ({ ...f, company: e.target.value }))} className="h-8 text-sm" />
+        </div>
+        <div className="flex flex-col gap-1">
+          <Label className="text-xs text-[#6b7a70]">Title</Label>
+          <Input value={newForm.title} onChange={(e) => setNewForm((f) => ({ ...f, title: e.target.value }))} className="h-8 text-sm" />
+        </div>
+        <div className="flex flex-col gap-1">
+          <Label className="text-xs text-[#6b7a70]">Team</Label>
+          <select value={newForm.teamId} onChange={(e) => setNewForm((f) => ({ ...f, teamId: e.target.value }))}
+            className="h-8 rounded-md border border-input px-3 text-sm focus:border-[#1a472a] focus:outline-none">
+            <option value="">No team yet</option>
+            {teams.map((t) => <option key={t.id} value={t.id}>{t.team_name}</option>)}
+          </select>
+        </div>
+        <div className="flex gap-2 pt-1">
+          <button type="button" onClick={() => { setShowNew(false); setNewForm(EMPTY_NEW); }}
+            className="flex-1 rounded-xl px-3 py-2 text-[13px] font-semibold bg-[#eef2ea] text-[#15241c]">
+            Cancel
+          </button>
+          <button type="submit" disabled={saving}
+            className="flex-1 rounded-xl px-3 py-2 text-[13px] font-semibold bg-[#1a472a] text-white disabled:opacity-50">
+            {saving ? 'Saving…' : 'Create & Enroll'}
+          </button>
+        </div>
+      </form>
+    </div>
+  );
 
-      {mode === 'create-new' && (
-        <form onSubmit={createAndEnroll} className="rounded-xl border border-gray-200 bg-white p-5 space-y-3">
-          <h2 className="font-semibold text-[#1a472a]">New Player</h2>
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="text-xs font-medium text-gray-600">Name</label>
-              <input required value={newForm.name} onChange={(e) => setNewForm((f) => ({ ...f, name: e.target.value }))}
-                className="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-[#1a472a] focus:outline-none" />
-            </div>
-            <div>
-              <label className="text-xs font-medium text-gray-600">Email</label>
-              <input required type="email" value={newForm.email} onChange={(e) => setNewForm((f) => ({ ...f, email: e.target.value }))}
-                className="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-[#1a472a] focus:outline-none" />
-            </div>
-            <div>
-              <label className="text-xs font-medium text-gray-600">Company</label>
-              <input value={newForm.company} onChange={(e) => setNewForm((f) => ({ ...f, company: e.target.value }))}
-                className="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-[#1a472a] focus:outline-none" />
-            </div>
-            <div>
-              <label className="text-xs font-medium text-gray-600">Title</label>
-              <input value={newForm.title} onChange={(e) => setNewForm((f) => ({ ...f, title: e.target.value }))}
-                className="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-[#1a472a] focus:outline-none" />
-            </div>
-            <div className="col-span-2">
-              <label className="text-xs font-medium text-gray-600">Team (optional)</label>
-              <select value={newForm.teamId} onChange={(e) => setNewForm((f) => ({ ...f, teamId: e.target.value }))}
-                className="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-[#1a472a] focus:outline-none">
-                <option value="">No team yet</option>
-                {teams.map((t) => <option key={t.id} value={t.id}>{t.team_name}</option>)}
-              </select>
-            </div>
-          </div>
-          <div className="flex justify-end gap-2">
-            <button type="button" onClick={() => setMode(null)}
-              className="rounded-lg border border-gray-200 px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50">
-              Cancel
-            </button>
-            <button type="submit" disabled={saving}
-              className="rounded-lg bg-[#1a472a] px-4 py-2 text-sm font-semibold text-white hover:bg-[#153a22] disabled:opacity-60">
-              {saving ? 'Creating…' : 'Create & Enroll'}
-            </button>
-          </div>
-        </form>
-      )}
+  return (
+    <div className="flex flex-col">
+      <AdminTopBar eyebrow="TOURNAMENT MANAGEMENT" title="Roster">
+        <button onClick={() => { setShowAdd(true); setShowNew(false); }}
+          className="rounded-xl px-4 py-2 text-[13px] font-semibold bg-[#eef2ea] text-[#1a472a]">
+          + Add Existing
+        </button>
+        <button onClick={() => { setShowNew(true); setShowAdd(false); }}
+          className="rounded-xl px-4 py-2 text-[13px] font-semibold bg-[#1a472a] text-white">
+          + New Player
+        </button>
+      </AdminTopBar>
 
-      <div className="rounded-xl border border-gray-200 bg-white overflow-hidden">
-        {players.length === 0 ? (
-          <div className="p-8 text-center text-sm text-gray-400">No players enrolled yet.</div>
-        ) : (
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-gray-100 bg-gray-50 text-xs font-semibold text-gray-500 uppercase tracking-wide">
-                <th className="px-4 py-3 text-left">Name</th>
-                <th className="px-4 py-3 text-left">Email</th>
-                <th className="px-4 py-3 text-left">Company</th>
-                <th className="px-4 py-3 text-left">Team</th>
-                <th className="px-4 py-3" />
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100">
-              {players.map((p) => (
-                <tr key={p.id} className="hover:bg-gray-50">
-                  <td className="px-4 py-3 font-medium">{p.name}</td>
-                  <td className="px-4 py-3 text-gray-500">{p.email}</td>
-                  <td className="px-4 py-3 text-gray-500">{p.company}</td>
-                  <td className="px-4 py-3 text-gray-500">{p.team_name ?? <span className="italic text-gray-300">—</span>}</td>
-                  <td className="px-4 py-3 text-right">
-                    <button onClick={() => removeFromTournament(p.id)}
-                      className="text-gray-400 hover:text-red-500 transition-colors"
-                      title="Remove from tournament">
-                      <Trash2 className="h-4 w-4" />
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
+      <div className="px-7 py-6 flex gap-6">
+        {/* Left: player list */}
+        <div className="flex-1 flex flex-col gap-4">
+          {players.length === 0 && (
+            <p className="text-[14px] text-[#6b7a70]">No players enrolled yet.</p>
+          )}
+          {players.map((p) => (
+            <React.Fragment key={p.id}>
+              <div className="bg-white rounded-2xl border border-[#e2e8df] p-5 flex items-start gap-4">
+                <div className="rounded-[13px] bg-[#eef2ea] flex items-center justify-center shrink-0" style={{ width: 52, height: 52 }}>
+                  <span style={{ fontSize: 22 }}>👤</span>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-semibold text-[17px] text-[#15241c]">{p.name}</p>
+                  <p className="text-[13px] text-[#6b7a70] mt-0.5">{p.email}</p>
+                  <div className="flex gap-2 mt-2">
+                    {p.team_name ? (
+                      <span className="rounded-full px-2.5 py-0.5 text-[12px] font-semibold bg-[#e9f3ec] text-[#1a472a]">
+                        {p.team_name}
+                      </span>
+                    ) : (
+                      <span className="rounded-full px-2.5 py-0.5 text-[12px] font-semibold bg-[#f4f7f1] text-[#6b7a70]">
+                        No team
+                      </span>
+                    )}
+                    {p.company && (
+                      <span className="rounded-full px-2.5 py-0.5 text-[12px] font-semibold bg-[#eef2ea] text-[#6b7a70]">
+                        {p.company}
+                      </span>
+                    )}
+                  </div>
+                </div>
+                {confirmRemoveId === p.id ? (
+                  <div className="flex items-center gap-2 shrink-0 text-[13px]">
+                    <span className="text-[#6b7a70]">Remove?</span>
+                    <button onClick={() => removeFromTournament(p.id)} className="font-semibold text-[#a8513f] hover:underline">Yes</button>
+                    <button onClick={() => setConfirmRemoveId(null)} className="text-[#6b7a70] hover:underline">No</button>
+                  </div>
+                ) : (
+                  <button onClick={() => setConfirmRemoveId(p.id)}
+                    className="rounded-xl px-3 py-1.5 text-[13px] font-semibold bg-[#f7ece9] text-[#a8513f] shrink-0">
+                    Remove
+                  </button>
+                )}
+              </div>
+            </React.Fragment>
+          ))}
+        </div>
+
+        {/* Right: form panel */}
+        {showAdd && AddExistingForm}
+        {showNew && NewPlayerForm}
       </div>
     </div>
   );
