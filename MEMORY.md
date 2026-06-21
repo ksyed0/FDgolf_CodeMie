@@ -13,20 +13,39 @@ Stack: Next.js 16 App Router · TypeScript · Tailwind CSS · shadcn/ui · Supab
 
 ---
 
-## Branch State (as of Session 28 close — 2026-06-21)
+## Branch State (as of Session 29 close — 2026-06-21)
 
 | Branch | Status | Notes |
 |--------|--------|-------|
 | `main` | **v0.6 released** | Multi-tournament + role hierarchy + redesigns live |
-| `develop` | HEAD `b4c1cc6` | post PR #36 — role hierarchy merged |
+| `develop` | HEAD `05a8e95` | post PR #36 — role hierarchy merged |
+| `feature/admin-role-dashboards` | **open PR #38** | 12 commits — system admin UI + scoped tournament admin |
 | `feature/role-hierarchy` | **merged PR #36** | migration 012 + role hierarchy + seed cleanup |
 | `feature/tournament-players` | **merged PR #35** | tournament_players join table |
 
-**Current open PRs**: None.
+**Current open PRs**: PR #38 (`feature/admin-role-dashboards` → `develop`).
 
 **v0.6 tag** on `main` — includes PRs #32–#36 (TV stats fix, design redesigns, multi-tournament, role hierarchy).
 
 **Playwright E2E suite state (as of Session 27):** 61/61 passing, 2 skipped.
+
+**Admin role dashboards — PR #38 (feature/admin-role-dashboards)**
+
+Key technical facts to know for next session:
+- `x-active-tournament` cookie (`httpOnly: true, sameSite: lax, path: /`) is the single source of truth for active tournament across all admin pages
+- `getActiveTournamentId()` in `src/lib/active-tournament.ts` — all server pages use this to read the cookie
+- `setActiveTournamentAction()` in `src/lib/actions/set-active-tournament.ts` — server action to set the cookie
+- `src/app/(admin)/layout.tsx` — role-aware: system_admin reads/falls back to most-recent tournament; tournament_admin: 0 assignments → redirect `/dashboard`, 1 → auto-set cookie, 2+ → redirect `/admin/select-tournament`
+- `src/app/(tournament-select)/admin/select-tournament/page.tsx` — INTENTIONALLY outside `(admin)` route group (no layout) to break infinite redirect loop for multi-assignment tournament admins
+- `src/app/(admin)/admin/tournaments/page.tsx` and `src/app/(admin)/admin/players/page.tsx` — both have role guards; redirect non-system_admin to `/admin/tournament`
+- All client components (`tournament-admins.tsx`, `roster-manager.tsx`, `tournaments-list.tsx`) use `const supabase = createClient()` at MODULE LEVEL outside the component — prevents infinite useEffect re-fires
+
+**Admin DESIGN_STANDARDS.md** — lives at `docs/DESIGN_STANDARDS.md`. Always reference before writing admin UI. Key rules:
+- PROHIBITED: `text-sm`, `text-xs`, `text-lg`, `text-2xl`, `text-gray-*`, `rounded-lg`
+- Typography: `text-[13px]`, `text-[17px]`, `text-[28px]` only
+- Cards: `rounded-2xl`, buttons: `rounded-xl`
+- Every client page must use `<AdminTopBar eyebrow="UPPERCASE" title="Title">`
+- Design tokens: dark text `#15241c`, primary green `#1a472a`, secondary `#6b7a70`, muted `#90a094`
 
 **Seed state after `supabase db reset` + `npx tsx supabase/seed-users.ts`:**
 - Venue (Granite Ridge) + Course (Main Course) now inserted by `seed.sql` (NOT migration 007 — fixed in Session 28)
@@ -56,7 +75,7 @@ won't see the new policy/FK/function until cache refresh.
 - Migration 010: `Public read shots` policy — shots readable by anon client
 - `tournament_players` rows created by seed-tv-data.ts (one per player per tournament)
 
-**Next action (Session 28 close):** Design + implement system admin UI and scoped tournament admin dashboard (brainstorm initiated)
+**Next action (Session 29 close):** Merge PR #38 when CI passes; then pre-tournament smoke test
 
 ---
 

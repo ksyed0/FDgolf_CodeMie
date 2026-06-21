@@ -1,5 +1,80 @@
 # FDgolf — Progress
 
+## Session 29 — 2026-06-21 (Admin Role Dashboards — PR #38)
+
+### What Was Done
+
+**Executed 10-task plan: `docs/superpowers/plans/2026-06-21-admin-role-dashboards.md`**
+via `superpowers:subagent-driven-development` on branch `feature/admin-role-dashboards`.
+
+**Task 1: Cookie helper + server action**
+- `src/lib/active-tournament.ts` — `getActiveTournamentId()` reads `x-active-tournament` cookie
+- `src/lib/actions/set-active-tournament.ts` — server action sets cookie (`httpOnly, sameSite: lax, path: /`)
+- `src/__tests__/active-tournament.test.ts` — 2 tests, commit `03bb823`
+
+**Task 2: AdminLayout — role gate + cookie routing**
+- `src/app/(admin)/layout.tsx` rewritten — fetches player role + assignments; routes system_admin (cookie fallback to most-recent), tournament_admin (0→dashboard, 1→auto-cookie, 2+→picker), non-admin→dashboard
+- Commit `28d7da3`
+
+**Task 3: Role-aware AdminSidebar**
+- `src/components/admin-sidebar.tsx` — Global section (system_admin only) + This Tournament section; tournament switcher (system_admin) vs read-only label (tournament_admin)
+- Commit `633d71e`
+
+**Task 4: Tournament picker page**
+- `src/app/(admin)/admin/select-tournament/page.tsx` — MOVED to `(tournament-select)` route group to break infinite redirect loop for multi-assignment tournament admins
+- Final location: `src/app/(tournament-select)/admin/select-tournament/page.tsx`
+- Commit `7cee8da` (created), `7bf525d` (moved to fix redirect loop)
+
+**Task 5: Scoped pages use cookie**
+- `src/app/(admin)/admin/teams/page.tsx`, `scores/page.tsx`, `sponsors/page.tsx` — all read `getActiveTournamentId()` instead of fragile most-recent tournament query
+- Commit `dc40419`
+
+**Task 6: /admin/tournaments — global tournament list**
+- `src/app/(admin)/admin/tournaments/page.tsx` + `tournaments-list.tsx` — card list + inline create, status badges, `handleManage` sets cookie + redirects to `/admin/tournament`
+- Role guard: non-system_admin redirected to `/admin/tournament`
+- Commits `1d8b1a3`, `7bf525d` (role guard)
+
+**Task 7: Tournament Admins panel on /admin/tournament**
+- `src/app/(admin)/admin/tournament/tournament-admins.tsx` — assign/remove tournament admins; upgrades player role to `tournament_admin` on assign; stable supabase singleton at module level; filters already-assigned from search
+- `/admin/tournament/page.tsx` modified — cookie-aware tournament selection, `<TournamentAdmins>` in both status branches
+- Commits `02f5e95`, `563eff0` (supabase singleton + dedup fix)
+
+**Task 8: /admin/roster — tournament-scoped player enrollment**
+- `src/app/(admin)/admin/roster/page.tsx` + `roster-manager.tsx` — add existing player, create + enroll new, remove; `enrolledIdsRef = useRef<Set<string>>` (dep array `[searchQuery]` only); orphan cleanup on failed tournament_players insert
+- Commits `d261957`, `3979937` (dep array + orphan cleanup fix)
+
+**Task 9: Global players page — Tournaments column**
+- `src/app/(admin)/admin/players/page.tsx` — join `tournament_players!player_id(tournament_id, tournaments!tournament_id(name))`, map to `tournamentNames: string[]`
+- `src/app/(admin)/admin/players/players-table.tsx` — `PlayerWithTournaments` type, Tournaments column (9 cols), design tokens `text-[13px] text-[#6b7a70]`
+- Role guard: non-system_admin redirected; commit `3f81d84`
+
+**Final fixes (whole-branch review)**
+- Role guard on `/admin/tournaments` and `/admin/players` — tournament_admin redirected before data fetch
+- Select-tournament moved to `(tournament-select)` route group — breaks infinite redirect loop
+- Supabase client hoisted to module level in `tournaments-list.tsx`
+- `text-sm` replaced with `text-[13px]` in `admin-sidebar.tsx`
+- Commit `7bf525d`
+
+**PR #38 opened**: `feature/admin-role-dashboards` → `develop`
+- 12 commits, 147 tests passing, 91.2% coverage, type-check clean
+
+### Test Results
+- 147 tests, 9 suites, 91.2% statements, 83.42% branch — all thresholds met
+
+### Key Lessons Learned
+- `select-tournament` page must be OUTSIDE the `(admin)` layout group to avoid infinite redirect loop for multi-assignment tournament admins
+- Supabase `createClient()` must be at MODULE LEVEL in client components — inside component body creates a new reference per render → infinite useEffect re-fires when `supabase` is in dep arrays
+- Use `useRef<Set<string>>` for derived sets that enrollment mutations should NOT re-fire search effects
+- Orphan cleanup: if `tournament_players` INSERT fails after `players` INSERT succeeds, must DELETE the orphaned player row immediately
+- Design token enforcement: always reference `docs/DESIGN_STANDARDS.md` — `text-sm`, `text-xs`, `text-gray-*`, `rounded-lg` are all PROHIBITED in admin pages
+
+### Next Steps
+- Merge PR #38 when CI passes
+- Pre-tournament smoke test (June 22): login as system_admin → create tournament → assign tournament admin → enroll players → verify scoped sidebar
+- Invite real 125 players via CSV import
+
+---
+
 ## Session 28 — 2026-06-20/21 (Multi-Tournament + Role Hierarchy — v0.6 released)
 
 ### What Was Done
