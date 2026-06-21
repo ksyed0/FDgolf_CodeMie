@@ -10,6 +10,8 @@ import { Label } from '@/components/ui/label';
 import { setActiveTournamentAction } from '@/lib/actions/set-active-tournament';
 import type { TournamentStatus } from '@/lib/types';
 
+const supabase = createClient();
+
 interface TournamentRow {
   id: string;
   name: string;
@@ -58,7 +60,6 @@ export function TournamentsList({
   courses: Course[];
 }) {
   const router = useRouter();
-  const supabase = createClient();
   const [tournaments, setTournaments] = useState(initial);
   const [showAdd, setShowAdd] = useState(false);
   const [form, setForm] = useState(EMPTY_FORM);

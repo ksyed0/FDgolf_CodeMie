@@ -47,7 +47,7 @@ function NavItem({ href, label, Icon }: { href: string; label: string; Icon: Rea
     <Link
       href={href}
       className={cn(
-        'flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
+        'flex items-center gap-2 rounded-lg px-3 py-2 text-[13px] font-medium transition-colors',
         active ? 'text-white' : 'text-[#bfe0c8] hover:text-white'
       )}
       style={active ? { background: 'rgba(255,255,255,0.14)' } : undefined}
@@ -151,7 +151,7 @@ export function AdminSidebar({ role, activeTournament }: AdminSidebarProps) {
         >
           Signed In
         </div>
-        <div className="text-sm font-semibold text-white mt-0.5">
+        <div className="text-[13px] font-semibold text-white mt-0.5">
           {role === 'system_admin' ? 'System Admin' : 'Tournament Admin'}
         </div>
       </div>

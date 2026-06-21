@@ -1,9 +1,22 @@
+import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { PlayersTable } from './players-table';
 import type { Player, Team } from '@/lib/types';
 
 export default async function PlayersAdminPage() {
   const supabase = await createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) redirect('/login');
+
+  const { data: player } = await supabase
+    .from('players')
+    .select('role')
+    .eq('auth_user_id', user.id)
+    .single();
+  if (!player || player.role !== 'system_admin') redirect('/admin/tournament');
 
   const [{ data: players }, { data: teams }, { data: tournament }] = await Promise.all([
     supabase
