@@ -13,6 +13,50 @@ Stack: Next.js 16 App Router · TypeScript · Tailwind CSS · shadcn/ui · Supab
 
 ---
 
+## Branch State (as of Session 27 close — 2026-06-20)
+
+| Branch | Status | Notes |
+|--------|--------|-------|
+| `main` | production | Next.js 16 + E2E suite live |
+| `develop` | HEAD `e23d13e` | post PR #33 — design redesign merged |
+| `feature/design-redesign` | **merged PR #33** | 13-task light-mode redesign |
+| `feature/admin-pages-redesign` | **open PR #34** | 7 admin pages + AdminTopBar + E2E fixes + seed fixes |
+
+**Current open PRs**: PR #34 (`feature/admin-pages-redesign` → `develop`) — ready to merge.
+
+**Playwright E2E suite state (as of Session 27):** 61/61 passing, 2 skipped. All session-25 regressions fixed. New admin test cases TC-0082–TC-0089 added.
+
+**Seed state after `./scripts/reset-and-seed.sh`:**
+- 18 tee boxes (Blue tee, all holes) — TV longest-drive resolves for all 18 holes
+- 3 sponsors (CIBC Capital Markets, Deloitte, Manulife, all active) — TV carousel populated
+- Scores and shots still require `npx tsx scripts/seed-tv-data.ts` OR real gameplay
+- `sponsors` and `tee_boxes` are the only tables not created by gameplay; must be seeded/admin-configured
+
+**TV display route**: `/live/cibc-granite-ridge-2026/tv` — public, no auth. Polling 30s, panel rotation 15s.
+
+**Design system (Session 25)**:
+- Barlow Condensed font via `next/font/google` — CSS var `--font-barlow`, Tailwind utility `font-barlow`, weights 500/600/700/800
+- Brand colors: `#1a472a` course green, `#c0392b` under-par red, `#e7c66b` gold, `#f4f7f1` panel surface
+- AppHeader provides FDgolf/AI/Run™ brand on all player pages via `(player)/layout.tsx` — page-level headers should NOT repeat the wordmark
+- 5-panel TV rotator: 0=Birdies, 1=HoleDifficulty, 2=ShotStats, 3=MomentOfDay, 4=TeamSpotlight
+
+**Critical schema fact**: `scores.hole_number` is a plain `integer` (no FK to `holes.id`).
+PostgREST `holes!inner(...)` joins from scores will FAIL with PGRST200. Always use `fetchParMap()`
+pattern (fetch holes separately, build in-memory map) when you need par data alongside scores.
+
+**PostgREST schema cache**: After applying migrations via raw `psql`, run
+`psql ... -c "NOTIFY pgrst, 'reload schema';"` or restart Supabase — otherwise the REST API
+won't see the new policy/FK/function until cache refresh.
+
+**Seed data in local DB** (`00000000-0000-0000-0000-000000000001`):
+- 4 teams: Fairway Falcons (−6), Birdie Brigade (−4), Eagle Eye (−3), Par Hunters (+1)
+- 8 players, 9 holes, 200 shots with GPS, 72 scores, 36 is_best_ball=true
+- Migration 010: `Public read shots` policy applied — shots now readable by anon client
+
+**Next action**: Invite 125 players via CSV → set real GPS pins for Ruby holes → smoke test June 22
+
+---
+
 ## Branch State (as of Session 23 close — 2026-06-18)
 
 | Branch | Status | Notes |

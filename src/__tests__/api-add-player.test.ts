@@ -18,7 +18,10 @@ let mockEqRole: jest.Mock;
 let mockSelectRole: jest.Mock;
 let mockServerFrom: jest.Mock;
 
-function buildServerClientMock(userId: string | null = 'user-1', role: string | null = 'admin') {
+function buildServerClientMock(
+  userId: string | null = 'user-1',
+  role: string | null = 'system_admin'
+) {
   mockGetUser = jest.fn().mockResolvedValue({
     data: { user: userId ? { id: userId } : null },
     error: userId ? null : { message: 'no session' },

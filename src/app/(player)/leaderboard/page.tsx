@@ -36,17 +36,32 @@ export default function LeaderboardPage() {
         data: { user },
       } = await supabase.auth.getUser();
 
-      const [{ data: lbData }, { data: sponsorData }, { data: playerData }] = await Promise.all([
+      let playerId: string | null = null;
+      if (user) {
+        const { data: pd } = await supabase
+          .from('players')
+          .select('id')
+          .eq('auth_user_id', user.id)
+          .single<{ id: string }>();
+        playerId = pd?.id ?? null;
+      }
+
+      const [{ data: lbData }, { data: sponsorData }, { data: tpData }] = await Promise.all([
         supabase.rpc('get_leaderboard', { p_tournament_id: tournament.id }),
         supabase.from('sponsors').select('*').eq('tournament_id', tournament.id),
-        user
-          ? supabase.from('players').select('team_id').eq('auth_user_id', user.id).single()
+        playerId
+          ? supabase
+              .from('tournament_players')
+              .select('team_id')
+              .eq('player_id', playerId)
+              .eq('tournament_id', tournament.id)
+              .single<{ team_id: string }>()
           : Promise.resolve({ data: null }),
       ]);
 
       setRows((lbData as LeaderboardRow[]) ?? []);
       setSponsors((sponsorData as Sponsor[]) ?? []);
-      setMyTeamId((playerData as { team_id: string | null } | null)?.team_id ?? null);
+      setMyTeamId((tpData as { team_id: string } | null)?.team_id ?? null);
       setLoading(false);
     }
     init().catch(console.error);

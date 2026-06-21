@@ -16,14 +16,14 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     .eq('auth_user_id', user.id)
     .single();
 
-  if (!player || player.role !== 'admin') {
+  if (!player || (player.role !== 'system_admin' && player.role !== 'tournament_admin')) {
     redirect('/dashboard');
   }
 
   return (
     <div className="flex min-h-screen">
       <AdminSidebar />
-      <main className="flex-1 overflow-auto bg-gray-50 p-6">{children}</main>
+      <main className="flex-1 overflow-auto bg-[#f4f7f1]">{children}</main>
     </div>
   );
 }

@@ -3,8 +3,7 @@
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { createClient } from '@/lib/supabase/client';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { AdminTopBar } from '@/components/admin-top-bar';
 import type { Sponsor } from '@/lib/types';
 
 interface SponsorsManagerProps {
@@ -24,8 +23,33 @@ export function SponsorsManager({ sponsors: initial, tournamentId }: SponsorsMan
   const [sponsors, setSponsors] = useState(initial);
   const [form, setForm] = useState<SponsorForm>(EMPTY_FORM);
   const [editId, setEditId] = useState<string | null>(null);
+  const [showAdd, setShowAdd] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [dragId, setDragId] = useState<string | null>(null);
+  const [dragOverId, setDragOverId] = useState<string | null>(null);
   const supabase = createClient();
+
+  function handleReorder(dropTargetId: string) {
+    if (!dragId || dragId === dropTargetId) {
+      setDragId(null);
+      setDragOverId(null);
+      return;
+    }
+    const from = sponsors.findIndex((s) => s.id === dragId);
+    const to = sponsors.findIndex((s) => s.id === dropTargetId);
+    const reordered = [...sponsors];
+    const [moved] = reordered.splice(from, 1);
+    reordered.splice(to, 0, moved);
+    const updated = reordered.map((s, i) => ({ ...s, display_order: i + 1 }));
+    setSponsors(updated);
+    setDragId(null);
+    setDragOverId(null);
+    Promise.all(
+      updated.map((s) =>
+        supabase.from('sponsors').update({ display_order: s.display_order }).eq('id', s.id)
+      )
+    ).catch(() => toast.error('Failed to reorder'));
+  }
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -33,6 +57,7 @@ export function SponsorsManager({ sponsors: initial, tournamentId }: SponsorsMan
 
   function startEdit(sponsor: Sponsor) {
     setEditId(sponsor.id);
+    setShowAdd(true);
     setForm({
       name: sponsor.name,
       logo_url: sponsor.logo_url,
@@ -42,7 +67,22 @@ export function SponsorsManager({ sponsors: initial, tournamentId }: SponsorsMan
 
   function cancelEdit() {
     setEditId(null);
+    setShowAdd(false);
     setForm(EMPTY_FORM);
+  }
+
+  async function toggleActive(sponsor: Sponsor) {
+    const { error } = await supabase
+      .from('sponsors')
+      .update({ is_active: !sponsor.is_active })
+      .eq('id', sponsor.id);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    setSponsors((prev) =>
+      prev.map((s) => (s.id === sponsor.id ? { ...s, is_active: !sponsor.is_active } : s))
+    );
   }
 
   async function save() {
@@ -77,7 +117,7 @@ export function SponsorsManager({ sponsors: initial, tournamentId }: SponsorsMan
     } else {
       const { data, error } = await supabase
         .from('sponsors')
-        .insert(payload)
+        .insert({ ...payload, display_order: sponsors.length + 1, is_active: true })
         .select()
         .single<Sponsor>();
       if (error) {
@@ -86,6 +126,7 @@ export function SponsorsManager({ sponsors: initial, tournamentId }: SponsorsMan
         setSponsors((prev) => [...prev, data].sort((a, b) => a.display_order - b.display_order));
         toast.success('Sponsor added');
         setForm(EMPTY_FORM);
+        setShowAdd(false);
       }
     }
     setLoading(false);
@@ -101,104 +142,183 @@ export function SponsorsManager({ sponsors: initial, tournamentId }: SponsorsMan
     toast.success('Sponsor deleted');
   }
 
+  const activeSponsors = sponsors.filter((s) => s.is_active);
+
   return (
-    <div className="space-y-4">
-      {/* Add / Edit form */}
-      <div className="rounded-xl border bg-white p-4 shadow-sm">
-        <h3 className="mb-3 font-semibold">{editId ? 'Edit Sponsor' : 'Add Sponsor'}</h3>
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-          <div>
-            <label className="mb-1 block text-xs font-medium text-gray-600">Name</label>
-            <Input name="name" value={form.name} onChange={handleChange} placeholder="CIBC" />
-          </div>
-          <div>
-            <label className="mb-1 block text-xs font-medium text-gray-600">Logo URL</label>
-            <Input
-              name="logo_url"
-              value={form.logo_url}
-              onChange={handleChange}
-              placeholder="https://…"
-            />
-          </div>
-          <div>
-            <label className="mb-1 block text-xs font-medium text-gray-600">Order</label>
-            <Input
-              name="display_order"
-              type="number"
-              min={1}
-              value={form.display_order}
-              onChange={handleChange}
-              className="w-20"
-            />
-          </div>
+    <div>
+      <AdminTopBar eyebrow="TOURNAMENT MANAGEMENT" title="Sponsors">
+        <button
+          onClick={() => {
+            setEditId(null);
+            setForm(EMPTY_FORM);
+            setShowAdd(true);
+          }}
+          className="bg-[#1a472a] text-white rounded-xl px-4 py-2 text-[14px] font-semibold"
+        >
+          + Add Sponsor
+        </button>
+      </AdminTopBar>
+
+      <div className="px-7 py-6 flex gap-6">
+        {/* Left: sponsor card list */}
+        <div className="flex-1 flex flex-col gap-4">
+          {sponsors.length === 0 && (
+            <div className="bg-white rounded-2xl border border-[#e2e8df] px-[22px] py-10 text-center text-[14px] text-[#90a094]">
+              No sponsors yet. Add one to get started.
+            </div>
+          )}
+
+          {sponsors.map((sponsor) => (
+            <div
+              key={sponsor.id}
+              className="bg-white rounded-2xl border border-[#e2e8df] px-[22px] py-[18px] flex items-center gap-4"
+              draggable
+              onDragStart={() => setDragId(sponsor.id)}
+              onDragOver={(e) => {
+                e.preventDefault();
+                setDragOverId(sponsor.id);
+              }}
+              onDrop={() => handleReorder(sponsor.id)}
+              style={{ opacity: dragOverId === sponsor.id && dragId !== sponsor.id ? 0.6 : 1 }}
+            >
+              {/* Drag handle */}
+              <span className="text-[#90a094] text-[20px] cursor-grab shrink-0">⠿</span>
+
+              {/* 72px monogram tile OR logo */}
+              <div
+                className="rounded-[14px] flex items-center justify-center shrink-0 overflow-hidden"
+                style={{ width: 72, height: 72, background: '#1a472a' }}
+              >
+                {sponsor.logo_url ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={sponsor.logo_url}
+                    alt={sponsor.name}
+                    className="w-full h-full object-contain"
+                  />
+                ) : (
+                  <span className="font-barlow font-bold text-[22px] text-white">
+                    {sponsor.name.slice(0, 2).toUpperCase()}
+                  </span>
+                )}
+              </div>
+
+              {/* Info */}
+              <div className="flex-1 min-w-0">
+                <p className="font-semibold text-[17px] text-[#15241c]">{sponsor.name}</p>
+                <p className="text-[12px] mt-1">
+                  {sponsor.logo_url ? (
+                    <span className="text-[#1a472a] font-semibold">✓ Logo uploaded</span>
+                  ) : (
+                    <span className="text-[#b3741b]">⚠ Logo missing</span>
+                  )}
+                </p>
+              </div>
+
+              {/* Show on TV toggle */}
+              <div className="flex flex-col items-center gap-1 shrink-0">
+                <p className="text-[11px] font-bold uppercase text-[#90a094]">Show on TV</p>
+                <button
+                  onClick={() => toggleActive(sponsor)}
+                  className="rounded-full flex items-center transition-colors"
+                  style={{
+                    width: 44,
+                    height: 24,
+                    background: sponsor.is_active ? '#1a472a' : '#cdd9cf',
+                    padding: '0 2px',
+                    justifyContent: sponsor.is_active ? 'flex-end' : 'flex-start',
+                  }}
+                >
+                  <span className="w-5 h-5 rounded-full bg-white shadow" />
+                </button>
+              </div>
+
+              {/* Actions */}
+              <div className="flex gap-2 shrink-0">
+                <button
+                  onClick={() => startEdit(sponsor)}
+                  className="rounded-xl px-3 py-1.5 text-[13px] font-semibold bg-[#eef2ea] text-[#1a472a]"
+                >
+                  Edit
+                </button>
+                <button
+                  onClick={() => deleteSponsor(sponsor.id)}
+                  className="rounded-xl px-3 py-1.5 text-[13px] font-semibold bg-[#f7ece9] text-[#a8513f]"
+                >
+                  Remove
+                </button>
+              </div>
+            </div>
+          ))}
         </div>
-        <div className="mt-3 flex gap-2">
-          <Button onClick={save} disabled={loading} className="bg-[#1a472a] hover:bg-[#143820]">
-            {loading ? 'Saving…' : editId ? 'Update' : 'Add'}
-          </Button>
-          {editId && (
-            <Button variant="outline" onClick={cancelEdit}>
-              Cancel
-            </Button>
+
+        {/* Right rail (300px) */}
+        <div className="w-[300px] shrink-0 flex flex-col gap-4">
+          {/* TV Footer Preview */}
+          <div className="rounded-2xl p-4" style={{ background: '#15241c' }}>
+            <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#7d9486] mb-3">
+              TV Footer Preview
+            </p>
+            <div className="flex gap-2 flex-wrap">
+              {activeSponsors.map((s) => (
+                <div
+                  key={s.id}
+                  className="bg-white rounded-xl p-2 flex items-center gap-2"
+                  style={{ boxShadow: '0 3px 10px rgba(0,0,0,.22)' }}
+                >
+                  <div className="w-8 h-8 rounded-[6px] bg-[#1a472a] flex items-center justify-center text-white text-[10px] font-bold overflow-hidden">
+                    {s.logo_url ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={s.logo_url} className="w-full h-full object-contain" alt="" />
+                    ) : (
+                      s.name.slice(0, 2).toUpperCase()
+                    )}
+                  </div>
+                  <span className="font-barlow font-bold text-[14px] text-[#15241c]">{s.name}</span>
+                </div>
+              ))}
+              {activeSponsors.length === 0 && (
+                <p className="text-[#7d9486] text-[12px]">No active sponsors</p>
+              )}
+            </div>
+          </div>
+
+          {/* Add / Edit Sponsor form */}
+          {showAdd && (
+            <div className="bg-white rounded-2xl border border-[#e2e8df] p-5">
+              <p className="font-barlow font-bold text-[18px] text-[#15241c] mb-3">
+                {editId ? 'Edit Sponsor' : 'Add Sponsor'}
+              </p>
+              <input
+                name="name"
+                placeholder="Sponsor name"
+                value={form.name}
+                onChange={handleChange}
+                className="w-full rounded-xl border border-[#e2e8df] px-3 py-2 text-[14px] mb-2.5"
+              />
+              <input
+                name="logo_url"
+                placeholder="Logo URL (optional)"
+                value={form.logo_url}
+                onChange={handleChange}
+                className="w-full rounded-xl border border-[#e2e8df] px-3 py-2 text-[14px] mb-3"
+              />
+              <button
+                onClick={save}
+                disabled={!form.name.trim() || loading}
+                className="w-full rounded-xl py-2.5 text-[14px] font-semibold bg-[#1a472a] text-white disabled:opacity-50"
+              >
+                {loading ? 'Saving…' : editId ? 'Update Sponsor' : 'Save Sponsor'}
+              </button>
+              <button
+                onClick={cancelEdit}
+                className="w-full rounded-xl py-2 text-[13px] text-[#6b7a70] mt-2"
+              >
+                Cancel
+              </button>
+            </div>
           )}
         </div>
-      </div>
-
-      {/* Sponsors list */}
-      <div className="rounded-xl border bg-white shadow-sm">
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="border-b bg-gray-50 text-xs uppercase text-gray-500">
-              <th className="px-4 py-2 text-left">Order</th>
-              <th className="px-4 py-2 text-left">Name</th>
-              <th className="px-4 py-2 text-left">Logo</th>
-              <th className="px-4 py-2 text-left"></th>
-            </tr>
-          </thead>
-          <tbody>
-            {sponsors.map((s) => (
-              <tr key={s.id} className="border-b hover:bg-gray-50">
-                <td className="px-4 py-2">{s.display_order}</td>
-                <td className="px-4 py-2 font-medium">{s.name}</td>
-                <td className="px-4 py-2">
-                  {s.logo_url ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={s.logo_url} alt={s.name} className="max-h-7 w-auto" />
-                  ) : (
-                    <span className="text-gray-400 text-xs">—</span>
-                  )}
-                </td>
-                <td className="px-4 py-2">
-                  <div className="flex gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="h-7 text-xs"
-                      onClick={() => startEdit(s)}
-                    >
-                      Edit
-                    </Button>
-                    <Button
-                      variant="destructive"
-                      size="sm"
-                      className="h-7 text-xs"
-                      onClick={() => deleteSponsor(s.id)}
-                    >
-                      Delete
-                    </Button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-            {sponsors.length === 0 && (
-              <tr>
-                <td colSpan={4} className="px-4 py-6 text-center text-sm text-gray-400">
-                  No sponsors yet.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
       </div>
     </div>
   );

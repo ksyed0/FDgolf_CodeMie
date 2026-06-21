@@ -4,18 +4,24 @@ import type {
   HoleDifficulty,
   ShotStats,
   BestAchievement,
+  TeamSpotlight,
 } from '@/lib/tv-stats';
+import type { LeaderboardRow } from '@/lib/types';
 import TvBirdiesPanel from './panels/TvBirdiesPanel';
-import TvHoleMapPanel from './panels/TvHoleMapPanel';
+import TvHoleDifficultyPanel from './panels/TvHoleDifficultyPanel';
 import TvShotStatsPanel from './panels/TvShotStatsPanel';
+import TvMomentOfDayPanel from './panels/TvMomentOfDayPanel';
+import TvTeamSpotlightPanel from './panels/TvTeamSpotlightPanel';
 
 interface TvStatsRotatorProps {
-  activePanelIndex: 0 | 1 | 2;
+  activePanelIndex: 0 | 1 | 2 | 3 | 4;
   birdieStats: BirdieStats[];
   momentumStats: MomentumEntry[];
   holeDifficulty: HoleDifficulty[];
   shotStats: ShotStats;
   bestAchievement: BestAchievement | null;
+  teamSpotlight: TeamSpotlight | null;
+  leaderboard?: LeaderboardRow[];
 }
 
 export default function TvStatsRotator({
@@ -25,22 +31,28 @@ export default function TvStatsRotator({
   holeDifficulty,
   shotStats,
   bestAchievement,
+  teamSpotlight,
+  leaderboard = [],
 }: TvStatsRotatorProps) {
-  const visibilityClass = (index: number) =>
-    index === activePanelIndex ? 'opacity-100' : 'opacity-0';
+  const vis = (i: number) =>
+    i === activePanelIndex ? 'opacity-100' : 'opacity-0 pointer-events-none';
 
   return (
-    <div className="relative h-full w-full overflow-hidden">
-      <div className={`absolute inset-0 transition-opacity duration-[400ms] ${visibilityClass(0)}`}>
+    <div className="relative h-full w-full overflow-hidden" style={{ background: '#fff' }}>
+      <div className={`absolute inset-0 transition-opacity duration-[400ms] ${vis(0)}`}>
         <TvBirdiesPanel birdieStats={birdieStats} momentumStats={momentumStats} />
       </div>
-
-      <div className={`absolute inset-0 transition-opacity duration-[400ms] ${visibilityClass(1)}`}>
-        <TvHoleMapPanel holeDifficulty={holeDifficulty} bestAchievement={bestAchievement} />
+      <div className={`absolute inset-0 transition-opacity duration-[400ms] ${vis(1)}`}>
+        <TvHoleDifficultyPanel holeDifficulty={holeDifficulty} />
       </div>
-
-      <div className={`absolute inset-0 transition-opacity duration-[400ms] ${visibilityClass(2)}`}>
+      <div className={`absolute inset-0 transition-opacity duration-[400ms] ${vis(2)}`}>
         <TvShotStatsPanel shotStats={shotStats} />
+      </div>
+      <div className={`absolute inset-0 transition-opacity duration-[400ms] ${vis(3)}`}>
+        <TvMomentOfDayPanel bestAchievement={bestAchievement} />
+      </div>
+      <div className={`absolute inset-0 transition-opacity duration-[400ms] ${vis(4)}`}>
+        <TvTeamSpotlightPanel teamSpotlight={teamSpotlight} leaderboard={leaderboard} />
       </div>
     </div>
   );

@@ -1,76 +1,200 @@
 import type { LeaderboardRow } from '@/lib/types';
-import { formatVsPar } from '@/lib/scoring';
+import type { SparklineEntry } from '@/lib/tv-stats';
 
 interface TvLeaderboardProps {
   leaderboard: LeaderboardRow[];
+  sparklines: SparklineEntry[];
 }
 
-export default function TvLeaderboard({ leaderboard }: TvLeaderboardProps) {
-  const displayRows = leaderboard.slice(0, 18);
-  const moreCount = Math.max(0, leaderboard.length - 18);
+const CREST_COLORS: Record<number, { bg: string; fg: string }> = {
+  1: { bg: '#e7c66b', fg: '#5c4710' },
+  2: { bg: '#cfd6cf', fg: '#3a443c' },
+  3: { bg: '#d8a772', fg: '#4a2f12' },
+};
+const DEFAULT_CREST = { bg: '#dfe7df', fg: '#46554c' };
+
+function getInitials(name: string | null, number: number): string {
+  if (!name) return String(number);
+  const parts = name.trim().split(/\s+/);
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+}
+
+function formatScore(vspar: number): string {
+  if (vspar < 0) return `−${Math.abs(vspar)}`;
+  if (vspar === 0) return 'E';
+  return `+${vspar}`;
+}
+
+function SparklineSvg({ track, vspar }: { track: number[]; vspar: number }) {
+  const SW = 120;
+  const SH = 34;
+  if (track.length < 2) {
+    return <svg width={80} height={24} viewBox={`0 0 ${SW} ${SH}`} />;
+  }
+  const stroke = vspar < 0 ? '#c0392b' : vspar === 0 ? '#1a472a' : '#9aa89e';
+  const xAt = (i: number) => (i / (track.length - 1)) * SW;
+  const yAt = (v: number, min: number, max: number) =>
+    max === min ? SH / 2 : SH - ((v - min) / (max - min)) * SH;
+
+  const allMin = Math.min(...track);
+  const allMax = Math.max(...track);
+  const pts = track.map((v, i) => `${xAt(i)},${yAt(v, allMin, allMax)}`).join(' ');
+  const lastX = xAt(track.length - 1);
+  const lastY = yAt(track[track.length - 1], allMin, allMax);
 
   return (
-    <div className="h-full flex flex-col bg-slate-900/30 overflow-hidden">
+    <svg
+      width={80}
+      height={24}
+      viewBox={`0 0 ${SW} ${SH}`}
+      preserveAspectRatio="none"
+      style={{ display: 'block' }}
+    >
+      <polyline
+        points={pts}
+        fill="none"
+        stroke={stroke}
+        strokeWidth={3}
+        strokeLinejoin="round"
+        strokeLinecap="round"
+      />
+      <circle cx={lastX} cy={lastY} r={5} fill={stroke} />
+    </svg>
+  );
+}
+
+export default function TvLeaderboard({ leaderboard, sparklines }: TvLeaderboardProps) {
+  const displayRows = leaderboard.slice(0, 16);
+  const moreCount = Math.max(0, leaderboard.length - 16);
+  const sparkMap = new Map(sparklines.map((s) => [s.teamId, s]));
+
+  return (
+    <div className="h-full flex flex-col overflow-hidden" style={{ background: '#f4f7f1' }}>
       {/* Header */}
-      <div className="flex items-center gap-2 px-4 py-3 border-b border-slate-700">
-        <div className="w-2 h-2 bg-green-600 rounded-full animate-pulse" />
-        <h2 className="text-slate-400 uppercase tracking-widest text-sm font-semibold">
+      <div
+        className="flex items-center gap-3 px-5 py-4"
+        style={{ borderBottom: '1px solid #e2e8df' }}
+      >
+        <span
+          className="w-2.5 h-2.5 rounded-full shrink-0 animate-pulse"
+          style={{ background: '#2f8f4e', animationDuration: '1.4s' }}
+        />
+        <span
+          className="font-barlow font-bold uppercase"
+          style={{ fontSize: 23, letterSpacing: '0.05em', color: '#15241c' }}
+        >
           Leaderboard
-        </h2>
+        </span>
       </div>
 
-      {/* Column Headers */}
-      <div className="grid grid-cols-4 gap-2 px-4 py-2 border-b border-slate-700">
-        <div className="text-slate-500 text-xs uppercase font-semibold">#</div>
-        <div className="text-slate-500 text-xs uppercase font-semibold">Team</div>
-        <div className="text-slate-500 text-xs uppercase font-semibold text-right">Scr</div>
-        <div className="text-slate-500 text-xs uppercase font-semibold text-right">Thru</div>
+      {/* Column heads */}
+      <div
+        className="grid px-4 py-2"
+        style={{
+          gridTemplateColumns: '20px 1fr 80px 28px 46px',
+          gap: 6,
+          borderBottom: '1px solid #e2e8df',
+        }}
+      >
+        {['#', 'Team', 'Trend', 'Thru', 'Sc'].map((h) => (
+          <span
+            key={h}
+            className="font-bold uppercase"
+            style={{ fontSize: 10, letterSpacing: '0.1em', color: '#90a094' }}
+          >
+            {h}
+          </span>
+        ))}
       </div>
 
-      {/* Rows Container */}
+      {/* Rows */}
       <div className="flex-1 overflow-y-auto">
         {displayRows.map((row, idx) => {
           const rank = idx + 1;
           const vsParVal = row.total_score - row.par_total;
-          const teamName =
-            row.team_name && row.team_name.length > 22
-              ? row.team_name.slice(0, 22) + '…'
-              : row.team_name || `Team ${row.team_number}`;
+          const spark = sparkMap.get(row.team_id);
+          const crest = CREST_COLORS[rank] ?? DEFAULT_CREST;
+          const initials = getInitials(row.team_name, row.team_number);
 
-          const isRank1 = rank === 1;
-          const isEvenRow = idx % 2 === 1;
+          const scoreColor = vsParVal < 0 ? '#c0392b' : vsParVal > 0 ? '#33413a' : '#1a472a';
+          const rankColor = rank <= 3 ? '#1a472a' : '#8a988e';
 
-          // Score color logic
-          let scoreColorClass = 'text-slate-400';
-          if (vsParVal < 0) scoreColorClass = 'text-red-400';
-          else if (vsParVal === 0) scoreColorClass = 'text-white';
+          const rowBg =
+            rank === 1
+              ? 'linear-gradient(90deg,#fbf3d8,#f4f7f1)'
+              : rank <= 3
+                ? '#ffffff'
+                : 'transparent';
+          const rowBorder =
+            rank === 1 ? '1px solid #ecd58a' : rank <= 3 ? '1px solid #e8eee4' : 'none';
 
           return (
             <div
               key={`${row.team_id}-${idx}`}
-              className={`grid grid-cols-4 gap-2 px-4 py-3 border-b border-slate-800 ${
-                isRank1 ? 'border-l-4 border-l-green-600 pl-2 bg-slate-800/50' : ''
-              } ${isEvenRow && !isRank1 ? 'bg-slate-800/30' : ''}`}
+              className="grid items-center px-4"
+              style={{
+                gridTemplateColumns: '20px 1fr 80px 28px 46px',
+                gap: 6,
+                height: 52,
+                borderRadius: 9,
+                margin: '2px 4px',
+                background: rowBg,
+                border: rowBorder,
+              }}
             >
-              <div className="text-slate-300 text-sm font-semibold">{rank}</div>
-              <div className={`${isRank1 ? 'text-lg' : 'text-base'} text-slate-200 truncate`}>
-                {teamName}
+              {/* Pos */}
+              <span className="font-barlow font-bold" style={{ fontSize: 19, color: rankColor }}>
+                {rank}
+              </span>
+
+              {/* Team: crest + name */}
+              <div className="flex items-center gap-2 min-w-0">
+                <div
+                  className="flex items-center justify-center rounded-full shrink-0 font-bold text-[11px]"
+                  style={{ width: 26, height: 26, background: crest.bg, color: crest.fg }}
+                >
+                  {initials}
+                </div>
+                <span className="truncate font-semibold" style={{ fontSize: 15, color: '#15241c' }}>
+                  {row.team_name ?? `Team ${row.team_number}`}
+                </span>
               </div>
-              <div className={`text-right text-sm font-semibold ${scoreColorClass}`}>
-                {formatVsPar(vsParVal)}
+
+              {/* Sparkline */}
+              <div className="flex items-center justify-center">
+                {spark && spark.track.length >= 2 ? (
+                  <SparklineSvg track={spark.track} vspar={vsParVal} />
+                ) : (
+                  <span style={{ color: '#c8d3ce', fontSize: 10 }}>—</span>
+                )}
               </div>
-              <div className="text-right text-sm text-slate-400">{row.holes_completed}</div>
+
+              {/* Thru */}
+              <span style={{ fontSize: 12, color: '#6b7a70' }}>
+                {row.holes_completed > 0 ? row.holes_completed : '—'}
+              </span>
+
+              {/* Score */}
+              <span
+                className="font-barlow font-extrabold tabular-nums text-right"
+                style={{ fontSize: 23, color: scoreColor }}
+              >
+                {formatScore(vsParVal)}
+              </span>
             </div>
           );
         })}
-
-        {/* Footer: "... and N more teams" */}
-        {moreCount > 0 && (
-          <div className="px-4 py-3 text-slate-500 text-sm text-center border-t border-slate-800">
-            … and {moreCount} more {moreCount === 1 ? 'team' : 'teams'}
-          </div>
-        )}
       </div>
+
+      {moreCount > 0 && (
+        <div
+          className="px-5 py-3 text-center"
+          style={{ fontSize: 12, color: '#90a094', borderTop: '1px solid #e2e8df' }}
+        >
+          + {moreCount} more {moreCount === 1 ? 'team' : 'teams'}
+        </div>
+      )}
     </div>
   );
 }

@@ -12,23 +12,25 @@ export default async function TeamsAdminPage() {
     .limit(1)
     .single();
 
-  const [{ data: teams }, { data: players }] = await Promise.all([
-    supabase
-      .from('teams')
-      .select('*')
-      .eq('tournament_id', tournament?.id ?? '')
-      .order('team_number'),
+  const tournamentId = tournament?.id ?? '';
+
+  const [{ data: teams }, { data: players }, { data: memberships }] = await Promise.all([
+    supabase.from('teams').select('*').eq('tournament_id', tournamentId).order('team_number'),
     supabase.from('players').select('*').order('name'),
+    tournamentId
+      ? supabase
+          .from('tournament_players')
+          .select('player_id, team_id')
+          .eq('tournament_id', tournamentId)
+      : Promise.resolve({ data: [] as { player_id: string; team_id: string }[] }),
   ]);
 
   return (
-    <div className="space-y-4">
-      <h1 className="text-2xl font-bold text-gray-900">Teams</h1>
-      <TeamsManager
-        teams={(teams as Team[]) ?? []}
-        players={(players as Player[]) ?? []}
-        tournamentId={tournament?.id ?? ''}
-      />
-    </div>
+    <TeamsManager
+      teams={(teams as Team[]) ?? []}
+      players={(players as Player[]) ?? []}
+      tournamentId={tournamentId}
+      memberships={(memberships ?? []) as { player_id: string; team_id: string }[]}
+    />
   );
 }

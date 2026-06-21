@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: 'Inter', system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+  @keyframes fdPulse { 0%,100%{opacity:1;transform:scale(1);}50%{opacity:.35;transform:scale(.8);} }
+  @keyframes fdGrow { from{transform:scaleX(0);}to{transform:scaleX(1);} }
+</style>
+</helmet>
+
+<div style="width:max-content; min-width:100%; min-height:100vh; box-sizing:border-box; padding:56px; background:#e7e5df; font-family:'Inter',sans-serif;">
+
+  <!-- Intro -->
+  <div style="max-width:960px; margin-bottom:48px;">
+    <div style="display:flex; align-items:center; gap:12px; margin-bottom:16px;">
+      <div style="width:34px;height:34px;border-radius:9px;background:#1a472a;display:flex;align-items:center;justify-content:center;color:#bff0c8;font-weight:800;">⛳</div>
+      <span style="font-weight:800;font-size:18px;color:#15241c;">FDgolf · Admin Pages Review</span>
+    </div>
+    <h1 style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:44px;line-height:1.02;color:#15241c;margin:0 0 12px;">Admin · All 7 pages</h1>
+    <p style="font-size:15px;line-height:1.65;color:#46554c;margin:0;">Venues · Courses · Players · Teams · Clubs · Scores · Sponsors — consistent with the Tournament Control layout. Each page shown at 1280×auto (tablet / laptop). Sidebar + top-bar chrome is identical across all; body content varies.</p>
+  </div>
+
+  <!-- ── shared sidebar snippet ── rendered inline per frame ── -->
+
+  <!-- ════ VENUES ════ -->
+  <div style="margin-bottom:56px;">
+    <div style="font-size:12px;font-weight:700;color:#46554c;margin-bottom:10px;letter-spacing:.02em;">1 / 7 · Venues — add &amp; manage golf venues</div>
+    <div style="width:1280px; background:#fff; border-radius:14px; box-shadow:0 8px 30px rgba(0,0,0,.14); overflow:hidden; display:flex;">
+      <!-- sidebar -->
+      <div style="width:212px;flex:none;background:#1a472a;color:#fff;display:flex;flex-direction:column;padding:20px 12px;min-height:720px;">
+        <div style="display:flex;align-items:center;gap:10px;padding:0 8px 22px;">
+          <div style="width:34px;height:34px;border-radius:9px;background:rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;font-size:18px;">⛳</div>
+          <div style="line-height:1;"><div style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:20px;">FDGOLF</div><div style="font-size:10px;letter-spacing:.18em;color:#9fd6ad;font-weight:600;margin-top:2px;">ADMIN</div></div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:3px;">
+          <sc-for list="{{ nav }}" as="n" hint-placeholder-count="9">
+            <div style="display:flex;align-items:center;gap:11px;padding:10px 12px;border-radius:10px;font-size:14px;font-weight:600;color:{{ n.fg }};background:{{ n.bg }};">
+              <span style="font-size:15px;width:18px;text-align:center;">{{ n.ic }}</span><span>{{ n.label }}</span>
+            </div>
+          </sc-for>
+        </div>
+        <div style="margin-top:auto;padding:12px;background:rgba(255,255,255,.07);border-radius:12px;">
+          <div style="font-size:11px;color:#9fd6ad;font-weight:600;letter-spacing:.04em;">SIGNED IN</div>
+          <div style="font-size:13px;font-weight:600;margin-top:3px;">Tournament Director</div>
+        </div>
+      </div>
+      <!-- main -->
+      <div style="flex:1;background:#f4f7f1;display:flex;flex-direction:column;min-width:0;">
+        <!-- topbar -->
+        <div style="background:#fff;border-bottom:1px solid #e2e8df;padding:18px 28px;display:flex;align-items:center;justify-content:space-between;">
+          <div>
+            <div style="font-size:11px;font-weight:700;letter-spacing:.08em;color:#90a094;text-transform:uppercase;">Setup</div>
+            <div style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:28px;color:#15241c;line-height:1;">Venues</div>
+          </div>
+          <button style="font:inherit;font-size:14px;font-weight:700;color:#fff;background:#1a472a;border:none;border-radius:10px;padding:10px 20px;cursor:pointer;">+ Add Venue</button>
+        </div>
+        <div style="flex:1;padding:24px 28px;display:flex;gap:22px;min-height:0;">
+          <!-- venue list -->
+          <div style="flex:1;display:flex;flex-direction:column;gap:14px;">
+            <sc-for list="{{ venues }}" as="v" hint-placeholder-count="3">
+              <div style="background:#fff;border:1px solid #e2e8df;border-radius:16px;padding:20px 22px;display:flex;align-items:center;gap:18px;">
+                <div style="width:52px;height:52px;border-radius:13px;background:#eef2ea;display:flex;align-items:center;justify-content:center;font-size:24px;flex:none;">📍</div>
+                <div style="flex:1;min-width:0;">
+                  <div style="font-weight:700;font-size:17px;color:#15241c;">{{ v.name }}</div>
+                  <div style="font-size:13px;color:#6b7a70;margin-top:2px;">{{ v.address }}</div>
+                  <div style="display:flex;align-items:center;gap:14px;margin-top:8px;">
+                    <span style="font-size:12px;font-weight:600;color:#1a472a;background:#e9f3ec;padding:3px 10px;border-radius:999px;">{{ v.courses }} course</span>
+                    <span style="font-size:12px;font-weight:600;color:{{ v.gpsC }};background:{{ v.gpsBg }};padding:3px 10px;border-radius:999px;">{{ v.gpsLabel }}</span>
+                  </div>
+                </div>
+                <div style="display:flex;gap:8px;">
+                  <button style="font:inherit;font-size:13px;font-weight:600;color:#1a472a;background:#eef2ea;border:none;border-radius:9px;padding:8px 14px;cursor:pointer;">Edit</button>
+                  <button style="font:inherit;font-size:13px;font-weight:600;color:#a8513f;background:#f7ece9;border:none;border-radius:9px;padding:8px 14px;cursor:pointer;">Delete</button>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+          <!-- add form -->
+          <div style="width:320px;flex:none;background:#fff;border:1px solid #e2e8df;border-radius:16px;padding:22px 20px;height:fit-content;">
+            <div style="font-weight:700;font-size:16px;color:#15241c;margin-bottom:18px;">Add Venue</div>
+            <div style="display:flex;flex-direction:column;gap:14px;">
+              <div>
+                <label style="font-size:12px;font-weight:700;color:#6b7a70;display:block;margin-bottom:6px;text-transform:uppercase;letter-spacing:.04em;">Venue Name</label>
+                <div style="border:1px solid #d6ddd2;border-radius:10px;padding:11px 14px;font-size:14px;color:#15241c;background:#fff;">Granite Ridge Golf Club</div>
+              </div>
+              <div>
+                <label style="font-size:12px;font-weight:700;color:#6b7a70;display:block;margin-bottom:6px;text-transform:uppercase;letter-spacing:.04em;">Address</label>
+                <div style="border:1px solid #d6ddd2;border-radius:10px;padding:11px 14px;font-size:14px;color:#15241c;background:#fff;">7320 Ski Hill Rd</div>
+              </div>
+              <div style="display:flex;gap:10px;">
+                <div style="flex:1;">
+                  <label style="font-size:12px;font-weight:700;color:#6b7a70;display:block;margin-bottom:6px;text-transform:uppercase;letter-spacing:.04em;">City</label>
+                  <div style="border:1px solid #d6ddd2;border-radius:10px;padding:11px 14px;font-size:14px;color:#15241c;background:#fff;">Milton</div>
+                </div>
+                <div style="flex:1;">
+                  <label style="font-size:12px;font-weight:700;color:#6b7a70;display:block;margin-bottom:6px;text-transform:uppercase;letter-spacing:.04em;">Province</label>
+                  <div style="border:1px solid #d6ddd2;border-radius:10px;padding:11px 14px;font-size:14px;color:#15241c;background:#fff;">ON</div>
+                </div>
+              </div>
+              <div>
+                <label style="font-size:12px;font-weight:700;color:#6b7a70;display:block;margin-bottom:6px;text-transform:uppercase;letter-spacing:.04em;">Contact</label>
+                <div style="border:1px solid #d6ddd2;border-radius:10px;padding:11px 14px;font-size:14px;color:#6b7a70;background:#fff;">Contact name / email</div>
+              </div>
+              <button style="font:inherit;font-size:14px;font-weight:700;color:#fff;background:#1a472a;border:none;border-radius:10px;padding:12px;cursor:pointer;width:100%;margin-top:4px;">Save Venue</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════ COURSES ════ -->
+  <div style="margin-bottom:56px;">
+    <div style="font-size:12px;font-weight:700;color:#46554c;margin-bottom:10px;letter-spacing:.02em;">2 / 7 · Courses — configure holes, par &amp; GPS pins</div>
+    <div style="width:1280px;background:#fff;border-radius:14px;box-shadow:0 8px 30px rgba(0,0,0,.14);overflow:hidden;display:flex;">
+      <div style="width:212px;flex:none;background:#1a472a;color:#fff;display:flex;flex-direction:column;padding:20px 12px;min-height:820px;">
+        <div style="display:flex;align-items:center;gap:10px;padding:0 8px 22px;"><div style="width:34px;height:34px;border-radius:9px;background:rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;font-size:18px;">⛳</div><div style="line-height:1;"><div style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:20px;">FDGOLF</div><div style="font-size:10px;letter-spacing:.18em;color:#9fd6ad;font-weight:600;margin-top:2px;">ADMIN</div></div></div>
+        <div style="display:flex;flex-direction:column;gap:3px;">
+          <sc-for list="{{ nav2 }}" as="n" hint-placeholder-count="9">
+            <div style="display:flex;align-items:center;gap:11px;padding:10px 12px;border-radius:10px;font-size:14px;font-weight:600;color:{{ n.fg }};background:{{ n.bg }};"><span style="font-size:15px;width:18px;text-align:center;">{{ n.ic }}</span><span>{{ n.label }}</span></div>
+          </sc-for>
+        </div>
+        <div style="margin-top:auto;padding:12px;background:rgba(255,255,255,.07);border-radius:12px;"><div style="font-size:11px;color:#9fd6ad;font-weight:600;">SIGNED IN</div><div style="font-size:13px;font-weight:600;margin-top:3px;">Tournament Director</div></div>
+      </div>
+      <div style="flex:1;background:#f4f7f1;display:flex;flex-direction:column;min-width:0;">
+        <div style="background:#fff;border-bottom:1px solid #e2e8df;padding:18px 28px;display:flex;align-items:center;justify-content:space-between;">
+          <div>
+            <div style="font-size:11px;font-weight:700;letter-spacing:.08em;color:#90a094;text-transform:uppercase;">Setup</div>
+            <div style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:28px;color:#15241c;line-height:1;">Courses</div>
+          </div>
+          <div style="display:flex;gap:10px;align-items:center;">
+            <div style="display:flex;align-items:center;gap:8px;background:#fff;border:1px solid #d6ddd2;border-radius:10px;padding:8px 14px;">
+              <span style="font-size:13px;font-weight:600;color:#15241c;">Granite Ridge Golf Club</span>
+              <span style="font-size:11px;color:#90a094;">▼</span>
+            </div>
+            <button style="font:inherit;font-size:14px;font-weight:700;color:#fff;background:#1a472a;border:none;border-radius:10px;padding:10px 20px;cursor:pointer;">+ Add Course</button>
+          </div>
+        </div>
+        <div style="padding:24px 28px;display:flex;flex-direction:column;gap:16px;">
+          <!-- course card expanded -->
+          <div style="background:#fff;border:1px solid #e2e8df;border-radius:16px;overflow:hidden;">
+            <div style="padding:16px 22px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #eef2ea;">
+              <div style="display:flex;align-items:center;gap:14px;">
+                <span style="font-weight:700;font-size:17px;color:#15241c;">Granite Ridge — Championship Course</span>
+                <span style="font-size:12px;font-weight:700;color:#1a472a;background:#e9f3ec;padding:4px 11px;border-radius:999px;">18 holes</span>
+                <span style="font-size:12px;font-weight:700;color:#1a472a;background:#e9f3ec;padding:4px 11px;border-radius:999px;">Par 72</span>
+                <span style="font-size:12px;font-weight:600;color:#1a472a;background:#e9f3ec;padding:4px 11px;border-radius:999px;">GPS: 18/18 ✓</span>
+              </div>
+              <button style="font:inherit;font-size:13px;font-weight:600;color:#1a472a;background:#eef2ea;border:none;border-radius:9px;padding:8px 14px;cursor:pointer;">Edit course</button>
+            </div>
+            <!-- hole grid -->
+            <div style="padding:16px 22px;">
+              <div style="display:grid;grid-template-columns:repeat(9,1fr);gap:8px;margin-bottom:10px;">
+                <div style="text-align:center;padding-bottom:4px;border-bottom:2px solid #e2e8df;"><span style="font-size:11px;font-weight:700;color:#90a094;">FRONT 9</span></div>
+                <sc-for list="{{ front9 }}" as="h" hint-placeholder-count="8">
+                  <div style="background:#f4f7f1;border-radius:10px;padding:10px 6px;text-align:center;">
+                    <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:20px;color:#15241c;">{{ h.n }}</div>
+                    <div style="font-size:11px;color:#6b7a70;margin-top:1px;">Par {{ h.par }}</div>
+                    <div style="font-size:10px;color:#90a094;margin-top:1px;">{{ h.dist }}y</div>
+                    <div style="font-size:11px;color:#90a094;margin-top:1px;">SI {{ h.si }}</div>
+                    <div style="width:8px;height:8px;border-radius:50%;background:#2f8f4e;margin:6px auto 0;"></div>
+                  </div>
+                </sc-for>
+              </div>
+              <div style="display:grid;grid-template-columns:repeat(9,1fr);gap:8px;">
+                <div style="text-align:center;padding-bottom:4px;border-bottom:2px solid #e2e8df;"><span style="font-size:11px;font-weight:700;color:#90a094;">BACK 9</span></div>
+                <sc-for list="{{ back9 }}" as="h" hint-placeholder-count="8">
+                  <div style="background:#f4f7f1;border-radius:10px;padding:10px 6px;text-align:center;">
+                    <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:20px;color:#15241c;">{{ h.n }}</div>
+                    <div style="font-size:11px;color:#6b7a70;margin-top:1px;">Par {{ h.par }}</div>
+                    <div style="font-size:10px;color:#90a094;margin-top:1px;">{{ h.dist }}y</div>
+                    <div style="font-size:11px;color:#90a094;margin-top:1px;">SI {{ h.si }}</div>
+                    <div style="width:8px;height:8px;border-radius:50%;background:#2f8f4e;margin:6px auto 0;"></div>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+          </div>
+          <p style="font-size:13px;color:#90a094;font-weight:500;">↑ Click any hole tile to edit par, distance, stroke index or re-drop GPS pin</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════ PLAYERS ════ -->
+  <div style="margin-bottom:56px;">
+    <div style="font-size:12px;font-weight:700;color:#46554c;margin-bottom:10px;letter-spacing:.02em;">3 / 7 · Players — register, assign &amp; send magic links</div>
+    <div style="width:1280px;background:#fff;border-radius:14px;box-shadow:0 8px 30px rgba(0,0,0,.14);overflow:hidden;display:flex;">
+      <div style="width:212px;flex:none;background:#1a472a;color:#fff;display:flex;flex-direction:column;padding:20px 12px;min-height:780px;">
+        <div style="display:flex;align-items:center;gap:10px;padding:0 8px 22px;"><div style="width:34px;height:34px;border-radius:9px;background:rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;font-size:18px;">⛳</div><div style="line-height:1;"><div style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:20px;">FDGOLF</div><div style="font-size:10px;letter-spacing:.18em;color:#9fd6ad;font-weight:600;margin-top:2px;">ADMIN</div></div></div>
+        <div style="display:flex;flex-direction:column;gap:3px;">
+          <sc-for list="{{ nav3 }}" as="n" hint-placeholder-count="9">
+            <div style="display:flex;align-items:center;gap:11px;padding:10px 12px;border-radius:10px;font-size:14px;font-weight:600;color:{{ n.fg }};background:{{ n.bg }};"><span style="font-size:15px;width:18px;text-align:center;">{{ n.ic }}</span><span>{{ n.label }}</span></div>
+          </sc-for>
+        </div>
+        <div style="margin-top:auto;padding:12px;background:rgba(255,255,255,.07);border-radius:12px;"><div style="font-size:11px;color:#9fd6ad;font-weight:600;">SIGNED IN</div><div style="font-size:13px;font-weight:600;margin-top:3px;">Tournament Director</div></div>
+      </div>
+      <div style="flex:1;background:#f4f7f1;display:flex;flex-direction:column;min-width:0;">
+        <div style="background:#fff;border-bottom:1px solid #e2e8df;padding:18px 28px;display:flex;align-items:center;justify-content:space-between;">
+          <div>
+            <div style="font-size:11px;font-weight:700;letter-spacing:.08em;color:#90a094;text-transform:uppercase;">Setup · 64 registered</div>
+            <div style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:28px;color:#15241c;line-height:1;">Players</div>
+          </div>
+          <div style="display:flex;gap:10px;">
+            <div style="display:flex;align-items:center;gap:8px;background:#fff;border:1px solid #d6ddd2;border-radius:10px;padding:9px 14px;"><span style="font-size:13px;color:#90a094;">🔍</span><span style="font-size:14px;color:#90a094;">Search players…</span></div>
+            <button style="font:inherit;font-size:14px;font-weight:600;color:#1a472a;background:#fff;border:1px solid #cdd9cf;border-radius:10px;padding:10px 16px;cursor:pointer;">Import CSV</button>
+            <button style="font:inherit;font-size:14px;font-weight:700;color:#fff;background:#1a472a;border:none;border-radius:10px;padding:10px 20px;cursor:pointer;">+ Add Player</button>
+          </div>
+        </div>
+        <!-- bulk action bar -->
+        <div style="background:#fff;border-bottom:1px solid #eef2ea;padding:10px 28px;display:flex;align-items:center;justify-content:space-between;">
+          <div style="display:flex;align-items:center;gap:14px;">
+            <span style="font-size:13px;font-weight:600;color:#46554c;">All players</span>
+            <span style="font-size:12px;font-weight:700;color:#1a472a;background:#e9f3ec;padding:3px 10px;border-radius:999px;">✓ Linked 58</span>
+            <span style="font-size:12px;font-weight:700;color:#b3741b;background:#fbf1df;padding:3px 10px;border-radius:999px;">⏳ Pending 4</span>
+            <span style="font-size:12px;font-weight:700;color:#90a094;background:#eef2ea;padding:3px 10px;border-radius:999px;">Not sent 2</span>
+          </div>
+          <button style="font:inherit;font-size:13px;font-weight:700;color:#fff;background:#1a472a;border:none;border-radius:9px;padding:8px 16px;cursor:pointer;">Send all links →</button>
+        </div>
+        <!-- table -->
+        <div style="flex:1;padding:0 28px 24px;">
+          <div style="display:grid;grid-template-columns:28px 1fr 160px 120px 80px 140px 120px 80px;gap:0;padding:10px 14px;border-bottom:2px solid #e2e8df;margin-top:18px;">
+            <span style="font-size:10px;font-weight:700;color:#90a094;text-transform:uppercase;"></span>
+            <span style="font-size:10px;font-weight:700;color:#90a094;text-transform:uppercase;">Player</span>
+            <span style="font-size:10px;font-weight:700;color:#90a094;text-transform:uppercase;">Company</span>
+            <span style="font-size:10px;font-weight:700;color:#90a094;text-transform:uppercase;">Title</span>
+            <span style="font-size:10px;font-weight:700;color:#90a094;text-transform:uppercase;text-align:center;">HCP</span>
+            <span style="font-size:10px;font-weight:700;color:#90a094;text-transform:uppercase;">Team</span>
+            <span style="font-size:10px;font-weight:700;color:#90a094;text-transform:uppercase;">Magic Link</span>
+            <span style="font-size:10px;font-weight:700;color:#90a094;text-transform:uppercase;text-align:right;">Actions</span>
+          </div>
+          <sc-for list="{{ players }}" as="p" hint-placeholder-count="10">
+            <div style="display:grid;grid-template-columns:28px 1fr 160px 120px 80px 140px 120px 80px;gap:0;align-items:center;padding:10px 14px;border-bottom:1px solid #f0f4ee;background:{{ p.rowBg }};">
+              <div style="width:18px;height:18px;border-radius:5px;border:1.5px solid #cdd9cf;background:#fff;"></div>
+              <div style="display:flex;align-items:center;gap:10px;min-width:0;">
+                <span style="width:32px;height:32px;border-radius:9px;background:#1a472a;color:#bff0c8;display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:14px;flex:none;">{{ p.init }}</span>
+                <div style="min-width:0;">
+                  <div style="font-weight:600;font-size:14px;color:#15241c;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ p.name }}</div>
+                  <div style="font-size:11px;color:#90a094;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ p.email }}</div>
+                </div>
+              </div>
+              <span style="font-size:13px;color:#46554c;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ p.company }}</span>
+              <span style="font-size:12px;color:#6b7a70;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ p.title }}</span>
+              <span style="font-size:14px;color:#15241c;font-weight:600;text-align:center;">{{ p.hcp }}</span>
+              <span style="font-size:12px;font-weight:700;color:#1a472a;background:#e9f3ec;padding:4px 10px;border-radius:999px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ p.team }}</span>
+              <span style="font-size:12px;font-weight:700;color:{{ p.lc }};background:{{ p.lb }};padding:4px 10px;border-radius:999px;">{{ p.link }}</span>
+              <div style="display:flex;justify-content:flex-end;gap:6px;">
+                <button style="font:inherit;font-size:12px;font-weight:600;color:#1a472a;background:#eef2ea;border:none;border-radius:7px;padding:5px 10px;cursor:pointer;">Edit</button>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════ TEAMS ════ -->
+  <div style="margin-bottom:56px;">
+    <div style="font-size:12px;font-weight:700;color:#46554c;margin-bottom:10px;letter-spacing:.02em;">4 / 7 · Teams — roster, starting hole &amp; best-ball assignment</div>
+    <div style="width:1280px;background:#fff;border-radius:14px;box-shadow:0 8px 30px rgba(0,0,0,.14);overflow:hidden;display:flex;">
+      <div style="width:212px;flex:none;background:#1a472a;color:#fff;display:flex;flex-direction:column;padding:20px 12px;min-height:820px;">
+        <div style="display:flex;align-items:center;gap:10px;padding:0 8px 22px;"><div style="width:34px;height:34px;border-radius:9px;background:rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;font-size:18px;">⛳</div><div style="line-height:1;"><div style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:20px;">FDGOLF</div><div style="font-size:10px;letter-spacing:.18em;color:#9fd6ad;font-weight:600;margin-top:2px;">ADMIN</div></div></div>
+        <div style="display:flex;flex-direction:column;gap:3px;">
+          <sc-for list="{{ nav4 }}" as="n" hint-placeholder-count="9">
+            <div style="display:flex;align-items:center;gap:11px;padding:10px 12px;border-radius:10px;font-size:14px;font-weight:600;color:{{ n.fg }};background:{{ n.bg }};"><span style="font-size:15px;width:18px;text-align:center;">{{ n.ic }}</span><span>{{ n.label }}</span></div>
+          </sc-for>
+        </div>
+        <div style="margin-top:auto;padding:12px;background:rgba(255,255,255,.07);border-radius:12px;"><div style="font-size:11px;color:#9fd6ad;font-weight:600;">SIGNED IN</div><div style="font-size:13px;font-weight:600;margin-top:3px;">Tournament Director</div></div>
+      </div>
+      <div style="flex:1;background:#f4f7f1;display:flex;flex-direction:column;min-width:0;">
+        <div style="background:#fff;border-bottom:1px solid #e2e8df;padding:18px 28px;display:flex;align-items:center;justify-content:space-between;">
+          <div>
+            <div style="font-size:11px;font-weight:700;letter-spacing:.08em;color:#90a094;text-transform:uppercase;">Setup · 16 teams · 64 players</div>
+            <div style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:28px;color:#15241c;line-height:1;">Teams</div>
+          </div>
+          <div style="display:flex;gap:10px;">
+            <button style="font:inherit;font-size:14px;font-weight:600;color:#1a472a;background:#fff;border:1px solid #cdd9cf;border-radius:10px;padding:10px 16px;cursor:pointer;">⚡ Auto-assign starting holes</button>
+            <button style="font:inherit;font-size:14px;font-weight:700;color:#fff;background:#1a472a;border:none;border-radius:10px;padding:10px 20px;cursor:pointer;">+ Add Team</button>
+          </div>
+        </div>
+        <div style="flex:1;padding:24px 28px;display:grid;grid-template-columns:repeat(3,1fr);gap:18px;">
+          <sc-for list="{{ teamCards }}" as="t" hint-placeholder-count="6">
+            <div style="background:#fff;border:{{ t.border }};border-radius:16px;overflow:hidden;">
+              <div style="background:{{ t.hBg }};padding:13px 18px;display:flex;align-items:center;justify-content:space-between;">
+                <div style="display:flex;align-items:center;gap:10px;">
+                  <span style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:22px;color:{{ t.hFg }};">{{ t.name }}</span>
+                </div>
+                <div style="display:flex;align-items:center;gap:8px;">
+                  <span style="font-size:12px;font-weight:700;color:{{ t.hFg }};opacity:.75;">Start</span>
+                  <div style="background:rgba(255,255,255,.18);border-radius:8px;padding:4px 12px;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:18px;color:{{ t.hFg }};">H{{ t.start }}</div>
+                </div>
+              </div>
+              <div style="padding:12px 18px;display:flex;flex-direction:column;gap:8px;">
+                <sc-for list="{{ t.members }}" as="m" hint-placeholder-count="4">
+                  <div style="display:flex;align-items:center;gap:10px;">
+                    <span style="width:28px;height:28px;border-radius:7px;background:#eef2ea;color:#1a472a;display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12px;flex:none;">{{ m.init }}</span>
+                    <div style="flex:1;min-width:0;">
+                      <div style="font-size:13px;font-weight:600;color:#15241c;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ m.name }}</div>
+                      <div style="font-size:11px;color:#90a094;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ m.company }}</div>
+                    </div>
+                    <span style="font-size:11px;color:#90a094;flex:none;">HCP {{ m.hcp }}</span>
+                  </div>
+                </sc-for>
+              </div>
+              <div style="padding:10px 18px 14px;display:flex;gap:8px;border-top:1px solid #f0f4ee;">
+                <button style="font:inherit;flex:1;font-size:12px;font-weight:600;color:#1a472a;background:#eef2ea;border:none;border-radius:8px;padding:7px;cursor:pointer;">Edit team</button>
+                <button style="font:inherit;flex:1;font-size:12px;font-weight:600;color:#6b7a70;background:#f4f7f1;border:none;border-radius:8px;padding:7px;cursor:pointer;">Manage players</button>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════ CLUBS ════ -->
+  <div style="margin-bottom:56px;">
+    <div style="font-size:12px;font-weight:700;color:#46554c;margin-bottom:10px;letter-spacing:.02em;">5 / 7 · Clubs — configure club types available for shot logging</div>
+    <div style="width:1280px;background:#fff;border-radius:14px;box-shadow:0 8px 30px rgba(0,0,0,.14);overflow:hidden;display:flex;">
+      <div style="width:212px;flex:none;background:#1a472a;color:#fff;display:flex;flex-direction:column;padding:20px 12px;min-height:620px;">
+        <div style="display:flex;align-items:center;gap:10px;padding:0 8px 22px;"><div style="width:34px;height:34px;border-radius:9px;background:rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;font-size:18px;">⛳</div><div style="line-height:1;"><div style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:20px;">FDGOLF</div><div style="font-size:10px;letter-spacing:.18em;color:#9fd6ad;font-weight:600;margin-top:2px;">ADMIN</div></div></div>
+        <div style="display:flex;flex-direction:column;gap:3px;">
+          <sc-for list="{{ nav5 }}" as="n" hint-placeholder-count="9">
+            <div style="display:flex;align-items:center;gap:11px;padding:10px 12px;border-radius:10px;font-size:14px;font-weight:600;color:{{ n.fg }};background:{{ n.bg }};"><span style="font-size:15px;width:18px;text-align:center;">{{ n.ic }}</span><span>{{ n.label }}</span></div>
+          </sc-for>
+        </div>
+        <div style="margin-top:auto;padding:12px;background:rgba(255,255,255,.07);border-radius:12px;"><div style="font-size:11px;color:#9fd6ad;font-weight:600;">SIGNED IN</div><div style="font-size:13px;font-weight:600;margin-top:3px;">Tournament Director</div></div>
+      </div>
+      <div style="flex:1;background:#f4f7f1;display:flex;flex-direction:column;min-width:0;">
+        <div style="background:#fff;border-bottom:1px solid #e2e8df;padding:18px 28px;display:flex;align-items:center;justify-content:space-between;">
+          <div>
+            <div style="font-size:11px;font-weight:700;letter-spacing:.08em;color:#90a094;text-transform:uppercase;">Setup</div>
+            <div style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:28px;color:#15241c;line-height:1;">Clubs</div>
+          </div>
+          <button style="font:inherit;font-size:14px;font-weight:700;color:#fff;background:#1a472a;border:none;border-radius:10px;padding:10px 20px;cursor:pointer;">+ Add Club</button>
+        </div>
+        <div style="flex:1;padding:24px 28px;display:flex;gap:22px;">
+          <!-- club list -->
+          <div style="flex:1;background:#fff;border:1px solid #e2e8df;border-radius:16px;overflow:hidden;">
+            <div style="padding:14px 20px;border-bottom:1px solid #eef2ea;font-weight:700;font-size:15px;color:#15241c;">Available Clubs <span style="font-size:13px;font-weight:500;color:#90a094;">(shown on player device in this order)</span></div>
+            <div style="display:grid;grid-template-columns:32px 1fr 80px 120px 100px 80px;gap:0;padding:8px 20px;border-bottom:1px solid #eef2ea;">
+              <span style="font-size:10px;font-weight:700;color:#90a094;text-transform:uppercase;"></span>
+              <span style="font-size:10px;font-weight:700;color:#90a094;text-transform:uppercase;">Club</span>
+              <span style="font-size:10px;font-weight:700;color:#90a094;text-transform:uppercase;">Type</span>
+              <span style="font-size:10px;font-weight:700;color:#90a094;text-transform:uppercase;">Usage today</span>
+              <span style="font-size:10px;font-weight:700;color:#90a094;text-transform:uppercase;text-align:right;">Shots</span>
+              <span style="font-size:10px;font-weight:700;color:#90a094;text-transform:uppercase;text-align:right;"></span>
+            </div>
+            <sc-for list="{{ clubs }}" as="c" hint-placeholder-count="10">
+              <div style="display:grid;grid-template-columns:32px 1fr 80px 120px 100px 80px;gap:0;align-items:center;padding:10px 20px;border-bottom:1px solid #f0f4ee;">
+                <span style="font-size:16px;color:#90a094;cursor:grab;">⠿</span>
+                <div style="display:flex;align-items:center;gap:10px;">
+                  <span style="width:30px;height:30px;border-radius:8px;background:#eef2ea;display:flex;align-items:center;justify-content:center;font-size:14px;">🏌️</span>
+                  <span style="font-weight:600;font-size:14px;color:#15241c;">{{ c.name }}</span>
+                </div>
+                <span style="font-size:12px;font-weight:600;color:#6b7a70;background:#f4f7f1;padding:3px 8px;border-radius:7px;width:fit-content;">{{ c.type }}</span>
+                <div style="padding-right:16px;">
+                  <div style="height:6px;border-radius:999px;background:#eef2ea;overflow:hidden;">
+                    <div style="height:100%;width:{{ c.pct }};background:#1a472a;border-radius:999px;transform-origin:left;animation:fdGrow .7s ease both;"></div>
+                  </div>
+                </div>
+                <span style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:20px;color:#15241c;text-align:right;">{{ c.shots }}</span>
+                <div style="display:flex;justify-content:flex-end;gap:6px;">
+                  <button style="font:inherit;font-size:12px;font-weight:600;color:#1a472a;background:#eef2ea;border:none;border-radius:7px;padding:5px 10px;cursor:pointer;">Edit</button>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+          <!-- info panel -->
+          <div style="width:260px;flex:none;display:flex;flex-direction:column;gap:16px;">
+            <div style="background:#fff;border:1px solid #e2e8df;border-radius:16px;padding:18px 20px;">
+              <div style="font-weight:700;font-size:15px;color:#15241c;margin-bottom:12px;">Today's top clubs</div>
+              <sc-for list="{{ topClubs }}" as="c" hint-placeholder-count="3">
+                <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f0f4ee;">
+                  <span style="font-size:14px;font-weight:600;color:#15241c;">{{ c.name }}</span>
+                  <span style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:20px;color:#1a472a;">{{ c.shots }}</span>
+                </div>
+              </sc-for>
+            </div>
+            <div style="background:#fff;border:1px solid #e2e8df;border-radius:16px;padding:18px 20px;">
+              <div style="font-weight:700;font-size:15px;color:#15241c;margin-bottom:8px;">Add Club</div>
+              <div style="display:flex;flex-direction:column;gap:12px;">
+                <div><label style="font-size:11px;font-weight:700;color:#6b7a70;display:block;margin-bottom:5px;text-transform:uppercase;letter-spacing:.04em;">Name</label><div style="border:1px solid #d6ddd2;border-radius:9px;padding:10px 13px;font-size:14px;color:#90a094;background:#fff;">e.g. 3 Hybrid</div></div>
+                <div><label style="font-size:11px;font-weight:700;color:#6b7a70;display:block;margin-bottom:5px;text-transform:uppercase;letter-spacing:.04em;">Type</label>
+                  <div style="border:1px solid #d6ddd2;border-radius:9px;padding:10px 13px;font-size:14px;color:#15241c;background:#fff;">Wood ▼</div>
+                </div>
+                <button style="font:inherit;font-size:13px;font-weight:700;color:#fff;background:#1a472a;border:none;border-radius:9px;padding:10px;cursor:pointer;width:100%;">Add</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════ SCORES ════ -->
+  <div style="margin-bottom:56px;">
+    <div style="font-size:12px;font-weight:700;color:#46554c;margin-bottom:10px;letter-spacing:.02em;">6 / 7 · Scores — live scoring matrix, all teams × all holes</div>
+    <div style="width:1280px;background:#fff;border-radius:14px;box-shadow:0 8px 30px rgba(0,0,0,.14);overflow:hidden;display:flex;">
+      <div style="width:212px;flex:none;background:#1a472a;color:#fff;display:flex;flex-direction:column;padding:20px 12px;min-height:720px;">
+        <div style="display:flex;align-items:center;gap:10px;padding:0 8px 22px;"><div style="width:34px;height:34px;border-radius:9px;background:rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;font-size:18px;">⛳</div><div style="line-height:1;"><div style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:20px;">FDGOLF</div><div style="font-size:10px;letter-spacing:.18em;color:#9fd6ad;font-weight:600;margin-top:2px;">ADMIN</div></div></div>
+        <div style="display:flex;flex-direction:column;gap:3px;">
+          <sc-for list="{{ nav6 }}" as="n" hint-placeholder-count="9">
+            <div style="display:flex;align-items:center;gap:11px;padding:10px 12px;border-radius:10px;font-size:14px;font-weight:600;color:{{ n.fg }};background:{{ n.bg }};"><span style="font-size:15px;width:18px;text-align:center;">{{ n.ic }}</span><span>{{ n.label }}</span></div>
+          </sc-for>
+        </div>
+        <div style="margin-top:auto;padding:12px;background:rgba(255,255,255,.07);border-radius:12px;"><div style="font-size:11px;color:#9fd6ad;font-weight:600;">SIGNED IN</div><div style="font-size:13px;font-weight:600;margin-top:3px;">Tournament Director</div></div>
+      </div>
+      <div style="flex:1;background:#f4f7f1;display:flex;flex-direction:column;min-width:0;">
+        <div style="background:#fff;border-bottom:1px solid #e2e8df;padding:18px 28px;display:flex;align-items:center;justify-content:space-between;">
+          <div>
+            <div style="font-size:11px;font-weight:700;letter-spacing:.08em;color:#90a094;text-transform:uppercase;">Live · Best Ball</div>
+            <div style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:28px;color:#15241c;line-height:1;">Scores</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:14px;">
+            <div style="display:flex;align-items:center;gap:8px;"><span style="width:9px;height:9px;border-radius:50%;background:#2f8f4e;animation:fdPulse 1.6s ease-in-out infinite;"></span><span style="font-size:13px;font-weight:600;color:#1a472a;">Live · auto-refreshing</span></div>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <div style="display:flex;align-items:center;gap:7px;background:#eef2ea;border-radius:9px;padding:6px 12px;">
+                <span style="width:12px;height:12px;border-radius:3px;background:#1a472a;display:inline-block;"></span><span style="font-size:12px;font-weight:600;color:#15241c;">Eagle</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:7px;background:#fbecea;border-radius:9px;padding:6px 12px;">
+                <span style="width:12px;height:12px;border-radius:3px;background:#c0392b;display:inline-block;"></span><span style="font-size:12px;font-weight:600;color:#15241c;">Birdie</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:7px;background:#f4f7f1;border-radius:9px;padding:6px 12px;">
+                <span style="width:12px;height:12px;border-radius:3px;background:#cdd6cc;display:inline-block;"></span><span style="font-size:12px;font-weight:600;color:#15241c;">Par</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:7px;background:#f7ece9;border-radius:9px;padding:6px 12px;">
+                <span style="width:12px;height:12px;border-radius:3px;background:#a8513f;display:inline-block;"></span><span style="font-size:12px;font-weight:600;color:#15241c;">Bogey+</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- score matrix -->
+        <div style="flex:1;padding:18px 28px;overflow:auto;">
+          <div style="background:#fff;border:1px solid #e2e8df;border-radius:16px;overflow:hidden;">
+            <!-- hole header -->
+            <div style="display:flex;background:#f4f7f1;border-bottom:2px solid #e2e8df;">
+              <div style="width:160px;flex:none;padding:10px 16px;font-size:11px;font-weight:700;color:#90a094;text-transform:uppercase;">Team</div>
+              <sc-for list="{{ scoreHoles }}" as="h" hint-placeholder-count="18">
+                <div style="flex:1;min-width:0;padding:8px 2px;text-align:center;border-left:1px solid #e8eee4;">
+                  <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:16px;color:#15241c;">{{ h.n }}</div>
+                  <div style="font-size:10px;color:#90a094;">P{{ h.p }}</div>
+                </div>
+              </sc-for>
+              <div style="width:72px;flex:none;padding:10px 8px;text-align:center;border-left:2px solid #d6ddd2;font-size:11px;font-weight:700;color:#15241c;text-transform:uppercase;">Tot</div>
+            </div>
+            <!-- score rows -->
+            <sc-for list="{{ scoreRows }}" as="r" hint-placeholder-count="8">
+              <div style="display:flex;align-items:center;border-bottom:1px solid #f0f4ee;background:{{ r.rowBg }};">
+                <div style="width:160px;flex:none;padding:10px 16px;font-weight:600;font-size:13px;color:#15241c;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ r.team }}</div>
+                <sc-for list="{{ r.cells }}" as="c" hint-placeholder-count="18">
+                  <div style="flex:1;min-width:0;padding:6px 2px;text-align:center;border-left:1px solid #f0f4ee;">
+                    <div style="width:28px;height:28px;border-radius:7px;background:{{ c.bg }};color:{{ c.fg }};display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:15px;margin:0 auto;">{{ c.v }}</div>
+                  </div>
+                </sc-for>
+                <div style="width:72px;flex:none;padding:8px;text-align:center;border-left:2px solid #d6ddd2;">
+                  <span style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:22px;color:{{ r.totC }};">{{ r.tot }}</span>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════ SPONSORS ════ -->
+  <div style="margin-bottom:56px;">
+    <div style="font-size:12px;font-weight:700;color:#46554c;margin-bottom:10px;letter-spacing:.02em;">7 / 7 · Sponsors — logos, tiers &amp; TV display order</div>
+    <div style="width:1280px;background:#fff;border-radius:14px;box-shadow:0 8px 30px rgba(0,0,0,.14);overflow:hidden;display:flex;">
+      <div style="width:212px;flex:none;background:#1a472a;color:#fff;display:flex;flex-direction:column;padding:20px 12px;min-height:700px;">
+        <div style="display:flex;align-items:center;gap:10px;padding:0 8px 22px;"><div style="width:34px;height:34px;border-radius:9px;background:rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;font-size:18px;">⛳</div><div style="line-height:1;"><div style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:20px;">FDGOLF</div><div style="font-size:10px;letter-spacing:.18em;color:#9fd6ad;font-weight:600;margin-top:2px;">ADMIN</div></div></div>
+        <div style="display:flex;flex-direction:column;gap:3px;">
+          <sc-for list="{{ nav7 }}" as="n" hint-placeholder-count="9">
+            <div style="display:flex;align-items:center;gap:11px;padding:10px 12px;border-radius:10px;font-size:14px;font-weight:600;color:{{ n.fg }};background:{{ n.bg }};"><span style="font-size:15px;width:18px;text-align:center;">{{ n.ic }}</span><span>{{ n.label }}</span></div>
+          </sc-for>
+        </div>
+        <div style="margin-top:auto;padding:12px;background:rgba(255,255,255,.07);border-radius:12px;"><div style="font-size:11px;color:#9fd6ad;font-weight:600;">SIGNED IN</div><div style="font-size:13px;font-weight:600;margin-top:3px;">Tournament Director</div></div>
+      </div>
+      <div style="flex:1;background:#f4f7f1;display:flex;flex-direction:column;min-width:0;">
+        <div style="background:#fff;border-bottom:1px solid #e2e8df;padding:18px 28px;display:flex;align-items:center;justify-content:space-between;">
+          <div>
+            <div style="font-size:11px;font-weight:700;letter-spacing:.08em;color:#90a094;text-transform:uppercase;">Setup</div>
+            <div style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:28px;color:#15241c;line-height:1;">Sponsors</div>
+          </div>
+          <div style="display:flex;gap:10px;">
+            <button style="font:inherit;font-size:14px;font-weight:600;color:#1a472a;background:#fff;border:1px solid #cdd9cf;border-radius:10px;padding:10px 16px;cursor:pointer;">Preview TV bar →</button>
+            <button style="font:inherit;font-size:14px;font-weight:700;color:#fff;background:#1a472a;border:none;border-radius:10px;padding:10px 20px;cursor:pointer;">+ Add Sponsor</button>
+          </div>
+        </div>
+        <div style="flex:1;padding:24px 28px;display:flex;gap:22px;">
+          <!-- sponsor cards -->
+          <div style="flex:1;display:flex;flex-direction:column;gap:14px;">
+            <p style="font-size:13px;color:#90a094;margin:0;font-weight:500;">Drag to reorder · order controls display sequence in the TV footer bar</p>
+            <sc-for list="{{ sponsorCards }}" as="s" hint-placeholder-count="5">
+              <div style="background:#fff;border:1px solid #e2e8df;border-radius:16px;padding:18px 22px;display:flex;align-items:center;gap:18px;">
+                <span style="font-size:22px;color:#c2ccc4;cursor:grab;flex:none;">⠿</span>
+                <div style="width:72px;height:72px;border-radius:14px;background:{{ s.color }};display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:28px;color:#fff;flex:none;">{{ s.mono }}</div>
+                <div style="flex:1;min-width:0;">
+                  <div style="display:flex;align-items:center;gap:12px;">
+                    <span style="font-weight:700;font-size:17px;color:#15241c;">{{ s.name }}</span>
+                    <span style="font-size:12px;font-weight:700;color:{{ s.tierC }};background:{{ s.tierBg }};padding:3px 10px;border-radius:999px;">{{ s.tier }}</span>
+                  </div>
+                  <div style="font-size:13px;color:#6b7a70;margin-top:4px;">{{ s.url }}</div>
+                  <div style="display:flex;align-items:center;gap:10px;margin-top:10px;">
+                    <span style="font-size:12px;font-weight:600;color:#90a094;">Logo uploaded:</span>
+                    <span style="font-size:12px;font-weight:700;color:{{ s.logoC }};">{{ s.logoLabel }}</span>
+                  </div>
+                </div>
+                <div style="display:flex;flex-direction:column;align-items:flex-end;gap:10px;">
+                  <!-- active toggle -->
+                  <div style="display:flex;align-items:center;gap:8px;">
+                    <span style="font-size:12px;font-weight:600;color:#46554c;">Show on TV</span>
+                    <div style="width:44px;height:24px;border-radius:999px;background:{{ s.togBg }};position:relative;">
+                      <div style="width:20px;height:20px;border-radius:50%;background:#fff;position:absolute;top:2px;{{ s.togPos }};box-shadow:0 1px 3px rgba(0,0,0,.2);"></div>
+                    </div>
+                  </div>
+                  <div style="display:flex;gap:8px;">
+                    <button style="font:inherit;font-size:12px;font-weight:600;color:#1a472a;background:#eef2ea;border:none;border-radius:8px;padding:7px 13px;cursor:pointer;">Edit</button>
+                    <button style="font:inherit;font-size:12px;font-weight:600;color:#a8513f;background:#f7ece9;border:none;border-radius:8px;padding:7px 13px;cursor:pointer;">Remove</button>
+                  </div>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+          <!-- TV preview -->
+          <div style="width:300px;flex:none;display:flex;flex-direction:column;gap:16px;">
+            <div style="background:#15241c;border-radius:16px;padding:18px 20px;">
+              <div style="font-size:11px;font-weight:700;letter-spacing:.1em;color:#7d9486;text-transform:uppercase;margin-bottom:14px;">TV Footer Preview</div>
+              <div style="display:flex;flex-wrap:wrap;gap:10px;">
+                <sc-for list="{{ sponsorCards }}" as="s" hint-placeholder-count="5">
+                  <div style="background:#fff;border-radius:12px;padding:10px 14px;display:flex;align-items:center;gap:10px;">
+                    <span style="width:36px;height:36px;border-radius:8px;background:{{ s.color }};display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:16px;color:#fff;">{{ s.mono }}</span>
+                    <div style="line-height:1;">
+                      <div style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:18px;color:#15241c;white-space:nowrap;">{{ s.name }}</div>
+                      <div style="font-size:10px;font-weight:700;color:#9aa89e;text-transform:uppercase;letter-spacing:.06em;margin-top:2px;">{{ s.tier }}</div>
+                    </div>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+            <div style="background:#fff;border:1px solid #e2e8df;border-radius:16px;padding:18px 20px;">
+              <div style="font-weight:700;font-size:15px;color:#15241c;margin-bottom:14px;">Add Sponsor</div>
+              <div style="display:flex;flex-direction:column;gap:12px;">
+                <div><label style="font-size:11px;font-weight:700;color:#6b7a70;display:block;margin-bottom:5px;text-transform:uppercase;letter-spacing:.04em;">Name</label><div style="border:1px solid #d6ddd2;border-radius:9px;padding:10px 13px;font-size:14px;color:#90a094;background:#fff;">Sponsor name</div></div>
+                <div><label style="font-size:11px;font-weight:700;color:#6b7a70;display:block;margin-bottom:5px;text-transform:uppercase;letter-spacing:.04em;">Website</label><div style="border:1px solid #d6ddd2;border-radius:9px;padding:10px 13px;font-size:14px;color:#90a094;background:#fff;">https://…</div></div>
+                <div><label style="font-size:11px;font-weight:700;color:#6b7a70;display:block;margin-bottom:5px;text-transform:uppercase;letter-spacing:.04em;">Tier</label><div style="border:1px solid #d6ddd2;border-radius:9px;padding:10px 13px;font-size:14px;color:#15241c;background:#fff;">Title Sponsor ▼</div></div>
+                <div style="border:2px dashed #cdd9cf;border-radius:12px;padding:18px;text-align:center;">
+                  <div style="font-size:13px;color:#90a094;font-weight:600;">Drop logo here</div>
+                  <div style="font-size:11px;color:#b0bdb4;margin-top:4px;">PNG · SVG · max 2MB</div>
+                </div>
+                <button style="font:inherit;font-size:13px;font-weight:700;color:#fff;background:#1a472a;border:none;border-radius:9px;padding:10px;cursor:pointer;width:100%;">Save Sponsor</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1400,&quot;height&quot;:1200}}">
+class Component extends DCLogic {
+  renderVals() {
+    const GREEN = '#1a472a', RED = '#c0392b';
+    const mkNav = (active) => [
+      ['🏆','Tournament',false],['📍','Venues',false],['🚩','Courses',false],
+      ['👤','Players',false],['👥','Teams',false],['🏌','Clubs',false],
+      ['📋','Scores',false],['⭐','Sponsors',false],
+    ].map(([ic,label,_], i) => {
+      const isActive = label === active;
+      return { ic, label, bg: isActive ? 'rgba(255,255,255,.14)' : 'transparent', fg: isActive ? '#fff' : '#bfe0c8' };
+    });
+
+    const nav = mkNav('Venues'), nav2 = mkNav('Courses'), nav3 = mkNav('Players'),
+          nav4 = mkNav('Teams'), nav5 = mkNav('Clubs'), nav6 = mkNav('Scores'), nav7 = mkNav('Sponsors');
+
+    // Venues
+    const venues = [
+      { name: 'Granite Ridge Golf Club', address: '7320 Ski Hill Rd, Milton, ON L9E 0C6', courses: '1', gpsLabel: 'GPS: 18/18 pins set', gpsC: GREEN, gpsBg: '#e9f3ec' },
+      { name: 'TPC Toronto at Osprey Valley', address: '18 Osprey Ridge Rd, Caledon, ON', courses: '3', gpsLabel: 'GPS: not configured', gpsC: '#b3741b', gpsBg: '#fbf1df' },
+    ];
+
+    // Courses
+    const courseHoles = [
+      [4,388,3],[4,412,11],[4,356,7],[3,184,15],[5,534,1],[4,420,5],[5,511,9],[3,168,17],[4,396,13],
+      [4,372,4],[4,424,12],[4,441,2],[5,523,8],[3,192,18],[4,357,14],[4,408,6],[3,178,16],[5,518,10],
+    ];
+    const front9 = courseHoles.slice(0,9).map(([par,dist,si],i)=>({n:i+1,par,dist,si}));
+    const back9 = courseHoles.slice(9).map(([par,dist,si],i)=>({n:i+10,par,dist,si}));
+
+    // Players
+    const playerData = [
+      ['J. Mensah','j.mensah@cibc.com','CIBC Capital Markets','Managing Dir.','JM',7,'Birdie Brigade','✓ Active','#1a472a','#e9f3ec'],
+      ['A. Reyes','a.reyes@brookfield.com','Brookfield Asset Mgmt','Exec. Director','AR',12,'Birdie Brigade','✓ Active','#1a472a','#e9f3ec'],
+      ['P. Kowalski','p.kowalski@omers.com','OMERS','Vice President','PK',18,'Birdie Brigade','✓ Active','#1a472a','#e9f3ec'],
+      ['L. Brennan','l.brennan@cpp.com','CPP Investments','Associate','LB',22,'Birdie Brigade','⏳ Pending','#b3741b','#fbf1df'],
+      ['M. Okafor','m.okafor@td.com','TD Securities','Director','MO',9,'Sand Baggers','✓ Active','#1a472a','#e9f3ec'],
+      ['S. Chen','s.chen@bmo.com','BMO Capital Markets','VP Sales','SC',14,'Eagle Hunters','✓ Active','#1a472a','#e9f3ec'],
+      ['R. Dubois','r.dubois@rbc.com','RBC Capital Markets','MD','RD',6,'Fairway Foxes','⏳ Pending','#b3741b','#fbf1df'],
+      ['K. Walsh','k.walsh@scotiabank.com','Scotiabank GBM','Director','KW',11,'The Mulligans','Not sent','#90a094','#eef2ea'],
+    ].map(([name,email,company,title,init,hcp,team,link,lc,lb])=>({
+      name,email,company,title,init,hcp,team,link,lc,lb, rowBg: '#fff',
+    }));
+    const players = playerData;
+
+    // Teams
+    const teamData = [
+      { name: 'Birdie Brigade', start: 1, hBg: GREEN, hFg: '#fff', border: '1px solid #e2e8df',
+        members: [{init:'JM',name:'J. Mensah',company:'CIBC Capital Markets',hcp:7},{init:'AR',name:'A. Reyes',company:'Brookfield',hcp:12},{init:'PK',name:'P. Kowalski',company:'OMERS',hcp:18},{init:'LB',name:'L. Brennan',company:'CPP Investments',hcp:22}]},
+      { name: 'Fairway Foxes', start: 4, hBg: '#f4f7f1', hFg: '#15241c', border: '1px solid #e2e8df',
+        members: [{init:'RD',name:'R. Dubois',company:'RBC Capital',hcp:6},{init:'YT',name:'Y. Tanaka',company:'Scotiabank',hcp:10},{init:'BK',name:'B. Kim',company:'Manulife',hcp:15},{init:'FS',name:'F. Singh',company:'Sun Life',hcp:20}]},
+      { name: 'Eagle Hunters', start: 7, hBg: '#f4f7f1', hFg: '#15241c', border: '1px solid #e2e8df',
+        members: [{init:'SC',name:'S. Chen',company:'BMO Capital',hcp:9},{init:'DL',name:'D. Larsson',company:'Vanguard',hcp:11},{init:'AM',name:'A. Moore',company:'BlackRock',hcp:14},{init:'TP',name:'T. Patel',company:'Citadel',hcp:19}]},
+      { name: 'The Mulligans', start: 10, hBg: '#f4f7f1', hFg: '#15241c', border: '1px solid #e2e8df',
+        members: [{init:'KW',name:'K. Walsh',company:'Scotiabank',hcp:11},{init:'JO',name:'J. O\'Brien',company:'Deloitte',hcp:13},{init:'MS',name:'M. Santos',company:'KPMG',hcp:17},{init:'CH',name:'C. Huang',company:'EY',hcp:21}]},
+      { name: 'Par-Tee Animals', start: 13, hBg: '#fbf1df', hFg: '#7a500a', border: '1px solid #ecd9b4',
+        members: [{init:'WN',name:'W. Nguyen',company:'PwC',hcp:8},{init:'RB',name:'R. Brown',company:'Fidelity',hcp:12},{init:'EN',name:'E. Nkosi',company:'TD',hcp:16},{init:'??',name:'— Unassigned —',company:'',hcp:0}]},
+      { name: 'Green Giants', start: 16, hBg: '#f4f7f1', hFg: '#15241c', border: '1px solid #e2e8df',
+        members: [{init:'HC',name:'H. Carter',company:'OMERS',hcp:7},{init:'PL',name:'P. Lee',company:'CPP',hcp:10},{init:'SW',name:'S. Williams',company:'AIMCo',hcp:14},{init:'GF',name:'G. Fischer',company:'PSP',hcp:18}]},
+    ];
+    const teamCards = teamData;
+
+    // Clubs
+    const clubData = [
+      ['Driver','Wood',312,'98%'],['3 Wood','Wood',186,'58%'],['5 Iron','Iron',164,'51%'],
+      ['7 Iron','Iron',226,'71%'],['9 Iron','Iron',148,'46%'],['Pitching Wedge','Wedge',134,'42%'],
+      ['Sand Wedge','Wedge',92,'29%'],['Putter','Putter',408,'128%'],
+    ];
+    const maxShots = 408;
+    const clubs = clubData.map(([name,type,shots,pct])=>({
+      name,type,shots,pct: Math.round((shots/maxShots)*100)+'%',
+    }));
+    const topClubs = [
+      {name:'Putter',shots:408},{name:'Driver',shots:312},{name:'7 Iron',shots:226},
+    ];
+
+    // Scores matrix
+    const pars = [4,4,4,3,5,4,5,3,4, 4,4,4,5,3,4,4,3,5];
+    const scoreHoles = pars.map((p,i)=>({n:i+1,p}));
+    const cellColor = (v) => {
+      if(v<=2) return {bg:GREEN,fg:'#fff'};
+      if(v===3) return {bg:RED,fg:'#fff'};
+      if(v===4) return {bg:'#e8eee4',fg:'#46554c'};
+      return {bg:'#f0e4e0',fg:'#a8513f'};
+    };
+    const teamScores = [
+      ['Birdie Brigade', [3,3,4,2,4,3,4,3,4, 4,4,4,4,2,3,4,3,4]],
+      ['Fairway Foxes',  [4,3,4,3,4,4,4,3,4, 4,4,5,4,3,4,4,3,4]],
+      ['Eagle Hunters',  [4,3,5,2,4,3,4,3,4, 4,4,4,4,3,4,4,4,4]],
+      ['The Mulligans',  [4,4,4,3,4,4,4,3,4, 4,4,4,4,3,4,4,3,4]],
+      ['Par-Tee Animals',[4,4,4,3,4,4,4,3,5, 4,4,4,4,3,4,4,3,4]],
+      ['Green Giants',   [4,4,4,3,5,4,4,3,4, 4,4,4,5,3,4,4,3,4]],
+      ['Sand Baggers',   [4,4,4,3,4,4,5,3,4, 4,4,4,4,3,4,4,4,4]],
+      ['Rough Riders',   [4,4,4,3,5,4,4,3,5, 4,4,4,5,3,4,4,3,5]],
+    ];
+    const scoreRows = teamScores.map(([team,scores],ri)=>{
+      const tot = scores.reduce((a,s,i)=>a+(s-pars[i]),0);
+      const cells = scores.map((s,i)=>{
+        const c = cellColor(s);
+        if(i>=14 && ri<3) return {v:'·',bg:'#f9faf8',fg:'#c2ccc4'};
+        return {...c, v:s};
+      });
+      return {
+        team, cells,
+        tot: tot<0?'−'+Math.abs(tot):tot===0?'E':'+'+tot,
+        totC: tot<0?RED:tot===0?GREEN:'#33413a',
+        rowBg: ri===0?'linear-gradient(90deg,#fdf9ec,#fff)':'#fff',
+      };
+    });
+
+    // Sponsors
+    const sData = [
+      {name:'CIBC',mono:'C',color:'#B4131E',tier:'Title Sponsor',tierC:'#7a3020',tierBg:'#fbecea',url:'cibc.com',logoLabel:'✓ Uploaded',logoC:GREEN,active:true},
+      {name:'Granite Ridge',mono:'GR',color:GREEN,tier:'Host Venue',tierC:GREEN,tierBg:'#e9f3ec',url:'graniteridgegolf.com',logoLabel:'✓ Uploaded',logoC:GREEN,active:true},
+      {name:'Titleist',mono:'T',color:'#111418',tier:'Equipment',tierC:'#333',tierBg:'#eef2ea',url:'titleist.ca',logoLabel:'✓ Uploaded',logoC:GREEN,active:true},
+      {name:'First Derivative',mono:'FD',color:'#0B1E3F',tier:'Technology',tierC:'#1b3a6b',tierBg:'#e6edf8',url:'firstderivative.com',logoLabel:'⚠ Missing',logoC:'#b3741b',active:true},
+      {name:'Callaway',mono:'CW',color:'#1b1b1b',tier:'Equipment',tierC:'#333',tierBg:'#eef2ea',url:'callawaygolf.com',logoLabel:'✓ Uploaded',logoC:GREEN,active:false},
+    ].map(s=>({
+      ...s,
+      togBg: s.active?GREEN:'#cdd9cf',
+      togPos: s.active?'right:2px':'left:2px',
+    }));
+    const sponsorCards = sData;
+
+    return {
+      nav,nav2,nav3,nav4,nav5,nav6,nav7,
+      venues, front9, back9,
+      players, teamCards,
+      clubs, topClubs,
+      scoreHoles, scoreRows,
+      sponsorCards,
+    };
+  }
+}
+</script>
+</body>
+</html>

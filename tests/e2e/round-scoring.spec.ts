@@ -7,9 +7,9 @@
  * Auth is injected via storageState in playwright.config.ts (player-setup dependency).
  *
  * Component facts (keep tests aligned):
- *  - PlayerPills: renders first names only; active player has data-active="true"
+ *  - PlayerPills: shows first name or "You" for current user; active pill has green bg (rgb(26,71,42))
  *  - ClubSelector: Radix Select; group labels are "Wood", "Iron", "Wedge", "Putter"
- *  - ShotOutcomeButtons: direct outcome buttons ("In Play", "OOB", "Mulligan", "Sunk!")
+ *  - ShotOutcomeButtons: buttons ("In Play", "Out of Bounds", "Mulligan", "⛳ Sunk")
  *    disabled until a club is selected; no "Capture Shot" step
  *  - SyncEngine: enqueues to localStorage then flushes via supabase.from('shots').insert()
  */
@@ -43,22 +43,32 @@ async function selectClub(page: import('@playwright/test').Page, clubName = 'Dri
 test('TC-0020: round page shows active player indicator', async ({ page }) => {
   await page.goto('/round', { waitUntil: 'domcontentloaded' })
 
-  // fakeRoundState has active_player_id: 'player-001' = Alice
-  const aliceBtn = page.getByRole('button', { name: /^alice$/i })
-  await expect(aliceBtn).toBeVisible({ timeout: 8000 })
-  await expect(aliceBtn).toHaveAttribute('data-active', 'true')
+  // fakeRoundState has active_player_id: 'player-001' = Alice (current user → shows "You")
+  // PlayerPills has no data-active; active pill inner div has green background.
+  // Alice appears in both the single player fetch and the teammates list → two "You" pills;
+  // use .first() to avoid strict-mode violations.
+  const alicePill = page.locator('button', { hasText: 'You' }).first()
+  await expect(alicePill).toBeVisible({ timeout: 8000 })
+  await expect(alicePill.locator('div').first()).toHaveCSS('background-color', 'rgb(26, 71, 42)')
 })
 
 // ── TC-0021: Selecting a different player ─────────────────────────────────
 
 test('TC-0021: tapping a player card selects that player as active shooter', async ({ page }) => {
   await page.goto('/round', { waitUntil: 'domcontentloaded' })
-  await expect(page.getByRole('button', { name: /^alice$/i })).toBeVisible({ timeout: 8000 })
 
-  await page.getByRole('button', { name: /^bob$/i }).click()
+  // Alice (current user) is initially active; two "You" pills exist due to duplicate
+  // in single-fetch + teammates list — use .first() to avoid strict-mode violation
+  const alicePill = page.locator('button', { hasText: 'You' }).first()
+  await expect(alicePill).toBeVisible({ timeout: 8000 })
 
-  await expect(page.getByRole('button', { name: /^bob$/i })).toHaveAttribute('data-active', 'true')
-  await expect(page.getByRole('button', { name: /^alice$/i })).not.toHaveAttribute('data-active', 'true')
+  // Click Bob (player-002, shows first name "Bob")
+  const bobPill = page.locator('button', { hasText: 'Bob' })
+  await bobPill.click()
+
+  // Bob should now have green active background; Alice should not
+  await expect(bobPill.locator('div').first()).toHaveCSS('background-color', 'rgb(26, 71, 42)')
+  await expect(alicePill.locator('div').first()).toHaveCSS('background-color', 'rgb(255, 255, 255)')
 })
 
 // ── TC-0022: Club selector groups ─────────────────────────────────────────
@@ -127,7 +137,7 @@ test('TC-0030: OOB outcome records shot with out_of_bounds outcome', async ({ pa
   await expect(page.getByRole('combobox')).toBeVisible({ timeout: 8000 })
 
   await selectClub(page)
-  await page.getByRole('button', { name: /^oob$/i }).click()
+  await page.getByRole('button', { name: /out of bounds/i }).click()
 
   const queue = await page.evaluate(() => {
     const raw = localStorage.getItem('fdgolf_sync_queue')
@@ -229,7 +239,7 @@ test('TC-0076: Sunk outcome submits score and shows hole completion UI', async (
   await expect(page.getByRole('combobox')).toBeVisible({ timeout: 8000 })
 
   await selectClub(page)
-  await page.getByRole('button', { name: /^sunk!?$/i }).click()
+  await page.getByRole('button', { name: /sunk/i }).click()
 
   // After Sunk the shot is submitted to the sync queue / shots endpoint
   // AND the hole completion UI renders: "⛳ Hole N Complete" + "Next Hole →"
