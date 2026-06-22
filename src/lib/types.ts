@@ -40,6 +40,7 @@ export interface Tournament {
   holes_played: 9 | 18;
   nine_hole_selection: 'front' | 'back' | null;
   status: TournamentStatus;
+  is_demo: boolean;
   created_at: string;
 }
 
