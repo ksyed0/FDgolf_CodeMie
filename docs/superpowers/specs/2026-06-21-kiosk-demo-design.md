@@ -54,6 +54,8 @@ FDgolf-CM needs a self-running kiosk demo for trade shows and sales meetings. Th
 
 Note: Stroke index (handicap) values are reasonable estimates; actual published values can be substituted during implementation.
 
+**Par discrepancy:** The hole-by-hole pars sum to 72 (both nines par 36). The Blue tee card shows par 71 — one hole plays as a shorter par from Blue tees. For the demo, seed all 18 holes with the par values above (total 72); the vs-par display will show par-72 calculations throughout, which is acceptable for demo purposes.
+
 ### Approximate GPS Coordinates (Lionhead Legends)
 
 Centre of course: 43.6480° N, 79.8390° W. Holes spread across ~800m × 600m footprint. Seed uses these approximate pin positions:
@@ -91,6 +93,7 @@ Centre of course: 43.6480° N, 79.8390° W. Holes spread across ~800m × 600m fo
 - **Teams:** 18 teams × 4 players = 72 players total
 - **Team names:** Eagle Squadron, Birdie Brigade, Par Patrol, Bogey Busters, Fairway Falcons, Iron Rangers, Wedge Warriors, Chip Shots, Bunker Boys, Driver's Club, Green Machines, Sand Savers, Back Nine, Front Runners, Links Lions, Turf Tigers, Pin Seekers, Rough Riders
 - **Player names:** Generated as "FirstName LastName" — 4 per team, 72 total. Use common first names (James, Sarah, Michael, Emma, David, Olivia, Ryan, Sophie, etc.) and common last names (Smith, Johnson, Williams, Brown, Jones, Davis, etc.)
+- **Foreground team auth account:** The seed creates one real Supabase auth user for Team 1's captain: `demo-captain@fdgolf.demo` / `DemoKiosk2026!`. This account logs into the round scoring UI. The other 71 players are DB-only records (no auth needed — their scores are submitted via the captain's session or injected directly).
 - **Clubs:** Standard 21-club set (same as existing `seed.sql` clubs — Driver through Putter)
 
 ---
