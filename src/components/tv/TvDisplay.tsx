@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
-import type { Tournament, Sponsor } from '@/lib/types';
+import type { Tournament, Sponsor, TournamentStatus } from '@/lib/types';
 import type { LeaderboardRow } from '@/lib/types';
 import { createClient } from '@/lib/supabase/client';
 import {
@@ -23,6 +23,7 @@ import {
 } from '@/lib/tv-stats';
 import TvLeaderboard from './TvLeaderboard';
 import TvStatsRotator from './TvStatsRotator';
+import { TvRestartOverlay } from './TvRestartOverlay';
 
 type TournamentWithVenue = Tournament & {
   venue?: { name: string; city: string; province_state: string } | null;
@@ -51,6 +52,7 @@ const PANEL_LABELS = [
 ];
 
 export function TvDisplay({ tournament, initialLeaderboard, initialSponsors }: TvDisplayProps) {
+  const [tournamentStatus, setTournamentStatus] = useState<TournamentStatus>(tournament.status);
   const [leaderboard, setLeaderboard] = useState<LeaderboardRow[]>(initialLeaderboard);
   const [birdieStats, setBirdieStats] = useState<BirdieStats[]>([]);
   const [momentumStats, setMomentumStats] = useState<MomentumEntry[]>([]);
@@ -97,6 +99,19 @@ export function TvDisplay({ tournament, initialLeaderboard, initialSponsors }: T
   }, [tournament.id]);
 
   useEffect(() => {
+    async function pollStatus() {
+      const res = await fetch(`/api/tournaments/${tournament.id}/status`).catch(() => null);
+      if (!res?.ok) return;
+      const data = (await res.json().catch(() => null)) as { status?: TournamentStatus } | null;
+      if (data?.status) setTournamentStatus(data.status as TournamentStatus);
+    }
+
+    void pollStatus();
+    const statusInterval = setInterval(() => void pollStatus(), 10_000);
+    return () => clearInterval(statusInterval);
+  }, [tournament.id]);
+
+  useEffect(() => {
     const rotationInterval = setInterval(() => {
       setActivePanelIndex((p) => ((p + 1) % 5) as 0 | 1 | 2 | 3 | 4);
     }, 15_000);
@@ -105,6 +120,8 @@ export function TvDisplay({ tournament, initialLeaderboard, initialSponsors }: T
 
   const venueLine = [tournament.venue?.name, tournament.venue?.city].filter(Boolean).join(', ');
   const formatLabel = tournament.format.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+
+  const showRestartOverlay = tournamentStatus === 'completed' || tournamentStatus === 'paused';
 
   return (
     <div
@@ -266,6 +283,8 @@ export function TvDisplay({ tournament, initialLeaderboard, initialSponsors }: T
           </div>
         </div>
       </footer>
+
+      <TvRestartOverlay tournamentId={tournament.id} visible={showRestartOverlay} />
     </div>
   );
 }
