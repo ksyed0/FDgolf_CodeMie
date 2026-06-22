@@ -13,13 +13,13 @@ Stack: Next.js 16 App Router · TypeScript · Tailwind CSS · shadcn/ui · Supab
 
 ---
 
-## Branch State (as of Session 29 close — 2026-06-21)
+## Branch State (as of Session 30 close — 2026-06-21)
 
 | Branch | Status | Notes |
 |--------|--------|-------|
 | `main` | **v0.6 released** | Multi-tournament + role hierarchy + redesigns live |
 | `develop` | HEAD `05a8e95` | post PR #36 — role hierarchy merged |
-| `feature/admin-role-dashboards` | **open PR #38** | 12 commits — system admin UI + scoped tournament admin |
+| `feature/admin-role-dashboards` | **open PR #38** | 17 commits — admin UI + kiosk demo spec + plan |
 | `feature/role-hierarchy` | **merged PR #36** | migration 012 + role hierarchy + seed cleanup |
 | `feature/tournament-players` | **merged PR #35** | tournament_players join table |
 
@@ -75,7 +75,17 @@ won't see the new policy/FK/function until cache refresh.
 - Migration 010: `Public read shots` policy — shots readable by anon client
 - `tournament_players` rows created by seed-tv-data.ts (one per player per tournament)
 
-**Next action (Session 29 close):** Merge PR #38 when CI passes; then pre-tournament smoke test
+**Kiosk demo — spec + plan ready (Session 30)**
+- Spec: `docs/superpowers/specs/2026-06-21-kiosk-demo-design.md`
+- Plan: `docs/superpowers/plans/2026-06-21-kiosk-demo.md` — 8 tasks, ready to execute with subagent-driven-development
+- Demo slug: `lionhead-legends-demo`, captain: `demo-captain@fdgolf.demo` / `DemoKiosk2026!`
+- New `is_demo` column on tournaments (migration 013) — guards TV restart overlay
+- Round page is SHOT-BY-SHOT (not stroke counter): `(score-1) × "In Play"` + `"⛳ Sunk"`; `holeSunk=true` disables buttons after first sink
+- `shots.start_lat`/`start_lng` are the GPS fields (NOT `lat`/`lng`)
+- Foreground Playwright: captain only records their own shots; other 3 players injected to DB
+- Background teams: 17 × async loops, each starts at `teamIndex+1` hole (shotgun), HOLE_DELAY_MS=20000
+
+**Next action (Session 30 close):** Execute `docs/superpowers/plans/2026-06-21-kiosk-demo.md` with subagent-driven-development on branch `feature/admin-role-dashboards` (PR #38 already open)
 
 ---
 

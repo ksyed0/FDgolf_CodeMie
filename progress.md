@@ -1,5 +1,35 @@
 # FDgolf — Progress
 
+## Session 30 — 2026-06-21 (Kiosk Demo Design + E2E Gap Analysis)
+
+### What Was Done
+
+**Kiosk demo brainstormed and specced** via `superpowers:brainstorming` skill:
+- Venue: Lionhead Golf and Country Club, Legends Course (18 holes, par 72, Blue tee 6,454 yds)
+- Design decisions: single script two Playwright instances, GPS injected post-submit to DB, score range par+0 to par+4, restart via manual button or 10-min countdown
+- Spec committed: `docs/superpowers/specs/2026-06-21-kiosk-demo-design.md`
+- README updated with Demo Mode section
+
+**Implementation plan written** via `superpowers:writing-plans` skill:
+- Plan: `docs/superpowers/plans/2026-06-21-kiosk-demo.md` — 8 tasks
+- Task 1: E2E fixes (global-setup role, tournament_admin user, TC-0047, TC-0090–TC-0095)
+- Tasks 2–3: `is_demo` migration + Tournament type + POST /api/demo/restart + TvRestartOverlay
+- Tasks 4–8: Demo utilities, Lionhead seed, background injector, Playwright foreground, orchestrator
+- Key insight captured: round page is shot-by-shot (not stroke counter); `shots.start_lat`/`start_lng`
+
+**E2E gap identified**: `global-setup.ts` uses `role: 'admin'` (invalid since migration 012); TC-0047 missing Roster/Tournaments links; no admin-role tests. All bundled into Task 1 of kiosk demo plan.
+
+**PlanVisualizer Deploy agent search**: user requested import; only images found in repo (no DEPLOY_AGENT.md); deferred by user.
+
+### Test Results
+- No new code implemented this session — planning only
+- Existing suite: 147 tests, 91.2% coverage (from Session 29 baseline)
+
+### Next Steps
+Execute `docs/superpowers/plans/2026-06-21-kiosk-demo.md` with `superpowers:subagent-driven-development` on branch `feature/admin-role-dashboards`
+
+---
+
 ## Session 29 — 2026-06-21 (Admin Role Dashboards — PR #38)
 
 ### What Was Done
