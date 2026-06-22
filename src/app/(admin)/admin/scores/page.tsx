@@ -1,18 +1,12 @@
 import { createClient } from '@/lib/supabase/server';
+import { getActiveTournamentId } from '@/lib/active-tournament';
 import { ScoresTable } from './scores-table';
 import type { Score, Player, Team, Shot } from '@/lib/types';
 
 export default async function ScoresAdminPage() {
   const supabase = await createClient();
 
-  const { data: tournament } = await supabase
-    .from('tournaments')
-    .select('id')
-    .order('created_at', { ascending: false })
-    .limit(1)
-    .single();
-
-  const tid = tournament?.id ?? '';
+  const tid = (await getActiveTournamentId()) ?? '';
 
   const [
     { data: scores },

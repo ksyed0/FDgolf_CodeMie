@@ -189,6 +189,62 @@ npx tsx scripts/reset-lionhead.ts   # seed Lionhead fixture for lifecycle E2E te
 
 ---
 
+## Demo Mode
+
+A self-running kiosk demo simulating a full 18-hole best-ball tournament on the **Lionhead Legends Course** (Brampton, ON). Two browser windows open side-by-side automatically — no manual interaction required during the loop.
+
+```
+Left window  (1270×980)  →  TV leaderboard filling in real time
+Right window (390×844)   →  Phone view: one team clicking through the round scoring UI
+```
+
+18 teams play simultaneously (shotgun start). The foreground team (right window) is driven by Playwright through the real app UI. The remaining 17 teams are injected directly into the database at matching pace. One loop takes ~12–18 minutes. When complete, the leaderboard shows a **"Restart Demo"** button and a 10-minute auto-restart countdown.
+
+### Prerequisites
+
+```bash
+# Local Supabase must be running
+supabase start
+
+# SUPABASE_SERVICE_ROLE_KEY must be set in .env.local
+# Playwright chromium must be installed
+npx playwright install chromium
+```
+
+### One-time setup
+
+Seed the Lionhead course, 18 teams, 72 players, and the demo tournament (idempotent — safe to re-run):
+
+```bash
+npx tsx scripts/demo/seed-lionhead.ts
+```
+
+### Run the demo
+
+```bash
+npx tsx scripts/demo/run.ts
+```
+
+Opens both windows, starts the simulation, and loops automatically. Kill with `Ctrl+C`.
+
+### Restart options
+
+When all 18 teams finish:
+- **Manual**: click **"Restart Demo"** on the leaderboard immediately
+- **Auto**: leaderboard countdown reaches 0:00 (10 minutes after completion)
+
+Both options wipe scores + shots and restart the simulation from hole 1.
+
+### Timing constants (in `scripts/demo/run.ts`)
+
+| Constant | Default | Effect |
+|---|---|---|
+| `SHOT_DELAY_MS` | 5000 | Pause between each player's stroke entry |
+| `HOLE_DELAY_MS` | 20000 | Pace of background team injection per hole |
+| `RESTART_COUNTDOWN_MS` | 600000 | Auto-restart delay after tournament completes |
+
+---
+
 ## Architecture
 
 ```

@@ -2,6 +2,8 @@ import { createClient } from '@/lib/supabase/server';
 import type { Tournament, Venue, Course } from '@/lib/types';
 import { TournamentManager } from './tournament-manager';
 import { TournamentControlDashboard } from './tournament-control-dashboard';
+import { TournamentAdmins } from './tournament-admins';
+import { getActiveTournamentId } from '@/lib/active-tournament';
 
 export type TournamentRow = Tournament & { venue_name: string; course_name: string };
 
@@ -28,10 +30,16 @@ export default async function TournamentAdminPage() {
     course_name: t.course?.name ?? '',
   }));
 
-  // If there is an active/paused tournament, show the control dashboard
-  const activeTournament = rows.find((t) => t.status === 'active' || t.status === 'paused') ?? null;
+  // Determine the active tournament using the cookie, falling back to the first row
+  const activeTournamentId = await getActiveTournamentId();
+  const activeTournament = activeTournamentId
+    ? (rows.find((t) => t.id === activeTournamentId) ?? rows[0] ?? null)
+    : (rows[0] ?? null);
 
-  if (activeTournament) {
+  if (
+    activeTournament &&
+    (activeTournament.status === 'active' || activeTournament.status === 'paused')
+  ) {
     const [
       { data: teams },
       { data: holes },
@@ -119,33 +127,37 @@ export default async function TournamentAdminPage() {
     const holesSet = holeList.filter((h) => h.pin_lat !== 0 || h.pin_lng !== 0).length;
 
     return (
-      <TournamentControlDashboard
-        tournament={{
-          ...activeTournament,
-          venue_name: activeTournament.venue_name,
-          course_name: activeTournament.course_name,
-        }}
-        teamsOnCourse={teamsOnCourse}
-        stats={{
-          teamCount: teamList.length,
-          playerCount: tpList.length,
-          holesSet,
-          totalHoles: activeTournament.holes_played,
-          shotsLogged: shotsCount ?? 0,
-          sponsorCount: (sponsors ?? []).length,
-          magicLinksSent: false,
-        }}
-      />
+      <div className="space-y-6">
+        <TournamentControlDashboard
+          tournament={{
+            ...activeTournament,
+            venue_name: activeTournament.venue_name,
+            course_name: activeTournament.course_name,
+          }}
+          teamsOnCourse={teamsOnCourse}
+          stats={{
+            teamCount: teamList.length,
+            playerCount: tpList.length,
+            holesSet,
+            totalHoles: activeTournament.holes_played,
+            shotsLogged: shotsCount ?? 0,
+            sponsorCount: (sponsors ?? []).length,
+            magicLinksSent: false,
+          }}
+        />
+        <TournamentAdmins tournamentId={activeTournament.id} />
+      </div>
     );
   }
 
   return (
-    <div className="max-w-4xl">
+    <div className="max-w-4xl space-y-6">
       <TournamentManager
         tournaments={rows}
         venues={(venues as Venue[]) ?? []}
         courses={(courses as Course[]) ?? []}
       />
+      {activeTournament && <TournamentAdmins tournamentId={activeTournament.id} />}
     </div>
   );
 }

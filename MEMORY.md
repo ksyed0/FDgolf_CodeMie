@@ -13,24 +13,39 @@ Stack: Next.js 16 App Router · TypeScript · Tailwind CSS · shadcn/ui · Supab
 
 ---
 
-## Branch State (as of Session 29 close — 2026-06-21)
+## Branch State (as of Session 30 close — 2026-06-21)
 
 | Branch | Status | Notes |
 |--------|--------|-------|
 | `main` | **v0.6 released** | Multi-tournament + role hierarchy + redesigns live |
-| `develop` | HEAD `921acc3` | docs only — design standards + plan committed |
+| `develop` | HEAD `05a8e95` | post PR #36 — role hierarchy merged |
+| `feature/admin-role-dashboards` | **open PR #38** | 17 commits — admin UI + kiosk demo spec + plan |
 | `feature/role-hierarchy` | **merged PR #36** | migration 012 + role hierarchy + seed cleanup |
 | `feature/tournament-players` | **merged PR #35** | tournament_players join table |
 
-**Current open PRs**: None.
+**Current open PRs**: PR #38 (`feature/admin-role-dashboards` → `develop`).
 
 **v0.6 tag** on `main` — includes PRs #32–#36 (TV stats fix, design redesigns, multi-tournament, role hierarchy).
 
 **Playwright E2E suite state (as of Session 27):** 61/61 passing, 2 skipped.
 
-**App name**: Display name is now **FDgolf-CM** everywhere (sidebar, headers, TV, auth). Repo folder name `FDgolf_CodeMie` unchanged. localStorage key: `fdgolf-cm_sync_queue`.
+**Admin role dashboards — PR #38 (feature/admin-role-dashboards)**
 
-**Admin design standards**: `docs/DESIGN_STANDARDS.md` — canonical reference for all admin page work. Read this before writing any admin UI. Key points: hex palette only (no Tailwind grays), `rounded-2xl` cards, `rounded-xl` buttons, `AdminTopBar` required, shadcn `Input`/`Label`, `sonner` toasts, right-side add panel layout.
+Key technical facts to know for next session:
+- `x-active-tournament` cookie (`httpOnly: true, sameSite: lax, path: /`) is the single source of truth for active tournament across all admin pages
+- `getActiveTournamentId()` in `src/lib/active-tournament.ts` — all server pages use this to read the cookie
+- `setActiveTournamentAction()` in `src/lib/actions/set-active-tournament.ts` — server action to set the cookie
+- `src/app/(admin)/layout.tsx` — role-aware: system_admin reads/falls back to most-recent tournament; tournament_admin: 0 assignments → redirect `/dashboard`, 1 → auto-set cookie, 2+ → redirect `/admin/select-tournament`
+- `src/app/(tournament-select)/admin/select-tournament/page.tsx` — INTENTIONALLY outside `(admin)` route group (no layout) to break infinite redirect loop for multi-assignment tournament admins
+- `src/app/(admin)/admin/tournaments/page.tsx` and `src/app/(admin)/admin/players/page.tsx` — both have role guards; redirect non-system_admin to `/admin/tournament`
+- All client components (`tournament-admins.tsx`, `roster-manager.tsx`, `tournaments-list.tsx`) use `const supabase = createClient()` at MODULE LEVEL outside the component — prevents infinite useEffect re-fires
+
+**Admin DESIGN_STANDARDS.md** — lives at `docs/DESIGN_STANDARDS.md`. Always reference before writing admin UI. Key rules:
+- PROHIBITED: `text-sm`, `text-xs`, `text-lg`, `text-2xl`, `text-gray-*`, `rounded-lg`
+- Typography: `text-[13px]`, `text-[17px]`, `text-[28px]` only
+- Cards: `rounded-2xl`, buttons: `rounded-xl`
+- Every client page must use `<AdminTopBar eyebrow="UPPERCASE" title="Title">`
+- Design tokens: dark text `#15241c`, primary green `#1a472a`, secondary `#6b7a70`, muted `#90a094`
 
 **Seed state after `supabase db reset` + `npx tsx supabase/seed-users.ts`:**
 - Venue (Granite Ridge) + Course (Main Course) now inserted by `seed.sql` (NOT migration 007 — fixed in Session 28)
@@ -43,7 +58,7 @@ Stack: Next.js 16 App Router · TypeScript · Tailwind CSS · shadcn/ui · Supab
 **Design system (Session 25)**:
 - Barlow Condensed font via `next/font/google` — CSS var `--font-barlow`, Tailwind utility `font-barlow`, weights 500/600/700/800
 - Brand colors: `#1a472a` course green, `#c0392b` under-par red, `#e7c66b` gold, `#f4f7f1` panel surface
-- AppHeader provides FDgolf-CM / AI/Run™ brand on all player pages via `(player)/layout.tsx` — page-level headers should NOT repeat the wordmark
+- AppHeader provides FDgolf/AI/Run™ brand on all player pages via `(player)/layout.tsx` — page-level headers should NOT repeat the wordmark
 - 5-panel TV rotator: 0=Birdies, 1=HoleDifficulty, 2=ShotStats, 3=MomentOfDay, 4=TeamSpotlight
 
 **Critical schema fact**: `scores.hole_number` is a plain `integer` (no FK to `holes.id`).
@@ -60,7 +75,17 @@ won't see the new policy/FK/function until cache refresh.
 - Migration 010: `Public read shots` policy — shots readable by anon client
 - `tournament_players` rows created by seed-tv-data.ts (one per player per tournament)
 
-**Next action (Session 29 close):** Execute `docs/superpowers/plans/2026-06-21-admin-role-dashboards.md` — 10 tasks, branch `feature/admin-role-dashboards`. Always read `docs/DESIGN_STANDARDS.md` before writing any admin UI code.
+**Kiosk demo — spec + plan ready (Session 30)**
+- Spec: `docs/superpowers/specs/2026-06-21-kiosk-demo-design.md`
+- Plan: `docs/superpowers/plans/2026-06-21-kiosk-demo.md` — 8 tasks, ready to execute with subagent-driven-development
+- Demo slug: `lionhead-legends-demo`, captain: `demo-captain@fdgolf.demo` / `DemoKiosk2026!`
+- New `is_demo` column on tournaments (migration 013) — guards TV restart overlay
+- Round page is SHOT-BY-SHOT (not stroke counter): `(score-1) × "In Play"` + `"⛳ Sunk"`; `holeSunk=true` disables buttons after first sink
+- `shots.start_lat`/`start_lng` are the GPS fields (NOT `lat`/`lng`)
+- Foreground Playwright: captain only records their own shots; other 3 players injected to DB
+- Background teams: 17 × async loops, each starts at `teamIndex+1` hole (shotgun), HOLE_DELAY_MS=20000
+
+**Next action (Session 30 close):** Execute `docs/superpowers/plans/2026-06-21-kiosk-demo.md` with subagent-driven-development on branch `feature/admin-role-dashboards` (PR #38 already open)
 
 ---
 
