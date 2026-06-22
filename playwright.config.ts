@@ -1,5 +1,5 @@
 import { defineConfig, devices } from '@playwright/test'
-import { PLAYER_AUTH_FILE, ADMIN_AUTH_FILE } from './tests/e2e/global-setup'
+import { PLAYER_AUTH_FILE, ADMIN_AUTH_FILE, TOURNAMENT_ADMIN_AUTH_FILE } from './tests/e2e/global-setup'
 
 /**
  * Playwright E2E test configuration for FDgolf.
@@ -80,7 +80,7 @@ export default defineConfig({
     // ── Admin tests (desktop viewport, admin session) ─────────────────────────
     {
       name: 'chromium-desktop',
-      testMatch: '**/admin.spec.ts',
+      testMatch: ['**/admin.spec.ts', '**/admin-roles.spec.ts'],
       use: { ...desktopDevice, storageState: ADMIN_AUTH_FILE },
       dependencies: ['admin-setup'],
     },
