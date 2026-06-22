@@ -34,9 +34,9 @@ test.beforeEach(async ({ page }) => {
   await mockSupabaseTable(page, 'tournaments', [fakeTournament])
 })
 
-// ── TC-0047: Admin sidebar has all 7 sections ──────────────────────────────
+// ── TC-0047: Admin sidebar has all 9 sections ──────────────────────────────
 
-test('TC-0047: admin sidebar shows all 7 management sections', async ({ page }) => {
+test('TC-0047: admin sidebar shows all 9 management sections', async ({ page }) => {
   // Admin layout is an SSR Server Component; sidebar links are hardcoded and
   // render regardless of DB state — only auth (storageState) is required.
   test.skip(!hasRealSupabase, 'Requires admin storageState from seeded Supabase')

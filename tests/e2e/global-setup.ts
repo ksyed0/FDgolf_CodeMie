@@ -158,13 +158,17 @@ export default async function globalSetup() {
       .eq('slug', E2E_TOURNAMENT_SLUG)
       .maybeSingle()
     if (taPlayer && tournament) {
-      await (admin as any)
+      const { error } = await (admin as any)
         .from('tournament_admin_assignments')
         .upsert(
           { player_id: taPlayer.id, tournament_id: tournament.id },
           { onConflict: 'player_id,tournament_id', ignoreDuplicates: true }
         )
-      console.log('[globalSetup] tournament_admin assignment ready')
+      if (error) {
+        console.warn('[globalSetup] Could not upsert tournament_admin assignment:', error.message)
+      } else {
+        console.log('[globalSetup] tournament_admin assignment ready')
+      }
     }
   }
   await seedTestPlayers(admin)
