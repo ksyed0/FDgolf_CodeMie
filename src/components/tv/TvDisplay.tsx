@@ -23,6 +23,7 @@ import {
 } from '@/lib/tv-stats';
 import TvLeaderboard from './TvLeaderboard';
 import TvStatsRotator from './TvStatsRotator';
+import { TvRestartOverlay } from './TvRestartOverlay';
 
 type TournamentWithVenue = Tournament & {
   venue?: { name: string; city: string; province_state: string } | null;
@@ -60,6 +61,8 @@ export function TvDisplay({ tournament, initialLeaderboard, initialSponsors }: T
   const [sparklines, setSparklines] = useState<SparklineEntry[]>([]);
   const [teamSpotlight, setTeamSpotlight] = useState<TeamSpotlight | null>(null);
   const [activePanelIndex, setActivePanelIndex] = useState<0 | 1 | 2 | 3 | 4>(0);
+  const [tournamentStatus, setTournamentStatus] = useState<string>(tournament.status);
+  const isDemoMode = tournament.is_demo;
 
   useEffect(() => {
     const supabase = createClient();
@@ -102,6 +105,20 @@ export function TvDisplay({ tournament, initialLeaderboard, initialSponsors }: T
     }, 15_000);
     return () => clearInterval(rotationInterval);
   }, []);
+
+  useEffect(() => {
+    if (!isDemoMode) return;
+    const supabase = createClient();
+    const interval = setInterval(async () => {
+      const { data } = await supabase
+        .from('tournaments')
+        .select('status')
+        .eq('id', tournament.id)
+        .single();
+      if (data?.status) setTournamentStatus(data.status as string);
+    }, 10_000);
+    return () => clearInterval(interval);
+  }, [tournament.id, isDemoMode]);
 
   const venueLine = [tournament.venue?.name, tournament.venue?.city].filter(Boolean).join(', ');
   const formatLabel = tournament.format.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
@@ -266,6 +283,10 @@ export function TvDisplay({ tournament, initialLeaderboard, initialSponsors }: T
           </div>
         </div>
       </footer>
+
+      {isDemoMode && tournamentStatus === 'completed' && (
+        <TvRestartOverlay tournamentId={tournament.id} />
+      )}
     </div>
   );
 }
