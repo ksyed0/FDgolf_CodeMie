@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 const COUNTDOWN_MS = 600_000; // 10 minutes
 
@@ -11,16 +11,23 @@ interface TvRestartOverlayProps {
 export function TvRestartOverlay({ tournamentId }: TvRestartOverlayProps) {
   const [remainingMs, setRemainingMs] = useState(COUNTDOWN_MS);
   const [restarting, setRestarting] = useState(false);
+  const restartingRef = useRef(false);
 
   const triggerRestart = useCallback(async () => {
-    if (restarting) return;
+    if (restartingRef.current) return;
+    restartingRef.current = true;
     setRestarting(true);
-    await fetch('/api/demo/restart', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ tournamentId }),
-    });
-  }, [tournamentId, restarting]);
+    try {
+      await fetch('/api/demo/restart', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tournamentId }),
+      });
+    } catch {
+      restartingRef.current = false;
+      setRestarting(false);
+    }
+  }, [tournamentId]);
 
   useEffect(() => {
     const interval = setInterval(() => {

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
-import type { Tournament, Sponsor } from '@/lib/types';
+import type { Tournament, TournamentStatus, Sponsor } from '@/lib/types';
 import type { LeaderboardRow } from '@/lib/types';
 import { createClient } from '@/lib/supabase/client';
 import {
@@ -61,7 +61,7 @@ export function TvDisplay({ tournament, initialLeaderboard, initialSponsors }: T
   const [sparklines, setSparklines] = useState<SparklineEntry[]>([]);
   const [teamSpotlight, setTeamSpotlight] = useState<TeamSpotlight | null>(null);
   const [activePanelIndex, setActivePanelIndex] = useState<0 | 1 | 2 | 3 | 4>(0);
-  const [tournamentStatus, setTournamentStatus] = useState<string>(tournament.status);
+  const [tournamentStatus, setTournamentStatus] = useState<TournamentStatus>(tournament.status);
   const isDemoMode = tournament.is_demo;
 
   useEffect(() => {
@@ -115,7 +115,7 @@ export function TvDisplay({ tournament, initialLeaderboard, initialSponsors }: T
         .select('status')
         .eq('id', tournament.id)
         .single();
-      if (data?.status) setTournamentStatus(data.status as string);
+      if (data?.status) setTournamentStatus(data.status as TournamentStatus);
     }, 10_000);
     return () => clearInterval(interval);
   }, [tournament.id, isDemoMode]);
