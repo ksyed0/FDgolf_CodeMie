@@ -28,6 +28,7 @@ export interface DemoClub {
 
 export interface DemoConfig {
   tournamentId: string;
+  slug: string;
   holes: DemoHole[];
   teams: DemoTeam[];
   clubs: DemoClub[];

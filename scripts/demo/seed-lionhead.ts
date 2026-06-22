@@ -274,7 +274,7 @@ export async function seedLionhead(): Promise<DemoConfig> {
   const teams = await upsertTeamsAndPlayers(tournamentId, captainAuthUserId);
   const clubs = await fetchClubs();
   console.log('[seed-lionhead] Done.');
-  return { tournamentId, holes, teams, clubs };
+  return { tournamentId, slug: DEMO_SLUG, holes, teams, clubs };
 }
 
 if (require.main === module) {
