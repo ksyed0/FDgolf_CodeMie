@@ -1,4 +1,4 @@
-import { createClient } from '@supabase/supabase-js';
+import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import { config as dotenvConfig } from 'dotenv';
 import { resolve } from 'path';
 import type { DemoConfig, DemoTeam } from './types';
@@ -14,7 +14,7 @@ function sleep(ms: number) {
 }
 
 async function injectTeamHole(
-  supabase: ReturnType<typeof createClient>,
+  supabase: SupabaseClient,
   config: DemoConfig,
   team: DemoTeam,
   holeIndex: number
@@ -58,13 +58,14 @@ async function injectTeamHole(
 }
 
 async function runTeam(
-  supabase: ReturnType<typeof createClient> | any,
+  supabase: SupabaseClient,
   config: DemoConfig,
   team: DemoTeam,
   teamIndex: number // 1-17
 ) {
   for (let i = 0; i < 18; i++) {
-    await injectTeamHole(supabase, config, team, (teamIndex + i) % 18);
+    const holeIdx = (team.startingHole - 1 + i) % 18;
+    await injectTeamHole(supabase, config, team, holeIdx);
     if (i < 17) await sleep(HOLE_DELAY_MS);
   }
   console.log(`[background] Team ${team.name} complete`);
