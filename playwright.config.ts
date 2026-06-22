@@ -80,7 +80,7 @@ export default defineConfig({
     // ── Admin tests (desktop viewport, admin session) ─────────────────────────
     {
       name: 'chromium-desktop',
-      testMatch: '**/admin.spec.ts',
+      testMatch: ['**/admin.spec.ts', '**/admin-roles.spec.ts'],
       use: { ...desktopDevice, storageState: ADMIN_AUTH_FILE },
       dependencies: ['admin-setup'],
     },
