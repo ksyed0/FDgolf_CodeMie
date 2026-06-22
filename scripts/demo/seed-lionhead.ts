@@ -19,7 +19,7 @@ const supabase = createClient(SUPABASE_URL, SERVICE_KEY, {
 
 const DEMO_SLUG = 'lionhead-legends-demo';
 const DEMO_CAPTAIN_EMAIL = 'demo-captain@fdgolf.demo';
-const DEMO_CAPTAIN_PASSWORD = 'DemoKiosk2026!';
+const DEMO_CAPTAIN_PASSWORD = process.env.DEMO_CAPTAIN_PASSWORD ?? 'DemoKiosk2026!';
 
 const HOLE_DATA = [
   { holeNumber: 1,  par: 4, yards: 415, handicap: 9,  pinLat: 43.6510, pinLng: -79.8420, teeLat: 43.6498, teeLng: -79.8432 },
