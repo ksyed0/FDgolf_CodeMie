@@ -52,7 +52,10 @@ async function resetTournament(tournamentId: string) {
 
 async function waitForCompletion(tournamentId: string): Promise<void> {
   console.log(`[run] Waiting for ${COMPLETION_TARGET} score rows…`);
-  while (true) {
+  const MAX_COMPLETION_POLLS = 180; // 180 × 10s = 30 minutes
+  let polls = 0;
+  while (polls < MAX_COMPLETION_POLLS) {
+    polls++;
     await sleep(POLL_INTERVAL_MS);
     const { count } = await (supabase as any)
       .from('scores')
@@ -68,11 +71,15 @@ async function waitForCompletion(tournamentId: string): Promise<void> {
       return;
     }
   }
+  if (polls >= MAX_COMPLETION_POLLS) throw new Error('[run] waitForCompletion timed out after 30 minutes');
 }
 
 async function waitForRestart(tournamentId: string): Promise<void> {
   console.log('[run] Waiting for restart signal…');
-  while (true) {
+  const MAX_RESTART_POLLS = 120; // 120 × 10s = 20 minutes
+  let rpolls = 0;
+  while (rpolls < MAX_RESTART_POLLS) {
+    rpolls++;
     await sleep(POLL_INTERVAL_MS);
     const { data } = await (supabase as any)
       .from('tournaments').select('status').eq('id', tournamentId).single();
@@ -81,15 +88,7 @@ async function waitForRestart(tournamentId: string): Promise<void> {
       return;
     }
   }
-}
-
-async function closeBrowsers() {
-  const browsers = (runForeground as any).__browsers;
-  if (browsers) {
-    await browsers.tvBrowser?.close().catch(() => {});
-    await browsers.phoneBrowser?.close().catch(() => {});
-    (runForeground as any).__browsers = null;
-  }
+  if (rpolls >= MAX_RESTART_POLLS) throw new Error('[run] waitForRestart timed out after 20 minutes');
 }
 
 async function main() {
@@ -97,25 +96,26 @@ async function main() {
   const config: DemoConfig = await seedLionhead();
 
   while (true) {
-    await resetTournament(config.tournamentId);
+    try {
+      await resetTournament(config.tournamentId);
 
-    // Background teams run concurrently with foreground
-    const backgroundPromise = runBackgroundTeams(config);
+      // Background teams run concurrently with foreground (fire-and-forget)
+      runBackgroundTeams(config);
 
-    // Foreground drives the pace — await it
-    await runForeground(config);
+      // Foreground drives the pace — await it
+      await runForeground(config);
 
-    // Wait for any lagging background inserts
-    await backgroundPromise;
+      // Poll until all 1,296 scores are present
+      await waitForCompletion(config.tournamentId);
 
-    // Poll until all 1,296 scores are present
-    await waitForCompletion(config.tournamentId);
+      // Wait for TV restart button or 10-min auto-restart countdown
+      await waitForRestart(config.tournamentId);
 
-    // Wait for TV restart button or 10-min auto-restart countdown
-    await waitForRestart(config.tournamentId);
-
-    await closeBrowsers();
-    console.log('[run] Loop complete — starting next iteration…');
+      console.log('[run] Loop complete — starting next iteration…');
+    } catch (err) {
+      console.error('[run] iteration failed, retrying in 10s:', err);
+      await sleep(10_000);
+    }
   }
 }
 
