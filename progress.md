@@ -1,5 +1,16 @@
 # FDgolf-CM — Progress
 
+## Session 30 — 2026-06-22 (Kiosk Demo — Full SDD Execution)
+
+### What Was Done
+
+- Executed kiosk demo plan via Subagent-Driven Development (8 tasks, all approved)
+- Tasks: E2E role fixes, is_demo migration + restart API, TV restart overlay, demo utility scripts (types/score-gen/gps-gen), Lionhead seed script, background team injector, foreground Playwright controller, orchestrator run.ts
+- Fixed stale-closure bug in TvRestartOverlay (useRef pattern), insert error handling in seed-lionhead, startingHole rotation in background/foreground, bounded poll loops in run.ts
+- PR opened: feature/kiosk-demo → develop
+
+---
+
 ## Session 29 — 2026-06-21 (Admin Role Dashboards — Design Spec + Plan)
 
 ### What Was Done

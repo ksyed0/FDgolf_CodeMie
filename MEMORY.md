@@ -13,17 +13,31 @@ Stack: Next.js 16 App Router · TypeScript · Tailwind CSS · shadcn/ui · Supab
 
 ---
 
-## Branch State (as of Session 30 close — 2026-06-21)
+## Branch State (as of Session 31 close — 2026-06-22)
 
 | Branch | Status | Notes |
 |--------|--------|-------|
 | `main` | **v0.6 released** | Multi-tournament + role hierarchy + redesigns live |
-| `develop` | HEAD `05a8e95` | post PR #36 — role hierarchy merged |
-| `feature/admin-role-dashboards` | **open PR #38** | 17 commits — admin UI + kiosk demo spec + plan |
-| `feature/role-hierarchy` | **merged PR #36** | migration 012 + role hierarchy + seed cleanup |
-| `feature/tournament-players` | **merged PR #35** | tournament_players join table |
+| `develop` | HEAD `05a33ec` | post PR #38 merge — admin role dashboards live |
+| `feature/kiosk-demo` | **open PR #39** | 26 commits — full kiosk demo automation |
+| `feature/admin-role-dashboards` | **merged PR #38** | admin UI + system_admin + tournament_admin dashboards |
 
-**Current open PRs**: PR #38 (`feature/admin-role-dashboards` → `develop`).
+**Current open PRs**: PR #39 (`feature/kiosk-demo` → `develop`).
+
+**Kiosk demo — PR #39 (feature/kiosk-demo)**
+
+Key technical facts:
+- `is_demo` boolean column on `tournaments` (migration 013) — guards `TvRestartOverlay`
+- `TvRestartOverlay` renders ONLY when `isDemoMode && tournamentStatus === 'completed'` — NOT on `'paused'`
+- `useRef` guard in `TvRestartOverlay.triggerRestart` prevents stale-closure countdown reset
+- `scripts/demo/` files use RELATIVE imports only — `tsx`-compatible, no `@/` aliases
+- `ShotInsert` uses `start_lat`/`start_lng` (not `lat`/`lng`)
+- Demo captain: `demo-captain@fdgolf.demo`, password from `DEMO_CAPTAIN_PASSWORD` env var (fallback `DemoKiosk2026!`)
+- Seed script: `npx tsx scripts/demo/seed-lionhead.ts` — idempotent (check-before-insert)
+- Run demo: `npx tsx scripts/demo/run.ts` — needs `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `NEXT_PUBLIC_APP_URL`
+- `background.ts` uses `team.startingHole` (1-based) for hole rotation: `(team.startingHole - 1 + i) % 18`
+- `run.ts` poll limits: `waitForCompletion` 180×10s=30min, `waitForRestart` 120×10s=20min
+- Minor known items: `captain_id` only set on team 0; non-captain players use fake UUIDs (may need FK relaxation)
 
 **v0.6 tag** on `main` — includes PRs #32–#36 (TV stats fix, design redesigns, multi-tournament, role hierarchy).
 
@@ -85,7 +99,7 @@ won't see the new policy/FK/function until cache refresh.
 - Foreground Playwright: captain only records their own shots; other 3 players injected to DB
 - Background teams: 17 × async loops, each starts at `teamIndex+1` hole (shotgun), HOLE_DELAY_MS=20000
 
-**Next action (Session 30 close):** Execute `docs/superpowers/plans/2026-06-21-kiosk-demo.md` with subagent-driven-development on branch `feature/admin-role-dashboards` (PR #38 already open)
+**Next action (Session 31 close):** Monitor PR #39 CI, fix any failures, merge when green. Then run kiosk demo locally against local Supabase.
 
 ---
 

@@ -22,8 +22,12 @@ export const TEST_USER_PASSWORD = 'E2ePassword123!'
 export const TEST_ADMIN_EMAIL = 'e2e-admin@fdgolf.test'
 export const TEST_ADMIN_PASSWORD = 'E2eAdminPass456!'
 
+export const TEST_TOURNAMENT_ADMIN_EMAIL = 'e2e-tournament-admin@fdgolf.test'
+export const TEST_TOURNAMENT_ADMIN_PASSWORD = 'E2eTournamentAdmin789!'
+
 export const PLAYER_AUTH_FILE = 'tests/e2e/.auth/player.json'
 export const ADMIN_AUTH_FILE = 'tests/e2e/.auth/admin.json'
+export const TOURNAMENT_ADMIN_AUTH_FILE = 'tests/e2e/.auth/tournament-admin.json'
 
 const E2E_TOURNAMENT_SLUG = 'cibc-granite-ridge-2026'
 
@@ -33,7 +37,7 @@ any,
   users: Array<{ id: string; email?: string }>,
   email: string,
   password: string,
-  role: 'player' | 'admin',
+  role: 'player' | 'system_admin' | 'tournament_admin',
 ): Promise<string | undefined> {
   const existing = users.find((u) => u.email === email)
   let userId = existing?.id
@@ -140,7 +144,33 @@ export default async function globalSetup() {
   const { data: { users } } = await admin.auth.admin.listUsers()
 
   await upsertUser(admin, users, TEST_USER_EMAIL, TEST_USER_PASSWORD, 'player')
-  await upsertUser(admin, users, TEST_ADMIN_EMAIL, TEST_ADMIN_PASSWORD, 'admin')
+  await upsertUser(admin, users, TEST_ADMIN_EMAIL, TEST_ADMIN_PASSWORD, 'system_admin')
+  const taAuthUserId = await upsertUser(admin, users, TEST_TOURNAMENT_ADMIN_EMAIL, TEST_TOURNAMENT_ADMIN_PASSWORD, 'tournament_admin')
+  if (taAuthUserId) {
+    const { data: taPlayer } = await (admin as any)
+      .from('players')
+      .select('id')
+      .eq('auth_user_id', taAuthUserId)
+      .maybeSingle()
+    const { data: tournament } = await (admin as any)
+      .from('tournaments')
+      .select('id')
+      .eq('slug', E2E_TOURNAMENT_SLUG)
+      .maybeSingle()
+    if (taPlayer && tournament) {
+      const { error } = await (admin as any)
+        .from('tournament_admin_assignments')
+        .upsert(
+          { player_id: taPlayer.id, tournament_id: tournament.id },
+          { onConflict: 'player_id,tournament_id', ignoreDuplicates: true }
+        )
+      if (error) {
+        console.warn('[globalSetup] Could not upsert tournament_admin assignment:', error.message)
+      } else {
+        console.log('[globalSetup] tournament_admin assignment ready')
+      }
+    }
+  }
   await seedTestPlayers(admin)
   await seedTournament(admin)
 
