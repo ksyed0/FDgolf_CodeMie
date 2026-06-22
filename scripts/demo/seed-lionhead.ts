@@ -56,16 +56,17 @@ const PLAYER_LAST = ['Smith', 'Johnson', 'Williams', 'Brown', 'Jones', 'Davis', 
   'Moore', 'Anderson', 'Thomas', 'Jackson', 'White', 'Harris', 'Martin', 'Thompson'];
 
 function playerName(teamIdx: number, playerIdx: number): string {
-  const firstIdx = (teamIdx * 4 + playerIdx) % PLAYER_FIRST.length;
-  const lastIdx = (teamIdx * 7 + playerIdx * 3) % PLAYER_LAST.length;
+  const globalPlayerIndex = teamIdx * 4 + playerIdx;
+  const firstIdx = globalPlayerIndex % PLAYER_FIRST.length;
+  const lastIdx = Math.floor(globalPlayerIndex / PLAYER_FIRST.length) % PLAYER_LAST.length;
   return `${PLAYER_FIRST[firstIdx]} ${PLAYER_LAST[lastIdx]}`;
 }
 
 async function upsertVenueAndCourse(): Promise<{ venueId: string; courseId: string }> {
-  let { data: venue } = await (supabase as any)
+  let { data: venue } = await supabase
     .from('venues').select('id').eq('name', 'Lionhead Golf and Country Club').maybeSingle();
   if (!venue) {
-    const { data } = await (supabase as any).from('venues').insert({
+    const { data, error } = await supabase.from('venues').insert({
       name: 'Lionhead Golf and Country Club',
       address1: '8525 Mississauga Rd',
       city: 'Brampton',
@@ -73,16 +74,17 @@ async function upsertVenueAndCourse(): Promise<{ venueId: string; courseId: stri
       postal_code: 'L6Y 0E3',
       country: 'Canada',
     }).select('id').single();
+    if (error) throw new Error(`[seed] venues insert failed: ${error.message}`);
     venue = data;
     console.log('[seed] Venue created');
   } else {
     console.log('[seed] Venue exists');
   }
 
-  let { data: course } = await (supabase as any)
+  let { data: course } = await supabase
     .from('courses').select('id').eq('name', 'Legends Course').eq('venue_id', venue.id).maybeSingle();
   if (!course) {
-    const { data } = await (supabase as any).from('courses').insert({
+    const { data, error } = await supabase.from('courses').insert({
       venue_id: venue.id,
       name: 'Legends Course',
       hole_count: 18,
@@ -90,6 +92,7 @@ async function upsertVenueAndCourse(): Promise<{ venueId: string; courseId: stri
       course_rating: 72.4,
       slope_rating: 139,
     }).select('id').single();
+    if (error) throw new Error(`[seed] courses insert failed: ${error.message}`);
     course = data;
     console.log('[seed] Course created');
   } else {
@@ -103,10 +106,10 @@ async function upsertHoles(courseId: string): Promise<DemoHole[]> {
   const demoHoles: DemoHole[] = [];
 
   for (const h of HOLE_DATA) {
-    let { data: hole } = await (supabase as any)
+    let { data: hole } = await supabase
       .from('holes').select('id').eq('course_id', courseId).eq('hole_number', h.holeNumber).maybeSingle();
     if (!hole) {
-      const { data } = await (supabase as any).from('holes').insert({
+      const { data, error } = await supabase.from('holes').insert({
         course_id: courseId,
         hole_number: h.holeNumber,
         par: h.par,
@@ -114,19 +117,21 @@ async function upsertHoles(courseId: string): Promise<DemoHole[]> {
         pin_lat: h.pinLat,
         pin_lng: h.pinLng,
       }).select('id').single();
+      if (error) throw new Error(`[seed] holes insert failed (hole ${h.holeNumber}): ${error.message}`);
       hole = data;
     }
 
-    let { data: teeBox } = await (supabase as any)
+    let { data: teeBox } = await supabase
       .from('tee_boxes').select('id').eq('hole_id', hole.id).eq('name', 'Blue').maybeSingle();
     if (!teeBox) {
-      await (supabase as any).from('tee_boxes').insert({
+      const { error } = await supabase.from('tee_boxes').insert({
         hole_id: hole.id,
         name: 'Blue',
         lat: h.teeLat,
         lng: h.teeLng,
         distance_yards: h.yards,
       });
+      if (error) throw new Error(`[seed] tee_boxes insert failed (hole ${h.holeNumber}): ${error.message}`);
     }
 
     demoHoles.push({
@@ -145,11 +150,11 @@ async function upsertHoles(courseId: string): Promise<DemoHole[]> {
 }
 
 async function upsertTournament(venueId: string, courseId: string): Promise<string> {
-  let { data: tournament } = await (supabase as any)
+  let { data: tournament } = await supabase
     .from('tournaments').select('id').eq('slug', DEMO_SLUG).maybeSingle();
   if (!tournament) {
-    const { data } = await (supabase as any).from('tournaments').insert({
-      name: 'Lionhead Legends Demo Tournament',
+    const { data, error } = await supabase.from('tournaments').insert({
+      name: 'Lionhead Legends Demo',
       slug: DEMO_SLUG,
       venue_id: venueId,
       course_id: courseId,
@@ -159,6 +164,7 @@ async function upsertTournament(venueId: string, courseId: string): Promise<stri
       status: 'setup',
       is_demo: true,
     }).select('id').single();
+    if (error) throw new Error(`[seed] tournaments insert failed: ${error.message}`);
     tournament = data;
     console.log('[seed] Tournament created');
   } else {
@@ -168,7 +174,7 @@ async function upsertTournament(venueId: string, courseId: string): Promise<stri
 }
 
 async function upsertDemoCaptainAuth(): Promise<string> {
-  const { data: { users } } = await supabase.auth.admin.listUsers();
+  const { data: { users } } = await supabase.auth.admin.listUsers({ perPage: 1000 });
   let user = users.find((u) => u.email === DEMO_CAPTAIN_EMAIL);
   if (!user) {
     const { data: created } = await supabase.auth.admin.createUser({
@@ -191,16 +197,17 @@ async function upsertTeamsAndPlayers(tournamentId: string, captainAuthUserId: st
     const teamName = TEAM_NAMES[teamIdx];
     const startingHole = teamIdx + 1;
 
-    let { data: team } = await (supabase as any)
+    let { data: team } = await supabase
       .from('teams').select('id').eq('tournament_id', tournamentId).eq('team_name', teamName).maybeSingle();
     if (!team) {
-      const { data } = await (supabase as any).from('teams').insert({
+      const { data, error } = await supabase.from('teams').insert({
         tournament_id: tournamentId,
         team_number: teamIdx + 1,
         team_name: teamName,
         starting_hole: startingHole,
         max_players: 4,
       }).select('id').single();
+      if (error) throw new Error(`[seed] teams insert failed (${teamName}): ${error.message}`);
       team = data;
     }
 
@@ -215,10 +222,10 @@ async function upsertTeamsAndPlayers(tournamentId: string, captainAuthUserId: st
         ? captainAuthUserId
         : `00000000-dddd-0000-${String(teamIdx).padStart(4, '0')}-${String(pi).padStart(12, '0')}`;
 
-      let { data: player } = await (supabase as any)
+      let { data: player } = await supabase
         .from('players').select('id').eq('email', email).maybeSingle();
       if (!player) {
-        const { data } = await (supabase as any).from('players').insert({
+        const { data, error } = await supabase.from('players').insert({
           auth_user_id: authUserId,
           name,
           email,
@@ -226,16 +233,17 @@ async function upsertTeamsAndPlayers(tournamentId: string, captainAuthUserId: st
           company: 'Demo Corp',
           role: 'player',
         }).select('id').single();
+        if (error) throw new Error(`[seed] players insert failed (${email}): ${error.message}`);
         player = data;
       }
 
-      await (supabase as any).from('tournament_players').upsert(
+      await supabase.from('tournament_players').upsert(
         { player_id: player.id, team_id: team.id, tournament_id: tournamentId },
         { onConflict: 'player_id,tournament_id', ignoreDuplicates: true }
       );
 
       if (isCaptain) {
-        await (supabase as any).from('teams').update({ captain_id: player.id }).eq('id', team.id);
+        await supabase.from('teams').update({ captain_id: player.id }).eq('id', team.id);
       }
 
       demoPlayers.push({ id: player.id as string, name });
@@ -249,7 +257,7 @@ async function upsertTeamsAndPlayers(tournamentId: string, captainAuthUserId: st
 }
 
 async function fetchClubs(): Promise<DemoClub[]> {
-  const { data } = await (supabase as any)
+  const { data } = await supabase
     .from('clubs').select('id, name, category').eq('is_active', true).order('sort_order');
   if (!data || data.length === 0) {
     throw new Error('[seed] No active clubs found — run ./scripts/reset-and-seed.sh first');
