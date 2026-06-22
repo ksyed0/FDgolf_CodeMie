@@ -43,7 +43,7 @@ test('TC-0047: admin sidebar shows all 7 management sections', async ({ page }) 
 
   await page.goto('/admin/tournament')
 
-  const expectedSections = ['tournament', 'venues', 'courses', 'players', 'teams', 'clubs', 'scores', 'sponsors']
+  const expectedSections = ['roster', 'tournament', 'teams', 'scores', 'sponsors', 'tournaments', 'venues', 'courses', 'clubs']
   for (const section of expectedSections) {
     await expect(page.getByRole('link', { name: new RegExp(section, 'i') }).first()).toBeVisible({ timeout: 5000 })
   }
