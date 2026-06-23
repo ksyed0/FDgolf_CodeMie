@@ -1,6 +1,6 @@
 import { createClient } from '@/lib/supabase/client';
 
-const QUEUE_KEY = 'fdgolf_sync_queue';
+const QUEUE_KEY = 'fdgolf-cm_sync_queue';
 
 interface QueueEntry {
   id: string;

@@ -1,24 +1,18 @@
 import { createClient } from '@/lib/supabase/server';
+import { getActiveTournamentId } from '@/lib/active-tournament';
 import { SponsorsManager } from './sponsors-manager';
 import type { Sponsor } from '@/lib/types';
 
 export default async function SponsorsAdminPage() {
   const supabase = await createClient();
 
-  const { data: tournament } = await supabase
-    .from('tournaments')
-    .select('id')
-    .order('created_at', { ascending: false })
-    .limit(1)
-    .single();
+  const tournamentId = (await getActiveTournamentId()) ?? '';
 
   const { data: sponsors } = await supabase
     .from('sponsors')
     .select('*')
-    .eq('tournament_id', tournament?.id ?? '')
+    .eq('tournament_id', tournamentId)
     .order('display_order');
 
-  return (
-    <SponsorsManager sponsors={(sponsors as Sponsor[]) ?? []} tournamentId={tournament?.id ?? ''} />
-  );
+  return <SponsorsManager sponsors={(sponsors as Sponsor[]) ?? []} tournamentId={tournamentId} />;
 }

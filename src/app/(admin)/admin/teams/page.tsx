@@ -1,18 +1,12 @@
 import { createClient } from '@/lib/supabase/server';
+import { getActiveTournamentId } from '@/lib/active-tournament';
 import { TeamsManager } from './teams-manager';
 import type { Team, Player } from '@/lib/types';
 
 export default async function TeamsAdminPage() {
   const supabase = await createClient();
 
-  const { data: tournament } = await supabase
-    .from('tournaments')
-    .select('id')
-    .order('created_at', { ascending: false })
-    .limit(1)
-    .single();
-
-  const tournamentId = tournament?.id ?? '';
+  const tournamentId = (await getActiveTournamentId()) ?? '';
 
   const [{ data: teams }, { data: players }, { data: memberships }] = await Promise.all([
     supabase.from('teams').select('*').eq('tournament_id', tournamentId).order('team_number'),

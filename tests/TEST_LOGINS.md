@@ -27,7 +27,8 @@ Created automatically by `tests/e2e/global-setup.ts` when `SUPABASE_SERVICE_ROLE
 | Email | Password | Role | Used by |
 |-------|----------|------|---------|
 | `e2e-player@fdgolf.test` | `E2ePassword123!` | Player | `chromium-mobile` project |
-| `e2e-admin@fdgolf.test` | `E2eAdminPass456!` | Admin | `chromium-desktop` (admin) project |
+| `e2e-admin@fdgolf.test` | `E2eAdminPass456!` | system_admin | `chromium-desktop` (admin) project |
+| `e2e-tournament-admin@fdgolf.test` | `E2eTournamentAdmin789!` | tournament_admin | Assigned to CIBC tournament; used for TC-0091–TC-0093 |
 
 ---
 

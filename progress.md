@@ -1,4 +1,254 @@
-# FDgolf — Progress
+# FDgolf-CM — Progress
+
+## Session 32 — 2026-06-23 (Kiosk Demo Improvements — PR to main + v0.7 release)
+
+### What Was Done
+
+**Kiosk demo quality improvements (commits 6a719a5, b355792 on develop):**
+
+1. **Persistent browser windows** — `foreground.ts` refactored to use module-level `_tvBrowser`/`_phoneBrowser` singletons. Browsers created once and reused across every round iteration. `finally { browser.close() }` removed. `closeBrowsers()` only called on error to reset for clean re-open.
+
+2. **Realistic score distribution** — `score-gen.ts` `generateScore()` replaced uniform `par+0..+4` with weighted distribution: eagle 3%, birdie 25%, par 52%, bogey 17%, double 3%. Uses `Math.max(1, par + vspar)` floor. Birdies/eagles now appear in TV stats panels.
+
+3. **STOP DEMO button** — `TvDisplay.tsx` header shows "⏹ STOP DEMO" button in demo mode when tournament is active. Shows "⏸ DEMO PAUSED" amber badge when paused. `POST /api/demo/stop/route.ts` sets `status = paused`, validates `is_demo` flag before updating.
+
+4. **Stop signal propagation** — `background.ts` checks `isStopped()` before each hole; `foreground.ts` checks before each hole; `run.ts` exits loop when stopped. Browsers remain open after stop.
+
+5. **Auto-restart shortened** — `waitForRestart` AUTO_RESTART_POLLS reduced to 12 (2 minutes) instead of 120 (20 minutes).
+
+6. **Test fixes** — `demo-score-gen.test.ts` updated with correct `[max(1,par-2), par+2]` bounds and probabilistic birdie test. `demo-stop-api.test.ts` added (4 tests covering 400/404/403/200 paths).
+
+### Test Results
+- `npm run test:ci`: **165/165 tests pass**
+- Coverage: 90.63% stmts / 82.46% branches / 86.15% fns / 96.13% lines — all ≥ thresholds
+
+### Branch / PRs
+- All changes on `develop` (commits 6a719a5, b355792 + test fixes)
+- PR from `develop` → `main`: v0.7 release
+
+### Next Steps
+1. Merge develop → main via PR
+2. Tag v0.7 on main
+
+---
+
+## Session 30 — 2026-06-22 (Kiosk Demo — Full SDD Execution)
+
+### What Was Done
+
+- Executed kiosk demo plan via Subagent-Driven Development (8 tasks, all approved)
+- Tasks: E2E role fixes, is_demo migration + restart API, TV restart overlay, demo utility scripts (types/score-gen/gps-gen), Lionhead seed script, background team injector, foreground Playwright controller, orchestrator run.ts
+- Fixed stale-closure bug in TvRestartOverlay (useRef pattern), insert error handling in seed-lionhead, startingHole rotation in background/foreground, bounded poll loops in run.ts
+- PR opened: feature/kiosk-demo → develop
+
+---
+
+## Session 29 — 2026-06-21 (Admin Role Dashboards — Design Spec + Plan)
+
+### What Was Done
+
+**App rename: FDgolf → FDgolf-CM (commit fddb59f)**
+- Updated all display text: admin sidebar wordmark, app headers, TV display, auth screen titles
+- `sync-engine.ts` localStorage key changed to `fdgolf-cm_sync_queue`
+- `package.json` name/description updated
+- 10 files changed
+
+**Design spec written: `docs/superpowers/specs/2026-06-21-admin-role-dashboards-design.md`**
+- Full spec for system admin UI and scoped tournament admin dashboard
+- Role-aware `AdminLayout` fetches `tournament_admin_assignments` at boundary
+- `x-active-tournament` cookie for scoping (httpOnly, sameSite: lax)
+- Single `AdminSidebar` with role-conditional GLOBAL section
+- New pages: `/admin/tournaments`, `/admin/roster`, `/admin/select-tournament`
+- Modified pages: `AdminLayout`, `AdminSidebar`, `/admin/tournament` (Admins panel), `/admin/players` (Tournaments column)
+
+**Implementation plan written: `docs/superpowers/plans/2026-06-21-admin-role-dashboards.md`**
+- 10 tasks on branch `feature/admin-role-dashboards`
+- Plan corrected to follow design language: design tokens, AdminTopBar, sonner toast, shadcn Input/Label, right-side add panels
+
+**Design standards created: `docs/DESIGN_STANDARDS.md` (commit 921acc3)**
+- Canonical reference for all admin page development going forward
+- Color palette, card layout, buttons, badges, form inputs, form placement, toast feedback, confirm delete, typography
+
+### Test Results
+- No code changes this session — carrying over Session 28 results: **145/145 jest, 61/61 playwright**
+
+### Branch / PRs
+- Docs-only commits on `develop` — no new feature branch this session
+- `develop` HEAD: `921acc3` (docs: add admin design standards reference)
+
+### Next Steps
+1. **Execute `docs/superpowers/plans/2026-06-21-admin-role-dashboards.md`** using `superpowers:subagent-driven-development`
+   - Branch: `feature/admin-role-dashboards` off `develop`
+   - 10 tasks: cookie helper, AdminLayout update, role-aware sidebar, picker page, scoped page fixes, /admin/tournaments, Admins panel, /admin/roster, players Tournaments column, PR
+2. Apply migrations 011 + 012 to cloud Supabase (`supabase db push --db-url <prod-url>`) before tournament day
+
+---
+
+## Session 30 — 2026-06-21 (Kiosk Demo Design + E2E Gap Analysis)
+
+### What Was Done
+
+**Kiosk demo brainstormed and specced** via `superpowers:brainstorming` skill:
+- Venue: Lionhead Golf and Country Club, Legends Course (18 holes, par 72, Blue tee 6,454 yds)
+- Design decisions: single script two Playwright instances, GPS injected post-submit to DB, score range par+0 to par+4, restart via manual button or 10-min countdown
+- Spec committed: `docs/superpowers/specs/2026-06-21-kiosk-demo-design.md`
+- README updated with Demo Mode section
+
+**Implementation plan written** via `superpowers:writing-plans` skill:
+- Plan: `docs/superpowers/plans/2026-06-21-kiosk-demo.md` — 8 tasks
+- Task 1: E2E fixes (global-setup role, tournament_admin user, TC-0047, TC-0090–TC-0095)
+- Tasks 2–3: `is_demo` migration + Tournament type + POST /api/demo/restart + TvRestartOverlay
+- Tasks 4–8: Demo utilities, Lionhead seed, background injector, Playwright foreground, orchestrator
+- Key insight captured: round page is shot-by-shot (not stroke counter); `shots.start_lat`/`start_lng`
+
+**E2E gap identified**: `global-setup.ts` uses `role: 'admin'` (invalid since migration 012); TC-0047 missing Roster/Tournaments links; no admin-role tests. All bundled into Task 1 of kiosk demo plan.
+
+**PlanVisualizer Deploy agent search**: user requested import; only images found in repo (no DEPLOY_AGENT.md); deferred by user.
+
+### Test Results
+- No new code implemented this session — planning only
+- Existing suite: 147 tests, 91.2% coverage (from Session 29 baseline)
+
+### Next Steps
+Execute `docs/superpowers/plans/2026-06-21-kiosk-demo.md` with `superpowers:subagent-driven-development` on branch `feature/admin-role-dashboards`
+
+---
+
+## Session 29 — 2026-06-21 (Admin Role Dashboards — PR #38)
+
+### What Was Done
+
+**Executed 10-task plan: `docs/superpowers/plans/2026-06-21-admin-role-dashboards.md`**
+via `superpowers:subagent-driven-development` on branch `feature/admin-role-dashboards`.
+
+**Task 1: Cookie helper + server action**
+- `src/lib/active-tournament.ts` — `getActiveTournamentId()` reads `x-active-tournament` cookie
+- `src/lib/actions/set-active-tournament.ts` — server action sets cookie (`httpOnly, sameSite: lax, path: /`)
+- `src/__tests__/active-tournament.test.ts` — 2 tests, commit `03bb823`
+
+**Task 2: AdminLayout — role gate + cookie routing**
+- `src/app/(admin)/layout.tsx` rewritten — fetches player role + assignments; routes system_admin (cookie fallback to most-recent), tournament_admin (0→dashboard, 1→auto-cookie, 2+→picker), non-admin→dashboard
+- Commit `28d7da3`
+
+**Task 3: Role-aware AdminSidebar**
+- `src/components/admin-sidebar.tsx` — Global section (system_admin only) + This Tournament section; tournament switcher (system_admin) vs read-only label (tournament_admin)
+- Commit `633d71e`
+
+**Task 4: Tournament picker page**
+- `src/app/(admin)/admin/select-tournament/page.tsx` — MOVED to `(tournament-select)` route group to break infinite redirect loop for multi-assignment tournament admins
+- Final location: `src/app/(tournament-select)/admin/select-tournament/page.tsx`
+- Commit `7cee8da` (created), `7bf525d` (moved to fix redirect loop)
+
+**Task 5: Scoped pages use cookie**
+- `src/app/(admin)/admin/teams/page.tsx`, `scores/page.tsx`, `sponsors/page.tsx` — all read `getActiveTournamentId()` instead of fragile most-recent tournament query
+- Commit `dc40419`
+
+**Task 6: /admin/tournaments — global tournament list**
+- `src/app/(admin)/admin/tournaments/page.tsx` + `tournaments-list.tsx` — card list + inline create, status badges, `handleManage` sets cookie + redirects to `/admin/tournament`
+- Role guard: non-system_admin redirected to `/admin/tournament`
+- Commits `1d8b1a3`, `7bf525d` (role guard)
+
+**Task 7: Tournament Admins panel on /admin/tournament**
+- `src/app/(admin)/admin/tournament/tournament-admins.tsx` — assign/remove tournament admins; upgrades player role to `tournament_admin` on assign; stable supabase singleton at module level; filters already-assigned from search
+- `/admin/tournament/page.tsx` modified — cookie-aware tournament selection, `<TournamentAdmins>` in both status branches
+- Commits `02f5e95`, `563eff0` (supabase singleton + dedup fix)
+
+**Task 8: /admin/roster — tournament-scoped player enrollment**
+- `src/app/(admin)/admin/roster/page.tsx` + `roster-manager.tsx` — add existing player, create + enroll new, remove; `enrolledIdsRef = useRef<Set<string>>` (dep array `[searchQuery]` only); orphan cleanup on failed tournament_players insert
+- Commits `d261957`, `3979937` (dep array + orphan cleanup fix)
+
+**Task 9: Global players page — Tournaments column**
+- `src/app/(admin)/admin/players/page.tsx` — join `tournament_players!player_id(tournament_id, tournaments!tournament_id(name))`, map to `tournamentNames: string[]`
+- `src/app/(admin)/admin/players/players-table.tsx` — `PlayerWithTournaments` type, Tournaments column (9 cols), design tokens `text-[13px] text-[#6b7a70]`
+- Role guard: non-system_admin redirected; commit `3f81d84`
+
+**Final fixes (whole-branch review)**
+- Role guard on `/admin/tournaments` and `/admin/players` — tournament_admin redirected before data fetch
+- Select-tournament moved to `(tournament-select)` route group — breaks infinite redirect loop
+- Supabase client hoisted to module level in `tournaments-list.tsx`
+- `text-sm` replaced with `text-[13px]` in `admin-sidebar.tsx`
+- Commit `7bf525d`
+
+**PR #38 opened**: `feature/admin-role-dashboards` → `develop`
+- 12 commits, 147 tests passing, 91.2% coverage, type-check clean
+
+### Test Results
+- 147 tests, 9 suites, 91.2% statements, 83.42% branch — all thresholds met
+
+### Key Lessons Learned
+- `select-tournament` page must be OUTSIDE the `(admin)` layout group to avoid infinite redirect loop for multi-assignment tournament admins
+- Supabase `createClient()` must be at MODULE LEVEL in client components — inside component body creates a new reference per render → infinite useEffect re-fires when `supabase` is in dep arrays
+- Use `useRef<Set<string>>` for derived sets that enrollment mutations should NOT re-fire search effects
+- Orphan cleanup: if `tournament_players` INSERT fails after `players` INSERT succeeds, must DELETE the orphaned player row immediately
+- Design token enforcement: always reference `docs/DESIGN_STANDARDS.md` — `text-sm`, `text-xs`, `text-gray-*`, `rounded-lg` are all PROHIBITED in admin pages
+
+### Next Steps
+- Merge PR #38 when CI passes
+- Pre-tournament smoke test (June 22): login as system_admin → create tournament → assign tournament admin → enroll players → verify scoped sidebar
+- Invite real 125 players via CSV import
+
+---
+
+## Session 28 — 2026-06-20/21 (Multi-Tournament + Role Hierarchy — v0.6 released)
+
+### What Was Done
+
+**Merged PR #35 — tournament_players join table (multi-tournament player support)**
+- `tournament_players(player_id, team_id, tournament_id)` replaces `players.team_id`
+- `unique(player_id, tournament_id)` — one team per player per tournament
+- RLS for shots/scores/round_states rewritten to join through `tournament_players`
+- `players.team_id` column dropped
+- 145 tests passing, type-check clean
+
+**Implemented PR #36 — role hierarchy (feature/role-hierarchy)**
+
+*Migration 007 cleanup:*
+- Removed CIBC-specific `INSERT`/`UPDATE` statements from migration 007 — migrations are now schema-only
+- Venue (Granite Ridge) and course (Main Course) inserts moved to `seed.sql` with `ON CONFLICT (id) DO NOTHING`
+
+*seed.sql additions:*
+- Venue + course inserts at top (before tournament insert, since tournament FKs them)
+- Holes insert made idempotent with `ON CONFLICT (course_id, hole_number) DO NOTHING`
+- EPAM and First Derivative sponsors added (display_order 4–5)
+
+*Migration 012 — role hierarchy:*
+- `players_role_check` widened to `('player', 'system_admin', 'tournament_admin', 'tournament_organizer')`
+- Existing `'admin'` rows data-migrated to `'system_admin'`
+- `tournament_admin_assignments(player_id, tournament_id)` with `unique(player_id, tournament_id)` and RLS
+- `is_system_admin()` and `is_tournament_admin(uuid)` security-definer helper functions
+- RLS rewritten across all tables:
+  - `venues`, `courses`, `holes`, `tee_boxes`, `clubs`, `round_states`, `shots` → `system_admin` only
+  - `tournaments` → `system_admin` full + `tournament_admin` update-own
+  - `teams`, `scores`, `tournament_players`, `sponsors` → either role (scoped by `tournament_id`)
+  - `players` → `system_admin` full + `tournament_admin` update (scoped via `tournament_players`)
+
+*Application code:*
+- `PlayerRole` type: `'admin'` removed, `'system_admin' | 'tournament_admin'` added
+- `TournamentAdminAssignment` interface added to `types.ts`
+- All `role !== 'admin'` checks updated to `system_admin`/`tournament_admin`
+- `seed-users.ts`: admin user seeded as `system_admin`
+- 3 test files: mock role updated from `'admin'` to `'system_admin'`
+
+**Release v0.6:**
+- PR #37 (`develop → main`): all 10 CI/Vercel checks passed; merged
+- Tagged `v0.6` on main
+
+### Test Results
+- `npm run type-check`: **0 errors**
+- `npm run test:ci`: **145/145 tests pass**
+- CI: all green (format, audit, test ×2, analyze, CodeQL, Vercel)
+
+### Branch / PRs
+- `feature/role-hierarchy` → **PR #36 → develop** (squash-merged)
+- `develop` → **PR #37 → main** (merge commit — v0.6 release)
+- **Tag**: `v0.6` on `main`
+
+### Next Steps
+1. Design + implement **system admin UI** — screens to create/manage venues, courses, tournaments; assign tournament admins (`tournament_admin_assignments`)
+2. Design + implement **scoped tournament admin dashboard** — shows only the assigned tournament's players/teams/scores
+3. Apply migrations 011 + 012 to cloud Supabase (`supabase db push --db-url <prod-url>`)
+
+---
 
 ## Session 27 — 2026-06-20 (E2E Tests + Seed Fixes — PR #34 continued)
 

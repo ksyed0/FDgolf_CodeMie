@@ -13,24 +13,82 @@ Stack: Next.js 16 App Router · TypeScript · Tailwind CSS · shadcn/ui · Supab
 
 ---
 
-## Branch State (as of Session 27 close — 2026-06-20)
+## Branch State (as of Session 32 close — 2026-06-23)
 
 | Branch | Status | Notes |
 |--------|--------|-------|
-| `main` | production | Next.js 16 + E2E suite live |
-| `develop` | HEAD `e23d13e` | post PR #33 — design redesign merged |
-| `feature/design-redesign` | **merged PR #33** | 13-task light-mode redesign |
-| `feature/admin-pages-redesign` | **open PR #34** | 7 admin pages + AdminTopBar + E2E fixes + seed fixes |
+| `main` | **v0.6 released** | Multi-tournament + role hierarchy + redesigns live |
+| `develop` | HEAD `6a719a5` + test fixes | kiosk demo improvements — persistent browsers, stop button, realistic scoring |
 
-**Current open PRs**: PR #34 (`feature/admin-pages-redesign` → `develop`) — ready to merge.
+**Current open PRs**: None (develop ready to merge → main as v0.7).
 
-**Playwright E2E suite state (as of Session 27):** 61/61 passing, 2 skipped. All session-25 regressions fixed. New admin test cases TC-0082–TC-0089 added.
+**Kiosk demo — merged on develop (PR #39 + direct commits)**
 
-**Seed state after `./scripts/reset-and-seed.sh`:**
+Key changes this session:
+- `foreground.ts`: module-level browser singletons — windows persist across rounds
+- `score-gen.ts`: weighted distribution (eagle 3%, birdie 25%, par 52%, bogey 17%, double 3%)
+- `TvDisplay.tsx`: STOP DEMO button + DEMO PAUSED badge in header (demo mode only)
+- `src/app/api/demo/stop/route.ts`: NEW — sets `status = paused`, validates `is_demo`
+- `run.ts`: exits loop on stop signal, 2-min auto-restart window (was 20 min)
+- Tests: 165/165 passing, all thresholds met
+
+**Next action (Session 32 close):** Develop → main PR #40; tag v0.7.
+
+---
+
+## Branch State (as of Session 31 close — 2026-06-22)
+
+| Branch | Status | Notes |
+|--------|--------|-------|
+| `main` | **v0.6 released** | Multi-tournament + role hierarchy + redesigns live |
+| `develop` | HEAD `05a33ec` | post PR #38 merge — admin role dashboards live |
+| `feature/kiosk-demo` | **open PR #39** | 26 commits — full kiosk demo automation |
+| `feature/admin-role-dashboards` | **merged PR #38** | admin UI + system_admin + tournament_admin dashboards |
+
+**Current open PRs**: PR #39 (`feature/kiosk-demo` → `develop`).
+
+**Kiosk demo — PR #39 (feature/kiosk-demo)**
+
+Key technical facts:
+- `is_demo` boolean column on `tournaments` (migration 013) — guards `TvRestartOverlay`
+- `TvRestartOverlay` renders ONLY when `isDemoMode && tournamentStatus === 'completed'` — NOT on `'paused'`
+- `useRef` guard in `TvRestartOverlay.triggerRestart` prevents stale-closure countdown reset
+- `scripts/demo/` files use RELATIVE imports only — `tsx`-compatible, no `@/` aliases
+- `ShotInsert` uses `start_lat`/`start_lng` (not `lat`/`lng`)
+- Demo captain: `demo-captain@fdgolf.demo`, password from `DEMO_CAPTAIN_PASSWORD` env var (fallback `DemoKiosk2026!`)
+- Seed script: `npx tsx scripts/demo/seed-lionhead.ts` — idempotent (check-before-insert)
+- Run demo: `npx tsx scripts/demo/run.ts` — needs `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `NEXT_PUBLIC_APP_URL`
+- `background.ts` uses `team.startingHole` (1-based) for hole rotation: `(team.startingHole - 1 + i) % 18`
+- `run.ts` poll limits: `waitForCompletion` 180×10s=30min, `waitForRestart` 120×10s=20min
+- Minor known items: `captain_id` only set on team 0; non-captain players use fake UUIDs (may need FK relaxation)
+
+**v0.6 tag** on `main` — includes PRs #32–#36 (TV stats fix, design redesigns, multi-tournament, role hierarchy).
+
+**Playwright E2E suite state (as of Session 27):** 61/61 passing, 2 skipped.
+
+**Admin role dashboards — PR #38 (feature/admin-role-dashboards)**
+
+Key technical facts to know for next session:
+- `x-active-tournament` cookie (`httpOnly: true, sameSite: lax, path: /`) is the single source of truth for active tournament across all admin pages
+- `getActiveTournamentId()` in `src/lib/active-tournament.ts` — all server pages use this to read the cookie
+- `setActiveTournamentAction()` in `src/lib/actions/set-active-tournament.ts` — server action to set the cookie
+- `src/app/(admin)/layout.tsx` — role-aware: system_admin reads/falls back to most-recent tournament; tournament_admin: 0 assignments → redirect `/dashboard`, 1 → auto-set cookie, 2+ → redirect `/admin/select-tournament`
+- `src/app/(tournament-select)/admin/select-tournament/page.tsx` — INTENTIONALLY outside `(admin)` route group (no layout) to break infinite redirect loop for multi-assignment tournament admins
+- `src/app/(admin)/admin/tournaments/page.tsx` and `src/app/(admin)/admin/players/page.tsx` — both have role guards; redirect non-system_admin to `/admin/tournament`
+- All client components (`tournament-admins.tsx`, `roster-manager.tsx`, `tournaments-list.tsx`) use `const supabase = createClient()` at MODULE LEVEL outside the component — prevents infinite useEffect re-fires
+
+**Admin DESIGN_STANDARDS.md** — lives at `docs/DESIGN_STANDARDS.md`. Always reference before writing admin UI. Key rules:
+- PROHIBITED: `text-sm`, `text-xs`, `text-lg`, `text-2xl`, `text-gray-*`, `rounded-lg`
+- Typography: `text-[13px]`, `text-[17px]`, `text-[28px]` only
+- Cards: `rounded-2xl`, buttons: `rounded-xl`
+- Every client page must use `<AdminTopBar eyebrow="UPPERCASE" title="Title">`
+- Design tokens: dark text `#15241c`, primary green `#1a472a`, secondary `#6b7a70`, muted `#90a094`
+
+**Seed state after `supabase db reset` + `npx tsx supabase/seed-users.ts`:**
+- Venue (Granite Ridge) + Course (Main Course) now inserted by `seed.sql` (NOT migration 007 — fixed in Session 28)
 - 18 tee boxes (Blue tee, all holes) — TV longest-drive resolves for all 18 holes
-- 3 sponsors (CIBC Capital Markets, Deloitte, Manulife, all active) — TV carousel populated
+- 5 sponsors (CIBC Capital Markets, Deloitte, Manulife, EPAM, First Derivative, all active)
 - Scores and shots still require `npx tsx scripts/seed-tv-data.ts` OR real gameplay
-- `sponsors` and `tee_boxes` are the only tables not created by gameplay; must be seeded/admin-configured
 
 **TV display route**: `/live/cibc-granite-ridge-2026/tv` — public, no auth. Polling 30s, panel rotation 15s.
 
@@ -49,11 +107,22 @@ pattern (fetch holes separately, build in-memory map) when you need par data alo
 won't see the new policy/FK/function until cache refresh.
 
 **Seed data in local DB** (`00000000-0000-0000-0000-000000000001`):
-- 4 teams: Fairway Falcons (−6), Birdie Brigade (−4), Eagle Eye (−3), Par Hunters (+1)
-- 8 players, 9 holes, 200 shots with GPS, 72 scores, 36 is_best_ball=true
-- Migration 010: `Public read shots` policy applied — shots now readable by anon client
+- 4 teams: Fairway Falcons, Birdie Brigade, Eagle Eye, Par Hunters (seeded by seed-tv-data.ts)
+- 16 players, 18 holes, 400 shots with GPS, 144 scores — all seeded by `npx tsx scripts/seed-tv-data.ts`
+- Migration 010: `Public read shots` policy — shots readable by anon client
+- `tournament_players` rows created by seed-tv-data.ts (one per player per tournament)
 
-**Next action**: Invite 125 players via CSV → set real GPS pins for Ruby holes → smoke test June 22
+**Kiosk demo — spec + plan ready (Session 30)**
+- Spec: `docs/superpowers/specs/2026-06-21-kiosk-demo-design.md`
+- Plan: `docs/superpowers/plans/2026-06-21-kiosk-demo.md` — 8 tasks, ready to execute with subagent-driven-development
+- Demo slug: `lionhead-legends-demo`, captain: `demo-captain@fdgolf.demo` / `DemoKiosk2026!`
+- New `is_demo` column on tournaments (migration 013) — guards TV restart overlay
+- Round page is SHOT-BY-SHOT (not stroke counter): `(score-1) × "In Play"` + `"⛳ Sunk"`; `holeSunk=true` disables buttons after first sink
+- `shots.start_lat`/`start_lng` are the GPS fields (NOT `lat`/`lng`)
+- Foreground Playwright: captain only records their own shots; other 3 players injected to DB
+- Background teams: 17 × async loops, each starts at `teamIndex+1` hole (shotgun), HOLE_DELAY_MS=20000
+
+**Next action (Session 31 close):** Monitor PR #39 CI, fix any failures, merge when green. Then run kiosk demo locally against local Supabase.
 
 ---
 
@@ -192,8 +261,16 @@ This queries `players` from within a `players` policy → PostgreSQL evaluates t
 
 - **`teams.captain_id`**: `uuid` column with NO inline FK. Deferred FK added via `ALTER TABLE` after `players` is defined (circular reference pattern).
 - **`teams.max_players`**: `int not null default 4 check (max_players between 2 and 6)` — variable team size.
-- **`PlayerRole`**: `'player' | 'admin' | 'tournament_organizer'` — three roles.
+- **`PlayerRole`**: `'player' | 'system_admin' | 'tournament_admin' | 'tournament_organizer'` — `'admin'` no longer exists (renamed to `'system_admin'` in migration 012).
 - **`scores.override_by` / `override_at`**: audit trail columns for admin overrides.
+- **`tournament_players(player_id, team_id, tournament_id)`**: join table replacing `players.team_id`. `unique(player_id, tournament_id)` — one team per player per tournament. Added in migration 011.
+- **`tournament_admin_assignments(player_id, tournament_id)`**: scoping table for tournament-admin role. `unique(player_id, tournament_id)`. Added in migration 012. **No UI yet — schema is ready.**
+- **`is_system_admin()`**: security-definer SQL function — returns true if calling user has `role = 'system_admin'`. Runs as DB owner to avoid RLS recursion.
+- **`is_tournament_admin(uuid)`**: security-definer SQL function — returns true if calling user has a row in `tournament_admin_assignments` for the given tournament_id.
+- **Seed UUIDs** (in `seed.sql` — NOT in migrations after Session 28 cleanup):
+  - Venue: `10000000-0000-0000-0000-000000000001` — Granite Ridge Golf Club
+  - Course: `20000000-0000-0000-0000-000000000001` — Main Course (18 holes, par 72)
+  - Tournament: `00000000-0000-0000-0000-000000000001` — CIBC Capital Markets Golf Tournament 2026
 
 ---
 

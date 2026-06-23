@@ -1,8 +1,8 @@
 {
-  "name": "fdgolf",
+  "name": "fdgolf-cm",
   "version": "0.1.0",
   "private": true,
-  "description": "FDgolf — Golf score tracking app for CIBC Capital Markets Tournament",
+  "description": "FDgolf-CM — Golf score tracking app for CIBC Capital Markets Tournament",
   "directories": {
     "doc": "docs",
     "test": "tests"

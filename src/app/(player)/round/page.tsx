@@ -353,7 +353,7 @@ export default function RoundPage() {
         <div className="flex items-center justify-between mb-1">
           <div className="flex items-center gap-2">
             <span className="font-barlow font-bold text-white" style={{ fontSize: 18 }}>
-              FDgolf
+              FDgolf-CM
             </span>
             <span
               className="rounded-full px-2 py-0.5 text-[10px] font-semibold text-green-300"
@@ -405,6 +405,21 @@ export default function RoundPage() {
         </div>
       )}
 
+      {/* Hole progress bar */}
+      <div className="w-full px-5 py-2" style={{ background: '#1a472a' }}>
+        <div className="mx-auto flex max-w-md items-center justify-between">
+          <span
+            className="font-barlow font-extrabold text-white"
+            style={{ fontSize: 36, lineHeight: 1 }}
+          >
+            Hole {roundState.current_hole}
+          </span>
+          <span className="text-sm font-semibold" style={{ color: '#bfe6c9' }}>
+            Par {currentHole.par} · {roundState.current_hole} of 18
+          </span>
+        </div>
+      </div>
+
       <div
         className={`mx-auto w-full max-w-md space-y-4 pb-24 pt-4 ${tournament?.status === 'paused' ? 'pointer-events-none opacity-50' : ''}`}
       >
@@ -433,7 +448,7 @@ export default function RoundPage() {
 
         {/* Shot history */}
         {dbShots.length > 0 && !holeSunk && (
-          <div>
+          <div className="px-5">
             <p className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-gray-500">
               This hole
             </p>
@@ -528,7 +543,7 @@ export default function RoundPage() {
         )}
 
         {/* Club selector */}
-        <div>
+        <div className="px-5">
           <p className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-gray-500">
             Club (shot {shotNumber})
           </p>
