@@ -1,5 +1,21 @@
 # Lessons Learned
 
+## L-0011 — When intentionally widening score distribution, update test bounds immediately
+@session: 32 — 2026-06-23
+
+**Symptom**: 3 Jest tests failed on `generateScore` — all asserting `score >= par`. They were correct for the original bogey-only implementation, but broke after birdies/eagles were added.
+
+**Root cause**: Tests encoded the old contract (`[par, par+4]`) rather than the invariants of the underlying function (`max(1, par+vspar)` with a defined probability table). When the implementation changed intentionally, the tests became incorrect regressions.
+
+**Rules**:
+- When you change a function's output distribution intentionally, update the tests in the same commit.
+- Test the structural invariant (`max(1, par-2)` to `par+2`) rather than the specific old behavior.
+- Add a statistical test (e.g. "at least 1 sub-par score in 200 trials") to verify the new behavior is reachable — probability-based assertions catch silent fallbacks.
+
+**Applies to**: Any function with probabilistic output (score generators, random samplers, weighted selectors).
+
+---
+
 ## L-0010 — Admin pages have a strict design system — always check DESIGN_STANDARDS.md
 @session: 29 — 2026-06-21
 

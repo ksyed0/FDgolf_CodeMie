@@ -13,6 +13,29 @@ Stack: Next.js 16 App Router · TypeScript · Tailwind CSS · shadcn/ui · Supab
 
 ---
 
+## Branch State (as of Session 32 close — 2026-06-23)
+
+| Branch | Status | Notes |
+|--------|--------|-------|
+| `main` | **v0.6 released** | Multi-tournament + role hierarchy + redesigns live |
+| `develop` | HEAD `6a719a5` + test fixes | kiosk demo improvements — persistent browsers, stop button, realistic scoring |
+
+**Current open PRs**: None (develop ready to merge → main as v0.7).
+
+**Kiosk demo — merged on develop (PR #39 + direct commits)**
+
+Key changes this session:
+- `foreground.ts`: module-level browser singletons — windows persist across rounds
+- `score-gen.ts`: weighted distribution (eagle 3%, birdie 25%, par 52%, bogey 17%, double 3%)
+- `TvDisplay.tsx`: STOP DEMO button + DEMO PAUSED badge in header (demo mode only)
+- `src/app/api/demo/stop/route.ts`: NEW — sets `status = paused`, validates `is_demo`
+- `run.ts`: exits loop on stop signal, 2-min auto-restart window (was 20 min)
+- Tests: 165/165 passing, all thresholds met
+
+**Next action (Session 32 close):** Develop → main PR #40; tag v0.7.
+
+---
+
 ## Branch State (as of Session 31 close — 2026-06-22)
 
 | Branch | Status | Notes |

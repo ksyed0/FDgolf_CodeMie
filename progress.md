@@ -1,5 +1,37 @@
 # FDgolf-CM — Progress
 
+## Session 32 — 2026-06-23 (Kiosk Demo Improvements — PR to main + v0.7 release)
+
+### What Was Done
+
+**Kiosk demo quality improvements (commits 6a719a5, b355792 on develop):**
+
+1. **Persistent browser windows** — `foreground.ts` refactored to use module-level `_tvBrowser`/`_phoneBrowser` singletons. Browsers created once and reused across every round iteration. `finally { browser.close() }` removed. `closeBrowsers()` only called on error to reset for clean re-open.
+
+2. **Realistic score distribution** — `score-gen.ts` `generateScore()` replaced uniform `par+0..+4` with weighted distribution: eagle 3%, birdie 25%, par 52%, bogey 17%, double 3%. Uses `Math.max(1, par + vspar)` floor. Birdies/eagles now appear in TV stats panels.
+
+3. **STOP DEMO button** — `TvDisplay.tsx` header shows "⏹ STOP DEMO" button in demo mode when tournament is active. Shows "⏸ DEMO PAUSED" amber badge when paused. `POST /api/demo/stop/route.ts` sets `status = paused`, validates `is_demo` flag before updating.
+
+4. **Stop signal propagation** — `background.ts` checks `isStopped()` before each hole; `foreground.ts` checks before each hole; `run.ts` exits loop when stopped. Browsers remain open after stop.
+
+5. **Auto-restart shortened** — `waitForRestart` AUTO_RESTART_POLLS reduced to 12 (2 minutes) instead of 120 (20 minutes).
+
+6. **Test fixes** — `demo-score-gen.test.ts` updated with correct `[max(1,par-2), par+2]` bounds and probabilistic birdie test. `demo-stop-api.test.ts` added (4 tests covering 400/404/403/200 paths).
+
+### Test Results
+- `npm run test:ci`: **165/165 tests pass**
+- Coverage: 90.63% stmts / 82.46% branches / 86.15% fns / 96.13% lines — all ≥ thresholds
+
+### Branch / PRs
+- All changes on `develop` (commits 6a719a5, b355792 + test fixes)
+- PR from `develop` → `main`: v0.7 release
+
+### Next Steps
+1. Merge develop → main via PR
+2. Tag v0.7 on main
+
+---
+
 ## Session 30 — 2026-06-22 (Kiosk Demo — Full SDD Execution)
 
 ### What Was Done
