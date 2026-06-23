@@ -1,4 +1,4 @@
-import { chromium } from 'playwright';
+import { chromium, type Browser, type Page } from 'playwright';
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import { config as dotenvConfig } from 'dotenv';
 import { resolve } from 'path';
@@ -15,6 +15,23 @@ const DEMO_CAPTAIN_PASSWORD = process.env.DEMO_CAPTAIN_PASSWORD ?? 'DemoKiosk202
 
 function sleep(ms: number) {
   return new Promise<void>((res) => setTimeout(res, ms));
+}
+
+// Persistent browser state — opened once, reused across every loop iteration
+let _tvBrowser: Browser | null = null;
+let _phoneBrowser: Browser | null = null;
+let _tvPage: Page | null = null;
+let _phonePage: Page | null = null;
+let _loggedIn = false;
+
+async function closeBrowsers() {
+  try { await _tvBrowser?.close(); } catch {}
+  try { await _phoneBrowser?.close(); } catch {}
+  _tvBrowser = null;
+  _phoneBrowser = null;
+  _tvPage = null;
+  _phonePage = null;
+  _loggedIn = false;
 }
 
 async function injectOtherPlayers(
@@ -49,11 +66,26 @@ async function injectOtherPlayers(
     if (shotError) console.error('[foreground] shots insert error:', shotError.message);
   }
 
-  await (supabase as any).functions
-    .invoke('calculate-best-ball', {
-      body: { tournament_id: config.tournamentId, team_id: teamId, hole_number: hole.holeNumber },
-    })
-    .catch(() => {});
+  // Fetch all 4 player scores for this hole and mark best ball locally
+  const { data: allScores } = await (supabase as any)
+    .from('scores')
+    .select('player_id, strokes')
+    .eq('team_id', teamId)
+    .eq('tournament_id', config.tournamentId)
+    .eq('hole_number', hole.holeNumber);
+  if (allScores && allScores.length > 0) {
+    const minStrokes = Math.min(...allScores.map((s: { strokes: number }) => s.strokes));
+    const best = allScores.find((s: { strokes: number }) => s.strokes === minStrokes);
+    if (best) {
+      await (supabase as any)
+        .from('scores')
+        .update({ is_best_ball: true })
+        .eq('player_id', best.player_id)
+        .eq('team_id', teamId)
+        .eq('tournament_id', config.tournamentId)
+        .eq('hole_number', hole.holeNumber);
+    }
+  }
 }
 
 export async function runForeground(config: DemoConfig): Promise<void> {
@@ -66,49 +98,67 @@ export async function runForeground(config: DemoConfig): Promise<void> {
   const foregroundTeam = config.teams[0];
   const otherPlayers = foregroundTeam.players.slice(1);
 
-  // TV window (left)
-  const tvBrowser = await chromium.launch({
-    headless: false,
-    args: ['--window-position=0,60', '--window-size=1270,980'],
-  });
-  const phoneBrowser = await chromium.launch({
-    headless: false,
-    args: ['--window-position=1280,60', '--window-size=390,844'],
-  });
+  // Open browsers once; reuse on subsequent iterations
+  if (!_tvBrowser || !_tvPage) {
+    _tvBrowser = await chromium.launch({
+      headless: false,
+      args: ['--window-position=0,25', '--window-size=980,960'],
+    });
+    _tvPage = await _tvBrowser.newPage();
+    await _tvPage.setViewportSize({ width: 980, height: 870 });
+  }
+
+  if (!_phoneBrowser || !_phonePage) {
+    _phoneBrowser = await chromium.launch({
+      headless: false,
+      args: ['--window-position=990,25', '--window-size=520,960'],
+    });
+    _phonePage = await _phoneBrowser.newPage();
+    await _phonePage.setViewportSize({ width: 520, height: 874 });
+  }
+
+  const tvPage = _tvPage;
+  const phonePage = _phonePage;
 
   try {
-    const tvPage = await tvBrowser.newPage();
+    // Reload TV to pick up fresh tournament state
     await tvPage.goto(`${BASE_URL}/live/${config.slug}/tv`);
 
-    // Phone window (right)
-    const phonePage = await phoneBrowser.newPage();
-    await phonePage.setViewportSize({ width: 390, height: 844 });
+    // First iteration: log in. Subsequent iterations: navigate directly to /round.
+    if (!_loggedIn) {
+      await phonePage.goto(`${BASE_URL}/login`);
+      await phonePage.fill('#email', DEMO_CAPTAIN_EMAIL);
+      await phonePage.fill('#password', DEMO_CAPTAIN_PASSWORD);
+      await phonePage.click('button[type="submit"]');
+      await phonePage.waitForURL(/dashboard|round/, { timeout: 15_000 });
+      _loggedIn = true;
+    }
 
-    // Log in as demo captain
-    await phonePage.goto(`${BASE_URL}/login`);
-    await phonePage.fill('#email', DEMO_CAPTAIN_EMAIL);
-    await phonePage.fill('#password', DEMO_CAPTAIN_PASSWORD);
-    await phonePage.click('button[type="submit"]');
-    await phonePage.waitForURL(/dashboard|round/, { timeout: 15_000 });
-
-    // Navigate to round page (creates round_state from starting_hole=1)
     await phonePage.goto(`${BASE_URL}/round`);
     await phonePage.waitForSelector('text=Hole 1', { timeout: 15_000 });
 
     for (let i = 0; i < 18; i++) {
+      // Check for stop signal before each hole
+      const { data: statusRow } = await (supabase as any)
+        .from('tournaments')
+        .select('status')
+        .eq('id', config.tournamentId)
+        .single();
+      if (statusRow?.status === 'paused') {
+        console.log('[foreground] Stop signal received — halting round');
+        return;
+      }
+
       const holeIdx = (foregroundTeam.startingHole - 1 + i) % 18;
       const hole = config.holes[holeIdx];
       const captainScore = generateScore(hole.par);
 
-      // Wait for current hole to be visible
       await phonePage.waitForSelector(`text=Hole ${hole.holeNumber}`, { timeout: 10_000 });
 
-      // Select opening club
       const openingClub = hole.par === 3 ? '9 Iron' : 'Driver';
       await phonePage.getByRole('combobox').click();
       await phonePage.getByRole('option', { name: openingClub }).click();
 
-      // Record each shot
       for (let shot = 1; shot <= captainScore; shot++) {
         const isLast = shot === captainScore;
 
@@ -119,28 +169,28 @@ export async function runForeground(config: DemoConfig): Promise<void> {
         }
 
         if (isLast) {
-          await phonePage.getByRole('button', { name: /Sunk/ }).click();
+          await phonePage.locator('button.rounded-2xl', { hasText: /Sunk/ }).click();
         } else {
-          await phonePage.getByRole('button', { name: 'In Play' }).click();
+          await phonePage.locator('button.rounded-2xl', { hasText: 'In Play' }).click();
         }
 
         await sleep(SHOT_DELAY_MS);
       }
 
-      // Inject other 3 players' scores to DB while captain's sunk is processing
       await injectOtherPlayers(supabase, config, foregroundTeam.id, holeIdx, otherPlayers);
 
-      // Advance to next hole
       await phonePage.waitForSelector('text=Next Hole →', { timeout: 10_000 });
       await phonePage.getByRole('button', { name: 'Next Hole →' }).click();
       await sleep(1_000);
     }
 
-    // Round complete — app redirects to /leaderboard
+    // Round complete — phone navigates to /leaderboard; TV stays on /live/slug/tv
     await phonePage.waitForURL(/leaderboard/, { timeout: 15_000 });
-    console.log('[foreground] Round complete');
-  } finally {
-    await tvBrowser.close();
-    await phoneBrowser.close();
+    console.log('[foreground] Round complete — windows staying open for next iteration');
+  } catch (err) {
+    // Browser crashed or selector failed — close so they reopen cleanly next iteration
+    console.error('[foreground] Error, resetting browsers:', (err as Error).message);
+    await closeBrowsers();
+    throw err;
   }
 }

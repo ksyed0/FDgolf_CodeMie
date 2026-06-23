@@ -62,7 +62,18 @@ export function TvDisplay({ tournament, initialLeaderboard, initialSponsors }: T
   const [teamSpotlight, setTeamSpotlight] = useState<TeamSpotlight | null>(null);
   const [activePanelIndex, setActivePanelIndex] = useState<0 | 1 | 2 | 3 | 4>(0);
   const [tournamentStatus, setTournamentStatus] = useState<TournamentStatus>(tournament.status);
+  const [isStopping, setIsStopping] = useState(false);
   const isDemoMode = tournament.is_demo;
+
+  async function handleStop() {
+    setIsStopping(true);
+    await fetch('/api/demo/stop', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ tournamentId: tournament.id }),
+    }).catch(() => {});
+    setIsStopping(false);
+  }
 
   useEffect(() => {
     const supabase = createClient();
@@ -201,8 +212,40 @@ export function TvDisplay({ tournament, initialLeaderboard, initialSponsors }: T
             </span>
           </div>
 
-          {/* Right: LIVE pill */}
-          <div className="ml-auto flex items-center gap-2 z-10">
+          {/* Right: LIVE pill + demo stop button */}
+          <div className="ml-auto flex items-center gap-3 z-10">
+            {isDemoMode && tournamentStatus === 'active' && (
+              <button
+                onClick={handleStop}
+                disabled={isStopping}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-bold transition-opacity disabled:opacity-50"
+                style={{
+                  background: 'rgba(255,255,255,0.12)',
+                  fontSize: 12,
+                  letterSpacing: '0.08em',
+                  color: '#fff',
+                  border: '1px solid rgba(255,255,255,0.2)',
+                }}
+              >
+                <span style={{ fontSize: 10 }}>⏹</span>
+                {isStopping ? 'STOPPING…' : 'STOP DEMO'}
+              </button>
+            )}
+            {tournamentStatus === 'paused' && isDemoMode && (
+              <div
+                className="flex items-center gap-2 px-3 py-1.5 rounded-lg font-bold"
+                style={{
+                  background: 'rgba(255,255,255,0.12)',
+                  fontSize: 12,
+                  letterSpacing: '0.08em',
+                  color: '#fbbf24',
+                  border: '1px solid rgba(255,255,255,0.2)',
+                }}
+              >
+                <span style={{ fontSize: 10 }}>⏸</span>
+                DEMO PAUSED
+              </div>
+            )}
             <div
               className="flex items-center gap-2 px-4 py-2 rounded-full font-bold"
               style={{

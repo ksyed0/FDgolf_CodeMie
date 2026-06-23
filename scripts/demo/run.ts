@@ -75,8 +75,9 @@ async function waitForCompletion(tournamentId: string): Promise<void> {
 }
 
 async function waitForRestart(tournamentId: string): Promise<void> {
-  console.log('[run] Waiting for restart signal…');
-  const MAX_RESTART_POLLS = 120; // 120 × 10s = 20 minutes
+  console.log('[run] Waiting for restart signal (auto-restart in 2 min)…');
+  const AUTO_RESTART_POLLS = 12; // 12 × 10s = 2 minutes, then auto-restart
+  const MAX_RESTART_POLLS = 120;
   let rpolls = 0;
   while (rpolls < MAX_RESTART_POLLS) {
     rpolls++;
@@ -87,8 +88,21 @@ async function waitForRestart(tournamentId: string): Promise<void> {
       console.log('[run] Restart signal received');
       return;
     }
+    if (rpolls >= AUTO_RESTART_POLLS) {
+      console.log('[run] Auto-restarting after 2-minute window…');
+      await (supabase as any).from('tournaments').update({ status: 'active' }).eq('id', tournamentId);
+      return;
+    }
   }
-  if (rpolls >= MAX_RESTART_POLLS) throw new Error('[run] waitForRestart timed out after 20 minutes');
+}
+
+async function isStopped(tournamentId: string): Promise<boolean> {
+  const { data } = await (supabase as any)
+    .from('tournaments')
+    .select('status')
+    .eq('id', tournamentId)
+    .single();
+  return data?.status === 'paused';
 }
 
 async function main() {
@@ -105,10 +119,16 @@ async function main() {
       // Foreground drives the pace — await it
       await runForeground(config);
 
+      // Check if stopped mid-round via TV stop button
+      if (await isStopped(config.tournamentId)) {
+        console.log('[run] Demo stopped — exiting loop. Browser windows remain open.');
+        return;
+      }
+
       // Poll until all 1,296 scores are present
       await waitForCompletion(config.tournamentId);
 
-      // Wait for TV restart button or 10-min auto-restart countdown
+      // Wait for TV restart button or 2-min auto-restart countdown
       await waitForRestart(config.tournamentId);
 
       console.log('[run] Loop complete — starting next iteration…');

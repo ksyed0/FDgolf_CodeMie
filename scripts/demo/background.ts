@@ -39,6 +39,17 @@ async function injectTeamHole(
 
   if (scoreError) {
     console.error(`[background] Score error team=${team.name} hole=${hole.holeNumber}:`, scoreError.message);
+  } else {
+    // Edge function unavailable locally — compute best ball inline
+    const minStrokes = Math.min(...scores);
+    const bestIdx = scores.indexOf(minStrokes);
+    await (supabase as any)
+      .from('scores')
+      .update({ is_best_ball: true })
+      .eq('player_id', team.players[bestIdx].id)
+      .eq('team_id', team.id)
+      .eq('tournament_id', config.tournamentId)
+      .eq('hole_number', hole.holeNumber);
   }
 
   const shots = generateShots(config.tournamentId, hole, team.players, scores, config.clubs);
@@ -57,6 +68,15 @@ async function injectTeamHole(
     .catch(() => {});
 }
 
+async function isStopped(supabase: SupabaseClient, tournamentId: string): Promise<boolean> {
+  const { data } = await (supabase as any)
+    .from('tournaments')
+    .select('status')
+    .eq('id', tournamentId)
+    .single();
+  return data?.status === 'paused';
+}
+
 async function runTeam(
   supabase: SupabaseClient,
   config: DemoConfig,
@@ -64,6 +84,10 @@ async function runTeam(
   teamIndex: number // 1-17
 ) {
   for (let i = 0; i < 18; i++) {
+    if (await isStopped(supabase, config.tournamentId)) {
+      console.log(`[background] Team ${team.name} stopped`);
+      return;
+    }
     const holeIdx = (team.startingHole - 1 + i) % 18;
     await injectTeamHole(supabase, config, team, holeIdx);
     if (i < 17) await sleep(HOLE_DELAY_MS);

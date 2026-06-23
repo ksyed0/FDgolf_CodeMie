@@ -5,7 +5,7 @@ import type { Tournament } from '@/lib/types';
 import { notFound } from 'next/navigation';
 
 export const revalidate = 30;
-export const viewport = { width: '1920', initialScale: 1 };
+export const viewport = { width: 'device-width', initialScale: 1 };
 
 interface TvLeaderboardPageProps {
   params: Promise<{ slug: string }>;
