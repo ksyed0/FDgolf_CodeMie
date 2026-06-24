@@ -135,12 +135,12 @@ Acceptance Criteria:
 US-0004 (EPIC-0001): As a developer, I want the project deployed to Vercel, so that we have a production URL for players to register.
 Priority: High
 Estimate: S
-Status: Planned
-Branch: feature/US-0004-vercel-deploy
+Status: Done
+Branch: develop (deployed Session 18 — vercel deploy --prod)
 Dependencies: US-0002
 Acceptance Criteria:
-  - [ ] AC-0011: Production deployment accessible via public URL
-  - [ ] AC-0012: Supabase env vars configured in Vercel
+  - [x] AC-0011: Production deployment accessible via public URL — https://fdgolfcm.vercel.app
+  - [x] AC-0012: Supabase env vars configured in Vercel — all 4 vars set for Production + Preview scopes
 ```
 
 ```
