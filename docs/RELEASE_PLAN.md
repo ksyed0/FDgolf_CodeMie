@@ -563,7 +563,7 @@ Acceptance Criteria:
 ```
 
 ```
-US-0036 (EPIC-0010): As an admin, I want players to verify their identity via SMS OTP, so that accounts are secure.
+US-0036 (EPIC-0010): As a player, I want to request a magic link from the login page, so that I can sign in without remembering my password.
 Priority: Medium
 Estimate: M
 Status: Planned
