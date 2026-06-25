@@ -76,4 +76,19 @@ describe('POST /api/auth/request-link', () => {
       options: { shouldCreateUser: false },
     });
   });
+
+  it('returns 500 when env vars are missing', async () => {
+    const saved = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    delete process.env.SUPABASE_SERVICE_ROLE_KEY;
+    const req = new Request('http://localhost/api/auth/request-link', {
+      method: 'POST',
+      body: JSON.stringify({ email: 'x@x.com' }),
+      headers: { 'Content-Type': 'application/json' },
+    });
+    const res = await POST(req);
+    expect(res.status).toBe(500);
+    const body = await res.json();
+    expect(body.error).toBeTruthy();
+    process.env.SUPABASE_SERVICE_ROLE_KEY = saved;
+  });
 });

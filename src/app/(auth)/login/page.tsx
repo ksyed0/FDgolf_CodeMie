@@ -52,13 +52,17 @@ export default function LoginPage() {
       return;
     }
     setLinkLoading(true);
-    await fetch('/api/auth/request-link', {
+    const res = await fetch('/api/auth/request-link', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email }),
-    }).catch(() => {});
+    }).catch(() => null);
     setLinkLoading(false);
-    setLinkSent(true);
+    if (res?.ok) {
+      setLinkSent(true);
+    } else {
+      toast.error('Something went wrong. Please try again.');
+    }
   }
 
   return (
@@ -73,7 +77,10 @@ export default function LoginPage() {
           autoComplete="email"
           required
           value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          onChange={(e) => {
+            setEmail(e.target.value);
+            setLinkSent(false);
+          }}
           placeholder="you@example.com"
         />
       </div>

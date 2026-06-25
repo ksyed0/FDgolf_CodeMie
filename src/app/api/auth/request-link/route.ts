@@ -5,7 +5,8 @@ import { createClient } from '@supabase/supabase-js';
 
 export async function POST(request: Request) {
   const body = await request.json().catch(() => ({}));
-  const { email } = body as { email?: string };
+  const raw = (body as { email?: string }).email;
+  const email = raw ? raw.trim().toLowerCase() : undefined;
 
   if (!email) {
     return NextResponse.json({ error: 'email is required' }, { status: 400 });
@@ -25,10 +26,13 @@ export async function POST(request: Request) {
   const { data: player } = await supabase.from('players').select('id').eq('email', email).single();
 
   if (player) {
-    await supabase.auth.signInWithOtp({
+    const { error: otpError } = await supabase.auth.signInWithOtp({
       email,
       options: { shouldCreateUser: false },
     });
+    if (otpError) {
+      console.error('[request-link] OTP failed:', otpError.message);
+    }
   }
 
   return NextResponse.json({ ok: true });
