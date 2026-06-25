@@ -1,5 +1,42 @@
 # FDgolf-CM — Progress
 
+## Session 33 -- 2026-06-25 (US-0004 closed, US-0036 brainstorm + spec + plan)
+
+### What Was Done
+
+**US-0004 marked Done** -- Vercel was live since Session 18; status updated in RELEASE_PLAN.md and ACs checked.
+
+**US-0036 reframed and designed:**
+
+Original story: "SMS OTP / 2FA via Supabase Auth"
+Reframed as: "Player self-service magic link login" -- magic link as an alternative first factor, password kept as fallback for all users. No SMS/Twilio required.
+
+Key decisions:
+- New public POST /api/auth/request-link -- checks players table, calls signInWithOtp, always returns 200 (anti-enumeration)
+- Single login form: shared email + two buttons (Send Magic Link / Sign In with Password)
+- signInWithOtp with shouldCreateUser:false -- generates and sends in one call, no service role key needed for auth step
+- Spec patched after self-review: corrected "2FA" framing to "alternative first factor"; replaced admin.generateLink with signInWithOtp
+
+**Artifacts committed to develop:**
+- docs/superpowers/specs/2026-06-24-player-magic-link-login-design.md
+- docs/superpowers/plans/2026-06-24-player-magic-link-login.md
+- RELEASE_PLAN.md: US-0036 retitled, US-0004 marked Done
+
+### Test Results
+- No code changes -- carrying over v0.7 baseline: 165/165 pass
+
+### Branch / PRs
+- 4 docs commits on develop, not yet pushed at session close
+- Implementation not started; plan ready on feature/US-0036-magic-link-login
+
+### Next Steps
+1. Execute docs/superpowers/plans/2026-06-24-player-magic-link-login.md (2 tasks)
+   - Task 1: POST /api/auth/request-link + unit tests
+   - Task 2: Login page Send Magic Link button
+2. PR feature/US-0036-magic-link-login -> develop -> main -> tag v0.8
+
+---
+
 ## Session 32 — 2026-06-23 (Kiosk Demo Improvements — PR to main + v0.7 release)
 
 ### What Was Done

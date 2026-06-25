@@ -13,6 +13,31 @@ Stack: Next.js 16 App Router · TypeScript · Tailwind CSS · shadcn/ui · Supab
 
 ---
 
+## Branch State (as of Session 33 close — 2026-06-25)
+
+| Branch | Status | Notes |
+|--------|--------|-------|
+| `main` | **v0.7 released** | Kiosk demo improvements live |
+| `develop` | HEAD `d4e1e5c` | US-0036 spec + plan docs committed; 4 commits ahead of origin |
+| `feature/US-0036-magic-link-login` | **not yet created** | Plan ready — branch off develop when implementing |
+
+**Current open PRs**: None.
+
+**US-0036 — Player self-service magic link login**
+
+Design decisions locked in spec (`docs/superpowers/specs/2026-06-24-player-magic-link-login-design.md`):
+- New `POST /api/auth/request-link` (public, no auth) — checks `players.email`, calls `supabase.auth.signInWithOtp({ email, options: { shouldCreateUser: false } })`, always returns `200 { ok: true }`
+- Login page: single form, shared email, `type="button"` Send Magic Link + `type="submit"` Sign In with Password
+- `linkSent` state swaps button for "Check your email" confirmation
+- Anti-enumeration: unconditional 200 regardless of whether email is in players table
+- Uses service role key client (same pattern as other API routes in this project)
+
+Plan: `docs/superpowers/plans/2026-06-24-player-magic-link-login.md` — 2 tasks, full code in each step.
+
+**Next action (Session 33 close):** Execute US-0036 plan on `feature/US-0036-magic-link-login`.
+
+---
+
 ## Branch State (as of Session 32 close — 2026-06-23)
 
 | Branch | Status | Notes |
