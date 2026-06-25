@@ -566,13 +566,13 @@ Acceptance Criteria:
 US-0036 (EPIC-0010): As a player, I want to request a magic link from the login page, so that I can sign in without remembering my password.
 Priority: Medium
 Estimate: M
-Status: Planned
-Branch: feature/US-0036-2fa
+Status: Done
+Branch: feature/US-0036-magic-link-login
 Dependencies: US-0009
 Acceptance Criteria:
-  - [ ] AC-0122: 2FA enrollment during registration (optional)
-  - [ ] AC-0123: SMS OTP sent via Supabase Auth on login
-  - [ ] AC-0124: User can disable 2FA from profile
+  - [x] AC-0122: "Send Magic Link" button on login page (type="button", does not trigger form validation)
+  - [x] AC-0123: POST /api/auth/request-link checks players table and calls signInWithOtp for enrolled players
+  - [x] AC-0124: Anti-enumeration — endpoint always returns 200 { ok: true } regardless of player existence
 ```
 
 ```

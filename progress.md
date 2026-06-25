@@ -1283,3 +1283,22 @@ Executed 7-task implementation plan using subagent-driven development (DM_AGENT 
 1. Set real pin GPS coordinates for Ruby holes (Edit Pin on Mapbox satellite)
 2. Invite the 125 tournament players via CSV import (`/admin/players` → Import CSV)
 3. Pre-tournament smoke test on June 22: `npx tsx scripts/reset-lionhead.ts` + run lifecycle spec
+
+## Session 34 — 2026-06-25
+
+**Stories shipped:** US-0036 — Player self-service magic link login
+
+**What was done:**
+- Executed 2-task implementation plan (`docs/superpowers/plans/2026-06-24-player-magic-link-login.md`) via subagent-driven development
+- Task 1: Created `POST /api/auth/request-link` route + 4 unit tests (3 plan-specified + 1 added during review for 500 misconfiguration path)
+- Task 2: Modified `src/app/(auth)/login/page.tsx` — added `linkSent`/`linkLoading` state, `handleSendLink`, Send Magic Link button, confirmation message swap
+- Fix pass after final review: OTP error logging, `linkSent` reset on email edit, fetch guard, email trim+lowercase normalization
+- PR #41 opened against `develop` — CI monitoring in progress
+
+**Test results:** 169/169 Jest tests, 90.49% statement coverage, 82.46% branch coverage (thresholds: 80%/70%) ✓
+
+**Branch:** `feature/US-0036-magic-link-login` → PR #41
+
+**Next steps:**
+- Merge PR #41 once CI green
+- Invite 125 tournament players (CSV import or individual magic link via new feature)

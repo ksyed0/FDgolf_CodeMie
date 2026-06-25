@@ -13,28 +13,24 @@ Stack: Next.js 16 App Router · TypeScript · Tailwind CSS · shadcn/ui · Supab
 
 ---
 
-## Branch State (as of Session 33 close — 2026-06-25)
+## Branch State (as of Session 34 close — 2026-06-25)
 
 | Branch | Status | Notes |
 |--------|--------|-------|
 | `main` | **v0.7 released** | Kiosk demo improvements live |
-| `develop` | HEAD `d4e1e5c` | US-0036 spec + plan docs committed; 4 commits ahead of origin |
-| `feature/US-0036-magic-link-login` | **not yet created** | Plan ready — branch off develop when implementing |
+| `develop` | HEAD `dc038a8` | US-0036 spec + plan docs; US-0036 feature in PR |
+| `feature/US-0036-magic-link-login` | **PR #41 open** | Magic link login — awaiting CI + merge |
 
-**Current open PRs**: None.
+**Current open PRs**: PR #41 — `feature/US-0036-magic-link-login` → `develop` (US-0036 magic link login)
 
-**US-0036 — Player self-service magic link login**
+**US-0036 — Player self-service magic link login (DONE — PR #41)**
 
-Design decisions locked in spec (`docs/superpowers/specs/2026-06-24-player-magic-link-login-design.md`):
-- New `POST /api/auth/request-link` (public, no auth) — checks `players.email`, calls `supabase.auth.signInWithOtp({ email, options: { shouldCreateUser: false } })`, always returns `200 { ok: true }`
-- Login page: single form, shared email, `type="button"` Send Magic Link + `type="submit"` Sign In with Password
-- `linkSent` state swaps button for "Check your email" confirmation
-- Anti-enumeration: unconditional 200 regardless of whether email is in players table
-- Uses service role key client (same pattern as other API routes in this project)
+Shipped this session:
+- `src/app/api/auth/request-link/route.ts` — POST endpoint, service role client, `signInWithOtp({ shouldCreateUser: false })`, email trim+lowercase, OTP error logging, anti-enumeration 200
+- `src/__tests__/api-request-link.test.ts` — 4 unit tests (missing email, unknown email, enrolled player, missing env vars → 500)
+- `src/app/(auth)/login/page.tsx` — `handleSendLink`, `linkSent`/`linkLoading` state, Send Magic Link button (`type="button"`), confirmation swap, `linkSent` resets on email edit, fetch guard with error toast
 
-Plan: `docs/superpowers/plans/2026-06-24-player-magic-link-login.md` — 2 tasks, full code in each step.
-
-**Next action (Session 33 close):** Execute US-0036 plan on `feature/US-0036-magic-link-login`.
+**Next action (Session 34 close):** Monitor CI on PR #41; merge once green. Then invite 125 players via magic link/CSV.
 
 ---
 

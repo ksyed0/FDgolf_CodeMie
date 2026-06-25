@@ -438,3 +438,13 @@ Pricing basis: Claude Sonnet 4.6 — Input $3/MTok · Output $15/MTok · Cache R
 | 2026-06-24 | a9d99f5a-631f-45ed-8335-334e5234ed36 | develop                           | 4093881      | 506936        | 88187292          | 49.4103  |
 | 2026-06-24 | a9d99f5a-631f-45ed-8335-334e5234ed36 | develop                           | 4094342      | 506992        | 88322689          | 49.4535  |
 | 2026-06-24 | a9d99f5a-631f-45ed-8335-334e5234ed36 | develop                           | 4133171      | 543988        | 91275106          | 51.0397  |
+| 2026-06-25 | a9d99f5a-631f-45ed-8335-334e5234ed36 | develop                           | 4691928      | 548489        | 92603143          | 53.6010  |
+| 2026-06-25 | 80b4306c-3d21-4bc2-b26a-4d1b15aa0e25 | feature/US-0036-magic-link-login  | 103186       | 4714          | 923468            | 0.7347   |
+| 2026-06-25 | 80b4306c-3d21-4bc2-b26a-4d1b15aa0e25 | feature/US-0036-magic-link-login  | 110589       | 6509          | 1501545           | 0.9628   |
+| 2026-06-25 | 80b4306c-3d21-4bc2-b26a-4d1b15aa0e25 | feature/US-0036-magic-link-login  | 118813       | 10726         | 2114213           | 1.2406   |
+| 2026-06-25 | 80b4306c-3d21-4bc2-b26a-4d1b15aa0e25 | feature/US-0036-magic-link-login  | 123802       | 12134         | 2612483           | 1.4299   |
+| 2026-06-25 | 80b4306c-3d21-4bc2-b26a-4d1b15aa0e25 | feature/US-0036-magic-link-login  | 135405       | 15111         | 3357079           | 1.7415   |
+| 2026-06-25 | 80b4306c-3d21-4bc2-b26a-4d1b15aa0e25 | feature/US-0036-magic-link-login  | 143117       | 17856         | 3755242           | 1.9310   |
+| 2026-06-25 | 80b4306c-3d21-4bc2-b26a-4d1b15aa0e25 | feature/US-0036-magic-link-login  | 148249       | 19188         | 4257514           | 2.1209   |
+| 2026-06-25 | 80b4306c-3d21-4bc2-b26a-4d1b15aa0e25 | feature/US-0036-magic-link-login  | 158291       | 20838         | 5038152           | 2.4175   |
+| 2026-06-25 | 80b4306c-3d21-4bc2-b26a-4d1b15aa0e25 | feature/US-0036-magic-link-login  | 304264       | 21786         | 5252954           | 3.0435   |

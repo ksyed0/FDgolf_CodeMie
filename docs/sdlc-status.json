@@ -49,7 +49,7 @@
         "unit tests"
       ],
       "status": "in-progress",
-      "startedAt": "2026-06-11T16:45:15.538Z",
+      "startedAt": "2026-06-22T03:15:30.725Z",
       "completedAt": null
     },
     {
@@ -130,7 +130,8 @@
     "Forge": {
       "status": "idle",
       "currentTask": null,
-      "tasksCompleted": 1
+      "tasksCompleted": 9,
+      "model": null
     },
     "Pixel": {
       "status": "active",
@@ -158,8 +159,8 @@
       "status": "in-progress",
       "startedAt": "2026-06-08T21:08:15.770Z",
       "completedAt": null,
-      "storiesCompleted": 0,
-      "storiesTotal": 4
+      "storiesCompleted": 8,
+      "storiesTotal": 9
     },
     "EPIC-0010": {
       "name": "Feature Completion — Pre-Tournament",
@@ -168,36 +169,87 @@
       "completedAt": null,
       "storiesCompleted": 0,
       "storiesTotal": 6
+    },
+    "EPIC-KIOSK": {
+      "name": "Kiosk Demo + E2E Fixes",
+      "status": "in-progress",
+      "startedAt": "2026-06-22T03:09:18.449Z",
+      "completedAt": null,
+      "storiesCompleted": 0,
+      "storiesTotal": 8
+    },
+    "EPIC-0003": {
+      "name": "Player Dashboard",
+      "status": "complete",
+      "startedAt": "2026-06-08T21:08:15.770Z",
+      "completedAt": "2026-06-22T03:12:40.103Z",
+      "storiesCompleted": 1,
+      "storiesTotal": 1
     }
   },
   "stories": {
-    "US-0021": {
+    "US-KIOSK-1": {
       "status": "InProgress",
-      "epic": "EPIC-0010",
-      "assignedAgent": "Pixel",
-      "startedAt": "2026-06-11T16:45:19.916Z",
+      "epic": "EPIC-KIOSK",
+      "assignedAgent": "Forge",
+      "startedAt": "2026-06-22T03:09:18.551Z",
       "completedAt": null
     },
-    "US-0023": {
+    "US-KIOSK-2": {
       "status": "InProgress",
-      "epic": "EPIC-0010",
-      "assignedAgent": null,
-      "startedAt": "2026-06-11T16:45:20.056Z",
+      "epic": "EPIC-KIOSK",
+      "assignedAgent": "Forge",
+      "startedAt": "2026-06-22T03:19:51.034Z",
       "completedAt": null
     },
-    "US-0037": {
+    "US-KIOSK-3": {
       "status": "InProgress",
-      "epic": "EPIC-0010",
+      "epic": "EPIC-KIOSK",
+      "assignedAgent": "Forge",
+      "startedAt": "2026-06-22T03:30:36.913Z",
+      "completedAt": null
+    },
+    "US-KIOSK-4": {
+      "status": "InProgress",
+      "epic": "EPIC-KIOSK",
+      "assignedAgent": "Forge",
+      "startedAt": "2026-06-22T03:41:40.442Z",
+      "completedAt": null
+    },
+    "US-KIOSK-5": {
+      "status": "InProgress",
+      "epic": "EPIC-KIOSK",
+      "assignedAgent": "Forge",
+      "startedAt": "2026-06-22T03:46:39.548Z",
+      "completedAt": null
+    },
+    "US-KIOSK-6": {
+      "status": "InProgress",
+      "epic": "EPIC-KIOSK",
       "assignedAgent": null,
-      "startedAt": "2026-06-11T16:45:20.208Z",
+      "startedAt": "2026-06-22T03:56:37.912Z",
+      "completedAt": null
+    },
+    "US-KIOSK-7": {
+      "status": "InProgress",
+      "epic": "EPIC-KIOSK",
+      "assignedAgent": "Forge",
+      "startedAt": "2026-06-22T04:01:04.535Z",
+      "completedAt": null
+    },
+    "US-KIOSK-8": {
+      "status": "InProgress",
+      "epic": "EPIC-KIOSK",
+      "assignedAgent": "Forge",
+      "startedAt": "2026-06-22T04:09:26.585Z",
       "completedAt": null
     }
   },
   "cycles": [],
   "metrics": {
     "storiesCompleted": 0,
-    "storiesTotal": 6,
-    "tasksCompleted": 0,
+    "storiesTotal": 8,
+    "tasksCompleted": 8,
     "tasksTotal": 0,
     "testsPassed": 0,
     "testsFailed": 0,
@@ -345,6 +397,188 @@
       "agent": "Pixel",
       "message": "started US-0021: Implement 6-feature completion plan",
       "model": "sonnet"
+    },
+    {
+      "time": "2026-06-22T03:09:12.437Z",
+      "agent": "Conductor",
+      "message": "Session started — 8 stories planned"
+    },
+    {
+      "time": "2026-06-22T03:09:18.451Z",
+      "agent": "Conductor",
+      "message": "Epic EPIC-KIOSK (Kiosk Demo + E2E Fixes) started"
+    },
+    {
+      "time": "2026-06-22T03:09:18.552Z",
+      "agent": "Conductor",
+      "message": "started US-KIOSK-1 (EPIC-KIOSK)"
+    },
+    {
+      "time": "2026-06-22T03:09:18.703Z",
+      "agent": "Forge",
+      "message": "started US-KIOSK-1: Task 1: E2E fixes — global-setup role + tournament_admin + TC-0047 + admin-roles spec",
+      "model": "sonnet"
+    },
+    {
+      "time": "2026-06-22T03:15:30.726Z",
+      "agent": "Conductor",
+      "message": "Phase 3 (Build) → in-progress"
+    },
+    {
+      "time": "2026-06-22T03:15:30.821Z",
+      "agent": "Conductor",
+      "message": "Dispatch Forge → Task 1: E2E fixes — global-setup role + tournament_admin + admin-roles spec"
+    },
+    {
+      "time": "2026-06-22T03:19:50.932Z",
+      "agent": "Forge",
+      "message": "finished US-KIOSK-1"
+    },
+    {
+      "time": "2026-06-22T03:19:51.035Z",
+      "agent": "Conductor",
+      "message": "started US-KIOSK-2 (EPIC-KIOSK)"
+    },
+    {
+      "time": "2026-06-22T03:19:51.128Z",
+      "agent": "Forge",
+      "message": "started US-KIOSK-2: Task 2: is_demo migration + Tournament type + POST /api/demo/restart",
+      "model": "sonnet"
+    },
+    {
+      "time": "2026-06-22T03:19:51.285Z",
+      "agent": "Conductor",
+      "message": "Dispatch Forge → Task 2: is_demo migration, Tournament type, restart API"
+    },
+    {
+      "time": "2026-06-22T03:30:36.765Z",
+      "agent": "Forge",
+      "message": "finished US-KIOSK-2"
+    },
+    {
+      "time": "2026-06-22T03:30:36.915Z",
+      "agent": "Conductor",
+      "message": "started US-KIOSK-3 (EPIC-KIOSK)"
+    },
+    {
+      "time": "2026-06-22T03:30:37.043Z",
+      "agent": "Forge",
+      "message": "started US-KIOSK-3: Task 3: TV restart overlay — TvRestartOverlay + TvDisplay polling",
+      "model": "sonnet"
+    },
+    {
+      "time": "2026-06-22T03:30:37.187Z",
+      "agent": "Conductor",
+      "message": "Dispatch Forge → Task 3: TV restart overlay component"
+    },
+    {
+      "time": "2026-06-22T03:41:40.237Z",
+      "agent": "Forge",
+      "message": "finished US-KIOSK-3"
+    },
+    {
+      "time": "2026-06-22T03:41:40.442Z",
+      "agent": "Conductor",
+      "message": "started US-KIOSK-4 (EPIC-KIOSK)"
+    },
+    {
+      "time": "2026-06-22T03:41:40.585Z",
+      "agent": "Forge",
+      "message": "started US-KIOSK-4: Task 4: demo utilities — types, score-gen, gps-gen (TDD)",
+      "model": "sonnet"
+    },
+    {
+      "time": "2026-06-22T03:41:40.706Z",
+      "agent": "Conductor",
+      "message": "Dispatch Forge → Task 4: demo utility modules (types, score-gen, gps-gen)"
+    },
+    {
+      "time": "2026-06-22T03:46:39.446Z",
+      "agent": "Forge",
+      "message": "finished US-KIOSK-4"
+    },
+    {
+      "time": "2026-06-22T03:46:39.549Z",
+      "agent": "Conductor",
+      "message": "started US-KIOSK-5 (EPIC-KIOSK)"
+    },
+    {
+      "time": "2026-06-22T03:46:39.645Z",
+      "agent": "Forge",
+      "message": "started US-KIOSK-5: Task 5: Lionhead seed script",
+      "model": "sonnet"
+    },
+    {
+      "time": "2026-06-22T03:46:39.763Z",
+      "agent": "Conductor",
+      "message": "Dispatch Forge → Task 5: Lionhead seed script"
+    },
+    {
+      "time": "2026-06-22T03:56:37.811Z",
+      "agent": "Forge",
+      "message": "finished US-KIOSK-5"
+    },
+    {
+      "time": "2026-06-22T03:56:37.913Z",
+      "agent": "Conductor",
+      "message": "started US-KIOSK-6 (EPIC-KIOSK)"
+    },
+    {
+      "time": "2026-06-22T03:56:38.009Z",
+      "agent": "Forge",
+      "message": "finished US-KIOSK-6"
+    },
+    {
+      "time": "2026-06-22T03:56:38.138Z",
+      "agent": "Conductor",
+      "message": "Task 5 APPROVED; Task 6 REQUEST_CHANGES — fix dispatched for | any type and startingHole rotation"
+    },
+    {
+      "time": "2026-06-22T04:01:04.439Z",
+      "agent": "Conductor",
+      "message": "Task 6 APPROVED; Dispatch Forge → Task 7: foreground Playwright controller"
+    },
+    {
+      "time": "2026-06-22T04:01:04.536Z",
+      "agent": "Conductor",
+      "message": "started US-KIOSK-7 (EPIC-KIOSK)"
+    },
+    {
+      "time": "2026-06-22T04:01:04.647Z",
+      "agent": "Forge",
+      "message": "started US-KIOSK-7: Task 7: foreground Playwright controller",
+      "model": "sonnet"
+    },
+    {
+      "time": "2026-06-22T04:09:26.454Z",
+      "agent": "Forge",
+      "message": "finished US-KIOSK-7"
+    },
+    {
+      "time": "2026-06-22T04:09:26.586Z",
+      "agent": "Conductor",
+      "message": "started US-KIOSK-8 (EPIC-KIOSK)"
+    },
+    {
+      "time": "2026-06-22T04:09:26.684Z",
+      "agent": "Forge",
+      "message": "started US-KIOSK-8: Task 8: orchestrator run.ts",
+      "model": "sonnet"
+    },
+    {
+      "time": "2026-06-22T04:09:26.784Z",
+      "agent": "Conductor",
+      "message": "Task 7 APPROVED; Task 8 in review"
+    },
+    {
+      "time": "2026-06-22T04:13:47.082Z",
+      "agent": "Forge",
+      "message": "finished US-KIOSK-8"
+    },
+    {
+      "time": "2026-06-22T04:13:47.180Z",
+      "agent": "Conductor",
+      "message": "All 8 tasks approved — dispatching final whole-branch code review"
     }
   ],
   "tasks": {
