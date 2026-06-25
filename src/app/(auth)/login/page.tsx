@@ -14,8 +14,10 @@ export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [linkLoading, setLinkLoading] = useState(false);
+  const [linkSent, setLinkSent] = useState(false);
 
-  async function handleSubmit(e: React.FormEvent) {
+  async function handleSignIn(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
 
@@ -44,8 +46,23 @@ export default function LoginPage() {
     router.push('/dashboard');
   }
 
+  async function handleSendLink() {
+    if (!email) {
+      toast.error('Enter your email address first.');
+      return;
+    }
+    setLinkLoading(true);
+    await fetch('/api/auth/request-link', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email }),
+    }).catch(() => {});
+    setLinkLoading(false);
+    setLinkSent(true);
+  }
+
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleSignIn} className="space-y-4">
       <h2 className="text-xl font-semibold text-gray-900">Sign in</h2>
 
       <div className="space-y-1">
@@ -83,8 +100,24 @@ export default function LoginPage() {
         </Link>
       </div>
 
+      {linkSent ? (
+        <p className="rounded-lg border border-[#1a472a] px-4 py-3 text-center text-sm font-medium text-[#1a472a]">
+          Check your email for a sign-in link.
+        </p>
+      ) : (
+        <Button
+          type="button"
+          variant="outline"
+          className="w-full border-[#1a472a] text-[#1a472a] hover:bg-[#f4f7f1]"
+          onClick={handleSendLink}
+          disabled={linkLoading}
+        >
+          {linkLoading ? 'Sending…' : 'Send Magic Link'}
+        </Button>
+      )}
+
       <Button type="submit" className="w-full bg-[#1a472a] hover:bg-[#143820]" disabled={loading}>
-        {loading ? 'Signing in…' : 'Sign in'}
+        {loading ? 'Signing in…' : 'Sign In with Password'}
       </Button>
 
       <p className="text-center text-sm text-gray-500">
