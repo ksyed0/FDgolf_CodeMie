@@ -1,5 +1,23 @@
 # Lessons Learned
 
+## L-0012 — GPS `start_lat/lng` records WHERE the player IS (before the shot), not where the ball lands
+@session: 35 — 2026-06-26
+
+**Symptom**: TV "Longest Drive" showed 40,000 yards during kiosk demo.
+
+**Root cause**: The foreground Playwright browser reported downtown Toronto GPS (lng ≈ -79.38) while Lionhead tee boxes are in Brampton (lng ≈ -79.84). The calculation `distance(shot_1.start, tee)` was intended to measure drive distance but is architecturally wrong: shot_1.start IS the tee position, so this is always ~0 for correctly recorded shots.
+
+**GPS model**: `shots.start_lat/lng` = where the player stands to take the shot = ball's resting spot. Shot_1 starts at the tee; shot_2 starts where the ball landed after the drive. Longest drive = `distance(tee, shot_2.start)`.
+
+**Rules**:
+- When computing GPS-based stats, always check: "what does start_lat/lng actually represent?" — it's the player's position BEFORE the shot, not after.
+- Mock browser geolocation in Playwright test/demo contexts via `browser.newContext({ geolocation, permissions })` + `context.setGeolocation()` per location change.
+- Add a sanity cap (e.g. 550m for longest drive) to filter GPS outliers from wrong-location readings.
+
+**Applies to**: Any stat derived from `shots.start_lat/lng` (distance, closest-to-pin, GPS heatmaps).
+
+---
+
 ## L-0011 — When intentionally widening score distribution, update test bounds immediately
 @session: 32 — 2026-06-23
 

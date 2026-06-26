@@ -392,26 +392,44 @@ export async function fetchShotStats(
     }
 
     // --- Longest drive (tee shots only, wood clubs only) ---
+    // Drive distance = distance from tee to where ball landed = distance(tee, shot_2.start),
+    // because shot_N.start_lat/lng is where the player stands before shot N (ball's resting spot).
     let longestDriveMeters: number | null = null;
     let longestDrivePlayerId: string | null = null;
 
+    // Group shots by player:hole so we can look up the follow-up shot
+    const shotsByPlayerHole = new Map<string, Array<(typeof shots)[number]>>();
     for (const shot of shots) {
-      if ((shot.shot_number as number) !== 1) continue;
-      if (!shot.club_name || !WOOD_RE.test(shot.club_name as string)) continue;
+      const key = `${shot.player_id as string}:${shot.hole_number as number}`;
+      if (!shotsByPlayerHole.has(key)) shotsByPlayerHole.set(key, []);
+      shotsByPlayerHole.get(key)!.push(shot);
+    }
 
-      const shotLat = shot.start_lat as number;
-      const shotLng = shot.start_lng as number;
-      if (!shotLat || !shotLng) continue;
+    for (const [, playerHoleShots] of shotsByPlayerHole) {
+      playerHoleShots.sort((a, b) => (a.shot_number as number) - (b.shot_number as number));
+      const teeShot = playerHoleShots[0];
+      if (!teeShot || (teeShot.shot_number as number) !== 1) continue;
+      if (!teeShot.club_name || !WOOD_RE.test(teeShot.club_name as string)) continue;
 
-      const tee = teeMap.get(shot.hole_number as number);
+      const tee = teeMap.get(teeShot.hole_number as number);
       if (!tee) continue;
 
-      const shotPos: GpsPosition = { lat: shotLat, lng: shotLng, accuracy: 0 };
-      const meters = distanceMeters(shotPos, { lat: tee.lat, lng: tee.lng });
+      // Ball lands where the next shot starts
+      const nextShot = playerHoleShots[1];
+      if (!nextShot) continue;
+      const landLat = nextShot.start_lat as number;
+      const landLng = nextShot.start_lng as number;
+      if (!landLat || !landLng) continue;
+
+      const landPos: GpsPosition = { lat: landLat, lng: landLng, accuracy: 0 };
+      const meters = distanceMeters(landPos, { lat: tee.lat, lng: tee.lng });
+
+      // Sanity check: no human drives > 550 m (~600 yds); filter GPS outliers
+      if (meters > 550) continue;
 
       if (longestDriveMeters === null || meters > longestDriveMeters) {
         longestDriveMeters = Math.round(meters);
-        longestDrivePlayerId = shot.player_id as string;
+        longestDrivePlayerId = teeShot.player_id as string;
       }
     }
 

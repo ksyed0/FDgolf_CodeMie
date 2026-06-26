@@ -1,4 +1,4 @@
-import { chromium, type Browser, type Page } from 'playwright';
+import { chromium, type Browser, type BrowserContext, type Page } from 'playwright';
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import { config as dotenvConfig } from 'dotenv';
 import { resolve } from 'path';
@@ -20,6 +20,7 @@ function sleep(ms: number) {
 // Persistent browser state — opened once, reused across every loop iteration
 let _tvBrowser: Browser | null = null;
 let _phoneBrowser: Browser | null = null;
+let _phoneContext: BrowserContext | null = null;
 let _tvPage: Page | null = null;
 let _phonePage: Page | null = null;
 let _loggedIn = false;
@@ -29,6 +30,7 @@ async function closeBrowsers() {
   try { await _phoneBrowser?.close(); } catch {}
   _tvBrowser = null;
   _phoneBrowser = null;
+  _phoneContext = null;
   _tvPage = null;
   _phonePage = null;
   _loggedIn = false;
@@ -109,11 +111,16 @@ export async function runForeground(config: DemoConfig): Promise<void> {
   }
 
   if (!_phoneBrowser || !_phonePage) {
+    const firstHole = config.holes[0];
     _phoneBrowser = await chromium.launch({
       headless: false,
       args: ['--window-position=990,25', '--window-size=520,960'],
     });
-    _phonePage = await _phoneBrowser.newPage();
+    _phoneContext = await _phoneBrowser.newContext({
+      geolocation: { latitude: firstHole.teeLat, longitude: firstHole.teeLng },
+      permissions: ['geolocation'],
+    });
+    _phonePage = await _phoneContext.newPage();
     await _phonePage.setViewportSize({ width: 520, height: 874 });
   }
 
@@ -152,6 +159,11 @@ export async function runForeground(config: DemoConfig): Promise<void> {
       const holeIdx = (foregroundTeam.startingHole - 1 + i) % 18;
       const hole = config.holes[holeIdx];
       const captainScore = generateScore(hole.par);
+
+      // Move mock GPS to this hole's tee so shots record realistic Lionhead coordinates
+      if (_phoneContext) {
+        await _phoneContext.setGeolocation({ latitude: hole.teeLat, longitude: hole.teeLng });
+      }
 
       await phonePage.waitForSelector(`text=Hole ${hole.holeNumber}`, { timeout: 10_000 });
 
