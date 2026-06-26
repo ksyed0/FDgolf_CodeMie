@@ -13,6 +13,30 @@ Stack: Next.js 16 App Router · TypeScript · Tailwind CSS · shadcn/ui · Supab
 
 ---
 
+## Branch State (as of Session 35 close — 2026-06-26)
+
+| Branch | Status | Notes |
+|--------|--------|-------|
+| `main` | **v0.7 released** | Kiosk demo improvements live |
+| `develop` | HEAD `8a31abe` | US-0036 merged; fix/longest-drive-gps PR in flight |
+| `fix/longest-drive-gps` | **PR open** | Longest drive bug fix — GPS outlier filter + correct measurement |
+
+**Current open PRs**: PR #41 (merged), fix/longest-drive-gps PR (new this session)
+
+**GPS / longest-drive fix (Session 35)**
+
+- `tv-stats.ts`: longest drive now measures `distance(tee, shot_2.start)` (ball landing position), not `distance(shot_1.start, tee)` (always ~0). 550m sanity cap filters GPS outliers.
+- `foreground.ts`: Playwright phone context mocks geolocation at each hole's tee coords (`browser.newContext({ geolocation })` + `context.setGeolocation()` per hole).
+- Tests: 170/170 passing.
+
+**Kiosk demo GPS model (confirmed this session):**
+- `shots.start_lat/lng` = where the player stands to make the shot = ball's resting spot before the shot
+- Shot 1: player at tee → `start_lat/lng = tee coords`
+- Shot 2: player walked to where ball landed → `start_lat/lng = ball landing position`
+- Longest drive = `distance(tee, shot_2.start)` ✓
+
+---
+
 ## Branch State (as of Session 34 close — 2026-06-25)
 
 | Branch | Status | Notes |

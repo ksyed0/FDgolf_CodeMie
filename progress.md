@@ -1,5 +1,32 @@
 # FDgolf-CM — Progress
 
+## Session 35 -- 2026-06-26 (longest drive GPS bug fix + foreground geolocation mock)
+
+### What Was Done
+
+**Ran kiosk demo** — seeded Lionhead, reset tournament, launched Playwright TV + phone windows.
+
+**Identified and fixed "40,000 yards" longest drive bug:**
+
+Root cause: two bugs compounding:
+1. The foreground Playwright phone browser uses the real system GPS (downtown Toronto, lng ≈ -79.38). Lionhead tee boxes are in Brampton (lng ≈ -79.84). The ~37 km gap calculated as ~40,000 yards.
+2. The calculation measured `distance(shot_1.start → tee)` which is always ~0 because shot_1.start IS the tee position. The correct measure is `distance(tee → shot_2.start)` — where the ball landed after the drive.
+
+Fixes:
+- `src/lib/tv-stats.ts`: Longest drive now groups shots by player:hole, finds the follow-up shot (shot_2), and measures distance from tee to shot_2.start. Added 550m sanity cap to filter GPS outliers (the downtown-Toronto shots).
+- `scripts/demo/foreground.ts`: Phone browser now uses `browser.newContext({ geolocation, permissions: ['geolocation'] })` with the first hole's tee coords. Geolocation updated per hole as the round progresses.
+- `src/__tests__/tv-stats.test.ts`: Old test updated + two new tests (correct drive measurement, GPS outlier filter).
+
+### Test Results
+- 170/170 passing (was 165 → added 5 new tests this session: 2 new tv-stats, plus prior additions)
+- All coverage thresholds met
+
+### Branch / PRs
+- Uncommitted changes on `develop` at session close
+- PR to be created: `fix/longest-drive-gps` → `develop`
+
+---
+
 ## Session 33 -- 2026-06-25 (US-0004 closed, US-0036 brainstorm + spec + plan)
 
 ### What Was Done
