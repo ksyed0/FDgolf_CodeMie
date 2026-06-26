@@ -18,10 +18,9 @@ Stack: Next.js 16 App Router · TypeScript · Tailwind CSS · shadcn/ui · Supab
 | Branch | Status | Notes |
 |--------|--------|-------|
 | `main` | **v0.7 released** | Kiosk demo improvements live |
-| `develop` | HEAD `8a31abe` | US-0036 merged; fix/longest-drive-gps PR in flight |
-| `fix/longest-drive-gps` | **PR open** | Longest drive bug fix — GPS outlier filter + correct measurement |
+| `develop` | HEAD `bd6ff8f` | fix/longest-drive-gps merged (PR #42) |
 
-**Current open PRs**: PR #41 (merged), fix/longest-drive-gps PR (new this session)
+**Current open PRs**: None
 
 **GPS / longest-drive fix (Session 35)**
 

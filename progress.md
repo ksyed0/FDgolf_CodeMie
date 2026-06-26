@@ -22,8 +22,8 @@ Fixes:
 - All coverage thresholds met
 
 ### Branch / PRs
-- Uncommitted changes on `develop` at session close
-- PR to be created: `fix/longest-drive-gps` → `develop`
+- PR #42 `fix/longest-drive-gps` → `develop` — all 7 CI checks passed, squash-merged
+- `develop` HEAD: `bd6ff8f`
 
 ---
 
