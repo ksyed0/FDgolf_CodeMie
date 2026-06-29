@@ -192,11 +192,13 @@ test.describe.serial('Tournament Lifecycle — Lionhead Spring Classic 2026', ()
 
   // ── Step 4: Generate holes ────────────────────────────────────────────────
   test('step-04: admin generates 18 holes for Legends Course', async () => {
-    // Click the "Holes →" button on the Legends Course row
+    // CourseManager renders each course as a `.rounded-2xl` card (not a <tr>) with
+    // a <Link> labelled "Set up holes →" when empty or "Edit holes & GPS →" once
+    // generated. Both accessible names contain "holes", so /holes/i matches either.
     await adminPage
-      .locator('tr')
+      .locator('div.rounded-2xl')
       .filter({ hasText: 'Legends Course' })
-      .getByRole('button', { name: /holes/i })
+      .getByRole('link', { name: /holes/i })
       .first()
       .click()
 
