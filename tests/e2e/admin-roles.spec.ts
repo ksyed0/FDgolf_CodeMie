@@ -16,6 +16,14 @@ import {
 
 const hasRealSupabase = !!process.env.SUPABASE_SERVICE_ROLE_KEY
 
+// The chromium-desktop project preloads ADMIN_AUTH_FILE storageState, but these
+// tests sign in as different users (system_admin vs tournament_admin) via the
+// login form. The preloaded session would redirect /login away before #email
+// renders, so clear cookies before each test to start fresh.
+test.beforeEach(async ({ context }) => {
+  await context.clearCookies()
+})
+
 async function signIn(page: import('@playwright/test').Page, email: string, password: string) {
   await page.goto('/login')
   await page.fill('#email', email)

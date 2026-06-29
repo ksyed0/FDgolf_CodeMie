@@ -6,7 +6,7 @@
  */
 import { test, expect } from '@playwright/test'
 import { mockLeaderboard, mockSupabaseTable } from './helpers/supabase-mock'
-import { fakeLeaderboard, fakeTournament, fakePlayer } from './helpers/fixtures'
+import { fakeLeaderboard, fakeTournament, fakePlayer, fakeTournamentMembership } from './helpers/fixtures'
 
 const hasRealSupabase = !!process.env.SUPABASE_SERVICE_ROLE_KEY
 
@@ -17,6 +17,7 @@ test.beforeEach(async ({ page }) => {
   await mockSupabaseTable(page, 'tournaments', [fakeTournament])
   await mockSupabaseTable(page, 'sponsors', [])
   await mockSupabaseTable(page, 'players', [fakePlayer])
+  await mockSupabaseTable(page, 'tournament_players', fakeTournamentMembership)
   await mockLeaderboard(page, fakeLeaderboard)
 })
 
@@ -42,7 +43,7 @@ test('TC-0040: leaderboard ranks teams by best-ball score vs par', async ({ page
 
   // First team in list should have the lowest (most negative) score
   const rows = page.locator('table tbody tr, [data-testid="leaderboard-row"]')
-  await expect(rows.first()).toContainText('Eagles')
+  await expect(rows.first()).toContainText('Hawks')
 })
 
 // ── TC-0042: Holes column ──────────────────────────────────────────────────
@@ -55,21 +56,21 @@ test('TC-0042: leaderboard shows holes completed in Holes column', async ({ page
   // Column header is "Holes" (not "Thru")
   await expect(page.getByText(/^holes$/i).first()).toBeVisible({ timeout: 5000 })
 
-  // Eagles have 12 holes complete; component renders "12/18"
+  // Hawks have 12 holes complete; component renders "12/18"
   await expect(page.getByText('12/18').first()).toBeVisible()
 })
 
 // ── TC-0041: "Your Team ★" marker ─────────────────────────────────────────
 
 test('TC-0041: "Your Team" row is marked with ★ on the leaderboard', async ({ page }) => {
-  // extendedLeaderboard has fakeLeaderboard[0] (team-001 = Eagles) at position 0
-  // fakePlayer has team_id: 'team-001', so the Eagles row gets the ★ marker
+  // extendedLeaderboard has fakeLeaderboard[0] (team-001 = Hawks) at position 0
+  // fakePlayer has team_id: 'team-001', so the Hawks row gets the ★ marker
   await mockLeaderboard(page, extendedLeaderboard)
 
   await page.goto('/leaderboard')
-  await expect(page.getByText(/eagles/i).first()).toBeVisible({ timeout: 5000 })
+  await expect(page.getByText(/hawks/i).first()).toBeVisible({ timeout: 5000 })
 
-  // "Your Team" marker (★) should be visible on the Eagles row
+  // "Your Team" marker (★) should be visible on the Hawks row
   const yourTeamRow = page.locator('[data-your-team="true"]').first()
   const starText = page.getByText('★').first()
 
@@ -127,14 +128,14 @@ test('TC-0045: sponsor logos visible on public leaderboard', async ({ page }) =>
 // ── TC-0046: Re-render after data change (smoke) ───────────────────────────
 
 test('TC-0046: leaderboard shows updated holes count after re-fetch', async ({ page }) => {
-  // Initial leaderboard: Eagles with 12 holes complete
+  // Initial leaderboard: Hawks with 12 holes complete
   await mockLeaderboard(page, fakeLeaderboard)
 
   await page.goto('/leaderboard')
-  await expect(page.getByText(/eagles/i).first()).toBeVisible({ timeout: 5000 })
+  await expect(page.getByText(/hawks/i).first()).toBeVisible({ timeout: 5000 })
   await expect(page.getByText('12/18').first()).toBeVisible()
 
-  // Update the mock to return changed data (Eagles now at 14 holes)
+  // Update the mock to return changed data (Hawks now at 14 holes)
   const updatedLeaderboard = [
     { ...fakeLeaderboard[0], total_score: -8, holes_completed: 14 },
     ...fakeLeaderboard.slice(1),
