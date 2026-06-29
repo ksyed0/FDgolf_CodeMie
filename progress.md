@@ -1,5 +1,28 @@
 # FDgolf-CM — Progress
 
+## Session 36 -- 2026-06-29 (lifecycle E2E step-02 fix)
+
+### What Was Done
+
+Unblocked `tests/e2e/tournament-lifecycle.spec.ts` step-02, which was timing out at 30s and cascading "did not run" to 9 dependent steps. Three root causes in one file (`tests/e2e/tournament-lifecycle.spec.ts`):
+
+1. Test searched for `/^add venue$/i` but the form submit button reads **"Save Venue"** (the `+ Add Venue` header button never matches either). Zero-element locator → full 30s wait.
+2. Post-toast assertion used `getByRole('cell', ...)` — but venues render as cards with the name inside a `<p>`, not as a `<td>`.
+3. `beforeAll` inserted players with `team_id: null`, but migration 011 dropped that column.
+
+Verified by reading the trace's page snapshot (form was open + filled correctly, buttons were `Cancel` + `Save Venue`) before changing anything. Total churn: 6 insertions, 5 deletions in one file.
+
+### Test Results
+- step-02 passes in ~1s (was timing out at 30s)
+- step-03 also passes now (was blocked on Lionhead venue existing)
+- Full lifecycle: 3/11 (was 2/11 from PR #43). Step-04 reveals a separate issue at /admin/courses — likely the same cards-vs-table redesign hit that page.
+
+### Branch / PRs
+- PR #44 `claude/gallant-pasteur-c7e63d` → `develop` — all 7 CI checks passed, squash-merged as `950e424`
+- Step-04 fix tracked as a separate task chip; not in this PR (kept scope to ONE focused fix per request)
+
+---
+
 ## Session 35 -- 2026-06-26 (longest drive GPS bug fix + foreground geolocation mock)
 
 ### What Was Done

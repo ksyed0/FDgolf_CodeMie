@@ -1,5 +1,24 @@
 # Lessons Learned
 
+## L-0013 — Admin page redesigns from `<table>` to cards silently break E2E role-based locators
+@session: 36 — 2026-06-29
+
+**Symptom**: Lifecycle E2E step-02 (`admin creates Lionhead Golf Club venue`) times out at 30s. `await adminPage.getByRole('button', { name: /^add venue$/i }).last().click()` resolves to zero elements.
+
+**Root cause #1 — submit button label**: The form's submit button reads **"Save Venue"** (or "Update Venue" when editing) — never "Add Venue". The "+ Add Venue" header button doesn't match `^add venue$` either (the `+` prefix breaks the anchor). The test was written when the button presumably said "Add Venue" — a later UI redesign changed the label without updating the test.
+
+**Root cause #2 — cells vs paragraphs**: A separate but related issue in the same step: the post-toast assertion used `getByRole('cell', { name: 'Lionhead Golf Club' })`. The page was redesigned from a `<table>` to cards (`<p>` inside a div), so no `cell` role ever appears.
+
+**Why this is sneaky**: Both failures look like the form/page just hangs. Reading the trace's `page snapshot` makes the mismatch obvious — the form was open and filled, with buttons labelled `Cancel` + `Save Venue`. Without the snapshot, you'd waste time on timing/race-condition hypotheses.
+
+**Rules**:
+- When porting an admin page from `<table>` to cards (or vice-versa), grep `tests/e2e/` for `getByRole('cell'...)`, `getByRole('row'...)`, and `tr.filter(...)` against that page's keywords. These selectors silently stop matching when the underlying DOM changes role.
+- Prefer `getByText(name).first()` for venue/team/course names rendered as cards — robust across `<p>`, `<span>`, `<h*>` redesigns. Only use `getByRole('cell', ...)` when the table semantic is intentional.
+- For form submit buttons, look at the source (`venue-manager.tsx:162`) rather than guessing — Save/Update/Add labels are NOT interchangeable, and a regex like `/^add venue$/i` won't match "Save Venue".
+- **First debugging step for E2E timeouts**: read `tests/e2e/screenshots/<test-id>/error-context.md`. It contains the page snapshot at the moment of failure with refs and labels — usually reveals the mismatch in one read.
+
+---
+
 ## L-0012 — GPS `start_lat/lng` records WHERE the player IS (before the shot), not where the ball lands
 @session: 35 — 2026-06-26
 
