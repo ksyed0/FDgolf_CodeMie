@@ -15,15 +15,17 @@
  */
 import { test, expect } from '@playwright/test'
 import { mockSupabaseTable, mockShotsApi } from './helpers/supabase-mock'
-import { fakeClubs, fakePlayers, fakeRoundState, fakeTournament, fakeTeam, fakeHoles } from './helpers/fixtures'
+import { fakeClubs, fakePlayers, fakeRoundState, fakeTournament, fakeTeam, fakeHoles, fakeTournamentMembership } from './helpers/fixtures'
 
 const SB_URL = process.env.NEXT_PUBLIC_SUPABASE_URL ?? 'https://placeholder.supabase.co'
 
 // The round page (client component) fetches these tables in sequence:
-// players (single) → tournaments (single) → teams (single) → players (list) → clubs → holes → round_states (single)
+// players (single) → tournaments (single) → tournament_players (membership lookup) →
+// tournament_players (teammates list) → teams → players (list) → clubs → holes → round_states
 test.beforeEach(async ({ page }) => {
   await mockSupabaseTable(page, 'players', fakePlayers)
   await mockSupabaseTable(page, 'tournaments', [fakeTournament])
+  await mockSupabaseTable(page, 'tournament_players', fakeTournamentMembership)
   await mockSupabaseTable(page, 'teams', [fakeTeam])
   await mockSupabaseTable(page, 'clubs', fakeClubs)
   await mockSupabaseTable(page, 'holes', fakeHoles)
@@ -208,6 +210,7 @@ test('TC-0062: paused tournament disables shot capture', async ({ page }) => {
   await mockSupabaseTable(page, 'tournaments', [
     { ...fakeTournament, status: 'paused' },
   ])
+  await mockSupabaseTable(page, 'tournament_players', fakeTournamentMembership)
   await mockSupabaseTable(page, 'teams', [fakeTeam])
   await mockSupabaseTable(page, 'clubs', fakeClubs)
   await mockSupabaseTable(page, 'holes', fakeHoles)

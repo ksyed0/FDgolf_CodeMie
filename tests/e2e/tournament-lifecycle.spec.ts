@@ -101,7 +101,7 @@ test.describe.serial('Tournament Lifecycle — Lionhead Spring Classic 2026', ()
         if (!profile) {
           const { error } = await admin.from('players').insert({
             auth_user_id: existing.id, name: p.name, email: p.email,
-            role: 'player', team_id: null,
+            role: 'player',
           })
           if (error) throw new Error(`[beforeAll] player profile: ${error.message}`)
         }
@@ -116,7 +116,7 @@ test.describe.serial('Tournament Lifecycle — Lionhead Spring Classic 2026', ()
 
       const { error: profErr } = await admin.from('players').insert({
         auth_user_id: data.user.id, name: p.name, email: p.email,
-        role: 'player', team_id: null,
+        role: 'player',
       })
       if (profErr) throw new Error(`[beforeAll] profile ${p.email}: ${profErr.message}`)
       console.log(`[beforeAll] created: ${p.name}`)

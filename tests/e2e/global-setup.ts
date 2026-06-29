@@ -96,28 +96,62 @@ any) {
 
 async function seedTournament(admin: // eslint-disable-next-line @typescript-eslint/no-explicit-any
 any) {
-  // Only insert the CIBC tournament if no tournament with this slug already exists.
-  // The seed.sql may have already created it with a different ID; we don't override that.
+  // seed.sql inserts the CIBC tournament with status='setup'. E2E tests need status='active' to
+  // exercise round-scoring flows, so we ensure the row exists and bump its status.
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const adminAny = admin as any
   const { data: existing } = await adminAny
     .from('tournaments')
-    .select('id')
+    .select('id, status')
     .eq('slug', E2E_TOURNAMENT_SLUG)
     .maybeSingle()
 
   if (existing) {
-    console.log('[globalSetup] Tournament already exists:', E2E_TOURNAMENT_SLUG)
+    if (existing.status !== 'active') {
+      const { error: updateError } = await adminAny
+        .from('tournaments')
+        .update({ status: 'active' })
+        .eq('id', existing.id)
+      if (updateError) {
+        console.warn('[globalSetup] Could not activate tournament:', updateError.message)
+      } else {
+        console.log('[globalSetup] Tournament activated:', E2E_TOURNAMENT_SLUG)
+      }
+    } else {
+      console.log('[globalSetup] Tournament already active:', E2E_TOURNAMENT_SLUG)
+    }
     return
   }
 
-  // Let the DB generate a UUID for the id column (uuid_generate_v4() default)
+  // Fallback path if seed.sql hasn't run: look up the venue + course it would have created and
+  // insert the tournament with proper FKs. Migration 007 replaced the text `venue` column with
+  // `venue_id`/`course_id` NOT NULL FKs.
+  const { data: venue } = await adminAny
+    .from('venues')
+    .select('id')
+    .eq('name', 'Granite Ridge Golf Club')
+    .maybeSingle()
+
+  const { data: course } = await adminAny
+    .from('courses')
+    .select('id')
+    .eq('name', 'Main Course')
+    .maybeSingle()
+
+  if (!venue || !course) {
+    console.warn(
+      '[globalSetup] Venue or course not found — run `supabase db reset` to load seed data first',
+    )
+    return
+  }
+
   const { error } = await adminAny.from('tournaments').insert({
     name: 'CIBC Capital Markets Golf Tournament 2026',
     slug: E2E_TOURNAMENT_SLUG,
     date: '2026-06-22',
     format: 'best_ball',
-    venue: 'Granite Ridge Golf Club',
+    venue_id: venue.id,
+    course_id: course.id,
     status: 'active',
   })
 

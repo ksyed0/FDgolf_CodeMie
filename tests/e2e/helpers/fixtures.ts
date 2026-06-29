@@ -50,7 +50,7 @@ export const fakeTeam = {
   id: 'team-001',
   tournament_id: 'tournament-001',
   team_number: 7,
-  team_name: 'Eagles',
+  team_name: 'Hawks',
   starting_hole: 14,
   max_players: 4,
   captain_id: 'player-001',
@@ -61,6 +61,16 @@ export const fakePlayers = [
   { id: 'player-002', name: 'Bob Chen', email: 'bob@example.com', team_id: 'team-001', role: 'player' },
   { id: 'player-003', name: 'Carol Davis', email: 'carol@example.com', team_id: 'team-001', role: 'player' },
   { id: 'player-004', name: 'Dave Wilson', email: 'dave@example.com', team_id: 'team-001', role: 'player' },
+]
+
+// Migration 011 (tournament_players) replaced the players.team_id direct FK with a join table.
+// Tests that load /round, /leaderboard, or /dashboard now query tournament_players to find
+// team membership; without this mock the page redirects with "not assigned to a team".
+export const fakeTournamentMembership = [
+  { player_id: 'player-001', team_id: 'team-001', tournament_id: 'tournament-001' },
+  { player_id: 'player-002', team_id: 'team-001', tournament_id: 'tournament-001' },
+  { player_id: 'player-003', team_id: 'team-001', tournament_id: 'tournament-001' },
+  { player_id: 'player-004', team_id: 'team-001', tournament_id: 'tournament-001' },
 ]
 
 export const fakeTournament = {
@@ -104,8 +114,12 @@ export const fakeSponsors = [
   { id: 'sponsor-002', name: 'Deloitte', logo_url: null, display_order: 2, is_active: false, tournament_id: 'tournament-001' },
 ]
 
+// Team names intentionally avoid scoring-term collisions (Eagles, Birdies, Pars,
+// Bogeys) — the TV stat-rotator has panels with those exact labels, and a fixture
+// team named "Eagles" makes `getByText('Eagles')` ambiguous (matches the stat
+// panel header AND the leaderboard row), causing TC-0067-style failures.
 export const fakeLeaderboard = [
-  { team_id: 'team-001', team_name: 'Eagles', total_score: -5, holes_completed: 12, rank: 1 },
-  { team_id: 'team-002', team_name: 'Birdies', total_score: -3, holes_completed: 11, rank: 2 },
-  { team_id: 'team-003', team_name: 'Pars', total_score: 0, holes_completed: 10, rank: 3 },
+  { team_id: 'team-001', team_name: 'Hawks', total_score: -5, holes_completed: 12, rank: 1 },
+  { team_id: 'team-002', team_name: 'Falcons', total_score: -3, holes_completed: 11, rank: 2 },
+  { team_id: 'team-003', team_name: 'Owls', total_score: 0, holes_completed: 10, rank: 3 },
 ]

@@ -73,12 +73,19 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         .single();
       if (t) {
         activeTournament = { id: t.id, name: t.name };
-        const store = await cookies();
-        store.set(ACTIVE_TOURNAMENT_COOKIE, t.id, {
-          httpOnly: true,
-          sameSite: 'lax',
-          path: '/',
-        });
+        try {
+          const store = await cookies();
+          store.set(ACTIVE_TOURNAMENT_COOKIE, t.id, {
+            httpOnly: true,
+            sameSite: 'lax',
+            path: '/',
+          });
+        } catch {
+          // Next.js 16 forbids cookie writes from Server Components. The cookie
+          // will be set on the next navigation that hits a Server Action or
+          // Route Handler — the layout still renders with `activeTournament`
+          // in memory, so the user sees the right tournament this render.
+        }
       }
     }
   }
