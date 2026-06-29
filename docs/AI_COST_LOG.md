@@ -469,3 +469,4 @@ Pricing basis: Claude Sonnet 4.6 — Input $3/MTok · Output $15/MTok · Cache R
 | 2026-06-29 | 8bd6aac3-df89-474c-9151-7d11ac630609 | claude/gallant-pasteur-c7e63d     | 322685       | 84821         | 10060847          | 5.4915   |
 | 2026-06-29 | 8bd6aac3-df89-474c-9151-7d11ac630609 | develop                           | 349313       | 86798         | 11029957          | 5.9118   |
 | 2026-06-29 | 8bd6aac3-df89-474c-9151-7d11ac630609 | develop                           | 373130       | 100409        | 14305042          | 7.1877   |
+| 2026-06-29 | 9e542fbf-936e-4b70-9a8a-ab7a8306837b | bugfix/BUG-0007-flaky-shot-queue-e2e-tests | 362076       | 141803        | 19042086          | 9.1973   |
