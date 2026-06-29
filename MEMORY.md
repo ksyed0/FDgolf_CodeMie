@@ -13,14 +13,40 @@ Stack: Next.js 16 App Router · TypeScript · Tailwind CSS · shadcn/ui · Supab
 
 ---
 
-## Branch State (as of Session 35 close — 2026-06-26)
+## Branch State (as of Session 37 close — 2026-06-29)
 
 | Branch | Status | Notes |
 |--------|--------|-------|
 | `main` | **v0.7 released** | Kiosk demo improvements live |
-| `develop` | HEAD `bd6ff8f` | fix/longest-drive-gps merged (PR #42) |
+| `develop` | HEAD `c9b46dd` | E2E unblock merged (PR #43); lifecycle step-02 fix merged (PR #44) |
 
 **Current open PRs**: None
+
+**Repo hygiene**: 18 → 2 worktrees, 31 → 3 local branches, 11 → 2 remote branches (cleaned up Session 37). Only `develop` + `main` remain on origin.
+
+### Active follow-up chips (queued, not started)
+
+1. **SyncEngine flaky localStorage E2E checks** — `tests/e2e/round-scoring.spec.ts` TC-0030/0031/0026/0064. Mock the shots POST to fail (queue persists) OR assert outbound request like TC-0029 does.
+2. **tournament_admin routing E2E** — `tests/e2e/admin-roles.spec.ts` TC-0092/0093/0095. Tournament_admin doesn't redirect /admin/tournaments → /admin/tournament; investigate page-level role check + `tournament_admin_assignments` seed.
+
+### Platform debt — hard deadline 2026-10-30
+
+`supabase/config.toml` sets `auto_expose_new_tables = true` to keep API roles able to read public-schema tables. **This flag is removed by the Supabase CLI on 2026-10-30** — by then, every existing table needs explicit `GRANT ALL TO anon, authenticated, service_role` (or a more scoped equivalent) in a new migration. Filing as future work; do not let this drift past September.
+
+### Next.js 16 cookies pattern (Session 37 discovery)
+
+Server Components can no longer write cookies. Pattern used in [src/app/(admin)/layout.tsx](src/app/\(admin\)/layout.tsx):
+
+```ts
+try {
+  const store = await cookies();
+  store.set(NAME, value, options);
+} catch {
+  // Server Component context — cookie will land on next Server Action / Route Handler.
+}
+```
+
+Apply this anywhere a Server Component might set a cookie (e.g. activeTournament cookies, user-preference cookies).
 
 **GPS / longest-drive fix (Session 35)**
 

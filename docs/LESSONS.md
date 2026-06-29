@@ -1,5 +1,72 @@
 # Lessons Learned
 
+## L-0016 — E2E test fixtures rot when migrations change column shape
+@session: 37 — 2026-06-29
+
+**Symptom**: After Supabase grants were restored, e2e globalSetup logged `Could not find the 'venue' column of 'tournaments' in the schema cache` and the lifecycle test logged `Could not find the 'team_id' column of 'players'`. Both: tests insert columns the schema no longer has.
+
+**Root cause**: Schema migrations land cleanly with CI green (Jest doesn't touch the DB), but the E2E fixture code that hand-rolls `admin.from('x').insert(...)` was never updated. The bug stays latent for months — only surfaces when someone actually runs the E2E suite locally.
+
+- Migration 007 (2026-06-11) replaced `tournaments.venue` text → `venue_id`/`course_id` NOT NULL FKs. `tests/e2e/global-setup.ts` kept inserting `venue: '...'`.
+- Migration 011 (2026-06-20) dropped `players.team_id` (moved to `tournament_players` join table). `tests/e2e/tournament-lifecycle.spec.ts` kept inserting `team_id: null`.
+
+**Rules**:
+- When a migration drops/renames a column, `grep -r "<column-name>" tests/` (e2e folder especially) in the same PR. Update the inserts or the test will fail the moment the e2e suite runs.
+- When a migration introduces a new required-for-flow join table (like `tournament_players`), audit the test mocks for any spec that calls the affected pages — see L-0014's tournament_players fix touching round-scoring + leaderboard.
+- Don't treat "CI green" as "tests can run against current schema" — if E2E isn't in CI, it can rot for weeks. Either add it to CI (with a hosted test project or service container) or run it as a pre-release gate every Nth PR.
+
+---
+
+## L-0015 — Next.js 16 forbids cookie writes from Server Components
+@session: 37 — 2026-06-29
+
+**Symptom**: `Error: Cookies can only be modified in a Server Action or Route Handler` in dev console + Next.js error overlay; admin layout cookie didn't persist between renders; 26 admin E2E tests failed because admin pages crashed.
+
+**Root cause**: Next.js 16 tightened the rule — `cookies().set()` from a Server Component (page or layout render) throws synchronously. The `@supabase/ssr` server client wrapper already handles this for auth refresh cookies via try/catch, but other ad-hoc cookies (like `(admin)/layout.tsx`'s `ACTIVE_TOURNAMENT_COOKIE`) need the same treatment.
+
+**The pattern**:
+```ts
+try {
+  const store = await cookies();
+  store.set(NAME, value, options);
+} catch {
+  // Server Component context — cookie will land on the next request that
+  // hits a Server Action or Route Handler. The in-memory state still
+  // renders correctly this pass.
+}
+```
+
+**Rules**:
+- Any `cookies().set()` outside `app/api/**/route.ts` or `'use server'` action handlers needs the try/catch wrapper.
+- This bug class doesn't show up in Jest unit tests — it requires the actual Next.js render pipeline. Add at least one E2E smoke test that hits each layout's route to catch these in CI.
+- When upgrading Next.js major versions, grep for `cookies()` callsites and review each — semantic changes are common in the cookies/headers/auth API surface.
+
+---
+
+## L-0014 — Supabase CLI default flips silently lock the Data API
+@session: 37 — 2026-06-29
+
+**Symptom**: Fresh `supabase start` on 2026-06-29 left every public-schema table inaccessible to anon/authenticated/service_role. Tests failed with `permission denied for table players` (a GRANT-level error, not RLS — RLS would say "violates row-level security policy"). Verified via:
+```sql
+SELECT grantee, privilege_type FROM information_schema.role_table_grants
+WHERE table_schema='public' AND table_name='players';
+```
+Only `postgres` had DML privileges.
+
+**Root cause**: The Supabase CLI's `api.auto_expose_new_tables` config field's implicit default **flipped from `true` to `false` on 2026-05-30** to match the new hosted-cloud default. Migrations 001–013 were authored under the old default, so none of them include explicit GRANTs. The moment the flag flipped, every table created since migration 001 became inaccessible to API roles on a fresh `db reset`.
+
+**Three more sneaky aspects**:
+1. **No app code or migrations changed** — failure mode appears only on a fresh local stack, not hosted.
+2. **CI didn't catch it** because Jest doesn't exercise PostgREST. CI was green throughout.
+3. **The flag is REMOVED entirely on 2026-10-30**, so setting it to `true` is a stopgap, not a fix. The deprecation warning from the CLI is the only nudge.
+
+**Rules**:
+- Treat platform-side default flips as P1 platform debt — schedule the migration before the hard deadline (here: explicit GRANTs in a new migration before 2026-10-30).
+- When `permission denied for table` shows up with service_role, check `information_schema.role_table_grants` BEFORE assuming an RLS misconfig. The two error classes look similar but have different fixes.
+- For any platform you depend on (Supabase, Vercel, Next.js), skim deprecation notices on the upgrade path — especially "implicit default flips" with a calendar date attached.
+
+---
+
 ## L-0013 — Admin page redesigns from `<table>` to cards silently break E2E role-based locators
 @session: 36 — 2026-06-29
 
