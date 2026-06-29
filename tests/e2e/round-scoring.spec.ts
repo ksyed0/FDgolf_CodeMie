@@ -133,42 +133,58 @@ test('TC-0029: In-Play outcome records shot into the sync queue', async ({ page 
 // ── TC-0030: OOB outcome ───────────────────────────────────────────────────
 
 test('TC-0030: OOB outcome records shot with out_of_bounds outcome', async ({ page }) => {
+  // SyncEngine.flush() drains the queue after a successful insert (the
+  // beforeEach mocks the Supabase shots POST to succeed). Observe the outbound
+  // POST itself rather than racing against the drain to read localStorage.
+  const shotsPostPromise = page.waitForRequest(
+    (req) => req.url().includes('/rest/v1/shots') && req.method() === 'POST',
+    { timeout: 5000 }
+  )
+
   await page.goto('/round', { waitUntil: 'domcontentloaded' })
   await expect(page.getByRole('combobox')).toBeVisible({ timeout: 8000 })
 
   await selectClub(page)
   await page.getByRole('button', { name: /out of bounds/i }).click()
 
-  const queue = await page.evaluate(() => {
-    const raw = localStorage.getItem('fdgolf_sync_queue')
-    return raw ? JSON.parse(raw) : []
-  })
-  expect(queue.length).toBeGreaterThan(0)
-  expect(queue[0].payload?.outcome).toBe('out_of_bounds')
+  const req = await shotsPostPromise
+  const body = req.postDataJSON() as Array<{ outcome?: string }> | { outcome?: string }
+  const first = Array.isArray(body) ? body[0] : body
+  expect(first?.outcome).toBe('out_of_bounds')
 })
 
 // ── TC-0031: Mulligan outcome ──────────────────────────────────────────────
 
 test('TC-0031: Mulligan outcome records shot with mulligan outcome', async ({ page }) => {
+  const shotsPostPromise = page.waitForRequest(
+    (req) => req.url().includes('/rest/v1/shots') && req.method() === 'POST',
+    { timeout: 5000 }
+  )
+
   await page.goto('/round', { waitUntil: 'domcontentloaded' })
   await expect(page.getByRole('combobox')).toBeVisible({ timeout: 8000 })
 
   await selectClub(page)
   await page.getByRole('button', { name: /^mulligan$/i }).click()
 
-  const queue = await page.evaluate(() => {
-    const raw = localStorage.getItem('fdgolf_sync_queue')
-    return raw ? JSON.parse(raw) : []
-  })
-  expect(queue.length).toBeGreaterThan(0)
-  expect(queue[0].payload?.outcome).toBe('mulligan')
+  const req = await shotsPostPromise
+  const body = req.postDataJSON() as Array<{ outcome?: string }> | { outcome?: string }
+  const first = Array.isArray(body) ? body[0] : body
+  expect(first?.outcome).toBe('mulligan')
 })
 
 // ── TC-0026: Shot queued offline ───────────────────────────────────────────
 
 test('TC-0026: shot captured offline is queued in SyncEngine (localStorage)', async ({ page }) => {
-  // Block the Supabase shots REST endpoint to simulate offline flush failure
-  await page.route(`${SB_URL}/rest/v1/shots**`, (route) => route.abort('failed'))
+  // Force the shots POST to fail so SyncEngine.flush() leaves the entry in
+  // localStorage. We assert (a) the SyncEngine attempted the flush — proof
+  // the click made it through the queue — and (b) the queue persists.
+  await mockShotsApi(page, { fail: true })
+
+  const shotsPostPromise = page.waitForRequest(
+    (req) => req.url().includes('/rest/v1/shots') && req.method() === 'POST',
+    { timeout: 5000 }
+  )
 
   await page.goto('/round', { waitUntil: 'domcontentloaded' })
   await expect(page.getByRole('combobox')).toBeVisible({ timeout: 8000 })
@@ -176,8 +192,12 @@ test('TC-0026: shot captured offline is queued in SyncEngine (localStorage)', as
   await selectClub(page)
   await page.getByRole('button', { name: /^in play$/i }).click()
 
+  await shotsPostPromise
+
+  // SyncEngine's localStorage key is 'fdgolf-cm_sync_queue' (post-rebrand).
+  // With a failing flush, the entry stays queued (retries < 5).
   const queue = await page.evaluate(() => {
-    const raw = localStorage.getItem('fdgolf_sync_queue')
+    const raw = localStorage.getItem('fdgolf-cm_sync_queue')
     return raw ? JSON.parse(raw) : []
   })
   expect(Array.isArray(queue)).toBe(true)
@@ -187,12 +207,24 @@ test('TC-0026: shot captured offline is queued in SyncEngine (localStorage)', as
 // ── TC-0064: Offline indicator shows pending count ─────────────────────────
 
 test('TC-0064: offline indicator reflects pending shot count', async ({ page }) => {
+  // Seed three queued entries into the SyncEngine's storage *before* app code
+  // runs. Key must match QUEUE_KEY in src/lib/sync-engine.ts.
   await page.addInitScript(() => {
-    const entry = { id: 'local-1', table: 'shots', payload: {}, retries: 0, createdAt: Date.now() }
-    localStorage.setItem('fdgolf_sync_queue', JSON.stringify([entry, { ...entry, id: 'local-2' }, { ...entry, id: 'local-3' }]))
+    const entry = {
+      id: 'local-1',
+      table: 'shots',
+      payload: {},
+      retries: 0,
+      created_at: 1700000000000,
+    }
+    localStorage.setItem(
+      'fdgolf-cm_sync_queue',
+      JSON.stringify([entry, { ...entry, id: 'local-2' }, { ...entry, id: 'local-3' }])
+    )
   })
 
-  await page.route(`${SB_URL}/rest/v1/shots**`, (route) => route.abort('failed'))
+  // Fail the POST so the seeded entries don't drain before the indicator renders.
+  await mockShotsApi(page, { fail: true })
 
   await page.goto('/round', { waitUntil: 'domcontentloaded' })
 
