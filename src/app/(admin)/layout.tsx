@@ -43,13 +43,20 @@ export default async function AdminLayout({ children }: { children: React.ReactN
 
     if (list.length >= 2) redirect('/admin/select-tournament');
 
-    // Single assignment — set cookie and proceed
-    const store = await cookies();
-    store.set(ACTIVE_TOURNAMENT_COOKIE, list[0].id, {
-      httpOnly: true,
-      sameSite: 'lax',
-      path: '/',
-    });
+    // Single assignment — try to set the cookie and proceed. Next.js 16 forbids
+    // cookie writes from Server Components; swallow the error and render with
+    // `activeTournament` in memory. `getActiveTournamentId()` derives the same
+    // assignment for downstream pages when the cookie is missing.
+    try {
+      const store = await cookies();
+      store.set(ACTIVE_TOURNAMENT_COOKIE, list[0].id, {
+        httpOnly: true,
+        sameSite: 'lax',
+        path: '/',
+      });
+    } catch {
+      // see comment above
+    }
     activeTournament = list[0];
   } else {
     // system_admin — read active tournament from cookie (may be null)
