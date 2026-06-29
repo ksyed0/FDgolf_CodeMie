@@ -101,7 +101,7 @@ test.describe.serial('Tournament Lifecycle — Lionhead Spring Classic 2026', ()
         if (!profile) {
           const { error } = await admin.from('players').insert({
             auth_user_id: existing.id, name: p.name, email: p.email,
-            role: 'player', team_id: null,
+            role: 'player',
           })
           if (error) throw new Error(`[beforeAll] player profile: ${error.message}`)
         }
@@ -116,7 +116,7 @@ test.describe.serial('Tournament Lifecycle — Lionhead Spring Classic 2026', ()
 
       const { error: profErr } = await admin.from('players').insert({
         auth_user_id: data.user.id, name: p.name, email: p.email,
-        role: 'player', team_id: null,
+        role: 'player',
       })
       if (profErr) throw new Error(`[beforeAll] profile ${p.email}: ${profErr.message}`)
       console.log(`[beforeAll] created: ${p.name}`)
@@ -141,11 +141,12 @@ test.describe.serial('Tournament Lifecycle — Lionhead Spring Classic 2026', ()
     await fillByLabel(adminPage, 'Province / State', 'ON')
     await fillByLabel(adminPage, 'Postal code', 'L6Y 0C3')
 
-    // "Add Venue" button — use .last() because "+ Add Venue" header button may still render
-    await adminPage.getByRole('button', { name: /^add venue$/i }).last().click()
+    // Submit the form — VenueManager renders "Save Venue" (not "Add Venue") when adding
+    await adminPage.getByRole('button', { name: /^save venue$/i }).click()
 
     await expect(adminPage.getByText(/venue added/i)).toBeVisible({ timeout: 8000 })
-    await expect(adminPage.getByRole('cell', { name: 'Lionhead Golf Club' }).first()).toBeVisible()
+    // Venues render as cards with the name inside a <p>, not as table cells
+    await expect(adminPage.getByText('Lionhead Golf Club').first()).toBeVisible()
   })
 
   // ── Step 3: Course ────────────────────────────────────────────────────────
