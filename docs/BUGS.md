@@ -116,3 +116,34 @@ Options if full SARIF dashboard is needed in future:
   1. Transfer repo to a GitHub Organization + upgrade to Team plan
   2. Make repo public — unlocks Code Scanning at no cost
   3. Use a third-party SAST tool (Semgrep, Snyk) that reports outside GitHub Security tab
+
+BUG-0007: E2E shot-queue tests fail because they assert on the wrong localStorage key
+Severity: Medium
+Related Story: N/A (test infrastructure)
+Steps to Reproduce:
+  1. Run `npx playwright test tests/e2e/round-scoring.spec.ts --project=chromium-mobile`
+  2. Observe TC-0030, TC-0031, TC-0026, TC-0064 fail.
+Expected: All four tests pass.
+Actual:
+  - TC-0030/0031/0026 read `localStorage.getItem('fdgolf_sync_queue')` and receive null;
+    the actual SyncEngine key is `fdgolf-cm_sync_queue` (post-rebrand). Even if the key
+    matched, the queue drains on first flush because the in-test Supabase mock makes
+    the outbound POST succeed instantly.
+  - TC-0064 seeds three queue entries via `addInitScript` under the same wrong key,
+    so the offline indicator never sees them.
+Status: Fixed
+Fix Branch: bugfix/BUG-0007-flaky-shot-queue-e2e-tests
+Lesson Encoded: No
+
+Fix approach:
+  - TC-0030/0031: replace post-hoc localStorage read with `page.waitForRequest` against
+    the Supabase REST POST (the pattern TC-0029 already uses); assert the parsed POST
+    body's `outcome` field.
+  - TC-0026: same `waitForRequest` pattern, but force the POST to fail via the new
+    `mockShotsApi(page, { fail: true })` option so the queue persists, then read the
+    correct localStorage key.
+  - TC-0064: write the seed payload under the correct key (`fdgolf-cm_sync_queue`)
+    with the matching `created_at` field, and fail the POST so the seeded entries
+    don't drain before the indicator renders.
+  - `mockShotsApi` now also intercepts `${SB_URL}/rest/v1/shots` (where SyncEngine
+    actually writes) and accepts a `{ fail }` flag.
