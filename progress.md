@@ -1,5 +1,51 @@
 # FDgolf-CM — Progress
 
+## Session 37 -- 2026-06-29 (worktree/branch cleanup + E2E unblock)
+
+### What Was Done
+
+**Worktree + branch cleanup** (no code change):
+- Pruned 16 stale worktrees (15 `agent-*` subagent leftovers + `kiosk-fixes`) → main + active session worktree only
+- Deleted 17 `worktree-agent-*` branches and 11 merged feature branches locally
+- Deleted 10 merged remote feature branches via `gh push --delete` (PRs #2, #7, #8, #11, #14, #16, #23, #35, #42 + `phase6-po-items`)
+- Confirmed `phase6-po-items` features fully reimplemented in develop (commit `15c0991` literally re-applies the original phase6 squash); safe to delete
+- Final state: 18 → 2 worktrees · 31 → 3 local branches · 11 → 2 remote branches
+
+**CI verification on develop** (`51bbe66`): all 3 GitHub workflows ✅ green (CI, CodeQL, Plan Visualizer). Jest 91.2% coverage holds.
+
+**E2E suite unblock — PR #43** (`fix/e2e-supabase-grants-and-venue-fixture` → `develop`, squash-merged as `c9b46dd`):
+
+Recovered 44 of 54 failing E2E tests (81%). Root causes:
+
+1. **Supabase CLI flipped `api.auto_expose_new_tables` default `true` → `false` on 2026-05-30.** Tables created without explicit GRANTs are no longer reachable by anon/authenticated/service_role. None of migrations 001–013 include GRANTs, so every table was effectively locked. Fix: set the flag explicitly in `supabase/config.toml`. **TODO before 2026-10-30 (hard deadline — flag removed by CLI)**: add explicit GRANT migrations.
+2. **Migration 007 dropped `tournaments.venue` text column** (replaced with `venue_id`/`course_id` FKs) but `global-setup.ts` still inserted it. Rewrote to look up venue+course from seed and insert with proper FKs; bumped status `setup` → `active`.
+3. **Real app bug**: `(admin)/layout.tsx` wrote cookies from a Server Component, which Next.js 16 forbids. Wrapped in try/catch — cookie lands on next action/route handler instead. Was masked by lack of integration tests in CI.
+4. **Migration 011 added `tournament_players` join table** — round/leaderboard pages now query it, but tests had no mock → "not assigned to a team" redirect. Added `fakeTournamentMembership` fixture.
+5. **Lifecycle test inserted `players.team_id`** — column removed by migration 011. Stripped.
+6. **Test fixture team names collided with TV stat-panel labels** ('Eagles' team vs 'Eagles' panel → 14 hidden matches). Renamed to Hawks/Falcons/Owls.
+7. **`admin-roles.spec.ts` inherits `ADMIN_AUTH_FILE` storage** but signs in as different users via `/login`. Preloaded session redirected `/login` away. Added `beforeEach` to clear cookies.
+
+**Spawned 3 follow-up chips** for remaining 10 failures:
+- Lifecycle step-02 (cascades to 9 deps) — **already shipped as PR #44 in parallel session 36**
+- SyncEngine flaky localStorage checks (4 tests)
+- tournament_admin routing (3 tests)
+
+### Test Results
+
+| Stage | Passed | Failed |
+|---|---|---|
+| Initial E2E on develop | 14 | 54 |
+| After fixes (PR #43) | 58 | 10 |
+
+Jest: unchanged (147 tests, 91.2% coverage), CI green.
+
+### Branch / PRs
+
+- PR #43 `fix/e2e-supabase-grants-and-venue-fixture` → `develop` — all 7 checks passed, squash-merged as `c9b46dd`
+- 3 follow-up chips queued; one (lifecycle step-02) already merged as PR #44
+
+---
+
 ## Session 36 -- 2026-06-29 (lifecycle E2E step-02 fix)
 
 ### What Was Done
