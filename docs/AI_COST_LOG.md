@@ -476,3 +476,17 @@ Pricing basis: Claude Sonnet 4.6 — Input $3/MTok · Output $15/MTok · Cache R
 | 2026-06-30 | 9e542fbf-936e-4b70-9a8a-ab7a8306837b | docs/append-session-38-cost-rows           | 1570273      | 211918        | 46131289          | 22.9064  |
 | 2026-06-29 | 8bd6aac3-df89-474c-9151-7d11ac630609 | docs/cost-log-session-36                   | 379409       | 103977        | 16351491          | 7.8787   |
 | 2026-06-30 | 8bd6aac3-df89-474c-9151-7d11ac630609 | docs/cost-log-session-36                   | 511898       | 104263        | 16383868          | 8.3896   |
+| 2026-06-29 | dc5db55d-f228-41eb-9a60-147e4926bd9c | claude/musing-golick-a33771       | 328485       | 48026         | 3266960           | 2.9322   |
+| 2026-06-29 | dc5db55d-f228-41eb-9a60-147e4926bd9c | claude/musing-golick-a33771       | 407317       | 94826         | 8011279           | 5.3531   |
+| 2026-06-29 | dc5db55d-f228-41eb-9a60-147e4926bd9c | claude/musing-golick-a33771       | 409787       | 95782         | 8254429           | 5.4496   |
+| 2026-06-29 | dc5db55d-f228-41eb-9a60-147e4926bd9c | claude/musing-golick-a33771       | 410811       | 96146         | 8500037           | 5.5326   |
+| 2026-06-29 | dc5db55d-f228-41eb-9a60-147e4926bd9c | claude/musing-golick-a33771       | 471065       | 119736        | 12081498          | 7.1833   |
+| 2026-06-29 | dc5db55d-f228-41eb-9a60-147e4926bd9c | claude/musing-golick-a33771       | 516728       | 135665        | 15180330          | 8.5231   |
+| 2026-06-29 | dc5db55d-f228-41eb-9a60-147e4926bd9c | claude/musing-golick-a33771       | 534299       | 142915        | 16995566          | 9.2423   |
+| 2026-06-29 | dc5db55d-f228-41eb-9a60-147e4926bd9c | claude/musing-golick-a33771       | 1431344      | 200575        | 26163665          | 16.2201  |
+| 2026-06-29 | dc5db55d-f228-41eb-9a60-147e4926bd9c | claude/musing-golick-a33771       | 1599722      | 286127        | 45354328          | 23.8903  |
+| 2026-06-29 | dc5db55d-f228-41eb-9a60-147e4926bd9c | claude/musing-golick-a33771       | 1686339      | 325789        | 53520673          | 27.2600  |
+| 2026-06-29 | dc5db55d-f228-41eb-9a60-147e4926bd9c | claude/musing-golick-a33771       | 1719507      | 341046        | 58653574          | 29.1530  |
+| 2026-06-29 | dc5db55d-f228-41eb-9a60-147e4926bd9c | claude/musing-golick-a33771       | 1735141      | 370121        | 60715861          | 30.2665  |
+| 2026-06-29 | dc5db55d-f228-41eb-9a60-147e4926bd9c | claude/musing-golick-a33771       | 1754841      | 378170        | 64953625          | 31.7324  |
+| 2026-06-29 | dc5db55d-f228-41eb-9a60-147e4926bd9c | claude/musing-golick-a33771       | 1805397      | 413808        | 72932514          | 34.8478  |
