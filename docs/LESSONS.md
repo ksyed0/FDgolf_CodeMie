@@ -1,5 +1,64 @@
 # Lessons Learned
 
+## L-0019 — Stat-rotator-style components need test waits or panel-targeting, not `.first()` on shared text
+
+@session: 40 — 2026-06-30
+
+**Symptom**: BUG-0008 — TC-0067 asserted
+`page.getByText(fakeLeaderboard[0].team_name).first().toBeVisible()` on the TV
+leaderboard route and the locator resolved to **14 matched elements, all hidden**.
+PR #43 had already renamed team fixtures away from stat-panel-label collisions
+(Eagles→Hawks etc.), but the failure persisted.
+
+**Root cause**: `TvStatsRotator` (`src/components/tv/TvStatsRotator.tsx`) mounts
+all 5 of its panels simultaneously and hides inactive ones via
+`opacity-0 pointer-events-none` (not `display:none`) — the parent `TvDisplay.tsx`
+owns a controlled `activePanelIndex` prop, rotated by `setInterval(..., 15_000)`.
+One of those panels (`TvTeamSpotlightPanel`, index 4) independently renders the
+leader's team name. An unscoped `page.getByText(team_name)` therefore matches
+*both* the always-visible `TvLeaderboard` sidebar row *and* the hidden rotator
+copy — and `.first()` resolves by DOM order, not visibility, so it can land on
+the hidden one. The rotator's 15s interval makes this look like a timing bug
+("the test asserts before rotation completes"), but the panel never needed to be
+the active one — the assertion target lives in an entirely different, always-on
+component.
+
+**Rules**:
+
+- For any component that mounts multiple state-toggled "panels"/"slides"/"steps"
+  simultaneously and hides inactive ones with CSS (opacity, visibility, or
+  `pointer-events`) rather than unmounting them, **never assert on bare,
+  page-wide `getByText(...)` for content that could plausibly also appear in
+  another panel.** Scope the locator to the specific panel/container you intend
+  to test, via a `data-testid` on that panel's root element.
+- Prefer a dedicated `data-testid` over a CSS-class-based locator for this kind
+  of scoping. Tailwind utility classes are reused broadly across a component
+  tree (e.g. `flex flex-col h-full overflow-hidden` matched both the intended
+  sidebar root *and* the page's outer scaled wrapper that contains everything,
+  including the rotator) — a class subset match is not guaranteed unique even
+  when it looks distinctive while reading the source.
+- Don't reach for `waitForTimeout(rotatorIntervalMs)` to "wait for the right
+  panel to rotate in" as the first fix — it's slow (multiplies by however many
+  panels deep the target is), brittle to future interval/panel-count changes,
+  and often unnecessary: check whether the assertion target actually lives in
+  an always-visible sibling component first, the way `TvLeaderboard` does here.
+- A second, independent bug can hide behind the first: after fixing the locator
+  scoping, TC-0067 still failed because the leaderboard fixture
+  (`tests/e2e/helpers/fixtures.ts`) was missing `par_total` (required by
+  `LeaderboardRow`), producing `"+NaN"` text that overflowed its grid column and
+  squeezed the adjacent `1fr` Team-name track down to ~4px — effectively
+  zero-width and correctly reported as not visible. Don't stop investigating
+  once the obvious/documented cause is fixed if the assertion still fails for a
+  different reason; re-measure (`getBoundingClientRect()`, computed styles) the
+  actual DOM rather than re-guessing from the component source.
+
+**Applies to**: Any E2E test against a tab/carousel/rotator/wizard-step
+component where multiple "views" are kept mounted and toggled via CSS rather
+than conditional rendering — common in TV/kiosk displays, onboarding flows, and
+tabbed admin panels in this codebase.
+
+---
+
 ## L-0018 — A failing selector against an SSR card grid may mean "no data", not "wrong text"
 @session: 39 — 2026-06-30
 

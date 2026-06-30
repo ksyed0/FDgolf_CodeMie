@@ -118,8 +118,18 @@ export const fakeSponsors = [
 // Bogeys) — the TV stat-rotator has panels with those exact labels, and a fixture
 // team named "Eagles" makes `getByText('Eagles')` ambiguous (matches the stat
 // panel header AND the leaderboard row), causing TC-0067-style failures.
+// par_total mirrors LeaderboardRow (src/lib/types.ts) — required for vs-par math in
+// TvLeaderboard.tsx (formatScore(total_score - par_total)). Omitting it produces
+// `total_score - undefined` = NaN, which renders as "+NaN" in the Sc column; that
+// extra-wide text overflows the column's fixed 46px grid track and squeezes the
+// adjacent `1fr` Team column down to ~4px, making the team-name span effectively
+// zero-width and reported as hidden by Playwright (a second, fixture-driven cause
+// behind BUG-0008, distinct from the rotator-panel timing/scoping issue).
+// total_score is cumulative strokes taken (not vs-par); par_total is cumulative
+// par for the holes_completed so far (~4 strokes/hole) — vsParVal stays small
+// (single/double digit with sign), matching realistic in-round leaderboard text.
 export const fakeLeaderboard = [
-  { team_id: 'team-001', team_name: 'Hawks', total_score: -5, holes_completed: 12, rank: 1 },
-  { team_id: 'team-002', team_name: 'Falcons', total_score: -3, holes_completed: 11, rank: 2 },
-  { team_id: 'team-003', team_name: 'Owls', total_score: 0, holes_completed: 10, rank: 3 },
+  { team_id: 'team-001', team_name: 'Hawks', total_score: 43, par_total: 48, holes_completed: 12, rank: 1 },
+  { team_id: 'team-002', team_name: 'Falcons', total_score: 41, par_total: 44, holes_completed: 11, rank: 2 },
+  { team_id: 'team-003', team_name: 'Owls', total_score: 40, par_total: 40, holes_completed: 10, rank: 3 },
 ]

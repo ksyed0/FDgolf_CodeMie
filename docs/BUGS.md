@@ -116,27 +116,52 @@ the original `^H\d+$` selector were both already correct.
 BUG-0008: E2E TC-0067 — TV leaderboard first team name reported as hidden across 14 matches
 Severity: Low
 Related Story: N/A (E2E test infra)
-Status: Open
-Fix Branch: TBD
-Lesson Encoded: No
+Status: Fixed
+Fix Branch: fix/BUG-0008-tv-leaderboard-rotator-wait
+Lesson Encoded: Yes
 
-`tests/e2e/tv-leaderboard.spec.ts:97` asserts `getByText(fakeLeaderboard[0].team_name).first().toBeVisible()`.
-Locator resolves to **14 elements** all of which are hidden. PR #43 renamed the team
-fixtures away from stat-panel collisions (Eagles→Hawks etc.), but the failure persists
-— suggesting the leaderboard panel itself is hidden when the assertion runs, not a
-name collision. The TvStatsRotator likely starts on a different panel and rotates in;
-the test asserts before the leaderboard becomes the active panel.
+`tests/e2e/tv-leaderboard.spec.ts:97` asserted `getByText(fakeLeaderboard[0].team_name).first().toBeVisible()`.
+Locator resolved to **14 elements** all of which were hidden.
 
-Two viable fixes:
+**Confirmed root cause (two distinct bugs, both required for TC-0067 to pass):**
 
-- Wait for the leaderboard panel to become active before asserting (look for the
-  panel's wrapping element with `visible: true`, or force the rotator to a specific
-  panel via a query param if the component supports it).
-- Tighten the locator to "leaderboard panel container .first()" so we don't match the
-  team name rendered as a hidden card in another panel.
+1. **Locator collision, not rotator timing.** `TvStatsRotator` (`src/components/tv/TvStatsRotator.tsx`)
+   is purely state-driven: it takes a controlled `activePanelIndex` prop and renders
+   all 5 panels simultaneously, hiding inactive ones via `opacity-0 pointer-events-none`
+   (not `display:none`). The parent `TvDisplay.tsx` owns `activePanelIndex` (default
+   `0`) and rotates it via `setInterval(..., 15_000)` — panel index 4 ("Team Spotlight",
+   `TvTeamSpotlightPanel`) is only reached 60s after mount, long after the test's 5s
+   assertion window. `TvTeamSpotlightPanel` also renders the leader's team name
+   (`teamSpotlight.teamName`), so the original unscoped `page.getByText(...)` could
+   resolve `.first()` to that hidden rotator copy instead of the always-visible
+   `TvLeaderboard` sidebar row. Fix: added `data-testid="tv-leaderboard-panel"` to
+   `TvLeaderboard`'s root element and scoped all TC-0067 assertions to
+   `page.getByTestId('tv-leaderboard-panel')`. A Tailwind-class-based locator was
+   tried first (`div.h-full.flex.flex-col.overflow-hidden`) but Tailwind's utility
+   classes are reused broadly enough — including on `TvDisplay`'s outer scaled
+   wrapper, which contains both the sidebar and the rotator — that it failed to
+   disambiguate; a dedicated `data-testid` is the robust fix per the "stat-rotator
+   needs panel-targeting, not `.first()` on shared text" lesson (see LESSONS.md).
+2. **Separate, pre-existing fixture/layout bug that also blocked the assertion.**
+   `tests/e2e/helpers/fixtures.ts`'s `fakeLeaderboard` was missing `par_total`
+   (required by `LeaderboardRow` in `src/lib/types.ts`). `TvLeaderboard.tsx` computes
+   `vsParVal = row.total_score - row.par_total`, so the missing field produced `NaN`,
+   rendered as `"+NaN"` in the Sc column. That overflow, combined with the
+   leaderboard sidebar's width (`25%` of the 980px TV design width in
+   `TvDisplay.tsx`, ≈204px of usable row content after padding/margin), squeezed the
+   row's `1fr` Team-name grid track down to ~4px — `truncate` rendered the team-name
+   span at effectively zero width, which Playwright correctly reports as not
+   visible. Fixed the fixture to provide realistic `par_total`/`total_score` values,
+   and widened the sidebar from `25%` to `34%` (TvDisplay.tsx) — the minimum that
+   keeps the Team column's `1fr` track legible (~90px) without reflowing the
+   rotator panels on the right. (The original UI spec called for a 45% sidebar;
+   this is a partial restoration, not a full redesign — out of scope for this fix.)
+
+Verified via `npx playwright test tests/e2e/tv-leaderboard.spec.ts --project=chromium-tv`
+across 7+ full-suite runs (cold start + warm cache), all 8 tests passing every time.
 
 See `tests/e2e/screenshots/tv-leaderboard-TC-0067-lea-5e72c-eam-rows-and-column-headers-chromium-tv/`
-for the trace.
+for the original trace.
 
 ---
 
