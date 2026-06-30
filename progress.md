@@ -1,5 +1,41 @@
 # FDgolf-CM — Progress
 
+## Session 40 -- 2026-06-30 (Conductor-orchestrated fix-e2e-trio)
+
+**Agent(s):** Conductor (orchestrator) + Pixel ×3 (Frontend Dev, parallel) + Lens ×3 (Code Reviewer, sequential as each fix landed)
+**Duration:** ~2.5 hrs wall-clock (3 fixes ran in parallel worktrees)
+**Stories touched:** BUG-0008, BUG-0009, BUG-0010 (E2E test infra)
+**Tasks completed:** All 3 bugs from `docs/superpowers/prompts/2026-06-30-fix-e2e-trio.md`, fixed and merged
+**Branches:** `fix/BUG-0009-admin-teams-hole-badge` → PR #60 (merged), `fix/BUG-0010-lifecycle-add-tournament` → PR #61 (merged), `fix/BUG-0008-tv-leaderboard-rotator-wait` → PR #62 (merged)
+**Status:** Complete
+
+### What Was Done
+
+- Executed `docs/superpowers/prompts/2026-06-30-fix-e2e-trio.md` via `docs/agents/DM_AGENT.md`'s Conductor pattern. PR #59 (carrying the prompt + BUG-0008/0009/0010 entries) was merged first since it wasn't yet on `develop`.
+- Dispatched all 3 fixes in parallel (isolated worktrees, no file overlap) rather than the prompt's serial 0010→0009→0008 ordering, since the bugs are file-disjoint and DM_AGENT.md's parallel-agent pattern applies.
+- **BUG-0009** (admin teams hole badge): root cause was never the selector — `supabase/seed.sql` never inserts `teams` rows, so the SSR `/admin/teams` page legitimately rendered zero cards after `db reset`. Fix: seed `teams` in `tests/e2e/global-setup.ts`. Lens: APPROVE (minor commit-format nit, fixed at merge).
+- **BUG-0010** (lifecycle step-05): root cause was a real routing fact, not a bug — `/admin/tournament` (singular) only shows the create form when no tournament is active, and `global-setup.ts` always pre-activates one. Fix: step-05 now creates via `/admin/tournaments` (plural), step-06 switches active context via "Manage". Two more incidental pre-existing test bugs fixed in steps 06/07 while verifying. Lens: APPROVE after source-level verification of the routing claim.
+- **BUG-0008** (TV leaderboard rotator): two compounding bugs — (1) `TvStatsRotator` keeps all panels mounted and toggles `opacity-0`, so an unscoped locator could match a hidden rotator-panel copy of the team name; fixed via `data-testid="tv-leaderboard-panel"` scoping. (2) Separately, the test fixture was missing `par_total`, producing `NaN` that visually squeezed the team-name column to ~4px even with the scoping fix. Sidebar widened 25%→34%. Lens: **REQUEST_CHANGES** (commit format + flagged the production-layout change for explicit visual verification before merge, since it ships to the real TV broadcast display) → Conductor fixed the commit message and visually verified the new layout via Playwright screenshot of `/live/<slug>/tv` (both team names render fully, no truncation) → merged.
+- One sub-agent (BUG-0010) got confused about which of two worktree paths was its own mid-task and stopped without committing. The harness's auto-mode classifier correctly blocked the Conductor's first attempt to resume it on the Conductor's own assertion of authority; routed to the human for explicit confirmation, then resumed cleanly with no work lost.
+- Filed **BUG-0011** (new ID, registry bumped to next-available BUG-0012) for a previously-unreachable failure exposed by the BUG-0010 fix: lifecycle step-08 (player→team assignment) waits for a `/rest/v1/players` PATCH the app no longer issues — assignment now goes through `tournament_players` per migration 011. Diagnosis already captured in the bug writeup for whoever picks it up next.
+
+### Test Results
+
+- **Full local E2E suite, post-merge, clean `supabase db reset`:** **73 passed / 1 failed / 2 skipped / 3 did not run** — up from the session-39 baseline of 68 passed / 3 failed / 2 skipped / 6 did not run.
+- The 1 remaining failure is BUG-0011 (newly filed, out of scope for this prompt — not a regression).
+- `npx jest --ci`: 173/173 passing throughout all 3 branches.
+- All 3 PRs landed with green CI (format, audit, test, CodeQL, Vercel) and auto-squash-merged.
+
+### Branches
+
+`fix/BUG-0009-admin-teams-hole-badge`, `fix/BUG-0010-lifecycle-add-tournament`, `fix/BUG-0008-tv-leaderboard-rotator-wait` — all merged and deleted. All temporary `.claude/worktrees/agent-*` directories and `worktree-agent-*` branches cleaned up per DM_AGENT.md's post-merge protocol.
+
+### Next Steps
+
+- Pick up **BUG-0011** (lifecycle step-08 player-assignment): update the test's `waitForResponse` predicate to match `tournament_players` instead of `players` — diagnosis is already in `docs/BUGS.md`.
+- Platform debt carried over: `auto_expose_new_tables` flag removal on 2026-10-30 — file a migration with explicit GRANTs by end of September.
+- TV leaderboard sidebar is now 34% (partial restoration toward the original 45% spec per BUG-0008's writeup) — full restoration is still open if desired.
+
 ## Session 39 -- 2026-06-30 (E2E verification + Supabase image dedup)
 
 ### What Was Done
