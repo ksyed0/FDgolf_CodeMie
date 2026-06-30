@@ -29,20 +29,31 @@ Read the trace at `tests/e2e/screenshots/tournament-lifecycle-Tourn-1f177-ionhea
 BUG-0009: E2E TC-0086 — admin teams page "H{n}" starting-hole badge selector misses
 Severity: Low
 Related Story: N/A (E2E test infra)
-Status: Open
-Fix Branch: TBD
-Lesson Encoded: No
+Status: Fixed
+Fix Branch: fix/BUG-0009-admin-teams-hole-badge
+Lesson Encoded: Yes
 
 `tests/e2e/admin.spec.ts:408` asserts `getByText(/^H\d+$/).first()` for the starting-
-hole badge on each team card. Selector finds zero elements — the badge text format on
-`/admin/teams` no longer matches `^H<digit>+$`. Likely candidates:
-- Label was reworked to "Hole 7" (full word) during the admin pages redesign (PR #34)
-- Badge moved into an aria-label / data-attribute rather than visible text
-- Badge has surrounding whitespace or a non-digit character (e.g. "H-7", "H 7")
+hole badge on each team card. Selector found zero elements.
 
-Inspect a rendered team card via `npm run dev` → `/admin/teams` or via the screenshot
-at `tests/e2e/screenshots/admin-TC-0086-teams-...` to confirm the actual format, then
-either update the regex or move to a stable selector (data-testid).
+**Root cause (confirmed)**: the badge format was never wrong. `teams-manager.tsx:249`
+renders `H{team.starting_hole ?? 1}` exactly, which matches `^H\d+$` perfectly. The
+real problem is that `/admin/teams` is an SSR page (`page.tsx` fetches
+`supabase.from('teams')` server-side and passes the rows to `TeamsManager` as props),
+and `supabase/seed.sql` never inserts any `teams` rows. After a clean
+`supabase db reset`, the `teams` table is empty, so zero cards render and the regex
+correctly finds nothing — not a text/format mismatch, a missing-fixture-data bug.
+`page.route()` mocks in the spec (`mockSupabaseTable`) cannot fix this because they
+only intercept browser-side requests, not the server-side SSR fetch (see L-0006).
+
+**Fix**: added `seedTeams()` to `tests/e2e/global-setup.ts`, called from the main
+`globalSetup()` flow after `seedTournament()`. It upserts two fixture teams
+(`onConflict: 'tournament_id,team_number'`, idempotent) into the active E2E
+tournament. Fixture team names ("Foxes", "Hawks") were deliberately chosen to avoid
+the words Eagle/Birdie/Par/Bogey, which collide with the score-legend chip text
+asserted by TC-0088 (`getByText('Eagle')` would otherwise also match a team named
+"Eagles" in the scores table). No changes to `teams-manager.tsx` — the component and
+the original `^H\d+$` selector were both already correct.
 
 ---
 
