@@ -490,3 +490,7 @@ Pricing basis: Claude Sonnet 4.6 — Input $3/MTok · Output $15/MTok · Cache R
 | 2026-06-29 | dc5db55d-f228-41eb-9a60-147e4926bd9c | claude/musing-golick-a33771       | 1735141      | 370121        | 60715861          | 30.2665  |
 | 2026-06-29 | dc5db55d-f228-41eb-9a60-147e4926bd9c | claude/musing-golick-a33771       | 1754841      | 378170        | 64953625          | 31.7324  |
 | 2026-06-29 | dc5db55d-f228-41eb-9a60-147e4926bd9c | claude/musing-golick-a33771       | 1805397      | 413808        | 72932514          | 34.8478  |
+| 2026-06-30 | 457bbb8f-0496-4cbe-9ab2-0e9dfdcabd51 | docs/session-cost-log-determined-lewin     | 717875       | 114215        | 9661373           | 7.3036   |
+| 2026-06-30 | 457bbb8f-0496-4cbe-9ab2-0e9dfdcabd51 | docs/session-cost-log-determined-lewin     | 1088331      | 116676        | 10534172          | 8.9915   |
+| 2026-06-30 | 8bd6aac3-df89-474c-9151-7d11ac630609 | develop                                    | 536836       | 114680        | 21322838          | 10.1210  |
+| 2026-06-30 | 8bd6aac3-df89-474c-9151-7d11ac630609 | develop                                    | 537093       | 115029        | 21500146          | 10.1804  |
