@@ -1,5 +1,47 @@
 # Lessons Learned
 
+## L-0018 — A failing selector against an SSR card grid may mean "no data", not "wrong text"
+@session: 39 — 2026-06-30
+
+**Symptom**: TC-0086 asserted `getByText(/^H\d+$/).first()` for the starting-hole
+badge on `/admin/teams` team cards and found zero elements. BUG-0009's writeup
+assumed (reasonably, per L-0009/L-0013 precedent) that the badge text format had
+drifted during a redesign — "Hole 7" instead of "H7", or moved off visible text.
+
+**Root cause**: none of that. `teams-manager.tsx` renders `H{team.starting_hole ?? 1}`
+exactly as the test expects. The actual problem: `/admin/teams` is an SSR page
+(`page.tsx` fetches `supabase.from('teams')` server-side, passes rows as props), and
+`supabase/seed.sql` never inserts any `teams` rows. After a clean `supabase db reset`
+the table is empty — zero cards render, so the regex correctly matches nothing. The
+test had silently depended on leftover teams from manual/demo sessions that no
+longer existed once the DB was reset to a clean baseline.
+
+**Why this is sneaky**: a `getByText(regex)` selector that resolves to zero elements
+*looks* exactly the same whether the text format changed or the underlying list is
+simply empty. Both produce "0 elements" — Playwright gives no signal to distinguish
+"text doesn't match anything that exists" from "nothing exists to match".
+
+**Rules**:
+- Before assuming a UI text/selector drift, check whether the page actually has data
+  to render at all — query the table directly (`curl .../rest/v1/<table>` against the
+  local Supabase REST API, or `supabase db reset` then re-check) rather than reading
+  only the component source.
+- For any **SSR** admin page (no `'use client'` directive in `page.tsx`) whose E2E
+  test asserts on real rendered rows, the row data must come from either `seed.sql`
+  or `tests/e2e/global-setup.ts` — `page.route()` / `mockSupabaseTable` mocks never
+  reach a server-side fetch (L-0006 already covers this; this lesson adds the
+  failure-mode-looks-identical corollary).
+- When adding fixture seed data (team/player/club names) to `global-setup.ts`, avoid
+  words that collide with other tests' text assertions in the same spec file — e.g.
+  "Eagles"/"Birdies" as team names collide with the Eagle/Birdie/Par/Bogey score
+  legend chips on `/admin/scores` (TC-0088). Grep the spec file for the candidate
+  name before picking it.
+
+**Applies to**: Any E2E test for an SSR Server Component page that asserts on
+rendered list/grid content backed by a table `seed.sql` doesn't populate.
+
+---
+
 ## L-0017 — Cost-log hook dirties the worktree; commit it BEFORE `gh pr merge`
 @session: 38 — 2026-06-30
 
