@@ -1,5 +1,38 @@
 # FDgolf — Bug Tracker
 
+BUG-0011: E2E Lifecycle step-08 — player-to-team assignment PATCH never observed, timeout
+Severity: Medium (cascades to steps 10, 11, 12)
+Related Story: N/A (E2E test infra)
+Status: Open
+Fix Branch: TBD
+Lesson Encoded: No
+
+`tests/e2e/tournament-lifecycle.spec.ts:420` step-08 ("admin assigns Alex → Team Alpha
+and Blake → Team Beta") times out after 30s on:
+
+```
+adminPage.waitForResponse(
+  (r) => r.url().includes('/rest/v1/players') && r.request().method() === 'PATCH'
+)
+```
+
+This step was unreachable before BUG-0010 was fixed (the whole spec failed earlier, at
+step-05), so this is a newly-exposed, previously-undiagnosed failure — not a regression
+introduced by the BUG-0010 fix.
+
+Likely the same defect class as L-0016 (schema drift after migration 011): per Lens's
+review of BUG-0010, `assignPlayer()` in `teams-manager.tsx:84-90` upserts into
+`tournament_players`, not `players`, and migration `011_tournament_players.sql:122`
+dropped `players.team_id` entirely. The test is waiting for a `/rest/v1/players` PATCH
+that the app no longer issues — assignment now goes through `tournament_players`
+instead. Likely fix: update the test's `waitForResponse` predicate to match the
+`tournament_players` table/method actually used by `assignPlayer()`, after confirming
+the runtime request shape (PATCH vs POST/upsert) in a trace.
+
+Cascades: steps 10, 11, 12 are skipped due to declared serial dependency on step-08.
+
+---
+
 BUG-0010: E2E Lifecycle step-05 — "Add Tournament" button never found at /admin/tournament
 Severity: Medium (cascades to 6 downstream steps)
 Related Story: N/A (E2E test infra)
@@ -39,11 +72,9 @@ scoped to the table row instead; (2) step-07 asserted team names render as
 `input[value=...]`, but `teams-manager.tsx:240` renders them as a plain `<span>` in
 the list view — switched to `getByText(..., { exact: true })`.
 
-Step-08 onward still fails (`page.waitForResponse` times out waiting for a
-`/rest/v1/players` PATCH after selecting a team for a player) — this was never
-reachable before BUG-0010 was fixed and is a distinct, not-yet-diagnosed issue. Filed
-separately rather than folded into this fix to keep the BUG-0010 change scoped to the
-tournament-creation routing problem.
+Step-08 onward still fails — this was never reachable before BUG-0010 was fixed and is
+a distinct issue, filed separately as **BUG-0011** rather than folded into this fix to
+keep the BUG-0010 change scoped to the tournament-creation routing problem.
 
 Read the original trace at
 `tests/e2e/screenshots/tournament-lifecycle-Tourn-1f177-ionhead-Spring-Classic-2026-chromium-lifecycle/error-context.md`
