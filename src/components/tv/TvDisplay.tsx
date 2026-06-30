@@ -264,9 +264,19 @@ export function TvDisplay({ tournament, initialLeaderboard, initialSponsors }: T
           </div>
         </header>
 
-        {/* ── Body: 25% leaderboard | 75% panel ───────────────────── */}
+        {/* ── Body: 34% leaderboard | 66% panel ───────────────────── */}
         <div className="flex flex-1 overflow-hidden">
-          <div className="h-full" style={{ width: '25%', borderRight: '1px solid #e2e8df' }}>
+          {/*
+            TvLeaderboard's row grid (rank 20px + Team 1fr + Trend 80px + Thru 28px
+            + Score 46px, gap 6px×4, plus the row's own 16px×2 padding and 4px×2
+            margin) needs roughly 320-330px of content width to show the Team
+            column's `1fr` track at a usable size. At the previous 25% (≈245px of
+            the 980px design width), the Team track resolved to ~4px and the
+            `truncate` span effectively vanished — team names rendered invisible.
+            34% (≈333px) is the minimum that keeps every column legible without
+            reflowing the rotator panels on the right. See BUG-0008 in docs/BUGS.md.
+          */}
+          <div className="h-full" style={{ width: '34%', borderRight: '1px solid #e2e8df' }}>
             <TvLeaderboard leaderboard={leaderboard} sparklines={sparklines} />
           </div>
           <div className="flex-1 h-full">
