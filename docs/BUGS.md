@@ -1,5 +1,77 @@
 # FDgolf — Bug Tracker
 
+BUG-0010: E2E Lifecycle step-05 — "Add Tournament" button never found at /admin/tournament
+Severity: Medium (cascades to 6 downstream steps)
+Related Story: N/A (E2E test infra)
+Status: Open
+Fix Branch: TBD
+Lesson Encoded: No
+
+`tests/e2e/tournament-lifecycle.spec.ts:235` navigates to `/admin/tournament` (singular)
+and calls `getByRole('button', { name: /add tournament/i }).click()`. The button never
+becomes available — test times out at 30s with "Target page, context or browser has
+been closed". The failure cascades: steps 06, 07, 08, 10, 11, 12 are skipped due to
+declared serial dependencies.
+
+Hypotheses worth testing before committing to a fix:
+- `/admin/tournament` (singular) is the scoped tournament-admin route per the active-
+  tournament cookie pattern from session 36. system_admin may need `/admin/tournaments`
+  (plural) instead to see the Add button.
+- The "Add Tournament" CTA label may have been renamed during PR #38 (admin role
+  dashboards) or PR #34 (admin pages redesign).
+- The redirect logic in `(admin)/layout.tsx` (the cookie write we fixed in PR #43)
+  could be sending the admin to a different page than expected.
+
+Read the trace at `tests/e2e/screenshots/tournament-lifecycle-Tourn-1f177-ionhead-Spring-Classic-2026-chromium-lifecycle/error-context.md` for the page snapshot at failure.
+
+---
+
+BUG-0009: E2E TC-0086 — admin teams page "H{n}" starting-hole badge selector misses
+Severity: Low
+Related Story: N/A (E2E test infra)
+Status: Open
+Fix Branch: TBD
+Lesson Encoded: No
+
+`tests/e2e/admin.spec.ts:408` asserts `getByText(/^H\d+$/).first()` for the starting-
+hole badge on each team card. Selector finds zero elements — the badge text format on
+`/admin/teams` no longer matches `^H<digit>+$`. Likely candidates:
+- Label was reworked to "Hole 7" (full word) during the admin pages redesign (PR #34)
+- Badge moved into an aria-label / data-attribute rather than visible text
+- Badge has surrounding whitespace or a non-digit character (e.g. "H-7", "H 7")
+
+Inspect a rendered team card via `npm run dev` → `/admin/teams` or via the screenshot
+at `tests/e2e/screenshots/admin-TC-0086-teams-...` to confirm the actual format, then
+either update the regex or move to a stable selector (data-testid).
+
+---
+
+BUG-0008: E2E TC-0067 — TV leaderboard first team name reported as hidden across 14 matches
+Severity: Low
+Related Story: N/A (E2E test infra)
+Status: Open
+Fix Branch: TBD
+Lesson Encoded: No
+
+`tests/e2e/tv-leaderboard.spec.ts:97` asserts `getByText(fakeLeaderboard[0].team_name).first().toBeVisible()`.
+Locator resolves to **14 elements** all of which are hidden. PR #43 renamed the team
+fixtures away from stat-panel collisions (Eagles→Hawks etc.), but the failure persists
+— suggesting the leaderboard panel itself is hidden when the assertion runs, not a
+name collision. The TvStatsRotator likely starts on a different panel and rotates in;
+the test asserts before the leaderboard becomes the active panel.
+
+Two viable fixes:
+- Wait for the leaderboard panel to become active before asserting (look for the
+  panel's wrapping element with `visible: true`, or force the rotator to a specific
+  panel via a query param if the component supports it).
+- Tighten the locator to "leaderboard panel container .first()" so we don't match the
+  team name rendered as a hidden card in another panel.
+
+See `tests/e2e/screenshots/tv-leaderboard-TC-0067-lea-5e72c-eam-rows-and-column-headers-chromium-tv/`
+for the trace.
+
+---
+
 BUG-0001: E2E TC-0049 selector matched pencil button instead of name input
 Severity: Low
 Related Story: US-0023

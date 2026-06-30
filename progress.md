@@ -1,5 +1,37 @@
 # FDgolf-CM — Progress
 
+## Session 39 -- 2026-06-30 (E2E verification + Supabase image dedup)
+
+### What Was Done
+
+**E2E baseline on develop@`d328619`** (post-chip merges from session 36/38):
+- **68 passed, 3 failed, 2 skipped, 6 did not run** — vs. 14/54 at start of session 37
+- Remaining failures logged as **BUG-0008** (TC-0067 TV rotator), **BUG-0009** (TC-0086 admin teams H{n} badge), **BUG-0010** (lifecycle step-05; cascades to 6 downstream steps)
+
+**Supabase CLI + local stack upgrade for image dedup**:
+- Two local stacks (`FDgolf_Claude` + `FDgolf_CodeMie`) were on different image versions, eating ~6 GB of duplicate storage
+- Upgraded Supabase CLI v2.108.0 → v2.109.0 via `brew upgrade supabase/tap/supabase`
+- Stopped + restarted `FDgolf_CodeMie` stack — newer CLI pulled the same image versions Claude is on; both stacks now share a single set of images
+- `docker image prune -a` removed 8 newly-orphaned older images
+- **Disk reclaimed: 6.06 GB** (15.04 GB → 8.99 GB; 20 images → 12 images)
+- Local DB data preserved via Docker volumes; data resumed identically after restart
+
+**No code changes** — diagnosis + infrastructure work only.
+
+### Test Results
+- CI on develop: ✅ green throughout (CI, CodeQL, Plan Visualizer)
+- Jest: 147 tests, 91.2% coverage (unchanged)
+- E2E: 68/79 (excluding skipped) = 86%
+
+### Branch / PRs
+- No PRs opened or merged this session — purely diagnosis + ops
+- BUGS.md gets 3 new entries (BUG-0008/0009/0010) via the session-close PR
+
+### Follow-up
+- Brainstorming prompt drafted (see `docs/superpowers/prompts/2026-06-30-fix-e2e-trio.md`) for fixing BUG-0008/0009/0010 in a fresh Sonnet 5 session
+
+---
+
 ## Session 37 -- 2026-06-29 (worktree/branch cleanup + E2E unblock)
 
 ### What Was Done
