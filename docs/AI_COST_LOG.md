@@ -495,3 +495,9 @@ Pricing basis: Claude Sonnet 4.6 — Input $3/MTok · Output $15/MTok · Cache R
 | 2026-06-30 | 457bbb8f-0496-4cbe-9ab2-0e9dfdcabd51 | docs/session-cost-log-determined-lewin     | 1088331      | 116676        | 10534172          | 8.9915   |
 | 2026-06-30 | 8bd6aac3-df89-474c-9151-7d11ac630609 | develop                                    | 536836       | 114680        | 21322838          | 10.1210  |
 | 2026-06-30 | 8bd6aac3-df89-474c-9151-7d11ac630609 | develop                                    | 537093       | 115029        | 21500146          | 10.1804  |
+| 2026-06-30 | dc5db55d-f228-41eb-9a60-147e4926bd9c | claude/musing-golick-a33771       | 2463332      | 446825        | 84461427          | 41.2690  |
+| 2026-06-30 | dc5db55d-f228-41eb-9a60-147e4926bd9c | claude/musing-golick-a33771       | 3115370      | 448359        | 84526367          | 43.7566  |
+| 2026-06-30 | dc5db55d-f228-41eb-9a60-147e4926bd9c | claude/musing-golick-a33771       | 3117846      | 449837        | 85961859          | 44.2187  |
+| 2026-06-30 | dc5db55d-f228-41eb-9a60-147e4926bd9c | claude/musing-golick-a33771       | 3157183      | 478311        | 100269714         | 49.0856  |
+| 2026-06-30 | 9e542fbf-936e-4b70-9a8a-ab7a8306837b | docs/append-session-cost-row-final         | 2034057      | 217185        | 49089472          | 25.6121  |
+| 2026-06-30 | 5c213811-75bf-4679-ae5f-906e5b4b2659 | claude/keen-ptolemy-556223        | 1400420      | 101990        | 43375120          | 19.7937  |
