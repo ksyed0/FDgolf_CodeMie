@@ -13,21 +13,20 @@ Stack: Next.js 16 App Router · TypeScript · Tailwind CSS · shadcn/ui · Supab
 
 ---
 
-## Branch State (as of Session 37 close — 2026-06-29)
+## Branch State (as of Session 38 close — 2026-06-30)
 
 | Branch | Status | Notes |
 |--------|--------|-------|
 | `main` | **v0.7 released** | Kiosk demo improvements live |
-| `develop` | HEAD `c9b46dd` | E2E unblock merged (PR #43); lifecycle step-02 fix merged (PR #44) |
+| `develop` | HEAD `e5c2539` | BUG-0007 flaky tests (PR #45), lifecycle step-04 (PR #47), admin-roles cookie fix (PR #49), session 37 docs (PR #50), cost log (PR #51) all merged |
 
-**Current open PRs**: None
-
-**Repo hygiene**: 18 → 2 worktrees, 31 → 3 local branches, 11 → 2 remote branches (cleaned up Session 37). Only `develop` + `main` remain on origin.
+**Current open PRs**: None (will be 1 — PR for session 38 docs — after this commit)
 
 ### Active follow-up chips (queued, not started)
 
-1. **SyncEngine flaky localStorage E2E checks** — `tests/e2e/round-scoring.spec.ts` TC-0030/0031/0026/0064. Mock the shots POST to fail (queue persists) OR assert outbound request like TC-0029 does.
-2. **tournament_admin routing E2E** — `tests/e2e/admin-roles.spec.ts` TC-0092/0093/0095. Tournament_admin doesn't redirect /admin/tournaments → /admin/tournament; investigate page-level role check + `tournament_admin_assignments` seed.
+_(both prior chips were shipped this session — see below)_
+
+— none —
 
 ### Platform debt — hard deadline 2026-10-30
 

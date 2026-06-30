@@ -1,5 +1,20 @@
 # Lessons Learned
 
+## L-0017 — Cost-log hook dirties the worktree; commit it BEFORE `gh pr merge`
+@session: 38 — 2026-06-30
+
+**Symptom**: `gh pr merge 45 --squash --delete-branch` exited 1 with `error: Your local changes to the following files would be overwritten by checkout: docs/AI_COST_LOG.md`. Crucially, the **server-side merge actually succeeded** — only the local branch-delete step failed. The error message was misleading: it looked like the whole merge had aborted, but the PR was already merged. Later, a cost-log row I pushed to the branch *after* that point never reached `develop` because the PR had already squashed without it.
+
+**Root cause**: The cost accumulator hook writes to `docs/AI_COST_LOG.md` continuously during a session. `gh pr merge --delete-branch` checks out the default branch locally so it can delete the head branch — and that checkout aborts on a dirty working tree. Even when the merge succeeds, any commits pushed to the head branch *after* `gh pr merge` returned are orphaned: the PR squash already locked in a base SHA.
+
+**Rules**:
+- Before any `gh pr merge` (any flavor), run `git status` and commit `docs/AI_COST_LOG.md` if it's dirty. Same rule that already applied to `git stash` / branch-switch — extend it to PR merges.
+- After `gh pr merge` returns success, *do not* push further commits to that branch expecting them to land. The squash is final; new commits are orphans even if the remote branch still exists for a moment.
+- If `gh pr merge` errors with the dirty-working-tree message, re-check the PR state on GitHub before assuming the merge failed. It almost certainly succeeded server-side; the local cleanup is what errored. Use `gh pr view <n> --json state,mergedAt` to confirm.
+- If a cost-log row is stranded post-merge, the recovery is a tiny new PR appending it to develop — already a well-trodden pattern (PR #48, PR #51). It's not catastrophic, just noise.
+
+---
+
 ## L-0016 — E2E test fixtures rot when migrations change column shape
 @session: 37 — 2026-06-29
 
