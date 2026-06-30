@@ -471,3 +471,5 @@ Pricing basis: Claude Sonnet 4.6 — Input $3/MTok · Output $15/MTok · Cache R
 | 2026-06-29 | 8bd6aac3-df89-474c-9151-7d11ac630609 | develop                                    | 373130       | 100409        | 14305042          | 7.1877   |
 | 2026-06-29 | 9e542fbf-936e-4b70-9a8a-ab7a8306837b | bugfix/BUG-0007-flaky-shot-queue-e2e-tests | 362076       | 141803        | 19042086          | 9.1973   |
 | 2026-06-29 | 9e542fbf-936e-4b70-9a8a-ab7a8306837b | docs/append-session-cost-row-bug-0007      | 469002       | 192061        | 37124385          | 15.7768  |
+| 2026-06-30 | 9e542fbf-936e-4b70-9a8a-ab7a8306837b | docs/session-38-close                      | 1114254      | 206002        | 43475567          | 20.3109  |
+| 2026-06-30 | 9e542fbf-936e-4b70-9a8a-ab7a8306837b | docs/session-38-close                      | 1564180      | 208196        | 43540321          | 22.0505  |
