@@ -1398,3 +1398,34 @@ Executed 7-task implementation plan using subagent-driven development (DM_AGENT 
 **Next steps:**
 - Merge PR #41 once CI green
 - Invite 125 tournament players (CSV import or individual magic link via new feature)
+
+## Session 38 — 2026-06-30
+
+**Stories shipped:** BUG-0007 — flaky shot-queue E2E assertions (PR #45). Merged the four E2E follow-ups from session 37.
+
+**What was done:**
+- Diagnosed and fixed the 4 flaky E2E tests in `tests/e2e/round-scoring.spec.ts` (TC-0030, TC-0031, TC-0026, TC-0064). Two compounding bugs: wrong localStorage key (`fdgolf_sync_queue` vs the real `fdgolf-cm_sync_queue` from the rebrand) and the queue draining before the test could read it.
+- TC-0030, TC-0031 rewritten on TC-0029's `page.waitForRequest` pattern with body inspection.
+- TC-0026, TC-0064 use the new `mockShotsApi(page, { fail: true })` failure mode to keep the queue persistent.
+- `tests/e2e/helpers/supabase-mock.ts` — `mockShotsApi` now also intercepts `${SB_URL}/rest/v1/shots` (SyncEngine's real write path; `/api/shots` was a dead legacy route) and accepts `{ fail: true }`.
+- Verified by overlaying the fix onto PR #43's branch (since `develop` didn't yet have the `tournament_players` mock): 13/13 round-scoring tests pass on `chromium-mobile`.
+- BUG-0007 registered in `docs/BUGS.md` + `docs/ID_REGISTRY.md`.
+- Reviewed 4 open PRs and merged them in order #45 → #47 → #49 → #50. Then opened and merged PR #51 to land a stranded `docs/AI_COST_LOG.md` row.
+
+**Test results:**
+- Local Playwright `round-scoring.spec.ts` chromium-mobile: 13/13 PASS
+- All 5 PRs landed with green CI (format, audit, test, CodeQL, Vercel)
+- No source-code (`src/`) changes this session, so Jest coverage is unchanged from 90.67%
+
+**Branch:** `bugfix/BUG-0007-flaky-shot-queue-e2e-tests` → PR #45 (merged)
+
+**Net E2E delta:** With #45 (BUG-0007) and #49 (admin-roles TC-0092/0093/0095) landing today on top of #43, the round-scoring + admin-roles failures from session 37 are resolved. The 10 remaining failures should be down to 1 (lifecycle step-04 was the other test fix in the queue — landed as PR #47).
+
+**Operational notes / friction:**
+- `gh pr merge --delete-branch` failed locally because the cost-log hook had written to `docs/AI_COST_LOG.md`. The remote merge succeeded; only the local branch cleanup errored. → encoded as L-0017.
+- The cost-log row I pushed to PR #45 *after* the squash merge never reached `develop`. Rescued via a tiny one-row PR #51, but this is the second time the cost-log timing has bitten us — keeping L-0017's rule "commit cost log before any `gh pr merge`" front and center.
+
+**Next steps:**
+- Run the full E2E suite to confirm the 58/10 → ~67/1 improvement is real.
+- Address the last remaining failure (whatever isn't lifecycle / round-scoring / admin-roles).
+- Platform debt: `auto_expose_new_tables` flag removal on 2026-10-30. File a migration that adds explicit GRANTs by end of September.
