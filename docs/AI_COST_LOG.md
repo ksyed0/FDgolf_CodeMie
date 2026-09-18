@@ -535,3 +535,8 @@ Pricing basis: Claude Sonnet 4.6 — Input $3/MTok · Output $15/MTok · Cache R
 | 2026-09-18 | b55c8aaf-a2ca-49ba-97ee-99871292acec | develop                                    | 2005616      | 315916        | 68898612          | 32.6221  |
 | 2026-09-18 | b55c8aaf-a2ca-49ba-97ee-99871292acec | develop                                    | 2011148      | 319124        | 69889236          | 32.9879  |
 | 2026-09-18 | b55c8aaf-a2ca-49ba-97ee-99871292acec | develop                                    | 2041334      | 330941        | 73077627          | 34.2342  |
+| 2026-09-18 | b55c8aaf-a2ca-49ba-97ee-99871292acec | docs/test-case-coverage-gap-fill           | 2409481      | 392904        | 81156495          | 38.8869  |
+| 2026-09-18 | b55c8aaf-a2ca-49ba-97ee-99871292acec | docs/test-case-coverage-gap-fill           | 2410001      | 392932        | 81256087          | 38.9191  |
+| 2026-09-18 | b55c8aaf-a2ca-49ba-97ee-99871292acec | docs/test-case-coverage-gap-fill           | 2410642      | 392958        | 81356157          | 38.9520  |
+| 2026-09-18 | b55c8aaf-a2ca-49ba-97ee-99871292acec | docs/test-case-coverage-gap-fill           | 2411240      | 392997        | 81456866          | 38.9850  |
+| 2026-09-18 | b55c8aaf-a2ca-49ba-97ee-99871292acec | docs/test-case-coverage-gap-fill           | 2414505      | 393683        | 81864952          | 39.1299  |
