@@ -1,74 +1,167 @@
 # FDgolf — Bug Tracker
 
-BUG-0010: E2E Lifecycle step-05 — "Add Tournament" button never found at /admin/tournament
-Severity: Medium (cascades to 6 downstream steps)
+BUG-0011: E2E Lifecycle step-08 — player-to-team assignment PATCH never observed, timeout
+Severity: Medium (cascades to steps 10, 11, 12)
 Related Story: N/A (E2E test infra)
 Status: Open
 Fix Branch: TBD
 Lesson Encoded: No
 
-`tests/e2e/tournament-lifecycle.spec.ts:235` navigates to `/admin/tournament` (singular)
-and calls `getByRole('button', { name: /add tournament/i }).click()`. The button never
-becomes available — test times out at 30s with "Target page, context or browser has
-been closed". The failure cascades: steps 06, 07, 08, 10, 11, 12 are skipped due to
+`tests/e2e/tournament-lifecycle.spec.ts:420` step-08 ("admin assigns Alex → Team Alpha
+and Blake → Team Beta") times out after 30s on:
+
+```
+adminPage.waitForResponse(
+  (r) => r.url().includes('/rest/v1/players') && r.request().method() === 'PATCH'
+)
+```
+
+This step was unreachable before BUG-0010 was fixed (the whole spec failed earlier, at
+step-05), so this is a newly-exposed, previously-undiagnosed failure — not a regression
+introduced by the BUG-0010 fix.
+
+Likely the same defect class as L-0016 (schema drift after migration 011): per Lens's
+review of BUG-0010, `assignPlayer()` in `teams-manager.tsx:84-90` upserts into
+`tournament_players`, not `players`, and migration `011_tournament_players.sql:122`
+dropped `players.team_id` entirely. The test is waiting for a `/rest/v1/players` PATCH
+that the app no longer issues — assignment now goes through `tournament_players`
+instead. Likely fix: update the test's `waitForResponse` predicate to match the
+`tournament_players` table/method actually used by `assignPlayer()`, after confirming
+the runtime request shape (PATCH vs POST/upsert) in a trace.
+
+Cascades: steps 10, 11, 12 are skipped due to declared serial dependency on step-08.
+
+---
+
+BUG-0010: E2E Lifecycle step-05 — "Add Tournament" button never found at /admin/tournament
+Severity: Medium (cascades to 6 downstream steps)
+Related Story: N/A (E2E test infra)
+Status: Fixed
+Fix Branch: fix/BUG-0010-lifecycle-add-tournament
+Lesson Encoded: No
+
+`tests/e2e/tournament-lifecycle.spec.ts:235` navigated to `/admin/tournament` (singular)
+and called `getByRole('button', { name: /add tournament/i }).click()`. The button never
+became available — test timed out at 30s with "Target page, context or browser has
+been closed". The failure cascaded: steps 06, 07, 08, 10, 11, 12 were skipped due to
 declared serial dependencies.
 
-Hypotheses worth testing before committing to a fix:
-- `/admin/tournament` (singular) is the scoped tournament-admin route per the active-
-  tournament cookie pattern from session 36. system_admin may need `/admin/tournaments`
-  (plural) instead to see the Add button.
-- The "Add Tournament" CTA label may have been renamed during PR #38 (admin role
-  dashboards) or PR #34 (admin pages redesign).
-- The redirect logic in `(admin)/layout.tsx` (the cookie write we fixed in PR #43)
-  could be sending the admin to a different page than expected.
+Confirmed root cause: `/admin/tournament` (singular) is the scoped operational
+dashboard for whichever tournament is "active" per the active-tournament cookie. It
+only renders TournamentManager's create/edit form when no tournament is currently
+active/paused. `global-setup.ts` deliberately activates the seeded CIBC tournament
+before the whole suite runs (so round-scoring/leaderboard specs have an active
+tournament to exercise), so by the time this spec ran, `/admin/tournament` always
+showed the read-only TournamentControlDashboard — it never had an "Add Tournament"
+button to find. Tournament _creation_ lives at `/admin/tournaments` (plural) — the
+system_admin-only global list (TournamentsList).
 
-Read the trace at `tests/e2e/screenshots/tournament-lifecycle-Tourn-1f177-ionhead-Spring-Classic-2026-chromium-lifecycle/error-context.md` for the page snapshot at failure.
+Fix: step-05 now navigates to `/admin/tournaments` and creates the tournament via
+TournamentsList's Add form (a native `<select>`-based form, unlike
+VenueManager/CourseManager/TournamentManager's Radix comboboxes — added a
+`selectNativeByLabel()` helper for it, and the slug must be filled explicitly since
+this form doesn't auto-fill it from the name). Step-06 then clicks "Manage" on the
+Lionhead card to set the active-tournament cookie and route to `/admin/tournament`,
+where it exercises the existing edit/activate flow.
+
+While verifying the cascade, two more pre-existing, previously-unreached test bugs
+were exposed and fixed in this branch since they directly blocked confirming steps
+06/07 pass: (1) step-06's `getByText('Lionhead Spring Classic 2026')` hit Playwright
+strict-mode because the name also appears in the nav's active-tournament switcher —
+scoped to the table row instead; (2) step-07 asserted team names render as
+`input[value=...]`, but `teams-manager.tsx:240` renders them as a plain `<span>` in
+the list view — switched to `getByText(..., { exact: true })`.
+
+Step-08 onward still fails — this was never reachable before BUG-0010 was fixed and is
+a distinct issue, filed separately as **BUG-0011** rather than folded into this fix to
+keep the BUG-0010 change scoped to the tournament-creation routing problem.
+
+Read the original trace at
+`tests/e2e/screenshots/tournament-lifecycle-Tourn-1f177-ionhead-Spring-Classic-2026-chromium-lifecycle/error-context.md`
+for the page snapshot at the original failure.
 
 ---
 
 BUG-0009: E2E TC-0086 — admin teams page "H{n}" starting-hole badge selector misses
 Severity: Low
 Related Story: N/A (E2E test infra)
-Status: Open
-Fix Branch: TBD
-Lesson Encoded: No
+Status: Fixed
+Fix Branch: fix/BUG-0009-admin-teams-hole-badge
+Lesson Encoded: Yes
 
 `tests/e2e/admin.spec.ts:408` asserts `getByText(/^H\d+$/).first()` for the starting-
-hole badge on each team card. Selector finds zero elements — the badge text format on
-`/admin/teams` no longer matches `^H<digit>+$`. Likely candidates:
-- Label was reworked to "Hole 7" (full word) during the admin pages redesign (PR #34)
-- Badge moved into an aria-label / data-attribute rather than visible text
-- Badge has surrounding whitespace or a non-digit character (e.g. "H-7", "H 7")
+hole badge on each team card. Selector found zero elements.
 
-Inspect a rendered team card via `npm run dev` → `/admin/teams` or via the screenshot
-at `tests/e2e/screenshots/admin-TC-0086-teams-...` to confirm the actual format, then
-either update the regex or move to a stable selector (data-testid).
+**Root cause (confirmed)**: the badge format was never wrong. `teams-manager.tsx:249`
+renders `H{team.starting_hole ?? 1}` exactly, which matches `^H\d+$` perfectly. The
+real problem is that `/admin/teams` is an SSR page (`page.tsx` fetches
+`supabase.from('teams')` server-side and passes the rows to `TeamsManager` as props),
+and `supabase/seed.sql` never inserts any `teams` rows. After a clean
+`supabase db reset`, the `teams` table is empty, so zero cards render and the regex
+correctly finds nothing — not a text/format mismatch, a missing-fixture-data bug.
+`page.route()` mocks in the spec (`mockSupabaseTable`) cannot fix this because they
+only intercept browser-side requests, not the server-side SSR fetch (see L-0006).
+
+**Fix**: added `seedTeams()` to `tests/e2e/global-setup.ts`, called from the main
+`globalSetup()` flow after `seedTournament()`. It upserts two fixture teams
+(`onConflict: 'tournament_id,team_number'`, idempotent) into the active E2E
+tournament. Fixture team names ("Foxes", "Hawks") were deliberately chosen to avoid
+the words Eagle/Birdie/Par/Bogey, which collide with the score-legend chip text
+asserted by TC-0088 (`getByText('Eagle')` would otherwise also match a team named
+"Eagles" in the scores table). No changes to `teams-manager.tsx` — the component and
+the original `^H\d+$` selector were both already correct.
 
 ---
 
 BUG-0008: E2E TC-0067 — TV leaderboard first team name reported as hidden across 14 matches
 Severity: Low
 Related Story: N/A (E2E test infra)
-Status: Open
-Fix Branch: TBD
-Lesson Encoded: No
+Status: Fixed
+Fix Branch: fix/BUG-0008-tv-leaderboard-rotator-wait
+Lesson Encoded: Yes
 
-`tests/e2e/tv-leaderboard.spec.ts:97` asserts `getByText(fakeLeaderboard[0].team_name).first().toBeVisible()`.
-Locator resolves to **14 elements** all of which are hidden. PR #43 renamed the team
-fixtures away from stat-panel collisions (Eagles→Hawks etc.), but the failure persists
-— suggesting the leaderboard panel itself is hidden when the assertion runs, not a
-name collision. The TvStatsRotator likely starts on a different panel and rotates in;
-the test asserts before the leaderboard becomes the active panel.
+`tests/e2e/tv-leaderboard.spec.ts:97` asserted `getByText(fakeLeaderboard[0].team_name).first().toBeVisible()`.
+Locator resolved to **14 elements** all of which were hidden.
 
-Two viable fixes:
-- Wait for the leaderboard panel to become active before asserting (look for the
-  panel's wrapping element with `visible: true`, or force the rotator to a specific
-  panel via a query param if the component supports it).
-- Tighten the locator to "leaderboard panel container .first()" so we don't match the
-  team name rendered as a hidden card in another panel.
+**Confirmed root cause (two distinct bugs, both required for TC-0067 to pass):**
+
+1. **Locator collision, not rotator timing.** `TvStatsRotator` (`src/components/tv/TvStatsRotator.tsx`)
+   is purely state-driven: it takes a controlled `activePanelIndex` prop and renders
+   all 5 panels simultaneously, hiding inactive ones via `opacity-0 pointer-events-none`
+   (not `display:none`). The parent `TvDisplay.tsx` owns `activePanelIndex` (default
+   `0`) and rotates it via `setInterval(..., 15_000)` — panel index 4 ("Team Spotlight",
+   `TvTeamSpotlightPanel`) is only reached 60s after mount, long after the test's 5s
+   assertion window. `TvTeamSpotlightPanel` also renders the leader's team name
+   (`teamSpotlight.teamName`), so the original unscoped `page.getByText(...)` could
+   resolve `.first()` to that hidden rotator copy instead of the always-visible
+   `TvLeaderboard` sidebar row. Fix: added `data-testid="tv-leaderboard-panel"` to
+   `TvLeaderboard`'s root element and scoped all TC-0067 assertions to
+   `page.getByTestId('tv-leaderboard-panel')`. A Tailwind-class-based locator was
+   tried first (`div.h-full.flex.flex-col.overflow-hidden`) but Tailwind's utility
+   classes are reused broadly enough — including on `TvDisplay`'s outer scaled
+   wrapper, which contains both the sidebar and the rotator — that it failed to
+   disambiguate; a dedicated `data-testid` is the robust fix per the "stat-rotator
+   needs panel-targeting, not `.first()` on shared text" lesson (see LESSONS.md).
+2. **Separate, pre-existing fixture/layout bug that also blocked the assertion.**
+   `tests/e2e/helpers/fixtures.ts`'s `fakeLeaderboard` was missing `par_total`
+   (required by `LeaderboardRow` in `src/lib/types.ts`). `TvLeaderboard.tsx` computes
+   `vsParVal = row.total_score - row.par_total`, so the missing field produced `NaN`,
+   rendered as `"+NaN"` in the Sc column. That overflow, combined with the
+   leaderboard sidebar's width (`25%` of the 980px TV design width in
+   `TvDisplay.tsx`, ≈204px of usable row content after padding/margin), squeezed the
+   row's `1fr` Team-name grid track down to ~4px — `truncate` rendered the team-name
+   span at effectively zero width, which Playwright correctly reports as not
+   visible. Fixed the fixture to provide realistic `par_total`/`total_score` values,
+   and widened the sidebar from `25%` to `34%` (TvDisplay.tsx) — the minimum that
+   keeps the Team column's `1fr` track legible (~90px) without reflowing the
+   rotator panels on the right. (The original UI spec called for a 45% sidebar;
+   this is a partial restoration, not a full redesign — out of scope for this fix.)
+
+Verified via `npx playwright test tests/e2e/tv-leaderboard.spec.ts --project=chromium-tv`
+across 7+ full-suite runs (cold start + warm cache), all 8 tests passing every time.
 
 See `tests/e2e/screenshots/tv-leaderboard-TC-0067-lea-5e72c-eam-rows-and-column-headers-chromium-tv/`
-for the trace.
+for the original trace.
 
 ---
 
@@ -143,20 +236,20 @@ Lesson Encoded: No
 `next@14.2.35` (latest 14.x) contained 14 HIGH-severity advisories. All are fixed in
 `next@16.2.9`. The resolved CVEs:
 
-- GHSA-9g9p-9gw9-jx7f  DoS via Image Optimizer remotePatterns (self-hosted)
-- GHSA-h25m-26qc-wcjf  HTTP request deserialization DoS via RSC (self-hosted)
-- GHSA-ggv3-7p47-pfv8  HTTP request smuggling in rewrites (self-hosted)
-- GHSA-3x4c-7xq6-9pq8  Unbounded next/image disk cache growth (self-hosted)
-- GHSA-q4gf-8mx6-v5v3  DoS via Server Components (self-hosted)
-- GHSA-8h8q-6873-q5fj  DoS via Server Components (self-hosted)
-- GHSA-3g8h-86w9-wvmq  Middleware/Proxy redirect cache-poisoning
-- GHSA-ffhc-5mcf-pf4q  XSS in App Router apps using CSP nonces
-- GHSA-vfv6-92ff-j949  Cache poisoning via RSC cache-busting collisions
-- GHSA-gx5p-jg67-6x7h  XSS in beforeInteractive scripts with untrusted input
-- GHSA-h64f-5h5j-jqjh  DoS in Image Optimization API
-- GHSA-c4j6-fc7j-m34r  SSRF via WebSocket upgrades
-- GHSA-wfc6-r584-vfw7  Cache poisoning in RSC responses
-- GHSA-36qx-fr4f-26g5  Middleware/Proxy bypass in Pages Router i18n
+- GHSA-9g9p-9gw9-jx7f DoS via Image Optimizer remotePatterns (self-hosted)
+- GHSA-h25m-26qc-wcjf HTTP request deserialization DoS via RSC (self-hosted)
+- GHSA-ggv3-7p47-pfv8 HTTP request smuggling in rewrites (self-hosted)
+- GHSA-3x4c-7xq6-9pq8 Unbounded next/image disk cache growth (self-hosted)
+- GHSA-q4gf-8mx6-v5v3 DoS via Server Components (self-hosted)
+- GHSA-8h8q-6873-q5fj DoS via Server Components (self-hosted)
+- GHSA-3g8h-86w9-wvmq Middleware/Proxy redirect cache-poisoning
+- GHSA-ffhc-5mcf-pf4q XSS in App Router apps using CSP nonces
+- GHSA-vfv6-92ff-j949 Cache poisoning via RSC cache-busting collisions
+- GHSA-gx5p-jg67-6x7h XSS in beforeInteractive scripts with untrusted input
+- GHSA-h64f-5h5j-jqjh DoS in Image Optimization API
+- GHSA-c4j6-fc7j-m34r SSRF via WebSocket upgrades
+- GHSA-wfc6-r584-vfw7 Cache poisoning in RSC responses
+- GHSA-36qx-fr4f-26g5 Middleware/Proxy bypass in Pages Router i18n
 
 Fixed by upgrading `next` from 14.2.35 to 16.2.9 and `eslint-config-next` from 14.2.35
 to 16.2.9 in PR #14. `npm audit --audit-level=high` now exits 0 (only 2 moderate remain).
@@ -169,8 +262,8 @@ Fix Branch: develop (direct commit)
 Lesson Encoded: No
 
 The `codeql.yml` workflow fails with:
-  "Code scanning is not enabled for this repository. Please enable code scanning in
-   the repository settings."
+"Code scanning is not enabled for this repository. Please enable code scanning in
+the repository settings."
 
 Root cause: GitHub Code Scanning / Advanced Security is only available on Organization
 accounts (Team or Enterprise plan). The repo is on a personal GitHub Pro account —
@@ -185,37 +278,41 @@ CodeQL runs as a best-effort scan on every PR; PRs are not blocked. Dependabot a
 (free on all plans) enabled separately to cover the same CVE surface in the Security tab.
 
 Options if full SARIF dashboard is needed in future:
-  1. Transfer repo to a GitHub Organization + upgrade to Team plan
-  2. Make repo public — unlocks Code Scanning at no cost
-  3. Use a third-party SAST tool (Semgrep, Snyk) that reports outside GitHub Security tab
+
+1. Transfer repo to a GitHub Organization + upgrade to Team plan
+2. Make repo public — unlocks Code Scanning at no cost
+3. Use a third-party SAST tool (Semgrep, Snyk) that reports outside GitHub Security tab
 
 BUG-0007: E2E shot-queue tests fail because they assert on the wrong localStorage key
 Severity: Medium
 Related Story: N/A (test infrastructure)
 Steps to Reproduce:
-  1. Run `npx playwright test tests/e2e/round-scoring.spec.ts --project=chromium-mobile`
-  2. Observe TC-0030, TC-0031, TC-0026, TC-0064 fail.
-Expected: All four tests pass.
-Actual:
-  - TC-0030/0031/0026 read `localStorage.getItem('fdgolf_sync_queue')` and receive null;
-    the actual SyncEngine key is `fdgolf-cm_sync_queue` (post-rebrand). Even if the key
-    matched, the queue drains on first flush because the in-test Supabase mock makes
-    the outbound POST succeed instantly.
-  - TC-0064 seeds three queue entries via `addInitScript` under the same wrong key,
-    so the offline indicator never sees them.
-Status: Fixed
-Fix Branch: bugfix/BUG-0007-flaky-shot-queue-e2e-tests
-Lesson Encoded: No
+
+1. Run `npx playwright test tests/e2e/round-scoring.spec.ts --project=chromium-mobile`
+2. Observe TC-0030, TC-0031, TC-0026, TC-0064 fail.
+   Expected: All four tests pass.
+   Actual:
+
+- TC-0030/0031/0026 read `localStorage.getItem('fdgolf_sync_queue')` and receive null;
+  the actual SyncEngine key is `fdgolf-cm_sync_queue` (post-rebrand). Even if the key
+  matched, the queue drains on first flush because the in-test Supabase mock makes
+  the outbound POST succeed instantly.
+- TC-0064 seeds three queue entries via `addInitScript` under the same wrong key,
+  so the offline indicator never sees them.
+  Status: Fixed
+  Fix Branch: bugfix/BUG-0007-flaky-shot-queue-e2e-tests
+  Lesson Encoded: No
 
 Fix approach:
-  - TC-0030/0031: replace post-hoc localStorage read with `page.waitForRequest` against
-    the Supabase REST POST (the pattern TC-0029 already uses); assert the parsed POST
-    body's `outcome` field.
-  - TC-0026: same `waitForRequest` pattern, but force the POST to fail via the new
-    `mockShotsApi(page, { fail: true })` option so the queue persists, then read the
-    correct localStorage key.
-  - TC-0064: write the seed payload under the correct key (`fdgolf-cm_sync_queue`)
-    with the matching `created_at` field, and fail the POST so the seeded entries
-    don't drain before the indicator renders.
-  - `mockShotsApi` now also intercepts `${SB_URL}/rest/v1/shots` (where SyncEngine
-    actually writes) and accepts a `{ fail }` flag.
+
+- TC-0030/0031: replace post-hoc localStorage read with `page.waitForRequest` against
+  the Supabase REST POST (the pattern TC-0029 already uses); assert the parsed POST
+  body's `outcome` field.
+- TC-0026: same `waitForRequest` pattern, but force the POST to fail via the new
+  `mockShotsApi(page, { fail: true })` option so the queue persists, then read the
+  correct localStorage key.
+- TC-0064: write the seed payload under the correct key (`fdgolf-cm_sync_queue`)
+  with the matching `created_at` field, and fail the POST so the seeded entries
+  don't drain before the indicator renders.
+- `mockShotsApi` now also intercepts `${SB_URL}/rest/v1/shots` (where SyncEngine
+  actually writes) and accepts a `{ fail }` flag.

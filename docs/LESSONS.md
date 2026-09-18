@@ -1,5 +1,106 @@
 # Lessons Learned
 
+## L-0019 — Stat-rotator-style components need test waits or panel-targeting, not `.first()` on shared text
+
+@session: 40 — 2026-06-30
+
+**Symptom**: BUG-0008 — TC-0067 asserted
+`page.getByText(fakeLeaderboard[0].team_name).first().toBeVisible()` on the TV
+leaderboard route and the locator resolved to **14 matched elements, all hidden**.
+PR #43 had already renamed team fixtures away from stat-panel-label collisions
+(Eagles→Hawks etc.), but the failure persisted.
+
+**Root cause**: `TvStatsRotator` (`src/components/tv/TvStatsRotator.tsx`) mounts
+all 5 of its panels simultaneously and hides inactive ones via
+`opacity-0 pointer-events-none` (not `display:none`) — the parent `TvDisplay.tsx`
+owns a controlled `activePanelIndex` prop, rotated by `setInterval(..., 15_000)`.
+One of those panels (`TvTeamSpotlightPanel`, index 4) independently renders the
+leader's team name. An unscoped `page.getByText(team_name)` therefore matches
+*both* the always-visible `TvLeaderboard` sidebar row *and* the hidden rotator
+copy — and `.first()` resolves by DOM order, not visibility, so it can land on
+the hidden one. The rotator's 15s interval makes this look like a timing bug
+("the test asserts before rotation completes"), but the panel never needed to be
+the active one — the assertion target lives in an entirely different, always-on
+component.
+
+**Rules**:
+
+- For any component that mounts multiple state-toggled "panels"/"slides"/"steps"
+  simultaneously and hides inactive ones with CSS (opacity, visibility, or
+  `pointer-events`) rather than unmounting them, **never assert on bare,
+  page-wide `getByText(...)` for content that could plausibly also appear in
+  another panel.** Scope the locator to the specific panel/container you intend
+  to test, via a `data-testid` on that panel's root element.
+- Prefer a dedicated `data-testid` over a CSS-class-based locator for this kind
+  of scoping. Tailwind utility classes are reused broadly across a component
+  tree (e.g. `flex flex-col h-full overflow-hidden` matched both the intended
+  sidebar root *and* the page's outer scaled wrapper that contains everything,
+  including the rotator) — a class subset match is not guaranteed unique even
+  when it looks distinctive while reading the source.
+- Don't reach for `waitForTimeout(rotatorIntervalMs)` to "wait for the right
+  panel to rotate in" as the first fix — it's slow (multiplies by however many
+  panels deep the target is), brittle to future interval/panel-count changes,
+  and often unnecessary: check whether the assertion target actually lives in
+  an always-visible sibling component first, the way `TvLeaderboard` does here.
+- A second, independent bug can hide behind the first: after fixing the locator
+  scoping, TC-0067 still failed because the leaderboard fixture
+  (`tests/e2e/helpers/fixtures.ts`) was missing `par_total` (required by
+  `LeaderboardRow`), producing `"+NaN"` text that overflowed its grid column and
+  squeezed the adjacent `1fr` Team-name track down to ~4px — effectively
+  zero-width and correctly reported as not visible. Don't stop investigating
+  once the obvious/documented cause is fixed if the assertion still fails for a
+  different reason; re-measure (`getBoundingClientRect()`, computed styles) the
+  actual DOM rather than re-guessing from the component source.
+
+**Applies to**: Any E2E test against a tab/carousel/rotator/wizard-step
+component where multiple "views" are kept mounted and toggled via CSS rather
+than conditional rendering — common in TV/kiosk displays, onboarding flows, and
+tabbed admin panels in this codebase.
+
+---
+
+## L-0018 — A failing selector against an SSR card grid may mean "no data", not "wrong text"
+@session: 39 — 2026-06-30
+
+**Symptom**: TC-0086 asserted `getByText(/^H\d+$/).first()` for the starting-hole
+badge on `/admin/teams` team cards and found zero elements. BUG-0009's writeup
+assumed (reasonably, per L-0009/L-0013 precedent) that the badge text format had
+drifted during a redesign — "Hole 7" instead of "H7", or moved off visible text.
+
+**Root cause**: none of that. `teams-manager.tsx` renders `H{team.starting_hole ?? 1}`
+exactly as the test expects. The actual problem: `/admin/teams` is an SSR page
+(`page.tsx` fetches `supabase.from('teams')` server-side, passes rows as props), and
+`supabase/seed.sql` never inserts any `teams` rows. After a clean `supabase db reset`
+the table is empty — zero cards render, so the regex correctly matches nothing. The
+test had silently depended on leftover teams from manual/demo sessions that no
+longer existed once the DB was reset to a clean baseline.
+
+**Why this is sneaky**: a `getByText(regex)` selector that resolves to zero elements
+*looks* exactly the same whether the text format changed or the underlying list is
+simply empty. Both produce "0 elements" — Playwright gives no signal to distinguish
+"text doesn't match anything that exists" from "nothing exists to match".
+
+**Rules**:
+- Before assuming a UI text/selector drift, check whether the page actually has data
+  to render at all — query the table directly (`curl .../rest/v1/<table>` against the
+  local Supabase REST API, or `supabase db reset` then re-check) rather than reading
+  only the component source.
+- For any **SSR** admin page (no `'use client'` directive in `page.tsx`) whose E2E
+  test asserts on real rendered rows, the row data must come from either `seed.sql`
+  or `tests/e2e/global-setup.ts` — `page.route()` / `mockSupabaseTable` mocks never
+  reach a server-side fetch (L-0006 already covers this; this lesson adds the
+  failure-mode-looks-identical corollary).
+- When adding fixture seed data (team/player/club names) to `global-setup.ts`, avoid
+  words that collide with other tests' text assertions in the same spec file — e.g.
+  "Eagles"/"Birdies" as team names collide with the Eagle/Birdie/Par/Bogey score
+  legend chips on `/admin/scores` (TC-0088). Grep the spec file for the candidate
+  name before picking it.
+
+**Applies to**: Any E2E test for an SSR Server Component page that asserts on
+rendered list/grid content backed by a table `seed.sql` doesn't populate.
+
+---
+
 ## L-0017 — Cost-log hook dirties the worktree; commit it BEFORE `gh pr merge`
 @session: 38 — 2026-06-30
 

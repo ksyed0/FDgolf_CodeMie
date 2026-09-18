@@ -162,6 +162,44 @@ any) {
   }
 }
 
+async function seedTeams(admin: // eslint-disable-next-line @typescript-eslint/no-explicit-any
+any) {
+  // TC-0086 (and the team-cards UI generally) needs at least one real team row
+  // in the active E2E tournament. /admin/teams is an SSR page (page.tsx fetches
+  // `supabase.from('teams')` server-side) so page.route() mocks in the spec file
+  // cannot populate it — see docs/LESSONS.md L-0006. seed.sql never inserts teams,
+  // so without this step the table is empty after `supabase db reset` and the
+  // "H{n}" badge assertion fails for lack of data, not a selector/format mismatch.
+  const adminAny = admin as any
+  const { data: tournament } = await adminAny
+    .from('tournaments')
+    .select('id')
+    .eq('slug', E2E_TOURNAMENT_SLUG)
+    .maybeSingle()
+
+  if (!tournament) {
+    console.warn('[globalSetup] Could not seed teams — E2E tournament not found yet')
+    return
+  }
+
+  // Names deliberately avoid golf-score words (Eagle/Birdie/Par/Bogey) — those
+  // collide with the score-legend chips asserted in TC-0088 (admin.spec.ts).
+  const fixtures = [
+    { tournament_id: tournament.id, team_number: 1, team_name: 'Foxes', starting_hole: 1, max_players: 4 },
+    { tournament_id: tournament.id, team_number: 2, team_name: 'Hawks', starting_hole: 5, max_players: 4 },
+  ]
+
+  const { error } = await adminAny
+    .from('teams')
+    .upsert(fixtures, { onConflict: 'tournament_id,team_number' })
+
+  if (error) {
+    console.warn('[globalSetup] Could not seed teams:', error.message)
+  } else {
+    console.log('[globalSetup] Teams seeded for E2E tournament')
+  }
+}
+
 export default async function globalSetup() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? 'http://127.0.0.1:54321'
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY ?? ''
@@ -207,6 +245,7 @@ export default async function globalSetup() {
   }
   await seedTestPlayers(admin)
   await seedTournament(admin)
+  await seedTeams(admin)
 
   // Ensure .auth/ directory exists for storageState files
   mkdirSync('tests/e2e/.auth', { recursive: true })

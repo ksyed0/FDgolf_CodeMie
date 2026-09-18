@@ -13,20 +13,18 @@ Stack: Next.js 16 App Router · TypeScript · Tailwind CSS · shadcn/ui · Supab
 
 ---
 
-## Branch State (as of Session 38 close — 2026-06-30)
+## Branch State (as of Session 40 close — 2026-06-30)
 
 | Branch | Status | Notes |
 |--------|--------|-------|
 | `main` | **v0.7 released** | Kiosk demo improvements live |
-| `develop` | HEAD `e5c2539` | BUG-0007 flaky tests (PR #45), lifecycle step-04 (PR #47), admin-roles cookie fix (PR #49), session 37 docs (PR #50), cost log (PR #51) all merged |
+| `develop` | HEAD `13eadb6` | Session 39 docs (PR #59), BUG-0009 (PR #60), BUG-0010 (PR #61), BUG-0008 (PR #62) all merged |
 
-**Current open PRs**: None (will be 1 — PR for session 38 docs — after this commit)
+**Current open PRs**: None (will be 1 — PR for session 40 docs — after this commit)
 
 ### Active follow-up chips (queued, not started)
 
-_(both prior chips were shipped this session — see below)_
-
-— none —
+- **BUG-0011** — lifecycle step-08 (player→team assignment) E2E failure, newly exposed by the BUG-0010 fix. Diagnosis already in `docs/BUGS.md`: test waits for a `/rest/v1/players` PATCH the app no longer issues since migration 011 moved assignment to `tournament_players`. Needs a `waitForResponse` predicate update.
 
 ### Platform debt — hard deadline 2026-10-30
 
