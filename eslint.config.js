@@ -1,6 +1,7 @@
 'use strict';
 
 const js = require('@eslint/js');
+const nextConfig = require('eslint-config-next');
 
 const commonGlobals = {
   process: 'readonly',
@@ -28,9 +29,54 @@ const commonRules = {
 
 module.exports = [
   {
-    ignores: ['eslint.config.js', 'jest.config.js', 'playwright.config.js', '.claude/**'],
+    ignores: [
+      'eslint.config.js',
+      'jest.config.js',
+      'playwright.config.js',
+      '.claude/**',
+      'coverage/**',
+      'playwright-report/**',
+      'test-results/**',
+      '.next/**',
+      'out/**',
+      'docs/**',
+      'supabase/functions/**',
+      'supabase/.branches/**',
+      'supabase/.temp/**',
+    ],
   },
-  js.configs.recommended,
+  {
+    files: ['**/*.{js,cjs,mjs}'],
+    ...js.configs.recommended,
+  },
+  ...nextConfig,
+  {
+    files: ['src/**/*.{ts,tsx}'],
+    rules: {
+      // TypeScript's compiler already catches undefined refs and unused
+      // vars; the base JS rules produce false positives on type-only
+      // identifiers (e.g. `React.ReactNode` with no runtime import).
+      'no-undef': 'off',
+      'no-unused-vars': 'off',
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
+      ],
+      '@typescript-eslint/no-explicit-any': 'warn',
+      'no-console': ['warn', { allow: ['warn', 'error'] }],
+      eqeqeq: 'error',
+      'no-eval': 'error',
+      'no-implied-eval': 'error',
+      // Newly-enabled React Compiler rules (eslint-plugin-react-hooks v7,
+      // pulled in by the eslint-config-next 16 upgrade) flag several
+      // pre-existing idioms (mount-time fetch, ref-during-render tracking,
+      // clearing state synchronously before a debounce fires). Real fixes
+      // are behavioral changes, not lint-tooling ones — downgraded to warn
+      // pending BUG-0012 follow-up.
+      'react-hooks/set-state-in-effect': 'warn',
+      'react-hooks/refs': 'warn',
+    },
+  },
   {
     files: ['tools/**/*.js', 'orchestrator/**/*.js'],
     languageOptions: { sourceType: 'commonjs', globals: commonGlobals },

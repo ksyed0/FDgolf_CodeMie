@@ -33,6 +33,7 @@ const ROOT = path.resolve(__dirname, '..');
 // not in worktrees. Walk up to the git root so worktree invocations find it.
 function findGitRoot(start) {
   let dir = start;
+  // eslint-disable-next-line no-constant-condition -- bounded by the filesystem-root return below
   while (true) {
     if (fs.existsSync(path.join(dir, '.git'))) return dir;
     const parent = path.dirname(dir);

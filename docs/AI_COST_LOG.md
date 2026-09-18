@@ -525,9 +525,10 @@ Pricing basis: Claude Sonnet 4.6 — Input $3/MTok · Output $15/MTok · Cache R
 | 2026-09-18 | b55c8aaf-a2ca-49ba-97ee-99871292acec | docs/session-39-close                      | 1178748      | 188888        | 24810051          | 14.5315  |
 | 2026-09-18 | b55c8aaf-a2ca-49ba-97ee-99871292acec | docs/session-39-close                      | 1184126      | 193768        | 25982398          | 14.9763  |
 | 2026-09-18 | b55c8aaf-a2ca-49ba-97ee-99871292acec | docs/session-39-close                      | 1185571      | 194424        | 26380567          | 15.1109  |
-| 2026-06-30 | 526e112c-9953-4d21-98ac-a0cd1e36520c | claude/great-wescoff-d00a16                | 267413       | 35342         | 4610752           | 2.8376   |
-| 2026-06-30 | 526e112c-9953-4d21-98ac-a0cd1e36520c | claude/great-wescoff-d00a16                | 280964       | 38408         | 5438261           | 3.1826   |
-| 2026-06-30 | 526e112c-9953-4d21-98ac-a0cd1e36520c | claude/great-wescoff-d00a16                | 302458       | 47021         | 7072728           | 3.8792   |
-| 2026-06-30 | 526e112c-9953-4d21-98ac-a0cd1e36520c | claude/great-wescoff-d00a16                | 333809       | 55987         | 10275497          | 5.0917   |
-| 2026-06-30 | 526e112c-9953-4d21-98ac-a0cd1e36520c | claude/great-wescoff-d00a16                | 350176       | 62569         | 12996020          | 6.0678   |
-| 2026-06-30 | 526e112c-9953-4d21-98ac-a0cd1e36520c | claude/great-wescoff-d00a16                | 365691       | 69162         | 15720398          | 7.0418   |
+| 2026-09-18 | b55c8aaf-a2ca-49ba-97ee-99871292acec | docs/session-39-close                      | 1188376      | 195178        | 26785710          | 15.2542  |
+| 2026-09-18 | b55c8aaf-a2ca-49ba-97ee-99871292acec | docs/session-39-close                      | 1188846      | 195259        | 26922070          | 15.2981  |
+| 2026-09-18 | b55c8aaf-a2ca-49ba-97ee-99871292acec | docs/session-39-close                      | 1188945      | 195443        | 27195975          | 15.3833  |
+| 2026-09-18 | b55c8aaf-a2ca-49ba-97ee-99871292acec | docs/session-39-close                      | 1190742      | 196752        | 27882455          | 15.6155  |
+| 2026-09-18 | b55c8aaf-a2ca-49ba-97ee-99871292acec | docs/session-39-close                      | 1328912      | 200354        | 29301221          | 16.5733  |
+| 2026-09-18 | b55c8aaf-a2ca-49ba-97ee-99871292acec | docs/session-39-close                      | 1388091      | 224074        | 35893347          | 19.1268  |
+| 2026-09-18 | b55c8aaf-a2ca-49ba-97ee-99871292acec | docs/session-39-close                      | 1389132      | 224538        | 36147279          | 19.2138  |
