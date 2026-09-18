@@ -1,5 +1,54 @@
 # FDgolf — Bug Tracker
 
+BUG-0013: Shot edit/re-enter does not persist or recalculate sequence
+Severity: Medium
+Related Story: US-0021 (AC-0070)
+Status: Fixed
+Fix Branch: bugfix/BUG-0013-shot-edit-persistence
+Lesson Encoded: No
+
+There is no `editShot` / `edit-shot` / `EditShot` code anywhere under `src/` — grepping
+the codebase turns up nothing. AC-0068 and AC-0069 (shot history list + entering edit
+mode in the UI) are implemented and checked off, but there is no wired-up save path:
+editing a shot has no persistence and no shot-sequence recalculation.
+
+`TASK-0035 (US-0021): Implement shot edit/re-enter functionality` in
+`docs/RELEASE_PLAN.md` remains `Status: To Do` on the never-merged branch
+`feature/US-0021-edit-shot`. AC-0070 was left unchecked for this reason. Likely fix:
+resume/complete that branch — wire the existing edit-mode UI to an update call against
+the shot record and recompute subsequent shot sequence numbers for that hole.
+
+Fix approach: extended `SyncEngine` (`src/lib/sync-engine.ts`) beyond insert-only —
+`QueueEntry` gained optional `op: 'insert' | 'update'` and `match` fields (missing `op`
+defaults to `'insert'` for backward compatibility with anything already queued),
+`flush()` branches to `.update(payload).match(match)` for update entries, and a new
+`enqueueUpdate(table, payload, match)` method mirrors `enqueue()`. Extracted the
+sunk/un-sunk cascade decision into a pure, unit-tested helper,
+`computeShotEditCascade()` in the new `src/lib/shot-edit.ts`, which decides — from the
+shot's previous outcome, new outcome, and shot number — whether to upsert or delete the
+player's `scores` row, which trailing shots to delete, whether to re-invoke
+`calculate-best-ball`, and the new `holeSunk` value. Wired the shot-edit Save button in
+`round/page.tsx` to call `syncEngine.enqueueUpdate('shots', ...)` (offline-safe, matching
+`recordShot`'s existing pattern for the shots write) and to apply the cascade's
+side-effects via the same direct/awaited Supabase calls `recordShot` already uses for
+scores/best-ball (which require connectivity anyway), then update `dbShots`/`holeSunk`
+locally rather than re-fetching, to avoid racing the async `SyncEngine.flush()`. Checked
+off AC-0070 and flipped `TASK-0035` to `Status: Done` in `docs/RELEASE_PLAN.md`.
+
+Verified: `npx tsc --noEmit` clean, `npm run lint` clean at error level, `npm run test:ci`
+187/187 passing (coverage 90.81%/82.83%/85.71%/96.34%, all above the ≥80%/≥70%/≥80%/≥80%
+thresholds — `shot-edit.ts` is at 100% across the board, `sync-engine.ts`'s new update
+path is covered by new `src/__tests__/sync-engine.test.ts` cases including a
+backward-compatibility test for legacy insert-only queue entries with no `op` field).
+Added a new E2E test to `tests/e2e/round-scoring.spec.ts` (`BUG-0013: editing a shot
+outcome sends a PATCH and updates the shot list`) asserting the edit Save button now
+sends a real PATCH and the shot list reflects the change; full `round-scoring.spec.ts`
+suite (14/14) passes.
+
+PR: TBD
+
+---
+
 BUG-0012: react-hooks v7 "React Compiler" rules flag pre-existing hook idioms
 Severity: Low
 Related Story: N/A (lint tooling)
