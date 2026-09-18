@@ -1,5 +1,42 @@
 # Lessons Learned
 
+## L-0020 — An offline write-queue that only supports `insert` is an architectural gap, not a missing feature
+
+@session: 41 — 2026-09-18
+
+**Symptom**: BUG-0013 — editing a recorded shot's outcome (e.g. correcting it to
+`sunk`, or un-sinking a mis-tap) called `supabase.from('shots').update(...)` directly
+in `round/page.tsx`, bypassing `SyncEngine` entirely. Offline, the edit silently
+vanished on refresh; online, it worked, masking the gap in normal testing.
+
+**Root cause**: `SyncEngine` (`src/lib/sync-engine.ts`) was built for `recordShot`'s
+one call shape — insert a new shot row — and `QueueEntry`/`flush()` had no concept of
+an update. When shot-editing was added later, the natural-looking shortcut was a
+direct Supabase call "since it's just editing an existing row," which quietly
+reintroduced the exact offline-durability gap `SyncEngine` exists to close for every
+other write in the round-scoring flow.
+
+**Rules**:
+
+- Before adding a new Supabase write inside `(player)/round/page.tsx` (or any other
+  offline-relied-upon flow), route it through `SyncEngine`, not a direct
+  `supabase.from(...)` call — check whether the queue already supports the needed
+  operation (`insert` vs `update`/`delete`) before assuming a "just this once" direct
+  call is safe.
+- When extending a queue/dispatch abstraction to a new operation type, keep the new
+  field optional and interpret its absence as the original behavior (`op` missing ⇒
+  `'insert'`) so already-queued/localStorage-persisted entries from before the change
+  keep working without a migration.
+- Keep business-logic decisions (e.g. "does this edit change the score/best-ball
+  state") in a pure, unit-testable helper (`src/lib/shot-edit.ts`'s
+  `computeShotEditCascade()`) rather than inline in the component — `round/page.tsx`
+  is outside the Jest coverage gate (`collectCoverageFrom` only covers `src/lib/**`
+  and `src/app/api/**`), so logic left inline is only ever exercised by heavier E2E
+  tests.
+
+**Applies to**: any future `SyncEngine` consumer, and any other offline-write-queue
+abstraction added to the codebase.
+
 ## L-0019 — Stat-rotator-style components need test waits or panel-targeting, not `.first()` on shared text
 
 @session: 40 — 2026-06-30

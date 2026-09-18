@@ -11,6 +11,7 @@ import { ClubSelector } from '@/components/club-selector';
 import { ShotOutcomeButtons } from '@/components/shot-outcome-buttons';
 import { HoleMap } from '@/components/hole-map';
 import { Button } from '@/components/ui/button';
+import { computeShotEditCascade } from '@/lib/shot-edit';
 import type { Player, Team, Hole, Club, RoundState, Shot, ShotOutcome, Score } from '@/lib/types';
 
 interface ShotMarker {
@@ -511,21 +512,115 @@ export default function RoundPage() {
                             size="sm"
                             className="flex-1 bg-[#1a472a] hover:bg-[#143820]"
                             onClick={async () => {
-                              const { error } = await supabase
-                                .from('shots')
-                                .update({ club_name: editClub, outcome: editOutcome })
-                                .eq('id', shot.id);
-                              if (error) {
-                                toast.error(error.message);
-                                return;
+                              const cascade = computeShotEditCascade(
+                                shot.outcome,
+                                editOutcome,
+                                shot.shot_number
+                              );
+
+                              // Offline-safe: queued and flushed by SyncEngine like recordShot's
+                              // own shots write.
+                              syncEngine.enqueueUpdate(
+                                'shots',
+                                { club_name: editClub, outcome: editOutcome },
+                                { id: shot.id }
+                              );
+
+                              if (
+                                cascade.deleteShotsAfter !== undefined &&
+                                tournament &&
+                                roundState
+                              ) {
+                                await supabase
+                                  .from('shots')
+                                  .delete()
+                                  .eq('tournament_id', tournament.id)
+                                  .eq('hole_number', roundState.current_hole)
+                                  .eq('player_id', shot.player_id)
+                                  .gt('shot_number', cascade.deleteShotsAfter);
                               }
-                              setDbShots((prev) =>
-                                prev.map((s) =>
+
+                              let scoreChanged = false;
+                              if (cascade.scoreAction === 'upsert' && tournament && roundState) {
+                                await supabase.from('scores').upsert(
+                                  {
+                                    player_id: shot.player_id,
+                                    team_id: roundState.team_id,
+                                    tournament_id: tournament.id,
+                                    hole_number: roundState.current_hole,
+                                    strokes: cascade.strokes,
+                                    is_best_ball: false,
+                                    override_by: null,
+                                    override_at: null,
+                                  },
+                                  { onConflict: 'player_id,tournament_id,hole_number' }
+                                );
+                                scoreChanged = true;
+                              } else if (
+                                cascade.scoreAction === 'delete' &&
+                                tournament &&
+                                roundState
+                              ) {
+                                await supabase
+                                  .from('scores')
+                                  .delete()
+                                  .eq('player_id', shot.player_id)
+                                  .eq('tournament_id', tournament.id)
+                                  .eq('hole_number', roundState.current_hole);
+                                scoreChanged = true;
+                              }
+
+                              if (cascade.recalculateBestBall && tournament && roundState) {
+                                supabase.functions
+                                  .invoke('calculate-best-ball', {
+                                    body: {
+                                      tournament_id: tournament.id,
+                                      team_id: roundState.team_id,
+                                      hole_number: roundState.current_hole,
+                                    },
+                                  })
+                                  .catch(console.error);
+                              }
+
+                              if (
+                                cascade.holeSunk !== undefined &&
+                                shot.player_id === activePlayerId
+                              ) {
+                                setHoleSunk(cascade.holeSunk);
+                              }
+
+                              setDbShots((prev) => {
+                                const updated = prev.map((s) =>
                                   s.id === shot.id
                                     ? { ...s, club_name: editClub, outcome: editOutcome }
                                     : s
-                                )
-                              );
+                                );
+                                return cascade.deleteShotsAfter !== undefined
+                                  ? updated.filter(
+                                      (s) =>
+                                        !(
+                                          s.player_id === shot.player_id &&
+                                          s.shot_number > cascade.deleteShotsAfter!
+                                        )
+                                    )
+                                  : updated;
+                              });
+
+                              if (scoreChanged && tournament && roundState) {
+                                setSummaryLoading(true);
+                                const { data: summaryData } = await supabase
+                                  .from('scores')
+                                  .select('*')
+                                  .eq('tournament_id', tournament.id)
+                                  .eq('hole_number', roundState.current_hole)
+                                  .in(
+                                    'player_id',
+                                    teammates.map((p) => p.id)
+                                  );
+                                setHoleSummaryScores((summaryData as Score[]) ?? []);
+                                setSummaryLoading(false);
+                              }
+
                               setEditingShot(null);
                               toast.success('Shot updated');
                             }}
