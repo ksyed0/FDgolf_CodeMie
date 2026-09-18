@@ -1,5 +1,45 @@
 # FDgolf — Bug Tracker
 
+BUG-0014: Score relative to par (birdie/bogey/etc.) not shown on hole-summary screen
+Severity: Medium
+Related Story: US-0023 (AC-0076)
+Status: Open
+Fix Branch: TBD
+Lesson Encoded: No
+
+`src/app/(player)/round/page.tsx` holds a `holeSummaryScores` state variable but never
+renders a vs-par label (birdie, bogey, par, etc.) alongside it — the hole-summary screen
+shows raw strokes only.
+
+`formatVsPar()` already exists in `src/lib/scoring.ts` and is already wired into
+`src/app/(player)/scorecard/page.tsx` and
+`src/app/(admin)/admin/scores/scores-table.tsx`, so this is not a missing capability —
+it's just never called from the hole-summary flow. AC-0076 was left unchecked in
+`docs/RELEASE_PLAN.md` for this reason. Likely fix: import `formatVsPar()` into
+`round/page.tsx` and render its output next to each score in the hole-summary view.
+
+---
+
+BUG-0013: Shot edit/re-enter does not persist or recalculate sequence
+Severity: Medium
+Related Story: US-0021 (AC-0070)
+Status: Open
+Fix Branch: TBD
+Lesson Encoded: No
+
+There is no `editShot` / `edit-shot` / `EditShot` code anywhere under `src/` — grepping
+the codebase turns up nothing. AC-0068 and AC-0069 (shot history list + entering edit
+mode in the UI) are implemented and checked off, but there is no wired-up save path:
+editing a shot has no persistence and no shot-sequence recalculation.
+
+`TASK-0035 (US-0021): Implement shot edit/re-enter functionality` in
+`docs/RELEASE_PLAN.md` remains `Status: To Do` on the never-merged branch
+`feature/US-0021-edit-shot`. AC-0070 was left unchecked for this reason. Likely fix:
+resume/complete that branch — wire the existing edit-mode UI to an update call against
+the shot record and recompute subsequent shot sequence numbers for that hole.
+
+---
+
 BUG-0012: react-hooks v7 "React Compiler" rules flag pre-existing hook idioms
 Severity: Low
 Related Story: N/A (lint tooling)
