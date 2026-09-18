@@ -128,8 +128,6 @@ describe('POST /api/admin/import-players', () => {
     };
     // Teams lookup
     const teamsQuery = { select: () => ({ eq: () => ({ data: [] }) }) };
-    // Player insert
-    const playerInsert = { insert: () => ({ select: jest.fn(), error: null }) };
 
     let callCount = 0;
     mockAdminFrom.mockImplementation((table: string) => {

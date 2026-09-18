@@ -1,5 +1,35 @@
 # FDgolf — Bug Tracker
 
+BUG-0012: react-hooks v7 "React Compiler" rules flag pre-existing hook idioms
+Severity: Low
+Related Story: N/A (lint tooling)
+Status: Open
+Fix Branch: TBD
+Lesson Encoded: No
+
+Fixing `eslint.config.js` (flat config had been silently shadowing
+`.eslintrc.json`, so `src/` had no real Next.js lint coverage) pulled in
+`eslint-config-next@16.2.9`'s bundled `eslint-plugin-react-hooks@7`, which adds
+stricter "React Compiler" rules. Two fire as errors against long-standing,
+intentional patterns:
+
+- `react-hooks/set-state-in-effect` — `setSearchResults([])` /
+  `setResults([])` synchronously clearing stale results inside a `useEffect`
+  before a debounce timer fires
+  (`src/app/(admin)/admin/roster/roster-manager.tsx:50`,
+  `src/app/(admin)/admin/tournament/tournament-admins.tsx:48`), and a
+  mount-time `refresh()` call (`src/hooks/use-gps.ts:25`).
+- `react-hooks/refs` — updating a tracking `ref.current` during render
+  (`src/app/(admin)/admin/roster/roster-manager.tsx:45`).
+
+Downgraded both rules to `warn` in `eslint.config.js` rather than rewriting
+component behavior under a lint-tooling fix. Real fix is to restructure these
+effects (e.g. move ref updates into an effect, replace the debounce-clear
+pattern with a request-id/AbortController guard) — a behavioral change that
+needs its own test coverage, tracked here for follow-up.
+
+---
+
 BUG-0011: E2E Lifecycle step-08 — player-to-team assignment PATCH never observed, timeout
 Severity: Medium (cascades to steps 10, 11, 12)
 Related Story: N/A (E2E test infra)

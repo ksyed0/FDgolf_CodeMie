@@ -670,7 +670,7 @@ export async function fetchTeamSpotlight(
       parMap,
       { data: scores, error: sErr },
       { data: players, error: pErr },
-      { data: shots, error: shErr },
+      { data: shots, error: _shErr },
     ] = await Promise.all([
       fetchParMap(supabase, tournament.course_id as string),
       supabase

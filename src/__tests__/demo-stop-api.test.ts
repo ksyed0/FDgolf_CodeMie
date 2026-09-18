@@ -71,7 +71,6 @@ describe('POST /api/demo/stop', () => {
   });
 
   it('returns 200 and sets status to paused for a demo tournament', async () => {
-    const fetchChain = makeChain({ data: { id: 'tid', is_demo: true }, error: null });
     const updateChain = makeChain({ error: null });
     updateChain.eq = jest.fn(() => Promise.resolve({ error: null }));
 
