@@ -118,6 +118,30 @@
       "dependencies": [
         "EPIC-0002"
       ]
+    },
+    {
+      "id": "EPIC-0011",
+      "title": "Multi-Tournament Administration, Venues & Courses",
+      "description": "system_admin vs tournament_admin role hierarchy, global venue and course (incl. holes + tee boxes) management reusable across tournaments, and a Tournament Control Dashboard for operating the active tournament. Backfilled retroactively — shipped in #8, #18, and a role-hierarchy pass without a tracked EPIC.",
+      "releaseTarget": "v0.2",
+      "status": "Done",
+      "startDate": null,
+      "doneDate": null,
+      "dependencies": [
+        "EPIC-0007"
+      ]
+    },
+    {
+      "id": "EPIC-0012",
+      "title": "Admin UI Redesign",
+      "description": "Consistent AdminTopBar page-title header applied across every /admin page. Backfilled retroactively — shipped alongside the venues/courses admin work without a tracked EPIC.",
+      "releaseTarget": "v0.2",
+      "status": "Done",
+      "startDate": null,
+      "doneDate": null,
+      "dependencies": [
+        "EPIC-0007"
+      ]
     }
   ],
   "stories": [
@@ -217,18 +241,18 @@
       "title": "As a developer, I want the project deployed to Vercel, so that we have a production URL for players to register.",
       "priority": "High",
       "estimate": "S",
-      "status": "Planned",
-      "branch": "feature/US-0004-vercel-deploy",
+      "status": "Done",
+      "branch": "develop (deployed Session 18 — vercel deploy --prod)",
       "acs": [
         {
           "id": "AC-0011",
-          "text": "Production deployment accessible via public URL",
-          "done": false
+          "text": "Production deployment accessible via public URL — https://fdgolfcm.vercel.app",
+          "done": true
         },
         {
           "id": "AC-0012",
-          "text": "Supabase env vars configured in Vercel",
-          "done": false
+          "text": "Supabase env vars configured in Vercel — all 4 vars set for Production + Preview scopes",
+          "done": true
         }
       ],
       "dependencies": [
@@ -1220,26 +1244,26 @@
     {
       "id": "US-0036",
       "epicId": "EPIC-0010",
-      "title": "As an admin, I want players to verify their identity via SMS OTP, so that accounts are secure.",
+      "title": "As a player, I want to request a magic link from the login page, so that I can sign in without remembering my password.",
       "priority": "Medium",
       "estimate": "M",
-      "status": "Planned",
-      "branch": "feature/US-0036-2fa",
+      "status": "Done",
+      "branch": "feature/US-0036-magic-link-login",
       "acs": [
         {
           "id": "AC-0122",
-          "text": "2FA enrollment during registration (optional)",
-          "done": false
+          "text": "\"Send Magic Link\" button on login page (type=\"button\", does not trigger form validation)",
+          "done": true
         },
         {
           "id": "AC-0123",
-          "text": "SMS OTP sent via Supabase Auth on login",
-          "done": false
+          "text": "POST /api/auth/request-link checks players table and calls signInWithOtp for enrolled players",
+          "done": true
         },
         {
           "id": "AC-0124",
-          "text": "User can disable 2FA from profile",
-          "done": false
+          "text": "Anti-enumeration — endpoint always returns 200 { ok: true } regardless of player existence",
+          "done": true
         }
       ],
       "dependencies": [
@@ -1273,6 +1297,286 @@
       ],
       "dependencies": [
         "US-0012"
+      ]
+    },
+    {
+      "id": "US-0038",
+      "epicId": "EPIC-0001",
+      "title": "As a developer, I want a full tournament lifecycle E2E test suite, so that I can verify the complete admin + player flow against a real local Supabase instance before tournament day.",
+      "priority": "High",
+      "estimate": "L",
+      "status": "Done",
+      "branch": "feature/tournament-lifecycle-e2e",
+      "acs": [
+        {
+          "id": "AC-0128",
+          "text": "Reset script (scripts/reset-lionhead.ts) wipes Lionhead test data and re-seeds both E2E players; idempotent",
+          "done": true
+        },
+        {
+          "id": "AC-0129",
+          "text": "chromium-lifecycle Playwright project runs tournament-lifecycle.spec.ts against local Supabase",
+          "done": true
+        },
+        {
+          "id": "AC-0130",
+          "text": "All 10 lifecycle steps pass (venue → course → holes → tournament → activate → teams → player assignment → scoring → leaderboard)",
+          "done": true
+        },
+        {
+          "id": "AC-0131",
+          "text": "Existing Jest unit tests still pass at ≥80% coverage after E2E additions",
+          "done": true
+        },
+        {
+          "id": "AC-0132",
+          "text": "Existing Playwright mock tests (chromium-desktop, chromium-mobile) unaffected",
+          "done": true
+        }
+      ],
+      "dependencies": [
+        "US-0003",
+        "US-0033"
+      ]
+    },
+    {
+      "id": "US-0039",
+      "epicId": "EPIC-0006",
+      "title": "As a tournament organiser, I want a full-screen TV leaderboard display at /live/[slug]/tv, so that I can project live standings and stats on the clubhouse screen during the round.",
+      "priority": "High",
+      "estimate": "L",
+      "status": "Done",
+      "branch": "feature/tv-leaderboard",
+      "acs": [
+        {
+          "id": "AC-0133",
+          "text": "Route /live/[slug]/tv is public (no auth), returns 404 for unknown slug",
+          "done": true
+        },
+        {
+          "id": "AC-0134",
+          "text": "Left panel shows ranked leaderboard (team/score/thru) refreshed every 30s",
+          "done": true
+        },
+        {
+          "id": "AC-0135",
+          "text": "Right panel rotates Panel A → B → C every 15s with CSS opacity fade",
+          "done": true
+        },
+        {
+          "id": "AC-0136",
+          "text": "All stat panels handle empty/zero data gracefully with defined empty-state copy",
+          "done": true
+        },
+        {
+          "id": "AC-0137",
+          "text": "Unit tests for tv-stats.ts achieve ≥80% coverage; full suite still passes at ≥80%",
+          "done": true
+        }
+      ],
+      "dependencies": [
+        "US-0038"
+      ]
+    },
+    {
+      "id": "US-0040",
+      "epicId": "EPIC-0011",
+      "title": "As a system_admin, I want a \"Global\" sidebar section with links to Tournaments, Players, Venues, Courses, and Clubs that tournament_admin users cannot see, so that only cross-tournament admins can reach cross-tournament resources.",
+      "priority": "High",
+      "estimate": "M",
+      "status": "Done",
+      "branch": "feature/role-hierarchy (backfilled)",
+      "acs": [
+        {
+          "id": "AC-0138",
+          "text": "system_admin sidebar shows a \"Global\" section with Tournaments, Players, Venues, Courses, and Clubs links",
+          "done": true
+        },
+        {
+          "id": "AC-0139",
+          "text": "tournament_admin sidebar has no \"Global\" section and no Venues/Courses links",
+          "done": true
+        },
+        {
+          "id": "AC-0140",
+          "text": "tournament_admin navigating directly to /admin/tournaments or /admin/players is redirected to /admin/tournament",
+          "done": true
+        }
+      ],
+      "dependencies": [
+        "US-0028"
+      ]
+    },
+    {
+      "id": "US-0041",
+      "epicId": "EPIC-0011",
+      "title": "As a system_admin, I want a Tournaments list page and a cross-tournament Roster page, so that I can see and manage every tournament and player, not just the active one.",
+      "priority": "Medium",
+      "estimate": "S",
+      "status": "Done",
+      "branch": "feature/role-hierarchy (backfilled)",
+      "acs": [
+        {
+          "id": "AC-0141",
+          "text": "/admin/tournaments renders a list of all tournaments for system_admin",
+          "done": true
+        },
+        {
+          "id": "AC-0142",
+          "text": "/admin/roster renders a \"Roster\" heading with the cross-tournament player list for system_admin",
+          "done": true
+        }
+      ],
+      "dependencies": [
+        "US-0040"
+      ]
+    },
+    {
+      "id": "US-0042",
+      "epicId": "EPIC-0011",
+      "title": "As a system_admin, I want to create, edit, and delete golf venues, so that venue data can be defined once and reused across multiple tournaments.",
+      "priority": "Medium",
+      "estimate": "M",
+      "status": "Done",
+      "branch": "feat/admin-venues-courses (#8)",
+      "acs": [
+        {
+          "id": "AC-0143",
+          "text": "/admin/venues lists venue cards with Edit and Delete controls",
+          "done": true
+        },
+        {
+          "id": "AC-0144",
+          "text": "New venue can be created via a form and appears in the venue list",
+          "done": true
+        },
+        {
+          "id": "AC-0145",
+          "text": "Existing venue can be edited or deleted, with the change reflected immediately in the list",
+          "done": true
+        }
+      ],
+      "dependencies": [
+        "US-0040"
+      ]
+    },
+    {
+      "id": "US-0043",
+      "epicId": "EPIC-0011",
+      "title": "As a system_admin, I want to manage courses independent of any single tournament — including holes (par, handicap) and multiple tee boxes (with optional GPS) — so that course data can be set up once and reused across tournaments.",
+      "priority": "Medium",
+      "estimate": "L",
+      "status": "Done",
+      "branch": "feat/admin-venues-courses (#8), feat/course-holes-overhaul (#18)",
+      "acs": [
+        {
+          "id": "AC-0146",
+          "text": "/admin/courses lists courses grouped into Front 9 / Back 9 sections",
+          "done": true
+        },
+        {
+          "id": "AC-0147",
+          "text": "Course holes editor supports \"Generate Holes\" and CSV import of hole_number/par/handicap",
+          "done": true
+        },
+        {
+          "id": "AC-0148",
+          "text": "Tee box editor supports multiple tee sets per course with lat/lng nullable (GPS is informational only; no scoring logic reads it)",
+          "done": true
+        }
+      ],
+      "dependencies": [
+        "US-0042"
+      ]
+    },
+    {
+      "id": "US-0044",
+      "epicId": "EPIC-0011",
+      "title": "As a system_admin, I want a Tournament Control Dashboard on the tournament page, so that I can operate (activate/pause/complete) the current tournament from one place.",
+      "priority": "Medium",
+      "estimate": "M",
+      "status": "Done",
+      "branch": "feature/role-hierarchy (backfilled)",
+      "acs": [
+        {
+          "id": "AC-0149",
+          "text": "/admin/tournament renders the TournamentControlDashboard component for the active tournament",
+          "done": true
+        }
+      ],
+      "dependencies": [
+        "US-0029",
+        "US-0040"
+      ]
+    },
+    {
+      "id": "US-0045",
+      "epicId": "EPIC-0012",
+      "title": "As an admin, I want a consistent page header (AdminTopBar) with the correct title on every /admin page, so that I always have clear navigation context.",
+      "priority": "Low",
+      "estimate": "S",
+      "status": "Done",
+      "branch": "feat/admin-venues-courses (#8)",
+      "acs": [
+        {
+          "id": "AC-0150",
+          "text": "AdminTopBar renders the correct h1 title matching the current section on every redesigned admin page",
+          "done": true
+        }
+      ],
+      "dependencies": [
+        "US-0028"
+      ]
+    },
+    {
+      "id": "US-0046",
+      "epicId": "EPIC-0003",
+      "title": "As a player, I want a Scorecard page showing my team's hole-by-hole results (with Best Ball highlighted) and totals, so that I can review the full round, not just the current hole.",
+      "priority": "Medium",
+      "estimate": "S",
+      "status": "Done",
+      "branch": "feat/phase6-po-items",
+      "acs": [
+        {
+          "id": "AC-0151",
+          "text": "/scorecard loads and renders a results table, or an empty state when no scores exist yet",
+          "done": true
+        },
+        {
+          "id": "AC-0152",
+          "text": "Scorecard table shows Hole/Par/Strokes columns with a totals row and Best Ball indication",
+          "done": true
+        }
+      ],
+      "dependencies": [
+        "US-0023"
+      ]
+    },
+    {
+      "id": "US-0047",
+      "epicId": "EPIC-0001",
+      "title": "As a developer, I want a precheck script that validates a given environment (fresh clone, CI runner, new dev machine) actually has the AC-0001–AC-0026 infra wired up, so that setup regressions are caught before behavioral tests run and fail for the wrong reason.",
+      "priority": "Medium",
+      "estimate": "S",
+      "status": "Done",
+      "branch": "docs/session-39-close",
+      "acs": [
+        {
+          "id": "AC-0153",
+          "text": "`npm run precheck` verifies required env vars are present and Supabase browser/server clients can connect (AC-0004–AC-0006, AC-0013)",
+          "done": true
+        },
+        {
+          "id": "AC-0154",
+          "text": "`npm run precheck` verifies all 9 tables exist, RLS blocks unauthenticated score reads, and seed data (clubs/holes/tournament) is present (AC-0007, AC-0008, AC-0016–AC-0018), printing PASS/FAIL per check and exiting non-zero on any failure",
+          "done": true
+        }
+      ],
+      "dependencies": [
+        "US-0002",
+        "US-0003",
+        "US-0005",
+        "US-0006"
       ]
     }
   ],
@@ -1626,6 +1930,116 @@
       "status": "To Do",
       "branch": "feature/US-0021-edit-shot",
       "notes": "Shot history list, tap to edit, update via sync engine"
+    },
+    {
+      "id": "TASK-0036",
+      "storyId": "US-0038",
+      "title": "Create scripts/reset-lionhead.ts — wipe and reseed Lionhead E2E test data",
+      "type": "Test",
+      "assignee": "Agent",
+      "status": "Done",
+      "branch": "feature/tournament-lifecycle-e2e",
+      "notes": "Deletes Lionhead venue/course/holes/tournament/teams/scores + auth users; re-creates e2e-lion-a and e2e-lion-b with player profiles; idempotent"
+    },
+    {
+      "id": "TASK-0037",
+      "storyId": "US-0038",
+      "title": "Create tests/e2e/tournament-lifecycle.spec.ts — 10-step serial Playwright lifecycle spec",
+      "type": "Test",
+      "assignee": "Agent",
+      "status": "Done",
+      "branch": "feature/tournament-lifecycle-e2e",
+      "notes": "Steps 2-8 + 10-12; admin creates venue/course/holes/tournament/teams; players score 3 holes each; leaderboard asserts Team Alpha (-2) ranked above Team Beta (+3). Requires reset-lionhead.ts + local Supabase running."
+    },
+    {
+      "id": "TASK-0038",
+      "storyId": "US-0039",
+      "title": "Build TV leaderboard feature — tv-stats.ts + page shell + TvDisplay + TvLeaderboard + TvStatsRotator + TvBirdiesPanel + TvHoleMapPanel + TvShotStatsPanel + unit tests",
+      "type": "Dev",
+      "assignee": "Agent",
+      "status": "Done",
+      "branch": "feature/tv-leaderboard",
+      "notes": "12 commits. tv-stats.ts queries birdies/momentum/hole-difficulty/shot-stats/best-achievement from existing tables (no new migrations). TvDisplay polls 30s + rotates panels 15s. All 5 stat functions catch errors and return empty. 35 unit tests added; coverage ≥80% restored."
+    },
+    {
+      "id": "TASK-0039",
+      "storyId": "US-0040",
+      "title": "Add system_admin role, \"Global\" sidebar section, and tournament_admin redirects",
+      "type": "Dev",
+      "assignee": "Agent",
+      "status": "Done",
+      "branch": "feature/role-hierarchy (backfilled)",
+      "notes": "Retroactively logged — implemented before RELEASE_PLAN.md tracking existed for this feature. Covered by tests/e2e/admin-roles.spec.ts (TC-0090–TC-0093)."
+    },
+    {
+      "id": "TASK-0040",
+      "storyId": "US-0041",
+      "title": "Build /admin/tournaments list page and /admin/roster cross-tournament page for system_admin",
+      "type": "Dev",
+      "assignee": "Agent",
+      "status": "Done",
+      "branch": "feature/role-hierarchy (backfilled)",
+      "notes": "Retroactively logged. Covered by tests/e2e/admin-roles.spec.ts (TC-0094, TC-0095)."
+    },
+    {
+      "id": "TASK-0041",
+      "storyId": "US-0042",
+      "title": "Build venue manager — list, add, edit, delete at /admin/venues",
+      "type": "Dev",
+      "assignee": "Agent",
+      "status": "Done",
+      "branch": "feat/admin-venues-courses (#8)",
+      "notes": "Originally implemented via a standalone \"Plan 2\" doc, not a tracked EPIC/US. Covered by tests/e2e/admin.spec.ts (TC-0079, TC-0083)."
+    },
+    {
+      "id": "TASK-0042",
+      "storyId": "US-0043",
+      "title": "Build course manager, course holes editor (Generate Holes + CSV import), and tee box editor with nullable GPS",
+      "type": "Dev",
+      "assignee": "Agent",
+      "status": "Done",
+      "branch": "feat/admin-venues-courses (#8), feat/course-holes-overhaul (#18)",
+      "notes": "Migration 009 made tee_boxes.lat/lng nullable. Ruby course scorecard data corrected as part of the same PR. Covered by tests/e2e/admin.spec.ts (TC-0084)."
+    },
+    {
+      "id": "TASK-0043",
+      "storyId": "US-0044",
+      "title": "Build TournamentControlDashboard component on /admin/tournament",
+      "type": "Dev",
+      "assignee": "Agent",
+      "status": "Done",
+      "branch": "feature/role-hierarchy (backfilled)",
+      "notes": "Retroactively logged. Covered by tests/e2e/admin.spec.ts (TC-0078)."
+    },
+    {
+      "id": "TASK-0044",
+      "storyId": "US-0045",
+      "title": "Build AdminTopBar component and apply it across all redesigned /admin pages",
+      "type": "Dev",
+      "assignee": "Agent",
+      "status": "Done",
+      "branch": "feat/admin-venues-courses (#8)",
+      "notes": "Retroactively logged. Covered by tests/e2e/admin.spec.ts (TC-0082)."
+    },
+    {
+      "id": "TASK-0045",
+      "storyId": "US-0046",
+      "title": "Build /scorecard page — hole-by-hole table, formatVsPar coloring, Best Ball checkmark, totals row",
+      "type": "Dev",
+      "assignee": "Agent",
+      "status": "Done",
+      "branch": "feat/phase6-po-items",
+      "notes": "Shipped in the \"phase6-po-items\" commit alongside magic link, pause state, team naming, invites, and mulligan report — none of which were tracked as a US/AC at the time; this is the only one of that batch without prior AC coverage (pause state → AC-0041, mulligans → US-0020, invites → US-0032/AC-0107, team naming → US-0033/AC-0110). Covered by tests/e2e/scorecard.spec.ts (TC-0074, TC-0075)."
+    },
+    {
+      "id": "TASK-0046",
+      "storyId": "US-0047",
+      "title": "Create scripts/precheck-env.ts + `npm run precheck` — validates AC-0001–AC-0026 infra against the current environment",
+      "type": "Dev",
+      "assignee": "Agent",
+      "status": "Done",
+      "branch": "docs/session-39-close",
+      "notes": "Checks env vars, Supabase browser/server client connectivity, all 9 tables present, RLS blocks unauthenticated score reads, and clubs/holes/tournament seed data present. Flags realtime (AC-0009) and Vercel prod config (AC-0011/AC-0012) as needing manual verification rather than faking a pass. Covered by TC-0129."
     }
   ],
   "testCases": [
@@ -2268,9 +2682,695 @@
       "type": "Functional",
       "status": "Not Run",
       "defect": "None"
+    },
+    {
+      "id": "TC-0065",
+      "title": "TV page loads for valid tournament slug",
+      "relatedStory": "US-0039",
+      "relatedTask": "N/A",
+      "relatedAC": "AC-0133",
+      "type": "Functional",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0066",
+      "title": "TV page returns 404 for unknown slug",
+      "relatedStory": "US-0039",
+      "relatedTask": "N/A",
+      "relatedAC": "AC-0133",
+      "type": "Edge Case",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0067",
+      "title": "Leaderboard panel shows team rows and column headers",
+      "relatedStory": "US-0039",
+      "relatedTask": "N/A",
+      "relatedAC": "AC-0134",
+      "type": "Functional",
+      "status": "Not Run",
+      "defect": "BUG-0008 (resolved)"
+    },
+    {
+      "id": "TC-0068",
+      "title": "Birdie panel shows empty state when no scores exist",
+      "relatedStory": "US-0039",
+      "relatedTask": "N/A",
+      "relatedAC": "AC-0136",
+      "type": "Edge Case",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0069",
+      "title": "Footer shows a panel indicator dot for every rotating TV panel",
+      "relatedStory": "US-0039",
+      "relatedTask": "N/A",
+      "relatedAC": "AC-0135",
+      "type": "Functional",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0070",
+      "title": "TV page accessible without any authentication",
+      "relatedStory": "US-0039",
+      "relatedTask": "N/A",
+      "relatedAC": "AC-0133",
+      "type": "Functional",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0071",
+      "title": "Dashboard shows tournament name and date",
+      "relatedStory": "US-0014",
+      "relatedTask": "N/A",
+      "relatedAC": "AC-0043",
+      "type": "Functional",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0072",
+      "title": "Dashboard shows team section after welcome card",
+      "relatedStory": "US-0014",
+      "relatedTask": "N/A",
+      "relatedAC": "AC-0044",
+      "type": "Functional",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0073",
+      "title": "Dashboard has a \"Start Round\" button",
+      "relatedStory": "US-0014",
+      "relatedTask": "N/A",
+      "relatedAC": "AC-0045",
+      "type": "Functional",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0074",
+      "title": "Scorecard page loads and shows table or empty state",
+      "relatedStory": "US-0046",
+      "relatedTask": "TASK-0045",
+      "relatedAC": "AC-0151",
+      "type": "Functional",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0075",
+      "title": "Scorecard table shows Hole, Par, and Strokes column headers when scores exist",
+      "relatedStory": "US-0046",
+      "relatedTask": "TASK-0045",
+      "relatedAC": "AC-0152",
+      "type": "Functional",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0076",
+      "title": "Sunk outcome submits score and shows hole completion UI",
+      "relatedStory": "US-0020",
+      "relatedTask": "N/A",
+      "relatedAC": "AC-0067",
+      "type": "Functional",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0077",
+      "title": "Round page renders GPS position widget or acquiring indicator",
+      "relatedStory": "US-0019",
+      "relatedTask": "N/A",
+      "relatedAC": "AC-0059",
+      "type": "Functional",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0078",
+      "title": "Admin tournament page renders TournamentControlDashboard for an active tournament",
+      "relatedStory": "US-0044",
+      "relatedTask": "TASK-0043",
+      "relatedAC": "AC-0149",
+      "type": "Functional",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0079",
+      "title": "Admin venues page shows AdminTopBar heading and venue cards",
+      "relatedStory": "US-0042",
+      "relatedTask": "TASK-0041",
+      "relatedAC": "AC-0143",
+      "type": "Functional",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0080",
+      "title": "TV page shows \"more teams\" message when leaderboard has more than 18 teams",
+      "relatedStory": "US-0039",
+      "relatedTask": "N/A",
+      "relatedAC": "AC-0134",
+      "type": "Edge Case",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0081",
+      "title": "TV page footer contains the tournament name",
+      "relatedStory": "US-0039",
+      "relatedTask": "N/A",
+      "relatedAC": "AC-0134",
+      "type": "Functional",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0082",
+      "title": "AdminTopBar renders the correct h1 title on every redesigned admin page",
+      "relatedStory": "US-0045",
+      "relatedTask": "TASK-0044",
+      "relatedAC": "AC-0150",
+      "type": "Functional",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0083",
+      "title": "Venues page shows venue cards with Edit and Delete buttons",
+      "relatedStory": "US-0042",
+      "relatedTask": "TASK-0041",
+      "relatedAC": "AC-0145",
+      "type": "Functional",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0084",
+      "title": "Courses page shows Front 9 and Back 9 sections",
+      "relatedStory": "US-0043",
+      "relatedTask": "TASK-0042",
+      "relatedAC": "AC-0146",
+      "type": "Functional",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0085",
+      "title": "Players page filter bar includes a static \"Pending —\" pill",
+      "relatedStory": "US-0032",
+      "relatedTask": "N/A",
+      "relatedAC": "AC-0105",
+      "type": "Functional",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0086",
+      "title": "Teams page shows team cards with starting hole badges",
+      "relatedStory": "US-0033",
+      "relatedTask": "N/A",
+      "relatedAC": "AC-0111",
+      "type": "Functional",
+      "status": "Not Run",
+      "defect": "BUG-0009 (resolved)"
+    },
+    {
+      "id": "TC-0087",
+      "title": "Clubs page shows a drag handle icon on every club row",
+      "relatedStory": "US-0031",
+      "relatedTask": "N/A",
+      "relatedAC": "AC-0103",
+      "type": "Functional",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0088",
+      "title": "Scores page shows Eagle/Birdie/Par/Bogey+ legend chips in AdminTopBar",
+      "relatedStory": "US-0034",
+      "relatedTask": "N/A",
+      "relatedAC": "N/A",
+      "type": "Functional",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0089",
+      "title": "Sponsors page shows TV Footer Preview section and \"Show on TV\" labels",
+      "relatedStory": "US-0035",
+      "relatedTask": "N/A",
+      "relatedAC": "AC-0121",
+      "type": "Functional",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0090",
+      "title": "system_admin sidebar shows Global section with Tournaments, Players, Venues, Courses, Clubs",
+      "relatedStory": "US-0040",
+      "relatedTask": "TASK-0039",
+      "relatedAC": "AC-0138",
+      "type": "Functional",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0091",
+      "title": "tournament_admin sidebar has no Global section",
+      "relatedStory": "US-0040",
+      "relatedTask": "TASK-0039",
+      "relatedAC": "AC-0139",
+      "type": "Functional",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0092",
+      "title": "tournament_admin navigating to /admin/tournaments redirects to /admin/tournament",
+      "relatedStory": "US-0040",
+      "relatedTask": "TASK-0039",
+      "relatedAC": "AC-0140",
+      "type": "Functional",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0093",
+      "title": "tournament_admin navigating to /admin/players redirects to /admin/tournament",
+      "relatedStory": "US-0040",
+      "relatedTask": "TASK-0039",
+      "relatedAC": "AC-0140",
+      "type": "Functional",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0094",
+      "title": "/admin/tournaments renders tournament list for system_admin",
+      "relatedStory": "US-0041",
+      "relatedTask": "TASK-0040",
+      "relatedAC": "AC-0141",
+      "type": "Functional",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0095",
+      "title": "/admin/roster renders Roster heading for system_admin",
+      "relatedStory": "US-0041",
+      "relatedTask": "TASK-0040",
+      "relatedAC": "AC-0142",
+      "type": "Functional",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0096",
+      "title": "Player record created in players table linked to auth user",
+      "relatedStory": "US-0010",
+      "relatedTask": "N/A",
+      "relatedAC": "AC-0031",
+      "type": "Functional",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0097",
+      "title": "Team number input validates against existing teams",
+      "relatedStory": "US-0011",
+      "relatedTask": "N/A",
+      "relatedAC": "AC-0032",
+      "type": "Edge Case",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0098",
+      "title": "Teammates displayed after team lookup",
+      "relatedStory": "US-0011",
+      "relatedTask": "N/A",
+      "relatedAC": "AC-0033",
+      "type": "Functional",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0099",
+      "title": "Login shows error message for invalid credentials",
+      "relatedStory": "US-0012",
+      "relatedTask": "N/A",
+      "relatedAC": "AC-0037",
+      "type": "Edge Case",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0100",
+      "title": "Player redirected to shot tracking screen after starting round",
+      "relatedStory": "US-0015",
+      "relatedTask": "N/A",
+      "relatedAC": "AC-0049",
+      "type": "Functional",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0101",
+      "title": "Pin marker visible on hole map with distinct color",
+      "relatedStory": "US-0016",
+      "relatedTask": "N/A",
+      "relatedAC": "AC-0051",
+      "type": "Functional",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0102",
+      "title": "Completed players shown with strikethrough in player pills",
+      "relatedStory": "US-0017",
+      "relatedTask": "N/A",
+      "relatedAC": "AC-0055",
+      "type": "Functional",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0103",
+      "title": "Tapping a player pill switches the active player",
+      "relatedStory": "US-0017",
+      "relatedTask": "N/A",
+      "relatedAC": "AC-0056",
+      "type": "Functional",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0104",
+      "title": "Selected club name stored on shot record",
+      "relatedStory": "US-0018",
+      "relatedTask": "N/A",
+      "relatedAC": "AC-0058",
+      "type": "Functional",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0105",
+      "title": "Player pin appears on map at captured GPS position",
+      "relatedStory": "US-0019",
+      "relatedTask": "N/A",
+      "relatedAC": "AC-0061",
+      "type": "Functional",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0106",
+      "title": "Four shot outcome buttons displayed after shot capture",
+      "relatedStory": "US-0020",
+      "relatedTask": "N/A",
+      "relatedAC": "AC-0063",
+      "type": "Functional",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0107",
+      "title": "Modified shot updates in database and recalculates sequence",
+      "relatedStory": "US-0021",
+      "relatedTask": "N/A",
+      "relatedAC": "AC-0070",
+      "type": "Functional",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0108",
+      "title": "Hole summary screen displayed after hole completion",
+      "relatedStory": "US-0022",
+      "relatedTask": "N/A",
+      "relatedAC": "AC-0073",
+      "type": "Functional",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0109",
+      "title": "\"Next Hole\" button advances correctly in shotgun sequence",
+      "relatedStory": "US-0024",
+      "relatedTask": "N/A",
+      "relatedAC": "AC-0077",
+      "type": "Functional",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0110",
+      "title": "Leaderboard shows top 20 teams by default",
+      "relatedStory": "US-0025",
+      "relatedTask": "N/A",
+      "relatedAC": "AC-0081",
+      "type": "Functional",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0111",
+      "title": "Public leaderboard renders same UI without \"Your Team\" pin",
+      "relatedStory": "US-0026",
+      "relatedTask": "N/A",
+      "relatedAC": "AC-0086",
+      "type": "Functional",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0112",
+      "title": "Sponsor logos visible below header on public leaderboard",
+      "relatedStory": "US-0026",
+      "relatedTask": "N/A",
+      "relatedAC": "AC-0088",
+      "type": "Functional",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0113",
+      "title": "Sponsor logos displayed in admin-set order below header",
+      "relatedStory": "US-0027",
+      "relatedTask": "N/A",
+      "relatedAC": "AC-0090",
+      "type": "Functional",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0114",
+      "title": "Sponsor logos visible on both authenticated and public leaderboard",
+      "relatedStory": "US-0027",
+      "relatedTask": "N/A",
+      "relatedAC": "AC-0091",
+      "type": "Functional",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0115",
+      "title": "Admin sidebar shows FDgolf + AI/Run branding at top, First Derivative at bottom",
+      "relatedStory": "US-0028",
+      "relatedTask": "N/A",
+      "relatedAC": "AC-0093",
+      "type": "Functional",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0116",
+      "title": "Active admin section highlighted with green border",
+      "relatedStory": "US-0028",
+      "relatedTask": "N/A",
+      "relatedAC": "AC-0094",
+      "type": "Functional",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0117",
+      "title": "Admin changes tournament status between setup/active/completed",
+      "relatedStory": "US-0029",
+      "relatedTask": "N/A",
+      "relatedAC": "AC-0098",
+      "type": "Functional",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0118",
+      "title": "Hole management table shows all 18 holes with number, par, handicap, and pin coordinates",
+      "relatedStory": "US-0030",
+      "relatedTask": "N/A",
+      "relatedAC": "AC-0099",
+      "type": "Functional",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0119",
+      "title": "Hole par and GPS edits are saved to the database",
+      "relatedStory": "US-0030",
+      "relatedTask": "N/A",
+      "relatedAC": "AC-0101",
+      "type": "Functional",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0120",
+      "title": "Admin adds, edits, and deletes clubs",
+      "relatedStory": "US-0031",
+      "relatedTask": "N/A",
+      "relatedAC": "AC-0102",
+      "type": "Functional",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0121",
+      "title": "Password reset button sends reset email from player admin",
+      "relatedStory": "US-0032",
+      "relatedTask": "N/A",
+      "relatedAC": "AC-0107",
+      "type": "Functional",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0122",
+      "title": "Player status indicators show active/pending correctly",
+      "relatedStory": "US-0032",
+      "relatedTask": "N/A",
+      "relatedAC": "AC-0108",
+      "type": "Functional",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0123",
+      "title": "Admin searches and assigns unassigned players to a team",
+      "relatedStory": "US-0033",
+      "relatedTask": "N/A",
+      "relatedAC": "AC-0110",
+      "type": "Functional",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0124",
+      "title": "Admin edits stroke count for any player",
+      "relatedStory": "US-0034",
+      "relatedTask": "N/A",
+      "relatedAC": "AC-0114",
+      "type": "Functional",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0125",
+      "title": "\"Recalculate Best Ball\" updates is_best_ball flag",
+      "relatedStory": "US-0034",
+      "relatedTask": "N/A",
+      "relatedAC": "AC-0115",
+      "type": "Functional",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0126",
+      "title": "Leaderboard updates immediately after a score override is saved",
+      "relatedStory": "US-0034",
+      "relatedTask": "N/A",
+      "relatedAC": "AC-0117",
+      "type": "Functional",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0127",
+      "title": "Admin sets sponsor name and display order",
+      "relatedStory": "US-0035",
+      "relatedTask": "N/A",
+      "relatedAC": "AC-0119",
+      "type": "Functional",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0128",
+      "title": "Admin toggles sponsor visibility on the leaderboard",
+      "relatedStory": "US-0035",
+      "relatedTask": "N/A",
+      "relatedAC": "AC-0120",
+      "type": "Functional",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0129",
+      "title": "Environment precheck script validates infra ACs against the running environment",
+      "relatedStory": "US-0047",
+      "relatedTask": "TASK-0046",
+      "relatedAC": "AC-0153, AC-0154",
+      "type": "Integration",
+      "status": "Not Run",
+      "defect": "None"
     }
   ],
   "bugs": [
+    {
+      "id": "BUG-0010",
+      "title": "E2E Lifecycle step-05 — \"Add Tournament\" button never found at /admin/tournament",
+      "severity": "Medium (cascades to 6 downstream steps)",
+      "relatedStory": "N/A (E2E test infra)",
+      "relatedTask": "",
+      "status": "Open",
+      "fixBranch": "TBD",
+      "lessonEncoded": "No",
+      "estimatedCostUsd": 0,
+      "ghIssueNumber": null
+    },
+    {
+      "id": "BUG-0009",
+      "title": "E2E TC-0086 — admin teams page \"H{n}\" starting-hole badge selector misses",
+      "severity": "Low",
+      "relatedStory": "N/A (E2E test infra)",
+      "relatedTask": "",
+      "status": "Open",
+      "fixBranch": "TBD",
+      "lessonEncoded": "No",
+      "estimatedCostUsd": 0,
+      "ghIssueNumber": null
+    },
+    {
+      "id": "BUG-0008",
+      "title": "E2E TC-0067 — TV leaderboard first team name reported as hidden across 14 matches",
+      "severity": "Low",
+      "relatedStory": "N/A (E2E test infra)",
+      "relatedTask": "",
+      "status": "Open",
+      "fixBranch": "TBD",
+      "lessonEncoded": "No",
+      "estimatedCostUsd": 0,
+      "ghIssueNumber": null
+    },
     {
       "id": "BUG-0001",
       "title": "E2E TC-0049 selector matched pencil button instead of name input",
@@ -2306,237 +3406,369 @@
       "lessonEncoded": "No",
       "estimatedCostUsd": 0,
       "ghIssueNumber": null
+    },
+    {
+      "id": "BUG-0004",
+      "title": "glob HIGH CVE (GHSA-5j98-mcp5-4vw2) via eslint-config-next dev dependency",
+      "severity": "High",
+      "relatedStory": "N/A (CI security scan)",
+      "relatedTask": "",
+      "status": "Fixed — resolved by upgrading eslint-config-next to 16.2.9 (PR #14)",
+      "fixBranch": "feature/upgrade-nextjs-16 (squash-merged to develop)",
+      "lessonEncoded": "No",
+      "estimatedCostUsd": 0,
+      "ghIssueNumber": null
+    },
+    {
+      "id": "BUG-0005",
+      "title": "next@14.x — 14 HIGH-severity CVEs with no non-breaking patch",
+      "severity": "High",
+      "relatedStory": "N/A (CI security scan)",
+      "relatedTask": "",
+      "status": "Fixed — resolved by upgrading next to 16.2.9 (PR #14)",
+      "fixBranch": "feature/upgrade-nextjs-16 (squash-merged to develop)",
+      "lessonEncoded": "No",
+      "estimatedCostUsd": 0,
+      "ghIssueNumber": null
+    },
+    {
+      "id": "BUG-0006",
+      "title": "CodeQL SARIF upload fails — Advanced Security requires GitHub Organization account",
+      "severity": "Low",
+      "relatedStory": "N/A (CI setup)",
+      "relatedTask": "",
+      "status": "Fixed — repo made public; continue-on-error removed; CodeQL now blocks PRs",
+      "fixBranch": "develop (direct commit)",
+      "lessonEncoded": "No",
+      "estimatedCostUsd": 0,
+      "ghIssueNumber": null
+    },
+    {
+      "id": "BUG-0007",
+      "title": "E2E shot-queue tests fail because they assert on the wrong localStorage key",
+      "severity": "Medium",
+      "relatedStory": "N/A (test infrastructure)",
+      "relatedTask": "",
+      "status": "Fixed",
+      "fixBranch": "bugfix/BUG-0007-flaky-shot-queue-e2e-tests",
+      "lessonEncoded": "No",
+      "estimatedCostUsd": 0,
+      "ghIssueNumber": null
     }
   ],
   "costs": {
     "US-0001": {
       "projectedUsd": 400,
-      "costUsd": 3.088576,
+      "costUsd": 9.817423,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0002": {
       "projectedUsd": 400,
-      "costUsd": 3.088576,
+      "costUsd": 9.817423,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0003": {
       "projectedUsd": 800,
-      "costUsd": 3.088576,
+      "costUsd": 9.817423,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0004": {
-      "projectedUsd": 0.9,
-      "costUsd": 3.088576,
+      "projectedUsd": 400,
+      "costUsd": 9.817423,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0005": {
       "projectedUsd": 400,
-      "costUsd": 3.088576,
+      "costUsd": 9.817423,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0006": {
       "projectedUsd": 400,
-      "costUsd": 3.088576,
+      "costUsd": 9.817423,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0007": {
       "projectedUsd": 400,
-      "costUsd": 3.088576,
+      "costUsd": 9.817423,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0008": {
       "projectedUsd": 800,
-      "costUsd": 3.088576,
+      "costUsd": 9.817423,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0009": {
       "projectedUsd": 400,
-      "costUsd": 3.088576,
+      "costUsd": 9.817423,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0010": {
       "projectedUsd": 400,
-      "costUsd": 3.088576,
+      "costUsd": 9.817423,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0011": {
       "projectedUsd": 800,
-      "costUsd": 3.088576,
+      "costUsd": 9.817423,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0012": {
       "projectedUsd": 400,
-      "costUsd": 3.088576,
+      "costUsd": 9.817423,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0013": {
       "projectedUsd": 400,
-      "costUsd": 3.088576,
+      "costUsd": 9.817423,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0014": {
       "projectedUsd": 400,
-      "costUsd": 3.088576,
+      "costUsd": 9.817423,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0015": {
       "projectedUsd": 400,
-      "costUsd": 3.088576,
+      "costUsd": 9.817423,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0016": {
       "projectedUsd": 800,
-      "costUsd": 3.088576,
+      "costUsd": 9.817423,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0017": {
       "projectedUsd": 400,
-      "costUsd": 3.088576,
+      "costUsd": 9.817423,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0018": {
       "projectedUsd": 400,
-      "costUsd": 3.088576,
+      "costUsd": 9.817423,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0019": {
       "projectedUsd": 800,
-      "costUsd": 3.088576,
+      "costUsd": 9.817423,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0020": {
       "projectedUsd": 800,
-      "costUsd": 3.088576,
+      "costUsd": 9.817423,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0021": {
       "projectedUsd": 800,
-      "costUsd": 3.088576,
+      "costUsd": 9.817423,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0022": {
       "projectedUsd": 400,
-      "costUsd": 3.088576,
+      "costUsd": 9.817423,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0023": {
       "projectedUsd": 400,
-      "costUsd": 3.088576,
+      "costUsd": 9.817423,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0024": {
       "projectedUsd": 400,
-      "costUsd": 3.088576,
+      "costUsd": 9.817423,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0025": {
       "projectedUsd": 800,
-      "costUsd": 3.088576,
+      "costUsd": 9.817423,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0026": {
       "projectedUsd": 400,
-      "costUsd": 3.088576,
+      "costUsd": 9.817423,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0027": {
       "projectedUsd": 400,
-      "costUsd": 3.088576,
+      "costUsd": 9.817423,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0028": {
       "projectedUsd": 400,
-      "costUsd": 3.088576,
+      "costUsd": 9.817423,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0029": {
       "projectedUsd": 400,
-      "costUsd": 3.088576,
+      "costUsd": 9.817423,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0030": {
       "projectedUsd": 800,
-      "costUsd": 3.088576,
+      "costUsd": 9.817423,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0031": {
       "projectedUsd": 400,
-      "costUsd": 3.088576,
+      "costUsd": 9.817423,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0032": {
       "projectedUsd": 800,
-      "costUsd": 3.088576,
+      "costUsd": 9.817423,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0033": {
       "projectedUsd": 800,
-      "costUsd": 3.088576,
+      "costUsd": 9.817423,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0034": {
       "projectedUsd": 800,
-      "costUsd": 3.088576,
+      "costUsd": 9.817423,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0035": {
       "projectedUsd": 800,
-      "costUsd": 3.088576,
+      "costUsd": 9.817423,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0036": {
-      "projectedUsd": 0.9,
-      "costUsd": 3.088576,
+      "projectedUsd": 800,
+      "costUsd": 9.817423,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0037": {
       "projectedUsd": 400,
-      "costUsd": 3.088576,
+      "costUsd": 9.817423,
       "inputTokens": 0,
       "outputTokens": 0
     },
+    "US-0038": {
+      "projectedUsd": 1600,
+      "costUsd": 9.817423,
+      "inputTokens": 0,
+      "outputTokens": 0
+    },
+    "US-0039": {
+      "projectedUsd": 1600,
+      "costUsd": 9.817423,
+      "inputTokens": 0,
+      "outputTokens": 0
+    },
+    "US-0040": {
+      "projectedUsd": 800,
+      "costUsd": 9.817423,
+      "inputTokens": 0,
+      "outputTokens": 0
+    },
+    "US-0041": {
+      "projectedUsd": 400,
+      "costUsd": 9.817423,
+      "inputTokens": 0,
+      "outputTokens": 0
+    },
+    "US-0042": {
+      "projectedUsd": 800,
+      "costUsd": 9.817423,
+      "inputTokens": 0,
+      "outputTokens": 0
+    },
+    "US-0043": {
+      "projectedUsd": 1600,
+      "costUsd": 9.817423,
+      "inputTokens": 0,
+      "outputTokens": 0
+    },
+    "US-0044": {
+      "projectedUsd": 800,
+      "costUsd": 9.817423,
+      "inputTokens": 0,
+      "outputTokens": 0
+    },
+    "US-0045": {
+      "projectedUsd": 400,
+      "costUsd": 9.817423,
+      "inputTokens": 0,
+      "outputTokens": 0
+    },
+    "US-0046": {
+      "projectedUsd": 400,
+      "costUsd": 9.817423,
+      "inputTokens": 0,
+      "outputTokens": 0
+    },
+    "US-0047": {
+      "projectedUsd": 400,
+      "costUsd": 101.324623,
+      "inputTokens": 7502833,
+      "outputTokens": 715256
+    },
     "_totals": {
-      "costUsd": 114.2773,
-      "inputTokens": 7738178,
-      "outputTokens": 1654331
+      "costUsd": 552.9261000000001,
+      "inputTokens": 39222352,
+      "outputTokens": 6249593
     },
     "_bugs": {
+      "BUG-0010": {
+        "costUsd": 0,
+        "inputTokens": 0,
+        "outputTokens": 0,
+        "sessions": 0,
+        "isEstimated": false,
+        "projectedUsd": 400
+      },
+      "BUG-0009": {
+        "costUsd": 0,
+        "inputTokens": 0,
+        "outputTokens": 0,
+        "sessions": 0,
+        "isEstimated": false,
+        "projectedUsd": 400
+      },
+      "BUG-0008": {
+        "costUsd": 0,
+        "inputTokens": 0,
+        "outputTokens": 0,
+        "sessions": 0,
+        "isEstimated": false,
+        "projectedUsd": 400
+      },
       "BUG-0001": {
         "costUsd": 0,
         "inputTokens": 0,
@@ -2554,6 +3786,38 @@
         "projectedUsd": 400
       },
       "BUG-0003": {
+        "costUsd": 0,
+        "inputTokens": 0,
+        "outputTokens": 0,
+        "sessions": 0,
+        "isEstimated": false,
+        "projectedUsd": 400
+      },
+      "BUG-0004": {
+        "costUsd": 0,
+        "inputTokens": 0,
+        "outputTokens": 0,
+        "sessions": 0,
+        "isEstimated": false,
+        "projectedUsd": 800
+      },
+      "BUG-0005": {
+        "costUsd": 0,
+        "inputTokens": 0,
+        "outputTokens": 0,
+        "sessions": 0,
+        "isEstimated": false,
+        "projectedUsd": 800
+      },
+      "BUG-0006": {
+        "costUsd": 0,
+        "inputTokens": 0,
+        "outputTokens": 0,
+        "sessions": 0,
+        "isEstimated": false,
+        "projectedUsd": 400
+      },
+      "BUG-0007": {
         "costUsd": 0,
         "inputTokens": 0,
         "outputTokens": 0,
@@ -2595,7 +3859,7 @@
       "noBranch": false,
       "failedTCNoBug": false,
       "openCriticalBug": false,
-      "isAtRisk": true
+      "isAtRisk": false
     },
     "US-0005": {
       "missingTCs": true,
@@ -2710,7 +3974,7 @@
       "isAtRisk": false
     },
     "US-0021": {
-      "missingTCs": true,
+      "missingTCs": false,
       "noBranch": false,
       "failedTCNoBug": false,
       "openCriticalBug": false,
@@ -2819,10 +4083,80 @@
       "noBranch": false,
       "failedTCNoBug": false,
       "openCriticalBug": false,
-      "isAtRisk": true
+      "isAtRisk": false
     },
     "US-0037": {
       "missingTCs": true,
+      "noBranch": false,
+      "failedTCNoBug": false,
+      "openCriticalBug": false,
+      "isAtRisk": false
+    },
+    "US-0038": {
+      "missingTCs": true,
+      "noBranch": false,
+      "failedTCNoBug": false,
+      "openCriticalBug": false,
+      "isAtRisk": false
+    },
+    "US-0039": {
+      "missingTCs": false,
+      "noBranch": false,
+      "failedTCNoBug": false,
+      "openCriticalBug": false,
+      "isAtRisk": false
+    },
+    "US-0040": {
+      "missingTCs": false,
+      "noBranch": false,
+      "failedTCNoBug": false,
+      "openCriticalBug": false,
+      "isAtRisk": false
+    },
+    "US-0041": {
+      "missingTCs": false,
+      "noBranch": false,
+      "failedTCNoBug": false,
+      "openCriticalBug": false,
+      "isAtRisk": false
+    },
+    "US-0042": {
+      "missingTCs": false,
+      "noBranch": false,
+      "failedTCNoBug": false,
+      "openCriticalBug": false,
+      "isAtRisk": false
+    },
+    "US-0043": {
+      "missingTCs": false,
+      "noBranch": false,
+      "failedTCNoBug": false,
+      "openCriticalBug": false,
+      "isAtRisk": false
+    },
+    "US-0044": {
+      "missingTCs": false,
+      "noBranch": false,
+      "failedTCNoBug": false,
+      "openCriticalBug": false,
+      "isAtRisk": false
+    },
+    "US-0045": {
+      "missingTCs": false,
+      "noBranch": false,
+      "failedTCNoBug": false,
+      "openCriticalBug": false,
+      "isAtRisk": false
+    },
+    "US-0046": {
+      "missingTCs": false,
+      "noBranch": false,
+      "failedTCNoBug": false,
+      "openCriticalBug": false,
+      "isAtRisk": false
+    },
+    "US-0047": {
+      "missingTCs": false,
       "noBranch": false,
       "failedTCNoBug": false,
       "openCriticalBug": false,
@@ -2834,42 +4168,138 @@
     "byEpic": {}
   },
   "coverage": {
-    "lines": 91.91,
-    "statements": 88.88,
-    "functions": 81.81,
-    "branches": 92.85,
-    "overall": 91.91,
+    "lines": 96.09,
+    "statements": 90.49,
+    "functions": 85.07,
+    "branches": 82.71,
+    "overall": 96.09,
     "meetsTarget": true,
     "available": true
   },
   "recentActivity": [
     {
-      "sessionNum": 14,
-      "date": "2026-06-11",
-      "summary": "Full agentic pipeline (Conductor → Pixel → Lens/Sentinel/Circuit → PR) executed against the approved design spec `docs/superpowers/specs/2026-06-11-feature-completion-design.md`.; ; **6 features implemented** on `feature/feature-completion-2026-06-11` (PR #3 → develop):"
+      "sessionNum": 32,
+      "date": "2026-06-23",
+      "summary": "**Kiosk demo quality improvements (commits 6a719a5, b355792 on develop):**; ; 1. **Persistent browser windows** — `foreground.ts` refactored to use module-level `_tvBrowser`/`_phoneBrowser` singletons. Browsers created once and reused across every round iteration. `finally { browser.close() }` removed. `closeBrowsers()` only called on error to reset for clean re-open."
     },
     {
-      "sessionNum": 13,
-      "date": "2026-06-11",
-      "summary": "**Local Supabase instance** — `supabase/config.toml` created with port offset +20 (54341–54349) to coexist with other local Supabase projects on OrbStack Docker. Instance running as `supabase_*_FDgolf_CodeMie`.; **Migration 005 registered** — policies were applied by `supabase start` but not tracked; inserted row into `supabase_migrations.schema_migrations` manually.; **`.env.local` updated** — `NEXT_PUBLIC_SUPABASE_URL` changed from port 54321 → 54341."
+      "sessionNum": 30,
+      "date": "2026-06-22",
+      "summary": "Executed kiosk demo plan via Subagent-Driven Development (8 tasks, all approved); Tasks: E2E role fixes, is_demo migration + restart API, TV restart overlay, demo utility scripts (types/score-gen/gps-gen), Lionhead seed script, background team injector, foreground Playwright controller, orchestrator run.ts; Fixed stale-closure bug in TvRestartOverlay (useRef pattern), insert error handling in seed-lionhead, startingHole rotation in background/foreground, bounded poll loops in run.ts"
     },
     {
-      "sessionNum": 12,
-      "date": "2026-06-10",
-      "summary": "**Mapbox migration** — replaced `@googlemaps/js-api-loader` with `mapbox-gl` + `react-map-gl`.;   - `src/components/hole-map.tsx` rewritten: `react-map-gl/mapbox`, satellite-v9 style, `interactive={false}`, shot markers;   - `NEXT_PUBLIC_MAPBOX_TOKEN` replaces `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY` in `.env.local.example`"
+      "sessionNum": 29,
+      "date": "2026-06-21",
+      "summary": "**App rename: FDgolf → FDgolf-CM (commit fddb59f)**; Updated all display text: admin sidebar wordmark, app headers, TV display, auth screen titles; `sync-engine.ts` localStorage key changed to `fdgolf-cm_sync_queue`"
     },
     {
-      "sessionNum": 9,
-      "date": "2026-06-10",
-      "summary": "**CLAUDE.md** — Rewritten from PlanVisualizer boilerplate into a project-specific reference. Added: commands table, architecture with route groups, data flow, lib modules, Supabase migrations, non-obvious technical decisions, testing section, git quick reference, Session Close Checklist (8 items), PlanVisualizer dashboard section.; **docs/ARCHITECTURE.md** — Created comprehensive technical documentation. 9 Mermaid diagrams: system overview, route groups, auth middleware flowchart, magic link sequence, ER diagram (9 tables), shot recording sequence, offline sync state machine, real-time leaderboard sequence, 4 user journeys.; **AGENTS.md** — Fully rewritten and expanded. Now includes: BLAST phases (Blueprint/Link/Architect/Stylize/Trigger), Migration Tracking, Prompt Logging, User Profile as Design Constraint, Design System Compliance, API Versioning (/api/v1/), Concurrency Safety, Orchestration Engine, File & Deliverable Structure."
+      "sessionNum": 30,
+      "date": "2026-06-21",
+      "summary": "**Kiosk demo brainstormed and specced** via `superpowers:brainstorming` skill:; Venue: Lionhead Golf and Country Club, Legends Course (18 holes, par 72, Blue tee 6,454 yds); Design decisions: single script two Playwright instances, GPS injected post-submit to DB, score range par+0 to par+4, restart via manual button or 10-min countdown"
     },
     {
-      "sessionNum": 8,
-      "date": "2026-06-09",
-      "summary": "**RELEASE_PLAN.md synced** — corrected story statuses (Python regex had matched across block boundaries via Dependencies fields);   - 32/37 stories marked Done; remaining Planned: US-0004 (Vercel), US-0021 (edit shot), US-0023 (hole summary), US-0036 (2FA), US-0037 (password reset); **Dashboard regenerated** — `npm run plan:generate` → `docs/plan-status.html` now shows 86.5% progress (was showing 0%)"
+      "sessionNum": 29,
+      "date": "2026-06-21",
+      "summary": "**Executed 10-task plan: `docs/superpowers/plans/2026-06-21-admin-role-dashboards.md`**; via `superpowers:subagent-driven-development` on branch `feature/admin-role-dashboards`.; "
     }
   ],
   "lessons": [
+    {
+      "id": "L-0017",
+      "title": "Cost-log hook dirties the worktree; commit it BEFORE `gh pr merge`",
+      "rule": "",
+      "context": "",
+      "date": "",
+      "bugIds": []
+    },
+    {
+      "id": "L-0016",
+      "title": "E2E test fixtures rot when migrations change column shape",
+      "rule": "",
+      "context": "",
+      "date": "",
+      "bugIds": []
+    },
+    {
+      "id": "L-0015",
+      "title": "Next.js 16 forbids cookie writes from Server Components",
+      "rule": "",
+      "context": "",
+      "date": "",
+      "bugIds": []
+    },
+    {
+      "id": "L-0014",
+      "title": "Supabase CLI default flips silently lock the Data API",
+      "rule": "",
+      "context": "",
+      "date": "",
+      "bugIds": []
+    },
+    {
+      "id": "L-0013",
+      "title": "Admin page redesigns from `<table>` to cards silently break E2E role-based locators",
+      "rule": "",
+      "context": "",
+      "date": "",
+      "bugIds": []
+    },
+    {
+      "id": "L-0012",
+      "title": "GPS `start_lat/lng` records WHERE the player IS (before the shot), not where the ball lands",
+      "rule": "",
+      "context": "",
+      "date": "",
+      "bugIds": []
+    },
+    {
+      "id": "L-0011",
+      "title": "When intentionally widening score distribution, update test bounds immediately",
+      "rule": "",
+      "context": "",
+      "date": "",
+      "bugIds": []
+    },
+    {
+      "id": "L-0010",
+      "title": "Admin pages have a strict design system — always check DESIGN_STANDARDS.md",
+      "rule": "",
+      "context": "",
+      "date": "",
+      "bugIds": []
+    },
+    {
+      "id": "L-0009",
+      "title": "E2E test selectors must track UI text exactly — not spec intent",
+      "rule": "",
+      "context": "",
+      "date": "",
+      "bugIds": []
+    },
+    {
+      "id": "L-0008",
+      "title": "Admin UI: avoid static hardcoded status values that will never be true",
+      "rule": "",
+      "context": "",
+      "date": "",
+      "bugIds": []
+    },
+    {
+      "id": "L-0007",
+      "title": "PostgREST joins require a database FK constraint",
+      "rule": "",
+      "context": "",
+      "date": "",
+      "bugIds": []
+    },
+    {
+      "id": "L-0006",
+      "title": "Playwright `page.route()` cannot mock SSR Server Component fetches",
+      "rule": "",
+      "context": "",
+      "date": "",
+      "bugIds": []
+    },
     {
       "id": "L-0001",
       "title": "Initial project setup",
@@ -2877,12 +4307,44 @@
       "context": "",
       "date": "",
       "bugIds": []
+    },
+    {
+      "id": "L-0003",
+      "title": "Playwright: use `xpath=..` for robust label→input traversal",
+      "rule": "",
+      "context": "",
+      "date": "",
+      "bugIds": []
+    },
+    {
+      "id": "L-0004",
+      "title": "Migrated DBs can drift from repo migration history",
+      "rule": "",
+      "context": "",
+      "date": "",
+      "bugIds": []
+    },
+    {
+      "id": "L-0005",
+      "title": "Tailwind arbitrary values: `duration-[400ms]` not `duration-400`",
+      "rule": "",
+      "context": "",
+      "date": "",
+      "bugIds": []
+    },
+    {
+      "id": "L-0002",
+      "title": "Radix Select: never use `value=\"\"` on `<SelectItem>`",
+      "rule": "",
+      "context": "",
+      "date": "",
+      "bugIds": []
     }
   ],
-  "generatedAt": "2026-06-11T19:19:09.878Z",
-  "commitSha": "19f81dd",
-  "buildNumber": "30",
-  "branch": "develop",
+  "generatedAt": "2026-09-18T14:15:57.372Z",
+  "commitSha": "2106ae4",
+  "buildNumber": "116",
+  "branch": "docs/session-39-close",
   "sessionTimeline": [
     {
       "date": "2026-06-09",
@@ -2897,8 +4359,84 @@
       "cumCost": 93.3253
     },
     {
-      "date": "2026-06-11",
-      "cumCost": 114.2773
+      "date": "2026-06-15",
+      "cumCost": 188.966
+    },
+    {
+      "date": "2026-06-16",
+      "cumCost": 198.8943
+    },
+    {
+      "date": "2026-06-17",
+      "cumCost": 200.499
+    },
+    {
+      "date": "2026-06-18",
+      "cumCost": 206.5713
+    },
+    {
+      "date": "2026-06-19",
+      "cumCost": 251.7426
+    },
+    {
+      "date": "2026-06-19",
+      "cumCost": 257.1464
+    },
+    {
+      "date": "2026-06-22",
+      "cumCost": 328.6822
+    },
+    {
+      "date": "2026-06-25",
+      "cumCost": 382.2832
+    },
+    {
+      "date": "2026-06-25",
+      "cumCost": 387.6316
+    },
+    {
+      "date": "2026-06-26",
+      "cumCost": 394.3211
+    },
+    {
+      "date": "2026-06-26",
+      "cumCost": 396.2332
+    },
+    {
+      "date": "2026-06-26",
+      "cumCost": 396.8412
+    },
+    {
+      "date": "2026-06-30",
+      "cumCost": 407.0216
+    },
+    {
+      "date": "2026-06-30",
+      "cumCost": 432.6337
+    },
+    {
+      "date": "2026-06-30",
+      "cumCost": 515.0392
+    },
+    {
+      "date": "2026-06-30",
+      "cumCost": 524.0307
+    },
+    {
+      "date": "2026-06-30",
+      "cumCost": 543.8244
+    },
+    {
+      "date": "2026-07-10",
+      "cumCost": 543.9502
+    },
+    {
+      "date": "2026-07-15",
+      "cumCost": 544.7062
+    },
+    {
+      "date": "2026-09-18",
+      "cumCost": 552.9261
     }
   ],
   "costHistory": {
@@ -2918,16 +4456,102 @@
         "costUsd": 61.8401
       },
       {
-        "date": "2026-06-11",
-        "costUsd": 20.952
+        "date": "2026-06-15",
+        "costUsd": 95.6407
+      },
+      {
+        "date": "2026-06-16",
+        "costUsd": 9.9283
+      },
+      {
+        "date": "2026-06-17",
+        "costUsd": 1.6047
+      },
+      {
+        "date": "2026-06-18",
+        "costUsd": 6.0723
+      },
+      {
+        "date": "2026-06-19",
+        "costUsd": 45.1713
+      },
+      {
+        "date": "2026-06-19",
+        "costUsd": 5.4038
+      },
+      {
+        "date": "2026-06-22",
+        "costUsd": 71.5358
+      },
+      {
+        "date": "2026-06-25",
+        "costUsd": 53.601
+      },
+      {
+        "date": "2026-06-25",
+        "costUsd": 5.3484
+      },
+      {
+        "date": "2026-06-26",
+        "costUsd": 1.9121
+      },
+      {
+        "date": "2026-06-26",
+        "costUsd": 0.608
+      },
+      {
+        "date": "2026-06-30",
+        "costUsd": 10.1804
+      }
+    ],
+    "fix/longest-drive-gps": [
+      {
+        "date": "2026-06-26",
+        "costUsd": 6.6895
+      }
+    ],
+    "docs/append-session-cost-row-final": [
+      {
+        "date": "2026-06-30",
+        "costUsd": 25.6121
+      }
+    ],
+    "docs/session-39-close": [
+      {
+        "date": "2026-06-30",
+        "costUsd": 82.4055
+      },
+      {
+        "date": "2026-07-10",
+        "costUsd": 0.1258
+      },
+      {
+        "date": "2026-07-15",
+        "costUsd": 0.756
+      },
+      {
+        "date": "2026-09-18",
+        "costUsd": 8.2199
+      }
+    ],
+    "docs/session-cost-log-determined-lewin": [
+      {
+        "date": "2026-06-30",
+        "costUsd": 8.9915
+      }
+    ],
+    "claude/keen-ptolemy-556223": [
+      {
+        "date": "2026-06-30",
+        "costUsd": 19.7937
       }
     ]
   },
-  "deltaSpend": 20.95,
+  "deltaSpend": 8.22,
   "projectName": "CodeMie",
   "tagline": "FDgolf CodeMie project.",
   "version": "0.1.0",
-  "appName": "fdgolf",
+  "appName": "fdgolf-cm",
   "appVersion": "0.1.0",
   "githubUrl": "",
   "agents": {
@@ -2996,107 +4620,119 @@
     }
   },
   "budget": {
-    "totalBudget": 116.0773,
-    "totalSpent": 114.2773,
-    "totalProjected": 19201.800000000003,
-    "percentUsed": 98,
-    "burnRate": 34.2225,
-    "daysRemaining": 0,
-    "projectedExhaustion": 0,
+    "totalBudget": null,
+    "totalSpent": 552.9261000000001,
+    "totalProjected": 29200,
+    "percentUsed": null,
+    "burnRate": 0,
+    "daysRemaining": null,
+    "projectedExhaustion": null,
     "thresholds": [
       50,
       75,
       90,
       100
     ],
-    "crossedThresholds": [
-      50,
-      75,
-      90
-    ],
+    "crossedThresholds": [],
     "epicBudgets": [
+      {
+        "id": "EPIC-0001",
+        "title": "Project Setup & Infrastructure",
+        "budget": 189.68143,
+        "spent": 189.68143,
+        "remaining": 0,
+        "percentUsed": 100
+      },
       {
         "id": "EPIC-0002",
         "title": "Registration & Authentication",
-        "budget": 18.531456000000002,
-        "spent": 18.531456000000002,
+        "budget": 58.904537999999995,
+        "spent": 58.904537999999995,
         "remaining": 0,
         "percentUsed": 100
       },
       {
         "id": "EPIC-0003",
         "title": "Player Dashboard",
-        "budget": 3.088576,
-        "spent": 3.088576,
+        "budget": 19.634846,
+        "spent": 19.634846,
         "remaining": 0,
         "percentUsed": 100
       },
       {
         "id": "EPIC-0004",
         "title": "Active Round — Shot Tracking",
-        "budget": 21.620032000000002,
-        "spent": 21.620032000000002,
+        "budget": 68.721961,
+        "spent": 68.721961,
         "remaining": 0,
         "percentUsed": 100
       },
       {
         "id": "EPIC-0005",
         "title": "Hole & Round Completion",
-        "budget": 9.265728000000001,
-        "spent": 9.265728000000001,
+        "budget": 29.452269,
+        "spent": 29.452269,
         "remaining": 0,
         "percentUsed": 100
       },
       {
         "id": "EPIC-0006",
         "title": "Leaderboard",
-        "budget": 9.265728000000001,
-        "spent": 9.265728000000001,
+        "budget": 39.269692,
+        "spent": 39.269692,
         "remaining": 0,
         "percentUsed": 100
       },
       {
         "id": "EPIC-0007",
         "title": "Admin — Tournament & Course Setup",
-        "budget": 12.354304,
-        "spent": 12.354304,
+        "budget": 39.269692,
+        "spent": 39.269692,
         "remaining": 0,
         "percentUsed": 100
       },
       {
         "id": "EPIC-0008",
         "title": "Admin — Player & Team Management",
-        "budget": 6.177152,
-        "spent": 6.177152,
+        "budget": 19.634846,
+        "spent": 19.634846,
         "remaining": 0,
         "percentUsed": 100
       },
       {
         "id": "EPIC-0009",
         "title": "Admin — Scores & Sponsors",
-        "budget": 6.177152,
-        "spent": 6.177152,
+        "budget": 19.634846,
+        "spent": 19.634846,
         "remaining": 0,
         "percentUsed": 100
       },
       {
-        "id": "EPIC-0001",
-        "title": "Project Setup & Infrastructure",
-        "budget": 25.608608,
-        "spent": 24.708608,
-        "remaining": 0.8999999999999986,
-        "percentUsed": 96
-      },
-      {
         "id": "EPIC-0010",
         "title": "Security & 2FA",
-        "budget": 3.988576,
-        "spent": 3.088576,
-        "remaining": 0.8999999999999999,
-        "percentUsed": 77
+        "budget": 9.817423,
+        "spent": 9.817423,
+        "remaining": 0,
+        "percentUsed": 100
+      },
+      {
+        "id": "EPIC-0011",
+        "title": "Multi-Tournament Administration, Venues & Courses",
+        "budget": 49.087115,
+        "spent": 49.087115,
+        "remaining": 0,
+        "percentUsed": 100
+      },
+      {
+        "id": "EPIC-0012",
+        "title": "Admin UI Redesign",
+        "budget": 9.817423,
+        "spent": 9.817423,
+        "remaining": 0,
+        "percentUsed": 100
       }
     ],
-    "hasBudget": true
+    "hasBudget": false
   },
   "completion": null,
   "trends": {
@@ -3104,45 +4740,53 @@
       "2026-06-08T21:00:25.236Z",
       "2026-06-09T23:11:49.621Z",
       "2026-06-10T03:39:46.974Z",
-      "2026-06-11T19:19:09.985Z"
+      "2026-06-11T19:19:09.985Z",
+      "2026-09-18T14:15:57.443Z"
     ],
     "doneCounts": [
       0,
       32,
       32,
-      35
+      35,
+      47
     ],
     "totalStories": [
       37,
       37,
       37,
-      37
+      37,
+      47
     ],
     "aiCosts": [
       11.6098,
       63.9112,
       63.9112,
-      114.2773
+      114.2773,
+      552.9261000000001
     ],
     "coverage": [
       null,
       null,
       91.91,
-      91.91
+      91.91,
+      96.09
     ],
     "velocity": [
       0,
       56,
       56,
-      61
+      61,
+      93
     ],
     "openBugs": [
       0,
       0,
       0,
-      0
+      0,
+      3
     ],
     "atRisk": [
+      0,
       0,
       0,
       0,
@@ -3152,29 +4796,35 @@
       993972,
       4411660,
       2770786,
-      7738178
+      7738178,
+      39222352
     ],
     "outputTokens": [
       157392,
       824637,
       576718,
-      1654331
+      1654331,
+      6249593
     ],
     "avgRisk": [
       1.1000000000000008,
       1.1,
       1.1,
-      1.1
+      1.1,
+      0
     ],
     "velocityByWeek": {
       "labels": [
-        "2026-W24"
+        "2026-W24",
+        "2026-W38"
       ],
       "points": [
-        61
+        61,
+        32
       ],
       "rollingAvg": [
-        61
+        61,
+        46.5
       ]
     }
   }

@@ -36,6 +36,8 @@
 - Platform debt carried over: `auto_expose_new_tables` flag removal on 2026-10-30 — file a migration with explicit GRANTs by end of September.
 - TV leaderboard sidebar is now 34% (partial restoration toward the original 45% spec per BUG-0008's writeup) — full restoration is still open if desired.
 
+---
+
 ## Session 39 -- 2026-06-30 (E2E verification + Supabase image dedup)
 
 ### What Was Done

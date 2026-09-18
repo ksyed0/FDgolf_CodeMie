@@ -38,6 +38,7 @@
     "agent:list": "node tools/agent-spec-plan.js list",
     "agent:status": "node tools/agent-spec-plan.js status",
     "dashboard:watch": "node tools/watch-dashboard.js",
+    "precheck": "npx tsx scripts/precheck-env.ts",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:debug": "playwright test --debug",

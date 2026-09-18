@@ -87,6 +87,22 @@ Status: Planned
 Dependencies: EPIC-0002
 ```
 
+```
+EPIC-0011: Multi-Tournament Administration, Venues & Courses
+Description: system_admin vs tournament_admin role hierarchy, global venue and course (incl. holes + tee boxes) management reusable across tournaments, and a Tournament Control Dashboard for operating the active tournament. Backfilled retroactively — shipped in #8, #18, and a role-hierarchy pass without a tracked EPIC.
+Release Target: v0.2
+Status: Done
+Dependencies: EPIC-0007
+```
+
+```
+EPIC-0012: Admin UI Redesign
+Description: Consistent AdminTopBar page-title header applied across every /admin page. Backfilled retroactively — shipped alongside the venues/courses admin work without a tracked EPIC.
+Release Target: v0.2
+Status: Done
+Dependencies: EPIC-0007
+```
+
 ---
 
 ## User Stories
@@ -618,6 +634,104 @@ Acceptance Criteria:
   - [x] AC-0137: Unit tests for tv-stats.ts achieve ≥80% coverage; full suite still passes at ≥80%
 ```
 
+```
+US-0040 (EPIC-0011): As a system_admin, I want a "Global" sidebar section with links to Tournaments, Players, Venues, Courses, and Clubs that tournament_admin users cannot see, so that only cross-tournament admins can reach cross-tournament resources.
+Priority: High
+Estimate: M
+Status: Done
+Branch: feature/role-hierarchy (backfilled)
+Dependencies: US-0028
+Acceptance Criteria:
+  - [x] AC-0138: system_admin sidebar shows a "Global" section with Tournaments, Players, Venues, Courses, and Clubs links
+  - [x] AC-0139: tournament_admin sidebar has no "Global" section and no Venues/Courses links
+  - [x] AC-0140: tournament_admin navigating directly to /admin/tournaments or /admin/players is redirected to /admin/tournament
+```
+
+```
+US-0041 (EPIC-0011): As a system_admin, I want a Tournaments list page and a cross-tournament Roster page, so that I can see and manage every tournament and player, not just the active one.
+Priority: Medium
+Estimate: S
+Status: Done
+Branch: feature/role-hierarchy (backfilled)
+Dependencies: US-0040
+Acceptance Criteria:
+  - [x] AC-0141: /admin/tournaments renders a list of all tournaments for system_admin
+  - [x] AC-0142: /admin/roster renders a "Roster" heading with the cross-tournament player list for system_admin
+```
+
+```
+US-0042 (EPIC-0011): As a system_admin, I want to create, edit, and delete golf venues, so that venue data can be defined once and reused across multiple tournaments.
+Priority: Medium
+Estimate: M
+Status: Done
+Branch: feat/admin-venues-courses (#8)
+Dependencies: US-0040
+Acceptance Criteria:
+  - [x] AC-0143: /admin/venues lists venue cards with Edit and Delete controls
+  - [x] AC-0144: New venue can be created via a form and appears in the venue list
+  - [x] AC-0145: Existing venue can be edited or deleted, with the change reflected immediately in the list
+```
+
+```
+US-0043 (EPIC-0011): As a system_admin, I want to manage courses independent of any single tournament — including holes (par, handicap) and multiple tee boxes (with optional GPS) — so that course data can be set up once and reused across tournaments.
+Priority: Medium
+Estimate: L
+Status: Done
+Branch: feat/admin-venues-courses (#8), feat/course-holes-overhaul (#18)
+Dependencies: US-0042
+Acceptance Criteria:
+  - [x] AC-0146: /admin/courses lists courses grouped into Front 9 / Back 9 sections
+  - [x] AC-0147: Course holes editor supports "Generate Holes" and CSV import of hole_number/par/handicap
+  - [x] AC-0148: Tee box editor supports multiple tee sets per course with lat/lng nullable (GPS is informational only; no scoring logic reads it)
+```
+
+```
+US-0044 (EPIC-0011): As a system_admin, I want a Tournament Control Dashboard on the tournament page, so that I can operate (activate/pause/complete) the current tournament from one place.
+Priority: Medium
+Estimate: M
+Status: Done
+Branch: feature/role-hierarchy (backfilled)
+Dependencies: US-0029, US-0040
+Acceptance Criteria:
+  - [x] AC-0149: /admin/tournament renders the TournamentControlDashboard component for the active tournament
+```
+
+```
+US-0045 (EPIC-0012): As an admin, I want a consistent page header (AdminTopBar) with the correct title on every /admin page, so that I always have clear navigation context.
+Priority: Low
+Estimate: S
+Status: Done
+Branch: feat/admin-venues-courses (#8)
+Dependencies: US-0028
+Acceptance Criteria:
+  - [x] AC-0150: AdminTopBar renders the correct h1 title matching the current section on every redesigned admin page
+```
+
+```
+US-0046 (EPIC-0003): As a player, I want a Scorecard page showing my team's hole-by-hole results (with Best Ball highlighted) and totals, so that I can review the full round, not just the current hole.
+Priority: Medium
+Estimate: S
+Status: Done
+Branch: feat/phase6-po-items
+Dependencies: US-0023
+Acceptance Criteria:
+  - [x] AC-0151: /scorecard loads and renders a results table, or an empty state when no scores exist yet
+  - [x] AC-0152: Scorecard table shows Hole/Par/Strokes columns with a totals row and Best Ball indication
+```
+
+```
+US-0047 (EPIC-0001): As a developer, I want a precheck script that validates a given environment (fresh clone, CI runner, new dev machine) actually has the AC-0001–AC-0026 infra wired up, so that setup regressions are caught before behavioral tests run and fail for the wrong reason.
+Priority: Medium
+Estimate: S
+Status: Done
+Branch: docs/session-39-close
+Dependencies: US-0002, US-0003, US-0005, US-0006
+Acceptance Criteria:
+  - [x] AC-0153: `npm run precheck` verifies required env vars are present and Supabase browser/server clients can connect (AC-0004–AC-0006, AC-0013)
+  - [x] AC-0154: `npm run precheck` verifies all 9 tables exist, RLS blocks unauthenticated score reads, and seed data (clubs/holes/tournament) is present (AC-0007, AC-0008, AC-0016–AC-0018), printing PASS/FAIL per check and exiting non-zero on any failure
+Notes: Scoped to environment-dependent infra only (schema, connectivity, seed data) — not UI theming (AC-0019–AC-0021) or the sync engine (AC-0022–AC-0026), which are code-level behavior already covered by unit/E2E tests, not per-environment setup. AC-0009 (realtime) and AC-0011/AC-0012 (Vercel prod deploy) are flagged in script output for manual verification — a live realtime websocket subscription crashes under this project's Node/undici version, and Vercel env var configuration isn't inspectable from a local script.
+```
+
 ---
 
 ## Tasks
@@ -962,4 +1076,76 @@ Assignee: Agent
 Status: Done
 Branch: feature/tv-leaderboard
 Notes: 12 commits. tv-stats.ts queries birdies/momentum/hole-difficulty/shot-stats/best-achievement from existing tables (no new migrations). TvDisplay polls 30s + rotates panels 15s. All 5 stat functions catch errors and return empty. 35 unit tests added; coverage ≥80% restored.
+```
+
+```
+TASK-0039 (US-0040): Add system_admin role, "Global" sidebar section, and tournament_admin redirects
+Type: Dev
+Assignee: Agent
+Status: Done
+Branch: feature/role-hierarchy (backfilled)
+Notes: Retroactively logged — implemented before RELEASE_PLAN.md tracking existed for this feature. Covered by tests/e2e/admin-roles.spec.ts (TC-0090–TC-0093).
+```
+
+```
+TASK-0040 (US-0041): Build /admin/tournaments list page and /admin/roster cross-tournament page for system_admin
+Type: Dev
+Assignee: Agent
+Status: Done
+Branch: feature/role-hierarchy (backfilled)
+Notes: Retroactively logged. Covered by tests/e2e/admin-roles.spec.ts (TC-0094, TC-0095).
+```
+
+```
+TASK-0041 (US-0042): Build venue manager — list, add, edit, delete at /admin/venues
+Type: Dev
+Assignee: Agent
+Status: Done
+Branch: feat/admin-venues-courses (#8)
+Notes: Originally implemented via a standalone "Plan 2" doc, not a tracked EPIC/US. Covered by tests/e2e/admin.spec.ts (TC-0079, TC-0083).
+```
+
+```
+TASK-0042 (US-0043): Build course manager, course holes editor (Generate Holes + CSV import), and tee box editor with nullable GPS
+Type: Dev
+Assignee: Agent
+Status: Done
+Branch: feat/admin-venues-courses (#8), feat/course-holes-overhaul (#18)
+Notes: Migration 009 made tee_boxes.lat/lng nullable. Ruby course scorecard data corrected as part of the same PR. Covered by tests/e2e/admin.spec.ts (TC-0084).
+```
+
+```
+TASK-0043 (US-0044): Build TournamentControlDashboard component on /admin/tournament
+Type: Dev
+Assignee: Agent
+Status: Done
+Branch: feature/role-hierarchy (backfilled)
+Notes: Retroactively logged. Covered by tests/e2e/admin.spec.ts (TC-0078).
+```
+
+```
+TASK-0044 (US-0045): Build AdminTopBar component and apply it across all redesigned /admin pages
+Type: Dev
+Assignee: Agent
+Status: Done
+Branch: feat/admin-venues-courses (#8)
+Notes: Retroactively logged. Covered by tests/e2e/admin.spec.ts (TC-0082).
+```
+
+```
+TASK-0045 (US-0046): Build /scorecard page — hole-by-hole table, formatVsPar coloring, Best Ball checkmark, totals row
+Type: Dev
+Assignee: Agent
+Status: Done
+Branch: feat/phase6-po-items
+Notes: Shipped in the "phase6-po-items" commit alongside magic link, pause state, team naming, invites, and mulligan report — none of which were tracked as a US/AC at the time; this is the only one of that batch without prior AC coverage (pause state → AC-0041, mulligans → US-0020, invites → US-0032/AC-0107, team naming → US-0033/AC-0110). Covered by tests/e2e/scorecard.spec.ts (TC-0074, TC-0075).
+```
+
+```
+TASK-0046 (US-0047): Create scripts/precheck-env.ts + `npm run precheck` — validates AC-0001–AC-0026 infra against the current environment
+Type: Dev
+Assignee: Agent
+Status: Done
+Branch: docs/session-39-close
+Notes: Checks env vars, Supabase browser/server client connectivity, all 9 tables present, RLS blocks unauthenticated score reads, and clubs/holes/tournament seed data present. Flags realtime (AC-0009) and Vercel prod config (AC-0011/AC-0012) as needing manual verification rather than faking a pass. Covered by TC-0129.
 ```
