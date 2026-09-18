@@ -45,7 +45,7 @@ outcome sends a PATCH and updates the shot list`) asserting the edit Save button
 sends a real PATCH and the shot list reflects the change; full `round-scoring.spec.ts`
 suite (14/14) passes.
 
-PR: TBD
+PR: https://github.com/ksyed0/FDgolf_CodeMie/pull/76
 
 ---
 
