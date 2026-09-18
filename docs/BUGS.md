@@ -30,7 +30,7 @@ this page used a targeted E2E check instead). Extended `TC-0076` in
 `tests/e2e/round-scoring.spec.ts` to mock a real `scores` GET response and assert the
 new vs-par text renders; full `round-scoring.spec.ts` suite (13/13) passes.
 
-PR: TBD
+PR: https://github.com/ksyed0/FDgolf_CodeMie/pull/75
 
 ---
 
