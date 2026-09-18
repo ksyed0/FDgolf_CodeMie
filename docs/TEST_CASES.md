@@ -7,6 +7,406 @@
 
 ---
 
+## EPIC-0001 — Project Setup & Infrastructure
+
+TC-0130: Next.js dev server runs (App Router)
+Related Story: US-0001
+Related Task: TASK-0001
+Related AC: AC-0001
+Type: Functional
+Preconditions: Dependencies installed (`npm install`); `.env.local` populated.
+Steps:
+  1. Run `npm run dev`
+  2. Open http://localhost:3000
+Expected Result: Server starts without error and the homepage renders. Note: the AC text says "Next.js 14"; the installed version is `next@^16.3.3` (package.json) — verify against current App Router behavior, not the literal v14 wording.
+Actual Result:
+Status: [ ] Not Run
+Defect Raised: None
+
+TC-0131: Tailwind CSS classes render correctly
+Related Story: US-0001
+Related Task: TASK-0001
+Related AC: AC-0002
+Type: Functional
+Preconditions: Dev server running (TC-0130).
+Steps:
+  1. Open any page (e.g. /login)
+  2. Inspect an element using a Tailwind utility class (e.g. a button with `bg-[#1a472a]`)
+Expected Result: Tailwind v3.4.1 utility classes (configured in `tailwind.config.ts`, scanning `src/app|components|pages`, entry `src/app/globals.css`) apply their computed styles in the browser.
+Actual Result:
+Status: [ ] Not Run
+Defect Raised: None
+
+TC-0132: shadcn/ui Button component renders without errors
+Related Story: US-0001
+Related Task: TASK-0002
+Related AC: AC-0003
+Type: Functional
+Preconditions: Dev server running.
+Steps:
+  1. Navigate to any page that renders a `Button` from `src/components/ui/button.tsx` (e.g. /login "Sign In" button)
+Expected Result: Button renders with the shadcn "default" style variant (per `components.json`, `cssVariables: true`) with no console errors.
+Actual Result:
+Status: [ ] Not Run
+Defect Raised: None
+
+TC-0133: Supabase browser client connects (anon key)
+Related Story: US-0002
+Related Task: TASK-0003
+Related AC: AC-0004
+Type: Integration
+Preconditions: `.env.local` has `NEXT_PUBLIC_SUPABASE_URL` / `NEXT_PUBLIC_SUPABASE_ANON_KEY`; Supabase reachable.
+Steps:
+  1. Run `npm run precheck` (`scripts/precheck-env.ts`)
+  2. Check the AC-0004 line in its output
+Expected Result: `src/lib/supabase/client.ts`'s `createClient()` (wraps `createBrowserClient`) connects successfully; precheck prints `[PASS] AC-0004: Supabase browser client (anon key) connects`.
+Actual Result:
+Status: [ ] Not Run
+Defect Raised: None
+
+TC-0134: Supabase server client works in Server Components
+Related Story: US-0002
+Related Task: TASK-0003
+Related AC: AC-0005
+Type: Integration
+Preconditions: Same as TC-0133; service role key present.
+Steps:
+  1. Run `npm run precheck` and check the AC-0005 line
+  2. Load an SSR page that fetches via `src/lib/supabase/server.ts` (e.g. /admin/tournament)
+Expected Result: `server.ts`'s async `createClient()` (uses `createServerClient` + `cookies()` from `next/headers`) connects and returns data server-side; precheck prints `[PASS] AC-0005`.
+Actual Result:
+Status: [ ] Not Run
+Defect Raised: None
+
+TC-0135: .env.local.example documents required env vars
+Related Story: US-0002
+Related Task: TASK-0003
+Related AC: AC-0006
+Type: Functional
+Preconditions: None.
+Steps:
+  1. Open `.env.local.example`
+  2. Run `npm run precheck` and check the AC-0006 line
+Expected Result: File lists all 4 required vars — `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `NEXT_PUBLIC_MAPBOX_TOKEN`; precheck prints `[PASS] AC-0006`.
+Actual Result:
+Status: [ ] Not Run
+Defect Raised: None
+
+TC-0136: All 9 core tables exist in the schema
+Related Story: US-0003
+Related Task: TASK-0004
+Related AC: AC-0007
+Type: Integration
+Preconditions: Migrations 001–013 applied to the target Supabase instance.
+Steps:
+  1. Run `npm run precheck` and check the AC-0007 line (probes `tournaments`, `holes`, `players`, `teams`, `clubs`, `round_state`, `shots`, `scores`, `sponsors` directly if `information_schema` isn't exposed)
+Expected Result: All 9 tables from `001_initial_schema.sql` are present and reachable via PostgREST; precheck prints `[PASS] AC-0007`. Note: the schema has drifted since migration 001 (e.g. `007_master_data_hierarchy.sql` added `venues`/`courses`/`tee_boxes`; `011_tournament_players.sql` added `tournament_players` and dropped `players.team_id` — see BUG-0011) — this check only verifies the original 9 tables still exist, not that no columns moved.
+Actual Result:
+Status: [ ] Not Run
+Defect Raised: None
+
+TC-0137: RLS policies enforce player vs admin separation
+Related Story: US-0003
+Related Task: TASK-0004
+Related AC: AC-0008
+Type: Integration
+Preconditions: RLS enabled per migration 001, patched by `004_fix_admin_rls.sql` / `005_scores_player_rls.sql`.
+Steps:
+  1. Run `npm run precheck` and check the AC-0008 line (queries `scores` with the anon/unauthenticated client)
+  2. Sign in as a player and confirm they can only read their own team's rows via the app UI
+Expected Result: The anon client's `select` on `scores` returns either an error or zero rows (never all rows); precheck prints `[PASS] AC-0008`. Admin-authenticated requests retain full access per the "Admin full access" policies.
+Actual Result:
+Status: [ ] Not Run
+Defect Raised: None
+
+TC-0138: Realtime enabled on the scores table
+Related Story: US-0003
+Related Task: TASK-0004
+Related AC: AC-0009
+Type: Integration
+Preconditions: `alter publication supabase_realtime add table scores;` applied (migration 001, line 206).
+Steps:
+  1. Run `npm run precheck` and check the AC-0009 line
+  2. Manually verify in the Supabase dashboard → Database → Replication that `scores` is listed under the `supabase_realtime` publication
+  3. Optionally, open the leaderboard in two browser sessions and confirm a score update in one propagates to the other via `useRealtimeScores`
+Expected Result: `scores` is reachable via REST (precheck prints `[PASS] AC-0009`, noting live websocket verification must be done manually — the script deliberately avoids opening a realtime subscription itself, since supabase-js's realtime client can crash under some Node/undici versions); the Replication page shows `scores` enabled; realtime updates propagate within the 5s debounce window.
+Actual Result:
+Status: [ ] Not Run
+Defect Raised: None
+
+TC-0139: Unique constraints prevent duplicate entries
+Related Story: US-0003
+Related Task: TASK-0004
+Related AC: AC-0010
+Type: Negative
+Preconditions: Direct DB/service-role access (e.g. via Supabase SQL editor or the service-role client).
+Steps:
+  1. Attempt to insert a second `tournaments` row with a duplicate `slug`
+  2. Attempt to insert a duplicate `holes` row for the same `(tournament_id, hole_number)`
+  3. Attempt to insert a duplicate `teams` row for the same `(tournament_id, team_number)`
+  4. Attempt to insert a duplicate `scores` row for the same `(player_id, tournament_id, hole_number)`
+Expected Result: Each insert is rejected with a unique-constraint violation. Note: constraints were defined against the migration-001 schema; `players.team_id` no longer exists post-migration-011 (see BUG-0011) — re-verify the exact current constraint list rather than assuming migration 001 is still literal.
+Actual Result:
+Status: [ ] Not Run
+Defect Raised: None
+
+TC-0140: Hole map renders with satellite view centered on pin coordinates
+Related Story: US-0005
+Related Task: TASK-0014
+Related AC: AC-0013
+Type: Functional
+Preconditions: `NEXT_PUBLIC_MAPBOX_TOKEN` set; player signed in with an active round.
+Steps:
+  1. Navigate to /round for a hole with `pin_lat`/`pin_lng` set
+  2. Observe the map component (`src/components/hole-map.tsx`)
+Expected Result: Map renders using `react-map-gl/mapbox` with `mapStyle="mapbox://styles/mapbox/satellite-v9"`, centered on the hole's pin coordinates. Note: AC text says "Google Maps" — the actual implementation is Mapbox; test against the real Mapbox behavior.
+Actual Result:
+Status: [ ] Not Run
+Defect Raised: None
+
+TC-0141: Pin marker displays at hole location
+Related Story: US-0005
+Related Task: TASK-0014
+Related AC: AC-0014
+Type: Functional
+Preconditions: Same as TC-0140.
+Steps:
+  1. Open /round for any hole
+  2. Locate the pin marker on the map
+Expected Result: A green pin marker (`fill="#16a34a"`) renders at the hole's `pin_lat`/`pin_lng` position in `hole-map.tsx`.
+Actual Result:
+Status: [ ] Not Run
+Defect Raised: None
+
+TC-0142: Shot/position markers update on GPS capture
+Related Story: US-0005
+Related Task: TASK-0014
+Related AC: AC-0015
+Type: Functional
+Preconditions: Browser geolocation permission granted; player mid-round.
+Steps:
+  1. Record a shot with outcome "in_play" via GPS capture
+  2. Record additional shots with other outcomes (e.g. "out_of_bounds", "mulligan", "sunk")
+Expected Result: Each shot renders as a colored marker on the map, colored by outcome — `in_play:#2563eb`, `out_of_bounds:#dc2626`, `mulligan:#f97316`, `sunk:#ca8a04` — updating live as new shots are captured.
+Actual Result:
+Status: [ ] Not Run
+Defect Raised: None
+
+TC-0143: 21 clubs seeded across 5 categories
+Related Story: US-0006
+Related Task: TASK-0005
+Related AC: AC-0016
+Type: Integration
+Preconditions: `supabase/seed.sql` applied.
+Steps:
+  1. Run `npm run precheck` and check the AC-0016 line
+Expected Result: `clubs` table has ≥21 rows with category/sort_order set; precheck prints `[PASS] AC-0016: Clubs seeded`.
+Actual Result:
+Status: [ ] Not Run
+Defect Raised: None
+
+TC-0144: 18 holes seeded with par values and approximate GPS
+Related Story: US-0006
+Related Task: TASK-0005
+Related AC: AC-0017
+Type: Integration
+Preconditions: Same as TC-0143.
+Steps:
+  1. Run `npm run precheck` and check the AC-0017 line
+Expected Result: `holes` table has ≥18 rows, each with `par` and `pin_lat`/`pin_lng` populated (Granite Ridge course data); precheck prints `[PASS] AC-0017`.
+Actual Result:
+Status: [ ] Not Run
+Defect Raised: None
+
+TC-0145: Tournament record created for CIBC 2026 event
+Related Story: US-0006
+Related Task: TASK-0005
+Related AC: AC-0018
+Type: Integration
+Preconditions: Same as TC-0143.
+Steps:
+  1. Run `npm run precheck` and check the AC-0018 line
+  2. Confirm the tournament row: name `'CIBC Capital Markets Golf Tournament 2026'`, slug `cibc-granite-ridge-2026`, date `2026-06-22`, format `best_ball`
+Expected Result: At least one tournament row exists; precheck prints `[PASS] AC-0018`; the CIBC 2026 record matches the seed values above.
+Actual Result:
+Status: [ ] Not Run
+Defect Raised: None
+
+TC-0146: Full header shows branding + AI/Run™ pill
+Related Story: US-0007
+Related Task: TASK-0007
+Related AC: AC-0019
+Type: Functional
+Preconditions: None.
+Steps:
+  1. Open a page rendering `AppHeader` in its full variant (`variant="full"`)
+Expected Result: Header shows the `"FDgolf-CM"` wordmark and a green `"AI/Run™"` pill on a `bg-[#1a472a]` background. Note: AC text says `"FDgolf | created by AI/Run™"` — the actual rendered strings are `"FDgolf-CM"` plus a separate `"AI/Run™"` pill; test against the real strings, not the AC wording.
+Actual Result:
+Status: [ ] Not Run
+Defect Raised: None
+
+TC-0147: Compact header shows condensed branding + hole info
+Related Story: US-0007
+Related Task: TASK-0007
+Related AC: AC-0020
+Type: Functional
+Preconditions: Player mid-round (compact header shows `holeInfo`).
+Steps:
+  1. Navigate to /round
+  2. Observe the compact `AppHeader` (`variant="compact"`)
+Expected Result: Header shows `"FDgolf-CM"`, a green pulse dot, and hole/par/handicap chips driven by the `holeInfo` prop.
+Actual Result:
+Status: [ ] Not Run
+Defect Raised: None
+
+TC-0148: Dark green (#1a472a) consistent across header variants
+Related Story: US-0007
+Related Task: TASK-0007
+Related AC: AC-0021
+Type: Functional
+Preconditions: None.
+Steps:
+  1. Inspect `AppHeader` in both `full` and `compact` variants
+Expected Result: Both variants use `bg-[#1a472a]` for the header background.
+Actual Result:
+Status: [ ] Not Run
+Defect Raised: None
+
+TC-0149: Writes enqueue to localStorage regardless of connectivity
+Related Story: US-0008
+Related Task: TASK-0006
+Related AC: AC-0022
+Type: Functional
+Preconditions: None (works offline or online).
+Steps:
+  1. Go offline (DevTools → Network → Offline)
+  2. Record a shot
+Expected Result: `syncEngine.enqueue()` pushes `{id, table, payload, created_at, retries}` into the `fdgolf-cm_sync_queue` localStorage key (constant `QUEUE_KEY` in `src/lib/sync-engine.ts`) regardless of `navigator.onLine`.
+Actual Result:
+Status: [ ] Not Run
+Defect Raised: None
+
+TC-0150: Queue flushes automatically when online
+Related Story: US-0008
+Related Task: TASK-0006
+Related AC: AC-0023
+Type: Functional
+Preconditions: One or more items queued while offline (TC-0149).
+Steps:
+  1. While offline with queued items, go back online
+Expected Result: `flush()` runs (it only no-ops when `!navigator.onLine`); queued items are POSTed and cleared from the queue.
+Actual Result:
+Status: [ ] Not Run
+Defect Raised: None
+
+TC-0151: Failed writes retry up to 5 times
+Related Story: US-0008
+Related Task: TASK-0006
+Related AC: AC-0024
+Type: Negative
+Preconditions: Mock/force the outbound POST to fail repeatedly (see `mockShotsApi(page, { fail: true })` in the E2E helpers).
+Steps:
+  1. Queue a write and force its POST to fail on every flush attempt
+  2. Observe the item's `retries` counter across repeated flush cycles
+Expected Result: The item's `retries` increments on each failed flush; once `retries >= 5`, `flush()` drops the item from the queue instead of retrying indefinitely.
+Actual Result:
+Status: [ ] Not Run
+Defect Raised: None
+
+TC-0152: Offline indicator shows pending count
+Related Story: US-0008
+Related Task: TASK-0006
+Related AC: AC-0025
+Type: Functional
+Preconditions: Player offline with queued writes.
+Steps:
+  1. Go offline
+  2. Record 2–3 shots
+  3. Observe the offline indicator in the UI
+Expected Result: The indicator reflects `syncEngine.pendingCount`, updating as items are enqueued/flushed (see `round-scoring.spec.ts` TC-0026/TC-0064 for the E2E behavior, fixed under BUG-0007).
+Actual Result:
+Status: [ ] Not Run
+Defect Raised: None
+
+TC-0153: Online event triggers immediate flush
+Related Story: US-0008
+Related Task: TASK-0006
+Related AC: AC-0026
+Type: Functional
+Preconditions: Items queued while offline.
+Steps:
+  1. While offline with queued items, trigger the browser's `online` event (e.g. reconnect network)
+Expected Result: `startAutoSync()`'s `window.addEventListener('online', ...)` handler fires and calls `flush()` immediately, without waiting for the 10s polling interval.
+Actual Result:
+Status: [ ] Not Run
+Defect Raised: None
+
+TC-0162: Reset script wipes and re-seeds Lionhead E2E fixture data
+Related Story: US-0038
+Related Task: TASK-0036
+Related AC: AC-0128
+Type: Integration
+Preconditions: `scripts/reset-lionhead.ts` present; local Supabase reachable.
+Steps:
+  1. Run `npx tsx scripts/reset-lionhead.ts` twice in a row
+Expected Result: Both runs succeed — the script cascade-deletes shots → scores → round_states → teams → tournaments for slug `lionhead-spring-classic-2026`, deletes/reseeds the 2 Supabase auth users (`e2e-lion-a@fdgolf.test` / `e2e-lion-b@fdgolf.test`), and is idempotent (the second run does not error on already-absent rows).
+Actual Result:
+Status: [ ] Not Run
+Defect Raised: None
+
+TC-0163: Lifecycle E2E suite runs against local Supabase (setup steps)
+Related Story: US-0038
+Related Task: TASK-0037
+Related AC: AC-0129
+Type: Integration
+Preconditions: Local Supabase running with migrations applied; `scripts/reset-lionhead.ts` has been run.
+Steps:
+  1. Run `npx playwright test tests/e2e/tournament-lifecycle.spec.ts --project=chromium-lifecycle`
+Expected Result: The `chromium-lifecycle` project executes `tournament-lifecycle.spec.ts`'s serial steps against the local Supabase instance (not a mocked one).
+Actual Result:
+Status: [ ] Not Run
+Defect Raised: None
+
+TC-0164: All 10 lifecycle steps pass end-to-end
+Related Story: US-0038
+Related Task: TASK-0037
+Related AC: AC-0130
+Type: Integration
+Preconditions: Same as TC-0163.
+Steps:
+  1. Run the full `tournament-lifecycle.spec.ts` suite
+  2. Review step-02 (venue) through step-12 (leaderboard)
+Expected Result: All 10 steps (venue → course → holes → tournament → activate → teams → player assignment → scoring → leaderboard) pass. Known current gap: step-08 (player-to-team assignment) times out per **BUG-0011** (`assignPlayer()` now upserts into `tournament_players`, not `players`, after migration 011 dropped `players.team_id`; the test still waits for a `/rest/v1/players` PATCH) — this cascades to skip steps 10–12. This TC should fail until BUG-0011 is fixed.
+Actual Result:
+Status: [ ] Not Run
+Defect Raised: BUG-0011
+
+TC-0165: Existing Jest unit tests still pass at ≥80% coverage after E2E additions
+Related Story: US-0038
+Related Task: TASK-0037
+Related AC: AC-0131
+Type: Regression
+Preconditions: None.
+Steps:
+  1. Run `npm run test:ci`
+Expected Result: All Jest suites pass; coverage on `src/lib/**/*.ts` and `src/app/api/**/*.ts` remains ≥80% statements/functions/lines and ≥70% branches, unaffected by the lifecycle E2E addition.
+Actual Result:
+Status: [ ] Not Run
+Defect Raised: None
+
+TC-0166: Existing Playwright mock-based tests remain unaffected by the lifecycle suite
+Related Story: US-0038
+Related Task: TASK-0037
+Related AC: AC-0132
+Type: Regression
+Preconditions: None.
+Steps:
+  1. Run `npx playwright test --project=chromium-desktop --project=chromium-mobile`
+Expected Result: All pre-existing mock-based Playwright specs still pass; adding the `chromium-lifecycle` project and `tournament-lifecycle.spec.ts` did not change the behavior or fixtures relied on by the desktop/mobile mock suites.
+Actual Result:
+Status: [ ] Not Run
+Defect Raised: None
+
 ## EPIC-0002 — Registration & Authentication
 
 TC-0001: Player completes 3-step registration (happy path)
@@ -227,6 +627,90 @@ Status: [ ] Not Run
 Defect Raised: None
 
 ---
+
+TC-0156: "Send Magic Link" button on login page does not trigger form validation
+Related Story: US-0036
+Related Task: N/A
+Related AC: AC-0122
+Type: Functional
+Preconditions: On /login with the email/password form empty or partially filled.
+Steps:
+  1. Leave the password field empty (or invalid)
+  2. Click "Send Magic Link"
+Expected Result: The button is `type="button"`, so clicking it does not trigger the form's password-field validation; the magic-link request proceeds independent of the password field's state.
+Actual Result:
+Status: [ ] Not Run
+Defect Raised: None
+
+TC-0157: Player self-service magic-link request via /api/auth/request-link
+Related Story: US-0036
+Related Task: N/A
+Related AC: AC-0123
+Type: Integration
+Preconditions: A `players` row exists with a known email.
+Steps:
+  1. Run the Jest suite: `npx jest src/__tests__/api-request-link.test.ts --no-coverage`
+  2. Separately, POST an enrolled player's email to `/api/auth/request-link` via the login page UI
+Expected Result: The route (`src/app/api/auth/request-link/route.ts`) looks up `players.email` and calls `supabase.auth.signInWithOtp({ shouldCreateUser: false })` for enrolled players; all 4 `it` cases in `api-request-link.test.ts` pass.
+Actual Result:
+Status: [ ] Not Run
+Defect Raised: None
+
+TC-0158: Magic-link request endpoint is anti-enumeration safe
+Related Story: US-0036
+Related Task: N/A
+Related AC: AC-0124
+Type: Negative
+Preconditions: None.
+Steps:
+  1. POST a known enrolled player's email to `/api/auth/request-link`
+  2. POST an email with no matching `players` row to the same endpoint
+Expected Result: Both requests return `200 { ok: true }` — the response never reveals whether the email matched a player, per the anti-enumeration requirement covered in `api-request-link.test.ts`.
+Actual Result:
+Status: [ ] Not Run
+Defect Raised: None
+
+TC-0159: "Forgot password" link on login page
+Related Story: US-0037
+Related Task: N/A
+Related AC: AC-0125
+Type: Functional
+Preconditions: On /login.
+Steps:
+  1. Click the "Forgot password" link
+Expected Result: Navigates to `/forgot-password` (`src/app/(auth)/forgot-password/page.tsx`).
+Actual Result:
+Status: [ ] Not Run
+Defect Raised: None
+
+TC-0160: Reset email sent via Supabase Auth, anti-enumeration message
+Related Story: US-0037
+Related Task: N/A
+Related AC: AC-0126
+Type: Negative
+Preconditions: On /forgot-password.
+Steps:
+  1. Submit a known account's email
+  2. Submit an email with no matching account
+Expected Result: `resetPasswordForEmail` is called in both cases; the page shows the same "Check your email" message regardless of whether the account exists (anti-enumeration).
+Actual Result:
+Status: [ ] Not Run
+Defect Raised: None
+
+TC-0161: New password accepted after clicking reset link
+Related Story: US-0037
+Related Task: N/A
+Related AC: AC-0127
+Type: Functional
+Preconditions: A valid Supabase password-reset link has been requested and opened, landing on `/reset-password`.
+Steps:
+  1. Enter a new password (≥8 chars) and matching confirmation
+  2. Submit the form
+  3. Also verify: submit with `password !== confirm`, and submit with a password shorter than 8 chars
+Expected Result: On valid input, `reset-password/page.tsx` calls `updateUser({ password })` and redirects to `/dashboard`. On mismatched or too-short input, the form is rejected client-side with a validation message and `updateUser` is not called.
+Actual Result:
+Status: [ ] Not Run
+Defect Raised: None
 
 ## EPIC-0003 — Player Dashboard
 
@@ -466,6 +950,36 @@ Defect Raised: None
 
 ---
 
+TC-0154: Shot history visible for the current hole
+Related Story: US-0021
+Related Task: TASK-0035
+Related AC: AC-0068
+Type: Functional
+Preconditions: Player mid-round with at least one recorded shot on the current hole.
+Steps:
+  1. Navigate to /round
+  2. Record 2 shots on the current hole
+  3. Observe the "This hole" shot list
+Expected Result: `src/app/(player)/round/page.tsx`'s "This hole" list shows every shot recorded so far on the current hole, in order, with club and outcome.
+Actual Result:
+Status: [ ] Not Run
+Defect Raised: None
+
+TC-0155: Tapping a previous shot opens edit mode
+Related Story: US-0021
+Related Task: TASK-0035
+Related AC: AC-0069
+Type: Functional
+Preconditions: Same as TC-0154; at least one shot recorded on the current hole.
+Steps:
+  1. On the "This hole" shot list, click a shot row
+  2. Observe the row's ✏/✕ glyph icon and edit affordance
+  3. Change the club (`editClub`) and/or outcome (`editOutcome`) and save
+Expected Result: Clicking a row toggles `editingShot` state and reveals editable club/outcome controls (no labeled "Edit" button — just the ✏/✕ icon glyphs); saving updates the shot in place.
+Actual Result:
+Status: [ ] Not Run
+Defect Raised: None
+
 ## EPIC-0005 — Hole & Round Completion
 
 TC-0033: Hole completes when all team members have sunk
@@ -656,6 +1170,20 @@ Status: [ ] Not Run
 Defect Raised: None
 
 ---
+
+TC-0167: tv-stats.ts unit tests achieve ≥80% coverage
+Related Story: US-0039
+Related Task: TASK-0038
+Related AC: AC-0137
+Type: Unit
+Preconditions: None.
+Steps:
+  1. Run `npx jest src/__tests__/tv-stats.test.ts --coverage`
+  2. Run the full suite: `npm run test:ci`
+Expected Result: All ~40 `it` cases across the 7 `describe` blocks in `tv-stats.test.ts` (covering the 7 exported fetch functions in `src/lib/tv-stats.ts`) pass; `tv-stats.ts` coverage is ≥80%; the full suite remains ≥80% overall.
+Actual Result:
+Status: [ ] Not Run
+Defect Raised: None
 
 ## EPIC-0007 — Admin: Tournament & Course Setup
 
@@ -1794,6 +2322,53 @@ Steps:
   1. Run `npm run precheck` (or `npx tsx scripts/precheck-env.ts`)
   2. Review the printed PASS/FAIL list
 Expected Result: All infra checks print PASS and the script exits 0: env vars present, .env.local.example documents them, Supabase browser/server clients connect, all 9 tables exist, RLS blocks unauthenticated score reads, and clubs/holes/tournament seed data counts meet the expected minimums. AC-0009 (realtime) and AC-0011/AC-0012 (Vercel prod env vars) print as needing manual verification rather than a fabricated pass. If any table is missing, seed data is absent, or Supabase env vars are wrong, the corresponding line prints FAIL with a detail message and the script exits 1.
+Actual Result:
+Status: [ ] Not Run
+Defect Raised: None
+
+## EPIC-0011 — Multi-Tournament Administration, Venues & Courses
+
+TC-0168: New venue can be created via a form and appears in the venue list
+Related Story: US-0042
+Related Task: N/A
+Related AC: AC-0144
+Type: Functional
+Preconditions: Signed in as system_admin; on /admin/venues.
+Steps:
+  1. Click "+ Add Venue" (`venue-manager.tsx:179`)
+  2. Fill in the venue form revealed by the `showAdd` toggle (`venue-manager.tsx:264`)
+  3. Submit
+Expected Result: `supabase.from('venues').insert(...).select().single()` (`venue-manager.tsx:112`) succeeds and the new venue card appears in the venue list immediately, without a page reload.
+Actual Result:
+Status: [ ] Not Run
+Defect Raised: None
+
+TC-0169: Course holes editor supports "Generate Holes" and CSV import
+Related Story: US-0043
+Related Task: N/A
+Related AC: AC-0147
+Type: Functional
+Preconditions: Signed in as system_admin; on a course's holes page (`src/app/(admin)/admin/courses/[courseId]/holes/course-holes-editor.tsx`).
+Steps:
+  1. Open the holes-generator panel (`holes-generator-panel.tsx`) and use "Generate Holes" to create 18 holes with default par
+  2. Separately, import a CSV of `hole_number,par,handicap` rows
+Expected Result: "Generate Holes" creates the requested number of hole rows with sensible default par values; CSV import parses `hole_number`/`par`/`handicap` columns and upserts matching hole rows for the course.
+Actual Result:
+Status: [ ] Not Run
+Defect Raised: None
+
+TC-0170: Tee box editor supports multiple tee sets per course with optional GPS
+Related Story: US-0043
+Related Task: N/A
+Related AC: AC-0148
+Type: Functional
+Preconditions: Signed in as system_admin; on a course's holes/tee-box editor.
+Steps:
+  1. Call `startAdd()` on the tee-box editor and fill in a `TeeBoxForm` (`{name, lat, lng, distanceYards}`) leaving `lat`/`lng` empty
+  2. Save
+  3. Call `startAdd()` again and add a second tee set with `lat`/`lng` populated
+  4. Call `startEdit()` on an existing tee set, change a field, and save; also verify `cancelForm()` discards in-progress edits
+Expected Result: Both tee sets save successfully — `lat`/`lng` are nullable (GPS is informational only; no scoring logic reads it, per AC-0148) and `validateForm()` does not require them. `startEdit()`/`cancelForm()` behave correctly (edit persists on save, discards on cancel).
 Actual Result:
 Status: [ ] Not Run
 Defect Raised: None

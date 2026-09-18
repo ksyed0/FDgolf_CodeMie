@@ -2044,6 +2044,296 @@
   ],
   "testCases": [
     {
+      "id": "TC-0130",
+      "title": "Next.js dev server runs (App Router)",
+      "relatedStory": "US-0001",
+      "relatedTask": "TASK-0001",
+      "relatedAC": "AC-0001",
+      "type": "Functional",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0131",
+      "title": "Tailwind CSS classes render correctly",
+      "relatedStory": "US-0001",
+      "relatedTask": "TASK-0001",
+      "relatedAC": "AC-0002",
+      "type": "Functional",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0132",
+      "title": "shadcn/ui Button component renders without errors",
+      "relatedStory": "US-0001",
+      "relatedTask": "TASK-0002",
+      "relatedAC": "AC-0003",
+      "type": "Functional",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0133",
+      "title": "Supabase browser client connects (anon key)",
+      "relatedStory": "US-0002",
+      "relatedTask": "TASK-0003",
+      "relatedAC": "AC-0004",
+      "type": "Integration",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0134",
+      "title": "Supabase server client works in Server Components",
+      "relatedStory": "US-0002",
+      "relatedTask": "TASK-0003",
+      "relatedAC": "AC-0005",
+      "type": "Integration",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0135",
+      "title": ".env.local.example documents required env vars",
+      "relatedStory": "US-0002",
+      "relatedTask": "TASK-0003",
+      "relatedAC": "AC-0006",
+      "type": "Functional",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0136",
+      "title": "All 9 core tables exist in the schema",
+      "relatedStory": "US-0003",
+      "relatedTask": "TASK-0004",
+      "relatedAC": "AC-0007",
+      "type": "Integration",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0137",
+      "title": "RLS policies enforce player vs admin separation",
+      "relatedStory": "US-0003",
+      "relatedTask": "TASK-0004",
+      "relatedAC": "AC-0008",
+      "type": "Integration",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0138",
+      "title": "Realtime enabled on the scores table",
+      "relatedStory": "US-0003",
+      "relatedTask": "TASK-0004",
+      "relatedAC": "AC-0009",
+      "type": "Integration",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0139",
+      "title": "Unique constraints prevent duplicate entries",
+      "relatedStory": "US-0003",
+      "relatedTask": "TASK-0004",
+      "relatedAC": "AC-0010",
+      "type": "Negative",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0140",
+      "title": "Hole map renders with satellite view centered on pin coordinates",
+      "relatedStory": "US-0005",
+      "relatedTask": "TASK-0014",
+      "relatedAC": "AC-0013",
+      "type": "Functional",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0141",
+      "title": "Pin marker displays at hole location",
+      "relatedStory": "US-0005",
+      "relatedTask": "TASK-0014",
+      "relatedAC": "AC-0014",
+      "type": "Functional",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0142",
+      "title": "Shot/position markers update on GPS capture",
+      "relatedStory": "US-0005",
+      "relatedTask": "TASK-0014",
+      "relatedAC": "AC-0015",
+      "type": "Functional",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0143",
+      "title": "21 clubs seeded across 5 categories",
+      "relatedStory": "US-0006",
+      "relatedTask": "TASK-0005",
+      "relatedAC": "AC-0016",
+      "type": "Integration",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0144",
+      "title": "18 holes seeded with par values and approximate GPS",
+      "relatedStory": "US-0006",
+      "relatedTask": "TASK-0005",
+      "relatedAC": "AC-0017",
+      "type": "Integration",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0145",
+      "title": "Tournament record created for CIBC 2026 event",
+      "relatedStory": "US-0006",
+      "relatedTask": "TASK-0005",
+      "relatedAC": "AC-0018",
+      "type": "Integration",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0146",
+      "title": "Full header shows branding + AI/Run™ pill",
+      "relatedStory": "US-0007",
+      "relatedTask": "TASK-0007",
+      "relatedAC": "AC-0019",
+      "type": "Functional",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0147",
+      "title": "Compact header shows condensed branding + hole info",
+      "relatedStory": "US-0007",
+      "relatedTask": "TASK-0007",
+      "relatedAC": "AC-0020",
+      "type": "Functional",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0148",
+      "title": "Dark green (#1a472a) consistent across header variants",
+      "relatedStory": "US-0007",
+      "relatedTask": "TASK-0007",
+      "relatedAC": "AC-0021",
+      "type": "Functional",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0149",
+      "title": "Writes enqueue to localStorage regardless of connectivity",
+      "relatedStory": "US-0008",
+      "relatedTask": "TASK-0006",
+      "relatedAC": "AC-0022",
+      "type": "Functional",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0150",
+      "title": "Queue flushes automatically when online",
+      "relatedStory": "US-0008",
+      "relatedTask": "TASK-0006",
+      "relatedAC": "AC-0023",
+      "type": "Functional",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0151",
+      "title": "Failed writes retry up to 5 times",
+      "relatedStory": "US-0008",
+      "relatedTask": "TASK-0006",
+      "relatedAC": "AC-0024",
+      "type": "Negative",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0152",
+      "title": "Offline indicator shows pending count",
+      "relatedStory": "US-0008",
+      "relatedTask": "TASK-0006",
+      "relatedAC": "AC-0025",
+      "type": "Functional",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0153",
+      "title": "Online event triggers immediate flush",
+      "relatedStory": "US-0008",
+      "relatedTask": "TASK-0006",
+      "relatedAC": "AC-0026",
+      "type": "Functional",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0162",
+      "title": "Reset script wipes and re-seeds Lionhead E2E fixture data",
+      "relatedStory": "US-0038",
+      "relatedTask": "TASK-0036",
+      "relatedAC": "AC-0128",
+      "type": "Integration",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0163",
+      "title": "Lifecycle E2E suite runs against local Supabase (setup steps)",
+      "relatedStory": "US-0038",
+      "relatedTask": "TASK-0037",
+      "relatedAC": "AC-0129",
+      "type": "Integration",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0164",
+      "title": "All 10 lifecycle steps pass end-to-end",
+      "relatedStory": "US-0038",
+      "relatedTask": "TASK-0037",
+      "relatedAC": "AC-0130",
+      "type": "Integration",
+      "status": "Not Run",
+      "defect": "BUG-0011"
+    },
+    {
+      "id": "TC-0165",
+      "title": "Existing Jest unit tests still pass at ≥80% coverage after E2E additions",
+      "relatedStory": "US-0038",
+      "relatedTask": "TASK-0037",
+      "relatedAC": "AC-0131",
+      "type": "Regression",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0166",
+      "title": "Existing Playwright mock-based tests remain unaffected by the lifecycle suite",
+      "relatedStory": "US-0038",
+      "relatedTask": "TASK-0037",
+      "relatedAC": "AC-0132",
+      "type": "Regression",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
       "id": "TC-0001",
       "title": "Player completes 3-step registration (happy path)",
       "relatedStory": "US-0009",
@@ -2189,6 +2479,66 @@
       "relatedStory": "US-0015",
       "relatedTask": "N/A",
       "relatedAC": "AC-0048",
+      "type": "Functional",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0156",
+      "title": "\"Send Magic Link\" button on login page does not trigger form validation",
+      "relatedStory": "US-0036",
+      "relatedTask": "N/A",
+      "relatedAC": "AC-0122",
+      "type": "Functional",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0157",
+      "title": "Player self-service magic-link request via /api/auth/request-link",
+      "relatedStory": "US-0036",
+      "relatedTask": "N/A",
+      "relatedAC": "AC-0123",
+      "type": "Integration",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0158",
+      "title": "Magic-link request endpoint is anti-enumeration safe",
+      "relatedStory": "US-0036",
+      "relatedTask": "N/A",
+      "relatedAC": "AC-0124",
+      "type": "Negative",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0159",
+      "title": "\"Forgot password\" link on login page",
+      "relatedStory": "US-0037",
+      "relatedTask": "N/A",
+      "relatedAC": "AC-0125",
+      "type": "Functional",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0160",
+      "title": "Reset email sent via Supabase Auth, anti-enumeration message",
+      "relatedStory": "US-0037",
+      "relatedTask": "N/A",
+      "relatedAC": "AC-0126",
+      "type": "Negative",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0161",
+      "title": "New password accepted after clicking reset link",
+      "relatedStory": "US-0037",
+      "relatedTask": "N/A",
+      "relatedAC": "AC-0127",
       "type": "Functional",
       "status": "Not Run",
       "defect": "None"
@@ -2364,6 +2714,26 @@
       "defect": "None"
     },
     {
+      "id": "TC-0154",
+      "title": "Shot history visible for the current hole",
+      "relatedStory": "US-0021",
+      "relatedTask": "TASK-0035",
+      "relatedAC": "AC-0068",
+      "type": "Functional",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0155",
+      "title": "Tapping a previous shot opens edit mode",
+      "relatedStory": "US-0021",
+      "relatedTask": "TASK-0035",
+      "relatedAC": "AC-0069",
+      "type": "Functional",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
       "id": "TC-0033",
       "title": "Hole completes when all team members have sunk",
       "relatedStory": "US-0022",
@@ -2500,6 +2870,16 @@
       "relatedTask": "N/A",
       "relatedAC": "AC-0084",
       "type": "Functional",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0167",
+      "title": "tv-stats.ts unit tests achieve ≥80% coverage",
+      "relatedStory": "US-0039",
+      "relatedTask": "TASK-0038",
+      "relatedAC": "AC-0137",
+      "type": "Unit",
       "status": "Not Run",
       "defect": "None"
     },
@@ -3332,17 +3712,71 @@
       "type": "Integration",
       "status": "Not Run",
       "defect": "None"
+    },
+    {
+      "id": "TC-0168",
+      "title": "New venue can be created via a form and appears in the venue list",
+      "relatedStory": "US-0042",
+      "relatedTask": "N/A",
+      "relatedAC": "AC-0144",
+      "type": "Functional",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0169",
+      "title": "Course holes editor supports \"Generate Holes\" and CSV import",
+      "relatedStory": "US-0043",
+      "relatedTask": "N/A",
+      "relatedAC": "AC-0147",
+      "type": "Functional",
+      "status": "Not Run",
+      "defect": "None"
+    },
+    {
+      "id": "TC-0170",
+      "title": "Tee box editor supports multiple tee sets per course with optional GPS",
+      "relatedStory": "US-0043",
+      "relatedTask": "N/A",
+      "relatedAC": "AC-0148",
+      "type": "Functional",
+      "status": "Not Run",
+      "defect": "None"
     }
   ],
   "bugs": [
+    {
+      "id": "BUG-0012",
+      "title": "react-hooks v7 \"React Compiler\" rules flag pre-existing hook idioms",
+      "severity": "Low",
+      "relatedStory": "N/A (lint tooling)",
+      "relatedTask": "",
+      "status": "Open",
+      "fixBranch": "TBD",
+      "lessonEncoded": "No",
+      "estimatedCostUsd": 0,
+      "ghIssueNumber": null
+    },
+    {
+      "id": "BUG-0011",
+      "title": "E2E Lifecycle step-08 — player-to-team assignment PATCH never observed, timeout",
+      "severity": "Medium (cascades to steps 10, 11, 12)",
+      "relatedStory": "N/A (E2E test infra)",
+      "relatedTask": "",
+      "status": "Open",
+      "fixBranch": "TBD",
+      "lessonEncoded": "No",
+      "estimatedCostUsd": 0,
+      "ghIssueNumber": null
+    },
     {
       "id": "BUG-0010",
       "title": "E2E Lifecycle step-05 — \"Add Tournament\" button never found at /admin/tournament",
       "severity": "Medium (cascades to 6 downstream steps)",
       "relatedStory": "N/A (E2E test infra)",
       "relatedTask": "",
-      "status": "Open",
-      "fixBranch": "TBD",
+      "status": "Fixed",
+      "fixBranch": "fix/BUG-0010-lifecycle-add-tournament",
       "lessonEncoded": "No",
       "estimatedCostUsd": 0,
       "ghIssueNumber": null
@@ -3353,9 +3787,9 @@
       "severity": "Low",
       "relatedStory": "N/A (E2E test infra)",
       "relatedTask": "",
-      "status": "Open",
-      "fixBranch": "TBD",
-      "lessonEncoded": "No",
+      "status": "Fixed",
+      "fixBranch": "fix/BUG-0009-admin-teams-hole-badge",
+      "lessonEncoded": "Yes",
       "estimatedCostUsd": 0,
       "ghIssueNumber": null
     },
@@ -3365,9 +3799,9 @@
       "severity": "Low",
       "relatedStory": "N/A (E2E test infra)",
       "relatedTask": "",
-      "status": "Open",
-      "fixBranch": "TBD",
-      "lessonEncoded": "No",
+      "status": "Fixed",
+      "fixBranch": "fix/BUG-0008-tv-leaderboard-rotator-wait",
+      "lessonEncoded": "Yes",
       "estimatedCostUsd": 0,
       "ghIssueNumber": null
     },
@@ -3459,292 +3893,308 @@
   "costs": {
     "US-0001": {
       "projectedUsd": 400,
-      "costUsd": 9.817423,
+      "costUsd": 10.545811,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0002": {
       "projectedUsd": 400,
-      "costUsd": 9.817423,
+      "costUsd": 10.545811,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0003": {
       "projectedUsd": 800,
-      "costUsd": 9.817423,
+      "costUsd": 10.545811,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0004": {
       "projectedUsd": 400,
-      "costUsd": 9.817423,
+      "costUsd": 10.545811,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0005": {
       "projectedUsd": 400,
-      "costUsd": 9.817423,
+      "costUsd": 10.545811,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0006": {
       "projectedUsd": 400,
-      "costUsd": 9.817423,
+      "costUsd": 10.545811,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0007": {
       "projectedUsd": 400,
-      "costUsd": 9.817423,
+      "costUsd": 10.545811,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0008": {
       "projectedUsd": 800,
-      "costUsd": 9.817423,
+      "costUsd": 10.545811,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0009": {
       "projectedUsd": 400,
-      "costUsd": 9.817423,
+      "costUsd": 10.545811,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0010": {
       "projectedUsd": 400,
-      "costUsd": 9.817423,
+      "costUsd": 10.545811,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0011": {
       "projectedUsd": 800,
-      "costUsd": 9.817423,
+      "costUsd": 10.545811,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0012": {
       "projectedUsd": 400,
-      "costUsd": 9.817423,
+      "costUsd": 10.545811,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0013": {
       "projectedUsd": 400,
-      "costUsd": 9.817423,
+      "costUsd": 10.545811,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0014": {
       "projectedUsd": 400,
-      "costUsd": 9.817423,
+      "costUsd": 10.545811,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0015": {
       "projectedUsd": 400,
-      "costUsd": 9.817423,
+      "costUsd": 10.545811,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0016": {
       "projectedUsd": 800,
-      "costUsd": 9.817423,
+      "costUsd": 10.545811,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0017": {
       "projectedUsd": 400,
-      "costUsd": 9.817423,
+      "costUsd": 10.545811,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0018": {
       "projectedUsd": 400,
-      "costUsd": 9.817423,
+      "costUsd": 10.545811,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0019": {
       "projectedUsd": 800,
-      "costUsd": 9.817423,
+      "costUsd": 10.545811,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0020": {
       "projectedUsd": 800,
-      "costUsd": 9.817423,
+      "costUsd": 10.545811,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0021": {
       "projectedUsd": 800,
-      "costUsd": 9.817423,
+      "costUsd": 10.545811,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0022": {
       "projectedUsd": 400,
-      "costUsd": 9.817423,
+      "costUsd": 10.545811,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0023": {
       "projectedUsd": 400,
-      "costUsd": 9.817423,
+      "costUsd": 10.545811,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0024": {
       "projectedUsd": 400,
-      "costUsd": 9.817423,
+      "costUsd": 10.545811,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0025": {
       "projectedUsd": 800,
-      "costUsd": 9.817423,
+      "costUsd": 10.545811,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0026": {
       "projectedUsd": 400,
-      "costUsd": 9.817423,
+      "costUsd": 10.545811,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0027": {
       "projectedUsd": 400,
-      "costUsd": 9.817423,
+      "costUsd": 10.545811,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0028": {
       "projectedUsd": 400,
-      "costUsd": 9.817423,
+      "costUsd": 10.545811,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0029": {
       "projectedUsd": 400,
-      "costUsd": 9.817423,
+      "costUsd": 10.545811,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0030": {
       "projectedUsd": 800,
-      "costUsd": 9.817423,
+      "costUsd": 10.545811,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0031": {
       "projectedUsd": 400,
-      "costUsd": 9.817423,
+      "costUsd": 10.545811,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0032": {
       "projectedUsd": 800,
-      "costUsd": 9.817423,
+      "costUsd": 10.545811,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0033": {
       "projectedUsd": 800,
-      "costUsd": 9.817423,
+      "costUsd": 10.545811,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0034": {
       "projectedUsd": 800,
-      "costUsd": 9.817423,
+      "costUsd": 10.545811,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0035": {
       "projectedUsd": 800,
-      "costUsd": 9.817423,
+      "costUsd": 10.545811,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0036": {
       "projectedUsd": 800,
-      "costUsd": 9.817423,
+      "costUsd": 10.545811,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0037": {
       "projectedUsd": 400,
-      "costUsd": 9.817423,
+      "costUsd": 10.545811,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0038": {
       "projectedUsd": 1600,
-      "costUsd": 9.817423,
+      "costUsd": 10.545811,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0039": {
       "projectedUsd": 1600,
-      "costUsd": 9.817423,
+      "costUsd": 10.545811,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0040": {
       "projectedUsd": 800,
-      "costUsd": 9.817423,
+      "costUsd": 10.545811,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0041": {
       "projectedUsd": 400,
-      "costUsd": 9.817423,
+      "costUsd": 10.545811,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0042": {
       "projectedUsd": 800,
-      "costUsd": 9.817423,
+      "costUsd": 10.545811,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0043": {
       "projectedUsd": 1600,
-      "costUsd": 9.817423,
+      "costUsd": 10.545811,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0044": {
       "projectedUsd": 800,
-      "costUsd": 9.817423,
+      "costUsd": 10.545811,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0045": {
       "projectedUsd": 400,
-      "costUsd": 9.817423,
+      "costUsd": 10.545811,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0046": {
       "projectedUsd": 400,
-      "costUsd": 9.817423,
+      "costUsd": 10.545811,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0047": {
       "projectedUsd": 400,
-      "costUsd": 101.324623,
-      "inputTokens": 7502833,
-      "outputTokens": 715256
+      "costUsd": 93.833111,
+      "inputTokens": 6615905,
+      "outputTokens": 608978
     },
     "_totals": {
-      "costUsd": 552.9261000000001,
-      "inputTokens": 39222352,
-      "outputTokens": 6249593
+      "costUsd": 578.9404,
+      "inputTokens": 40376758,
+      "outputTokens": 6474256
     },
     "_bugs": {
+      "BUG-0012": {
+        "costUsd": 0,
+        "inputTokens": 0,
+        "outputTokens": 0,
+        "sessions": 0,
+        "isEstimated": false,
+        "projectedUsd": 400
+      },
+      "BUG-0011": {
+        "costUsd": 0,
+        "inputTokens": 0,
+        "outputTokens": 0,
+        "sessions": 0,
+        "isEstimated": false,
+        "projectedUsd": 400
+      },
       "BUG-0010": {
         "costUsd": 0,
         "inputTokens": 0,
@@ -3834,21 +4284,21 @@
   },
   "atRisk": {
     "US-0001": {
-      "missingTCs": true,
+      "missingTCs": false,
       "noBranch": false,
       "failedTCNoBug": false,
       "openCriticalBug": false,
       "isAtRisk": false
     },
     "US-0002": {
-      "missingTCs": true,
+      "missingTCs": false,
       "noBranch": false,
       "failedTCNoBug": false,
       "openCriticalBug": false,
       "isAtRisk": false
     },
     "US-0003": {
-      "missingTCs": true,
+      "missingTCs": false,
       "noBranch": false,
       "failedTCNoBug": false,
       "openCriticalBug": false,
@@ -3862,21 +4312,21 @@
       "isAtRisk": false
     },
     "US-0005": {
-      "missingTCs": true,
+      "missingTCs": false,
       "noBranch": false,
       "failedTCNoBug": false,
       "openCriticalBug": false,
       "isAtRisk": false
     },
     "US-0006": {
-      "missingTCs": true,
+      "missingTCs": false,
       "noBranch": false,
       "failedTCNoBug": false,
       "openCriticalBug": false,
       "isAtRisk": false
     },
     "US-0007": {
-      "missingTCs": true,
+      "missingTCs": false,
       "noBranch": false,
       "failedTCNoBug": false,
       "openCriticalBug": false,
@@ -4079,21 +4529,21 @@
       "isAtRisk": false
     },
     "US-0036": {
-      "missingTCs": true,
+      "missingTCs": false,
       "noBranch": false,
       "failedTCNoBug": false,
       "openCriticalBug": false,
       "isAtRisk": false
     },
     "US-0037": {
-      "missingTCs": true,
+      "missingTCs": false,
       "noBranch": false,
       "failedTCNoBug": false,
       "openCriticalBug": false,
       "isAtRisk": false
     },
     "US-0038": {
-      "missingTCs": true,
+      "missingTCs": false,
       "noBranch": false,
       "failedTCNoBug": false,
       "openCriticalBug": false,
@@ -4168,11 +4618,11 @@
     "byEpic": {}
   },
   "coverage": {
-    "lines": 96.09,
-    "statements": 90.49,
-    "functions": 85.07,
-    "branches": 82.71,
-    "overall": 96.09,
+    "lines": 96.25,
+    "statements": 90.63,
+    "functions": 85.29,
+    "branches": 82.59,
+    "overall": 96.25,
     "meetsTarget": true,
     "available": true
   },
@@ -4204,6 +4654,22 @@
     }
   ],
   "lessons": [
+    {
+      "id": "L-0019",
+      "title": "Stat-rotator-style components need test waits or panel-targeting, not `.first()` on shared text",
+      "rule": "",
+      "context": "both",
+      "date": "",
+      "bugIds": []
+    },
+    {
+      "id": "L-0018",
+      "title": "A failing selector against an SSR card grid may mean \"no data\", not \"wrong text\"",
+      "rule": "",
+      "context": "looks",
+      "date": "",
+      "bugIds": []
+    },
     {
       "id": "L-0017",
       "title": "Cost-log hook dirties the worktree; commit it BEFORE `gh pr merge`",
@@ -4341,10 +4807,10 @@
       "bugIds": []
     }
   ],
-  "generatedAt": "2026-09-18T14:15:57.372Z",
-  "commitSha": "2106ae4",
-  "buildNumber": "116",
-  "branch": "docs/session-39-close",
+  "generatedAt": "2026-09-18T17:46:53.396Z",
+  "commitSha": "e59f716",
+  "buildNumber": "124",
+  "branch": "develop",
   "sessionTimeline": [
     {
       "date": "2026-06-09",
@@ -4436,7 +4902,7 @@
     },
     {
       "date": "2026-09-18",
-      "cumCost": 552.9261
+      "cumCost": 578.9404
     }
   ],
   "costHistory": {
@@ -4502,6 +4968,10 @@
       {
         "date": "2026-06-30",
         "costUsd": 10.1804
+      },
+      {
+        "date": "2026-09-18",
+        "costUsd": 34.2342
       }
     ],
     "fix/longest-drive-gps": [
@@ -4528,10 +4998,6 @@
       {
         "date": "2026-07-15",
         "costUsd": 0.756
-      },
-      {
-        "date": "2026-09-18",
-        "costUsd": 8.2199
       }
     ],
     "docs/session-cost-log-determined-lewin": [
@@ -4547,7 +5013,7 @@
       }
     ]
   },
-  "deltaSpend": 8.22,
+  "deltaSpend": 34.23,
   "projectName": "CodeMie",
   "tagline": "FDgolf CodeMie project.",
   "version": "0.1.0",
@@ -4621,10 +5087,10 @@
   },
   "budget": {
     "totalBudget": null,
-    "totalSpent": 552.9261000000001,
+    "totalSpent": 578.9404,
     "totalProjected": 29200,
     "percentUsed": null,
-    "burnRate": 0,
+    "burnRate": 26.01429999999982,
     "daysRemaining": null,
     "projectedExhaustion": null,
     "thresholds": [
@@ -4638,96 +5104,96 @@
       {
         "id": "EPIC-0001",
         "title": "Project Setup & Infrastructure",
-        "budget": 189.68143,
-        "spent": 189.68143,
+        "budget": 188.74541,
+        "spent": 188.74541,
         "remaining": 0,
         "percentUsed": 100
       },
       {
         "id": "EPIC-0002",
         "title": "Registration & Authentication",
-        "budget": 58.904537999999995,
-        "spent": 58.904537999999995,
+        "budget": 63.274866,
+        "spent": 63.274866,
         "remaining": 0,
         "percentUsed": 100
       },
       {
         "id": "EPIC-0003",
         "title": "Player Dashboard",
-        "budget": 19.634846,
-        "spent": 19.634846,
+        "budget": 21.091622,
+        "spent": 21.091622,
         "remaining": 0,
         "percentUsed": 100
       },
       {
         "id": "EPIC-0004",
         "title": "Active Round — Shot Tracking",
-        "budget": 68.721961,
-        "spent": 68.721961,
+        "budget": 73.820677,
+        "spent": 73.820677,
         "remaining": 0,
         "percentUsed": 100
       },
       {
         "id": "EPIC-0005",
         "title": "Hole & Round Completion",
-        "budget": 29.452269,
-        "spent": 29.452269,
+        "budget": 31.637433,
+        "spent": 31.637433,
         "remaining": 0,
         "percentUsed": 100
       },
       {
         "id": "EPIC-0006",
         "title": "Leaderboard",
-        "budget": 39.269692,
-        "spent": 39.269692,
+        "budget": 42.183244,
+        "spent": 42.183244,
         "remaining": 0,
         "percentUsed": 100
       },
       {
         "id": "EPIC-0007",
         "title": "Admin — Tournament & Course Setup",
-        "budget": 39.269692,
-        "spent": 39.269692,
+        "budget": 42.183244,
+        "spent": 42.183244,
         "remaining": 0,
         "percentUsed": 100
       },
       {
         "id": "EPIC-0008",
         "title": "Admin — Player & Team Management",
-        "budget": 19.634846,
-        "spent": 19.634846,
+        "budget": 21.091622,
+        "spent": 21.091622,
         "remaining": 0,
         "percentUsed": 100
       },
       {
         "id": "EPIC-0009",
         "title": "Admin — Scores & Sponsors",
-        "budget": 19.634846,
-        "spent": 19.634846,
+        "budget": 21.091622,
+        "spent": 21.091622,
         "remaining": 0,
         "percentUsed": 100
       },
       {
         "id": "EPIC-0010",
         "title": "Security & 2FA",
-        "budget": 9.817423,
-        "spent": 9.817423,
+        "budget": 10.545811,
+        "spent": 10.545811,
         "remaining": 0,
         "percentUsed": 100
       },
       {
         "id": "EPIC-0011",
         "title": "Multi-Tournament Administration, Venues & Courses",
-        "budget": 49.087115,
-        "spent": 49.087115,
+        "budget": 52.729055,
+        "spent": 52.729055,
         "remaining": 0,
         "percentUsed": 100
       },
       {
         "id": "EPIC-0012",
         "title": "Admin UI Redesign",
-        "budget": 9.817423,
-        "spent": 9.817423,
+        "budget": 10.545811,
+        "spent": 10.545811,
         "remaining": 0,
         "percentUsed": 100
       }
@@ -4741,13 +5207,15 @@
       "2026-06-09T23:11:49.621Z",
       "2026-06-10T03:39:46.974Z",
       "2026-06-11T19:19:09.985Z",
-      "2026-09-18T14:15:57.443Z"
+      "2026-09-18T14:15:57.443Z",
+      "2026-09-18T17:46:53.457Z"
     ],
     "doneCounts": [
       0,
       32,
       32,
       35,
+      47,
       47
     ],
     "totalStories": [
@@ -4755,6 +5223,7 @@
       37,
       37,
       37,
+      47,
       47
     ],
     "aiCosts": [
@@ -4762,20 +5231,23 @@
       63.9112,
       63.9112,
       114.2773,
-      552.9261000000001
+      552.9261000000001,
+      578.9404
     ],
     "coverage": [
       null,
       null,
       91.91,
       91.91,
-      96.09
+      96.09,
+      96.25
     ],
     "velocity": [
       0,
       56,
       56,
       61,
+      93,
       93
     ],
     "openBugs": [
@@ -4783,9 +5255,11 @@
       0,
       0,
       0,
-      3
+      3,
+      2
     ],
     "atRisk": [
+      0,
       0,
       0,
       0,
@@ -4797,20 +5271,23 @@
       4411660,
       2770786,
       7738178,
-      39222352
+      39222352,
+      40376758
     ],
     "outputTokens": [
       157392,
       824637,
       576718,
       1654331,
-      6249593
+      6249593,
+      6474256
     ],
     "avgRisk": [
       1.1000000000000008,
       1.1,
       1.1,
       1.1,
+      0,
       0
     ],
     "velocityByWeek": {
