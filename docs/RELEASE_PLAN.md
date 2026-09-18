@@ -410,7 +410,7 @@ Dependencies: US-0022
 Acceptance Criteria:
   - [x] AC-0074: Each player's stroke count displayed
   - [x] AC-0075: Best ball score highlighted with star indicator
-  - [ ] AC-0076: Score relative to par shown (birdie, bogey, etc.)
+  - [x] AC-0076: Score relative to par shown (birdie, bogey, etc.)
 ```
 
 ```

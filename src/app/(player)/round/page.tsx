@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { createClient } from '@/lib/supabase/client';
 import { syncEngine } from '@/lib/sync-engine';
+import { formatVsPar } from '@/lib/scoring';
 import { useGps } from '@/hooks/use-gps';
 import { PlayerPills } from '@/components/player-pills';
 import { ClubSelector } from '@/components/club-selector';
@@ -578,14 +579,14 @@ export default function RoundPage() {
                     <>
                       {bestBallPar !== null && (
                         <p className="text-center text-sm text-gray-600">
-                          Best Ball: {bestStrokes} strokes ({bestBallPar >= 0 ? '+' : ''}
-                          {bestBallPar} vs par)
+                          Best Ball: {bestStrokes} strokes ({formatVsPar(bestBallPar)} vs par)
                         </p>
                       )}
                       <div className="space-y-1.5">
                         {teammates.map((p) => {
                           const score = holeSummaryScores.find((s) => s.player_id === p.id);
                           const isBest = score !== undefined && score.strokes === bestStrokes;
+                          const vsPar = score ? score.strokes - currentHole.par : null;
                           return (
                             <div
                               key={p.id}
@@ -596,8 +597,21 @@ export default function RoundPage() {
                               }`}
                             >
                               <span>{p.name}</span>
-                              <span>
+                              <span className="flex items-center gap-1.5">
                                 {score ? `${score.strokes} strokes${isBest ? ' ★' : ''}` : '—'}
+                                {vsPar !== null && (
+                                  <span
+                                    className={
+                                      vsPar < 0
+                                        ? 'font-semibold text-green-600'
+                                        : vsPar > 0
+                                          ? 'font-semibold text-red-600'
+                                          : 'text-gray-500'
+                                    }
+                                  >
+                                    ({formatVsPar(vsPar)})
+                                  </span>
+                                )}
                               </span>
                             </div>
                           );
