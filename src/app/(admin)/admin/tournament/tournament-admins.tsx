@@ -44,20 +44,28 @@ export function TournamentAdmins({ tournamentId }: { tournamentId: string }) {
   }, [tournamentId]);
 
   useEffect(() => {
-    if (!query.trim()) {
-      setResults([]);
-      return;
-    }
-    const timer = setTimeout(async () => {
-      const { data } = await supabase
-        .from('players')
-        .select('id, name, email')
-        .or(`name.ilike.%${query}%,email.ilike.%${query}%`)
-        .limit(8);
-      const existingIds = new Set(admins.map((a) => a.player_id));
-      setResults(((data ?? []) as PlayerResult[]).filter((p) => !existingIds.has(p.id)));
-    }, 250);
-    return () => clearTimeout(timer);
+    let cancelled = false;
+    const timer = setTimeout(
+      async () => {
+        if (!query.trim()) {
+          if (!cancelled) setResults([]);
+          return;
+        }
+        const { data } = await supabase
+          .from('players')
+          .select('id, name, email')
+          .or(`name.ilike.%${query}%,email.ilike.%${query}%`)
+          .limit(8);
+        if (cancelled) return;
+        const existingIds = new Set(admins.map((a) => a.player_id));
+        setResults(((data ?? []) as PlayerResult[]).filter((p) => !existingIds.has(p.id)));
+      },
+      query.trim() ? 250 : 0
+    );
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+    };
   }, [query, admins]);
 
   async function assign(player: PlayerResult) {
