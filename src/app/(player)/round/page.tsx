@@ -113,7 +113,8 @@ export default function RoundPage() {
         .from('tournament_players')
         .select('player_id')
         .eq('team_id', membership.team_id)
-        .eq('tournament_id', tournamentData!.id);
+        .eq('tournament_id', tournamentData!.id)
+        .neq('player_id', playerData.id);
       const teammateIds = (tpData ?? []).map((r: { player_id: string }) => r.player_id);
 
       const [{ data: teamData }, { data: teammateData }, { data: clubData }] = await Promise.all([
@@ -456,7 +457,10 @@ export default function RoundPage() {
             </p>
             <div className="space-y-1.5">
               {dbShots.map((shot) => {
-                const shooter = teammates.find((p) => p.id === shot.player_id);
+                const shooter =
+                  shot.player_id === player?.id
+                    ? player
+                    : teammates.find((p) => p.id === shot.player_id);
                 const isEditing = editingShot === shot.id;
                 return (
                   <div

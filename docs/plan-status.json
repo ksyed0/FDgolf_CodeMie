@@ -3763,8 +3763,8 @@
       "severity": "Medium (cascades to steps 10, 11, 12)",
       "relatedStory": "N/A (E2E test infra)",
       "relatedTask": "",
-      "status": "Open",
-      "fixBranch": "TBD",
+      "status": "Fixed",
+      "fixBranch": "bugfix/BUG-0011-e2e-tournament-players-wait",
       "lessonEncoded": "No",
       "estimatedCostUsd": 0,
       "ghIssueNumber": null
@@ -3893,290 +3893,290 @@
   "costs": {
     "US-0001": {
       "projectedUsd": 400,
-      "costUsd": 10.545811,
+      "costUsd": 10.649974,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0002": {
       "projectedUsd": 400,
-      "costUsd": 10.545811,
+      "costUsd": 10.649974,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0003": {
       "projectedUsd": 800,
-      "costUsd": 10.545811,
+      "costUsd": 10.649974,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0004": {
       "projectedUsd": 400,
-      "costUsd": 10.545811,
+      "costUsd": 10.649974,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0005": {
       "projectedUsd": 400,
-      "costUsd": 10.545811,
+      "costUsd": 10.649974,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0006": {
       "projectedUsd": 400,
-      "costUsd": 10.545811,
+      "costUsd": 10.649974,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0007": {
       "projectedUsd": 400,
-      "costUsd": 10.545811,
+      "costUsd": 10.649974,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0008": {
       "projectedUsd": 800,
-      "costUsd": 10.545811,
+      "costUsd": 10.649974,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0009": {
       "projectedUsd": 400,
-      "costUsd": 10.545811,
+      "costUsd": 10.649974,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0010": {
       "projectedUsd": 400,
-      "costUsd": 10.545811,
+      "costUsd": 10.649974,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0011": {
       "projectedUsd": 800,
-      "costUsd": 10.545811,
+      "costUsd": 10.649974,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0012": {
       "projectedUsd": 400,
-      "costUsd": 10.545811,
+      "costUsd": 10.649974,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0013": {
       "projectedUsd": 400,
-      "costUsd": 10.545811,
+      "costUsd": 10.649974,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0014": {
       "projectedUsd": 400,
-      "costUsd": 10.545811,
+      "costUsd": 10.649974,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0015": {
       "projectedUsd": 400,
-      "costUsd": 10.545811,
+      "costUsd": 10.649974,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0016": {
       "projectedUsd": 800,
-      "costUsd": 10.545811,
+      "costUsd": 10.649974,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0017": {
       "projectedUsd": 400,
-      "costUsd": 10.545811,
+      "costUsd": 10.649974,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0018": {
       "projectedUsd": 400,
-      "costUsd": 10.545811,
+      "costUsd": 10.649974,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0019": {
       "projectedUsd": 800,
-      "costUsd": 10.545811,
+      "costUsd": 10.649974,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0020": {
       "projectedUsd": 800,
-      "costUsd": 10.545811,
+      "costUsd": 10.649974,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0021": {
       "projectedUsd": 800,
-      "costUsd": 10.545811,
+      "costUsd": 10.649974,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0022": {
       "projectedUsd": 400,
-      "costUsd": 10.545811,
+      "costUsd": 10.649974,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0023": {
       "projectedUsd": 400,
-      "costUsd": 10.545811,
+      "costUsd": 10.649974,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0024": {
       "projectedUsd": 400,
-      "costUsd": 10.545811,
+      "costUsd": 10.649974,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0025": {
       "projectedUsd": 800,
-      "costUsd": 10.545811,
+      "costUsd": 10.649974,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0026": {
       "projectedUsd": 400,
-      "costUsd": 10.545811,
+      "costUsd": 10.649974,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0027": {
       "projectedUsd": 400,
-      "costUsd": 10.545811,
+      "costUsd": 10.649974,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0028": {
       "projectedUsd": 400,
-      "costUsd": 10.545811,
+      "costUsd": 10.649974,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0029": {
       "projectedUsd": 400,
-      "costUsd": 10.545811,
+      "costUsd": 10.649974,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0030": {
       "projectedUsd": 800,
-      "costUsd": 10.545811,
+      "costUsd": 10.649974,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0031": {
       "projectedUsd": 400,
-      "costUsd": 10.545811,
+      "costUsd": 10.649974,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0032": {
       "projectedUsd": 800,
-      "costUsd": 10.545811,
+      "costUsd": 10.649974,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0033": {
       "projectedUsd": 800,
-      "costUsd": 10.545811,
+      "costUsd": 10.649974,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0034": {
       "projectedUsd": 800,
-      "costUsd": 10.545811,
+      "costUsd": 10.649974,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0035": {
       "projectedUsd": 800,
-      "costUsd": 10.545811,
+      "costUsd": 10.649974,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0036": {
       "projectedUsd": 800,
-      "costUsd": 10.545811,
+      "costUsd": 10.649974,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0037": {
       "projectedUsd": 400,
-      "costUsd": 10.545811,
+      "costUsd": 10.649974,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0038": {
       "projectedUsd": 1600,
-      "costUsd": 10.545811,
+      "costUsd": 10.649974,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0039": {
       "projectedUsd": 1600,
-      "costUsd": 10.545811,
+      "costUsd": 10.649974,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0040": {
       "projectedUsd": 800,
-      "costUsd": 10.545811,
+      "costUsd": 10.649974,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0041": {
       "projectedUsd": 400,
-      "costUsd": 10.545811,
+      "costUsd": 10.649974,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0042": {
       "projectedUsd": 800,
-      "costUsd": 10.545811,
+      "costUsd": 10.649974,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0043": {
       "projectedUsd": 1600,
-      "costUsd": 10.545811,
+      "costUsd": 10.649974,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0044": {
       "projectedUsd": 800,
-      "costUsd": 10.545811,
+      "costUsd": 10.649974,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0045": {
       "projectedUsd": 400,
-      "costUsd": 10.545811,
+      "costUsd": 10.649974,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0046": {
       "projectedUsd": 400,
-      "costUsd": 10.545811,
+      "costUsd": 10.649974,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0047": {
       "projectedUsd": 400,
-      "costUsd": 93.833111,
+      "costUsd": 93.937274,
       "inputTokens": 6615905,
       "outputTokens": 608978
     },
     "_totals": {
-      "costUsd": 578.9404,
-      "inputTokens": 40376758,
-      "outputTokens": 6474256
+      "costUsd": 583.8361000000001,
+      "inputTokens": 40749929,
+      "outputTokens": 6536998
     },
     "_bugs": {
       "BUG-0012": {
@@ -4807,10 +4807,10 @@
       "bugIds": []
     }
   ],
-  "generatedAt": "2026-09-18T17:46:53.396Z",
-  "commitSha": "e59f716",
-  "buildNumber": "124",
-  "branch": "develop",
+  "generatedAt": "2026-09-18T21:07:39.559Z",
+  "commitSha": "0357298",
+  "buildNumber": "127",
+  "branch": "bugfix/BUG-0011-e2e-tournament-players-wait",
   "sessionTimeline": [
     {
       "date": "2026-06-09",
@@ -4902,7 +4902,7 @@
     },
     {
       "date": "2026-09-18",
-      "cumCost": 578.9404
+      "cumCost": 583.8361
     }
   ],
   "costHistory": {
@@ -4968,10 +4968,6 @@
       {
         "date": "2026-06-30",
         "costUsd": 10.1804
-      },
-      {
-        "date": "2026-09-18",
-        "costUsd": 34.2342
       }
     ],
     "fix/longest-drive-gps": [
@@ -5011,9 +5007,15 @@
         "date": "2026-06-30",
         "costUsd": 19.7937
       }
+    ],
+    "docs/test-case-coverage-gap-fill": [
+      {
+        "date": "2026-09-18",
+        "costUsd": 39.1299
+      }
     ]
   },
-  "deltaSpend": 34.23,
+  "deltaSpend": 39.13,
   "projectName": "CodeMie",
   "tagline": "FDgolf CodeMie project.",
   "version": "0.1.0",
@@ -5087,10 +5089,10 @@
   },
   "budget": {
     "totalBudget": null,
-    "totalSpent": 578.9404,
+    "totalSpent": 583.8361000000001,
     "totalProjected": 29200,
     "percentUsed": null,
-    "burnRate": 26.01429999999982,
+    "burnRate": 30.909999999999968,
     "daysRemaining": null,
     "projectedExhaustion": null,
     "thresholds": [
@@ -5104,96 +5106,96 @@
       {
         "id": "EPIC-0001",
         "title": "Project Setup & Infrastructure",
-        "budget": 188.74541,
-        "spent": 188.74541,
+        "budget": 189.78704,
+        "spent": 189.78704,
         "remaining": 0,
         "percentUsed": 100
       },
       {
         "id": "EPIC-0002",
         "title": "Registration & Authentication",
-        "budget": 63.274866,
-        "spent": 63.274866,
+        "budget": 63.899844,
+        "spent": 63.899844,
         "remaining": 0,
         "percentUsed": 100
       },
       {
         "id": "EPIC-0003",
         "title": "Player Dashboard",
-        "budget": 21.091622,
-        "spent": 21.091622,
+        "budget": 21.299948,
+        "spent": 21.299948,
         "remaining": 0,
         "percentUsed": 100
       },
       {
         "id": "EPIC-0004",
         "title": "Active Round — Shot Tracking",
-        "budget": 73.820677,
-        "spent": 73.820677,
+        "budget": 74.549818,
+        "spent": 74.549818,
         "remaining": 0,
         "percentUsed": 100
       },
       {
         "id": "EPIC-0005",
         "title": "Hole & Round Completion",
-        "budget": 31.637433,
-        "spent": 31.637433,
+        "budget": 31.949922,
+        "spent": 31.949922,
         "remaining": 0,
         "percentUsed": 100
       },
       {
         "id": "EPIC-0006",
         "title": "Leaderboard",
-        "budget": 42.183244,
-        "spent": 42.183244,
+        "budget": 42.599896,
+        "spent": 42.599896,
         "remaining": 0,
         "percentUsed": 100
       },
       {
         "id": "EPIC-0007",
         "title": "Admin — Tournament & Course Setup",
-        "budget": 42.183244,
-        "spent": 42.183244,
+        "budget": 42.599896,
+        "spent": 42.599896,
         "remaining": 0,
         "percentUsed": 100
       },
       {
         "id": "EPIC-0008",
         "title": "Admin — Player & Team Management",
-        "budget": 21.091622,
-        "spent": 21.091622,
+        "budget": 21.299948,
+        "spent": 21.299948,
         "remaining": 0,
         "percentUsed": 100
       },
       {
         "id": "EPIC-0009",
         "title": "Admin — Scores & Sponsors",
-        "budget": 21.091622,
-        "spent": 21.091622,
+        "budget": 21.299948,
+        "spent": 21.299948,
         "remaining": 0,
         "percentUsed": 100
       },
       {
         "id": "EPIC-0010",
         "title": "Security & 2FA",
-        "budget": 10.545811,
-        "spent": 10.545811,
+        "budget": 10.649974,
+        "spent": 10.649974,
         "remaining": 0,
         "percentUsed": 100
       },
       {
         "id": "EPIC-0011",
         "title": "Multi-Tournament Administration, Venues & Courses",
-        "budget": 52.729055,
-        "spent": 52.729055,
+        "budget": 53.24987,
+        "spent": 53.24987,
         "remaining": 0,
         "percentUsed": 100
       },
       {
         "id": "EPIC-0012",
         "title": "Admin UI Redesign",
-        "budget": 10.545811,
-        "spent": 10.545811,
+        "budget": 10.649974,
+        "spent": 10.649974,
         "remaining": 0,
         "percentUsed": 100
       }
@@ -5208,13 +5210,19 @@
       "2026-06-10T03:39:46.974Z",
       "2026-06-11T19:19:09.985Z",
       "2026-09-18T14:15:57.443Z",
-      "2026-09-18T17:46:53.457Z"
+      "2026-09-18T17:46:53.457Z",
+      "2026-09-18T18:44:15.391Z",
+      "2026-09-18T20:06:08.886Z",
+      "2026-09-18T21:07:39.609Z"
     ],
     "doneCounts": [
       0,
       32,
       32,
       35,
+      47,
+      47,
+      47,
       47,
       47
     ],
@@ -5224,6 +5232,9 @@
       37,
       37,
       47,
+      47,
+      47,
+      47,
       47
     ],
     "aiCosts": [
@@ -5232,7 +5243,10 @@
       63.9112,
       114.2773,
       552.9261000000001,
-      578.9404
+      578.9404,
+      586.7630000000001,
+      586.7630000000001,
+      586.7630000000001
     ],
     "coverage": [
       null,
@@ -5240,6 +5254,9 @@
       91.91,
       91.91,
       96.09,
+      96.25,
+      96.25,
+      96.25,
       96.25
     ],
     "velocity": [
@@ -5247,6 +5264,9 @@
       56,
       56,
       61,
+      93,
+      93,
+      93,
       93,
       93
     ],
@@ -5256,9 +5276,15 @@
       0,
       0,
       3,
-      2
+      2,
+      2,
+      4,
+      1
     ],
     "atRisk": [
+      0,
+      0,
+      0,
       0,
       0,
       0,
@@ -5272,7 +5298,10 @@
       2770786,
       7738178,
       39222352,
-      40376758
+      40376758,
+      40794713,
+      40749929,
+      40749929
     ],
     "outputTokens": [
       157392,
@@ -5280,13 +5309,19 @@
       576718,
       1654331,
       6249593,
-      6474256
+      6474256,
+      6559086,
+      6536998,
+      6536998
     ],
     "avgRisk": [
       1.1000000000000008,
       1.1,
       1.1,
       1.1,
+      0,
+      0,
+      0,
       0,
       0
     ],

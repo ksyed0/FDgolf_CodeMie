@@ -116,12 +116,12 @@ needs its own test coverage, tracked here for follow-up.
 BUG-0011: E2E Lifecycle step-08 — player-to-team assignment PATCH never observed, timeout
 Severity: Medium (cascades to steps 10, 11, 12)
 Related Story: N/A (E2E test infra)
-Status: Open
-Fix Branch: TBD
+Status: Fixed
+Fix Branch: bugfix/BUG-0011-e2e-tournament-players-wait
 Lesson Encoded: No
 
 `tests/e2e/tournament-lifecycle.spec.ts:420` step-08 ("admin assigns Alex → Team Alpha
-and Blake → Team Beta") times out after 30s on:
+and Blake → Team Beta") timed out after 30s on:
 
 ```
 adminPage.waitForResponse(
@@ -130,19 +130,43 @@ adminPage.waitForResponse(
 ```
 
 This step was unreachable before BUG-0010 was fixed (the whole spec failed earlier, at
-step-05), so this is a newly-exposed, previously-undiagnosed failure — not a regression
-introduced by the BUG-0010 fix.
+step-05), so this was a newly-exposed, previously-undiagnosed failure — not a regression
+introduced by the BUG-0010 fix. Confirmed root cause: same defect class as L-0016
+(schema drift after migration 011) — `assignPlayer()` in `teams-manager.tsx:84-90`
+upserts into `tournament_players` (a `POST` with `Prefer: resolution=merge-duplicates`),
+not a `PATCH` against `players.team_id`, which migration `011_tournament_players.sql:122`
+dropped entirely.
 
-Likely the same defect class as L-0016 (schema drift after migration 011): per Lens's
-review of BUG-0010, `assignPlayer()` in `teams-manager.tsx:84-90` upserts into
-`tournament_players`, not `players`, and migration `011_tournament_players.sql:122`
-dropped `players.team_id` entirely. The test is waiting for a `/rest/v1/players` PATCH
-that the app no longer issues — assignment now goes through `tournament_players`
-instead. Likely fix: update the test's `waitForResponse` predicate to match the
-`tournament_players` table/method actually used by `assignPlayer()`, after confirming
-the runtime request shape (PATCH vs POST/upsert) in a trace.
+Cascades: steps 10, 11, 12 were skipped due to declared serial dependency on step-08.
 
-Cascades: steps 10, 11, 12 are skipped due to declared serial dependency on step-08.
+Fix approach: unblocking step-08 exposed three further, previously-unreachable issues
+that were fixed in the same branch (same discovery-cascade pattern as BUG-0010):
+
+1. **Test**: updated step-08's `waitForResponse` predicate to match
+   `/rest/v1/tournament_players` + `POST` (the actual request `assignPlayer()`'s upsert
+   issues), confirmed via a Playwright trace of the real request.
+2. **App** (`src/app/(player)/round/page.tsx`): the round page's `tpData` query for
+   teammates (used to build the "Who's hitting?" `PlayerPills` selector) did not exclude
+   the current player, so the logged-in player's own pill rendered twice (a duplicate-key
+   React warning, confirmed via screenshot). Added `.neq('player_id', playerData.id)`.
+   This in turn meant `teammates` no longer contained the current player, so the "This
+   hole" shot-history list's `shooter?.name ?? 'Unknown'` lookup showed "Unknown" for the
+   player's own shots — fixed by special-casing `shot.player_id === player?.id` to use
+   `player` directly.
+3. **Test**: `scoreHole()`'s outcome-button matcher used an anchored
+   `` new RegExp(`^${outcome}$`, 'i') `` pattern with the literal outcome string
+   `'Sunk!'`, but the actual button's accessible name is `⛳ Sunk` (see
+   `shot-outcome-buttons.tsx:24`) — never a match. Playwright's `.click()` auto-waits
+   for the locator to resolve, so this caused an indefinite retry/hang (confirmed via
+   trace: a `before` call record for the click with no matching `after` record, and no
+   corresponding network request ever fired). Fixed by matching on substring (`'Sunk'`)
+   instead of an anchored exact pattern.
+4. **Test**: steps 10/11 asserted the current player's own pill by first name
+   (`/^alex$/i` / `/^blake$/i`), but `PlayerPills` always renders `'You'` for the
+   current user's own pill, never their first name. Fixed both assertions to `/you/i`.
+
+Verified: full `chromium-lifecycle` E2E spec (11/11) passes; `tsc --noEmit` clean;
+`npm run lint` clean at error level; `npm run test:ci` green (173/173).
 
 ---
 
