@@ -42,25 +42,35 @@ export function RosterManager({
 
   // Keep enrolled IDs current via ref to avoid unnecessary re-queries on enrollment/removal
   const enrolledIdsRef = useRef<Set<string>>(new Set());
-  enrolledIdsRef.current = new Set(players.map((p) => p.player_id));
+  useEffect(() => {
+    enrolledIdsRef.current = new Set(players.map((p) => p.player_id));
+  }, [players]);
 
   // 250ms debounce — supabase is module-level, intentionally NOT in dep array
   useEffect(() => {
-    if (!searchQuery.trim()) {
-      setSearchResults([]);
-      return;
-    }
-    const timer = setTimeout(async () => {
-      const { data } = await supabase
-        .from('players')
-        .select('id, name, email')
-        .or(`name.ilike.%${searchQuery}%,email.ilike.%${searchQuery}%`)
-        .limit(8);
-      setSearchResults(
-        ((data ?? []) as PlayerSearchResult[]).filter((p) => !enrolledIdsRef.current.has(p.id))
-      );
-    }, 250);
-    return () => clearTimeout(timer);
+    let cancelled = false;
+    const timer = setTimeout(
+      async () => {
+        if (!searchQuery.trim()) {
+          if (!cancelled) setSearchResults([]);
+          return;
+        }
+        const { data } = await supabase
+          .from('players')
+          .select('id, name, email')
+          .or(`name.ilike.%${searchQuery}%,email.ilike.%${searchQuery}%`)
+          .limit(8);
+        if (cancelled) return;
+        setSearchResults(
+          ((data ?? []) as PlayerSearchResult[]).filter((p) => !enrolledIdsRef.current.has(p.id))
+        );
+      },
+      searchQuery.trim() ? 250 : 0
+    );
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+    };
   }, [searchQuery]);
 
   async function enrollExisting(player: PlayerSearchResult) {
