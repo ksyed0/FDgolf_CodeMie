@@ -544,3 +544,17 @@ Pricing basis: Claude Sonnet 4.6 — Input $3/MTok · Output $15/MTok · Cache R
 | 2026-09-18 | b55c8aaf-a2ca-49ba-97ee-99871292acec | develop                                    | 2459289      | 415771        | 89964341          | 42.0568  |
 | 2026-09-18 | b55c8aaf-a2ca-49ba-97ee-99871292acec | docs/release-plan-status-reconciliation    | 2834427      | 436092        | 98757500          | 46.3157  |
 | 2026-09-18 | b55c8aaf-a2ca-49ba-97ee-99871292acec | docs/release-plan-status-reconciliation    | 2837158      | 436533        | 98904662          | 46.3751  |
+| 2026-09-18 | b55c8aaf-a2ca-49ba-97ee-99871292acec | bugfix/BUG-0013-shot-edit-persistence      | 5314120      | 730493        | 172681553         | 81.7891  |
+| 2026-09-25 | b3ecacff-1675-4b89-8828-60baa2fad6fe | bugfix/BUG-0013-shot-edit-persistence      | 664994       | 4286          | 650469            | 2.6951   |
+| 2026-09-25 | b3ecacff-1675-4b89-8828-60baa2fad6fe | bugfix/BUG-0013-shot-edit-persistence      | 747457       | 11398         | 2623005           | 3.6841   |
+| 2026-09-25 | b3ecacff-1675-4b89-8828-60baa2fad6fe | bugfix/BUG-0013-shot-edit-persistence      | 750602       | 12446         | 3089080           | 3.8513   |
+| 2026-09-25 | b3ecacff-1675-4b89-8828-60baa2fad6fe | bugfix/BUG-0013-shot-edit-persistence      | 754073       | 13195         | 3562931           | 4.0177   |
+| 2026-09-25 | b3ecacff-1675-4b89-8828-60baa2fad6fe | bugfix/BUG-0013-shot-edit-persistence      | 754073       | 13195         | 3562931           | 4.0177   |
+| 2026-09-25 | b3ecacff-1675-4b89-8828-60baa2fad6fe | bugfix/BUG-0013-shot-edit-persistence      | 754774       | 13388         | 3659092           | 4.0520   |
+| 2026-09-25 | b3ecacff-1675-4b89-8828-60baa2fad6fe | bugfix/BUG-0013-shot-edit-persistence      | 782330       | 23538         | 7294064           | 5.3970   |
+| 2026-09-25 | b3ecacff-1675-4b89-8828-60baa2fad6fe | bugfix/BUG-0013-shot-edit-persistence      | 789020       | 25507         | 8314996           | 5.7571   |
+| 2026-09-25 | b3ecacff-1675-4b89-8828-60baa2fad6fe | bugfix/BUG-0013-shot-edit-persistence      | 794324       | 27464         | 9363208           | 6.1206   |
+| 2026-09-25 | b3ecacff-1675-4b89-8828-60baa2fad6fe | bugfix/BUG-0013-shot-edit-persistence      | 804157       | 32207         | 11281801          | 6.8038   |
+| 2026-09-25 | b3ecacff-1675-4b89-8828-60baa2fad6fe | bugfix/BUG-0013-shot-edit-persistence      | 810390       | 36538         | 12902254          | 7.3779   |
+| 2026-09-25 | b3ecacff-1675-4b89-8828-60baa2fad6fe | bugfix/BUG-0013-shot-edit-persistence      | 814911       | 38893         | 13921246          | 7.7354   |
+| 2026-09-25 | b3ecacff-1675-4b89-8828-60baa2fad6fe | docs/BUG-0013-ai-cost-log-followup         | 834887       | 48157         | 17923499          | 9.1491   |

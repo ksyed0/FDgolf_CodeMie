@@ -1,5 +1,88 @@
 # FDgolf — Bug Tracker
 
+BUG-0014: Score relative to par (birdie/bogey/etc.) not shown on hole-summary screen
+Severity: Medium
+Related Story: US-0023 (AC-0076)
+Status: Fixed
+Fix Branch: bugfix/BUG-0014-vs-par-hole-summary
+Lesson Encoded: No
+
+`src/app/(player)/round/page.tsx` held a `holeSummaryScores` state variable but never
+rendered a vs-par label (birdie, bogey, par, etc.) alongside it — the hole-summary screen
+showed raw strokes only.
+
+`formatVsPar()` already existed in `src/lib/scoring.ts` and was already wired into
+`src/app/(player)/scorecard/page.tsx` and
+`src/app/(admin)/admin/scores/scores-table.tsx`, so this was not a missing capability —
+it was just never called from the hole-summary flow.
+
+Fix approach: imported `formatVsPar()` into `round/page.tsx`. Replaced the best-ball
+line's ad-hoc `+`-prefix formatting with `formatVsPar(bestBallPar)`, and added a
+per-teammate vs-par badge next to each player's stroke count in the hole-summary list,
+computed as `score.strokes - currentHole.par` and color-coded (green under par, red over
+par, gray at par) matching the existing convention in `scorecard/page.tsx`. Checked off
+AC-0076 in `docs/RELEASE_PLAN.md`.
+
+Verified: `npx tsc --noEmit` clean, `npm run lint` clean at error level, `npm run test:ci`
+173/173 passing (coverage 90.63%/82.59%/85.29%/96.25%, all above the ≥80%/≥70%/≥80%/≥80%
+thresholds — `round/page.tsx` is outside the enforced coverage gate, so verification for
+this page used a targeted E2E check instead). Extended `TC-0076` in
+`tests/e2e/round-scoring.spec.ts` to mock a real `scores` GET response and assert the
+new vs-par text renders; full `round-scoring.spec.ts` suite (13/13) passes.
+
+PR: https://github.com/ksyed0/FDgolf_CodeMie/pull/75
+
+---
+
+BUG-0013: Shot edit/re-enter does not persist or recalculate sequence
+Severity: Medium
+Related Story: US-0021 (AC-0070)
+Status: Fixed
+Fix Branch: bugfix/BUG-0013-shot-edit-persistence
+Lesson Encoded: No
+
+There is no `editShot` / `edit-shot` / `EditShot` code anywhere under `src/` — grepping
+the codebase turns up nothing. AC-0068 and AC-0069 (shot history list + entering edit
+mode in the UI) are implemented and checked off, but there is no wired-up save path:
+editing a shot has no persistence and no shot-sequence recalculation.
+
+`TASK-0035 (US-0021): Implement shot edit/re-enter functionality` in
+`docs/RELEASE_PLAN.md` remains `Status: To Do` on the never-merged branch
+`feature/US-0021-edit-shot`. AC-0070 was left unchecked for this reason. Likely fix:
+resume/complete that branch — wire the existing edit-mode UI to an update call against
+the shot record and recompute subsequent shot sequence numbers for that hole.
+
+Fix approach: extended `SyncEngine` (`src/lib/sync-engine.ts`) beyond insert-only —
+`QueueEntry` gained optional `op: 'insert' | 'update'` and `match` fields (missing `op`
+defaults to `'insert'` for backward compatibility with anything already queued),
+`flush()` branches to `.update(payload).match(match)` for update entries, and a new
+`enqueueUpdate(table, payload, match)` method mirrors `enqueue()`. Extracted the
+sunk/un-sunk cascade decision into a pure, unit-tested helper,
+`computeShotEditCascade()` in the new `src/lib/shot-edit.ts`, which decides — from the
+shot's previous outcome, new outcome, and shot number — whether to upsert or delete the
+player's `scores` row, which trailing shots to delete, whether to re-invoke
+`calculate-best-ball`, and the new `holeSunk` value. Wired the shot-edit Save button in
+`round/page.tsx` to call `syncEngine.enqueueUpdate('shots', ...)` (offline-safe, matching
+`recordShot`'s existing pattern for the shots write) and to apply the cascade's
+side-effects via the same direct/awaited Supabase calls `recordShot` already uses for
+scores/best-ball (which require connectivity anyway), then update `dbShots`/`holeSunk`
+locally rather than re-fetching, to avoid racing the async `SyncEngine.flush()`. Checked
+off AC-0070 and flipped `TASK-0035` to `Status: Done` in `docs/RELEASE_PLAN.md`.
+
+Verified: `npx tsc --noEmit` clean, `npm run lint` clean at error level, `npm run test:ci`
+187/187 passing (coverage 90.81%/82.83%/85.71%/96.34%, all above the ≥80%/≥70%/≥80%/≥80%
+thresholds — `shot-edit.ts` is at 100% across the board, `sync-engine.ts`'s new update
+path is covered by new `src/__tests__/sync-engine.test.ts` cases including a
+backward-compatibility test for legacy insert-only queue entries with no `op` field).
+Added a new E2E test to `tests/e2e/round-scoring.spec.ts` (`BUG-0013: editing a shot
+outcome sends a PATCH and updates the shot list`) asserting the edit Save button now
+sends a real PATCH and the shot list reflects the change; full `round-scoring.spec.ts`
+suite (14/14) passes.
+
+PR: https://github.com/ksyed0/FDgolf_CodeMie/pull/76
+
+---
+
 BUG-0012: react-hooks v7 "React Compiler" rules flag pre-existing hook idioms
 Severity: Low
 Related Story: N/A (lint tooling)
@@ -33,12 +116,12 @@ needs its own test coverage, tracked here for follow-up.
 BUG-0011: E2E Lifecycle step-08 — player-to-team assignment PATCH never observed, timeout
 Severity: Medium (cascades to steps 10, 11, 12)
 Related Story: N/A (E2E test infra)
-Status: Open
-Fix Branch: TBD
+Status: Fixed
+Fix Branch: bugfix/BUG-0011-e2e-tournament-players-wait
 Lesson Encoded: No
 
 `tests/e2e/tournament-lifecycle.spec.ts:420` step-08 ("admin assigns Alex → Team Alpha
-and Blake → Team Beta") times out after 30s on:
+and Blake → Team Beta") timed out after 30s on:
 
 ```
 adminPage.waitForResponse(
@@ -47,19 +130,43 @@ adminPage.waitForResponse(
 ```
 
 This step was unreachable before BUG-0010 was fixed (the whole spec failed earlier, at
-step-05), so this is a newly-exposed, previously-undiagnosed failure — not a regression
-introduced by the BUG-0010 fix.
+step-05), so this was a newly-exposed, previously-undiagnosed failure — not a regression
+introduced by the BUG-0010 fix. Confirmed root cause: same defect class as L-0016
+(schema drift after migration 011) — `assignPlayer()` in `teams-manager.tsx:84-90`
+upserts into `tournament_players` (a `POST` with `Prefer: resolution=merge-duplicates`),
+not a `PATCH` against `players.team_id`, which migration `011_tournament_players.sql:122`
+dropped entirely.
 
-Likely the same defect class as L-0016 (schema drift after migration 011): per Lens's
-review of BUG-0010, `assignPlayer()` in `teams-manager.tsx:84-90` upserts into
-`tournament_players`, not `players`, and migration `011_tournament_players.sql:122`
-dropped `players.team_id` entirely. The test is waiting for a `/rest/v1/players` PATCH
-that the app no longer issues — assignment now goes through `tournament_players`
-instead. Likely fix: update the test's `waitForResponse` predicate to match the
-`tournament_players` table/method actually used by `assignPlayer()`, after confirming
-the runtime request shape (PATCH vs POST/upsert) in a trace.
+Cascades: steps 10, 11, 12 were skipped due to declared serial dependency on step-08.
 
-Cascades: steps 10, 11, 12 are skipped due to declared serial dependency on step-08.
+Fix approach: unblocking step-08 exposed three further, previously-unreachable issues
+that were fixed in the same branch (same discovery-cascade pattern as BUG-0010):
+
+1. **Test**: updated step-08's `waitForResponse` predicate to match
+   `/rest/v1/tournament_players` + `POST` (the actual request `assignPlayer()`'s upsert
+   issues), confirmed via a Playwright trace of the real request.
+2. **App** (`src/app/(player)/round/page.tsx`): the round page's `tpData` query for
+   teammates (used to build the "Who's hitting?" `PlayerPills` selector) did not exclude
+   the current player, so the logged-in player's own pill rendered twice (a duplicate-key
+   React warning, confirmed via screenshot). Added `.neq('player_id', playerData.id)`.
+   This in turn meant `teammates` no longer contained the current player, so the "This
+   hole" shot-history list's `shooter?.name ?? 'Unknown'` lookup showed "Unknown" for the
+   player's own shots — fixed by special-casing `shot.player_id === player?.id` to use
+   `player` directly.
+3. **Test**: `scoreHole()`'s outcome-button matcher used an anchored
+   `` new RegExp(`^${outcome}$`, 'i') `` pattern with the literal outcome string
+   `'Sunk!'`, but the actual button's accessible name is `⛳ Sunk` (see
+   `shot-outcome-buttons.tsx:24`) — never a match. Playwright's `.click()` auto-waits
+   for the locator to resolve, so this caused an indefinite retry/hang (confirmed via
+   trace: a `before` call record for the click with no matching `after` record, and no
+   corresponding network request ever fired). Fixed by matching on substring (`'Sunk'`)
+   instead of an anchored exact pattern.
+4. **Test**: steps 10/11 asserted the current player's own pill by first name
+   (`/^alex$/i` / `/^blake$/i`), but `PlayerPills` always renders `'You'` for the
+   current user's own pill, never their first name. Fixed both assertions to `/you/i`.
+
+Verified: full `chromium-lifecycle` E2E spec (11/11) passes; `tsc --noEmit` clean;
+`npm run lint` clean at error level; `npm run test:ci` green (173/173).
 
 ---
 

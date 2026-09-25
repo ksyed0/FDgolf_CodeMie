@@ -418,35 +418,50 @@ test.describe.serial('Tournament Lifecycle — Lionhead Spring Classic 2026', ()
 
   // ── Step 8: Assign players to teams ──────────────────────────────────────
   test('step-08: admin assigns Alex → Team Alpha and Blake → Team Beta', async () => {
-    // Idempotency guard — skip UI assignment if players already have team_ids
+    // Idempotency guard — skip UI assignment if players are already assigned.
+    // Post-migration-011, assignment lives in tournament_players, not players.team_id
+    // (players.team_id was dropped entirely by that migration).
     const adminCheck = svc();
-    const { data: playersCheck } = await adminCheck
+    const { data: playerRows } = await adminCheck
       .from('players')
-      .select('email, team_id')
+      .select('id, email')
       .in('email', [PLAYER_A.email, PLAYER_B.email]);
-    const alexCheck = playersCheck?.find((p: { email: string }) => p.email === PLAYER_A.email);
-    const blakeCheck = playersCheck?.find((p: { email: string }) => p.email === PLAYER_B.email);
-    if (alexCheck?.team_id && blakeCheck?.team_id && alexCheck.team_id !== blakeCheck.team_id) {
+    const alexId = playerRows?.find((p: { email: string }) => p.email === PLAYER_A.email)?.id;
+    const blakeId = playerRows?.find((p: { email: string }) => p.email === PLAYER_B.email)?.id;
+
+    const { data: assignCheck } = await adminCheck
+      .from('tournament_players')
+      .select('player_id, team_id')
+      .eq('tournament_id', tournamentId)
+      .in('player_id', [alexId, blakeId]);
+    const alexAssignCheck = assignCheck?.find((r: { player_id: string }) => r.player_id === alexId);
+    const blakeAssignCheck = assignCheck?.find((r: { player_id: string }) => r.player_id === blakeId);
+    if (
+      alexAssignCheck?.team_id &&
+      blakeAssignCheck?.team_id &&
+      alexAssignCheck.team_id !== blakeAssignCheck.team_id
+    ) {
       console.log('[step-08] players already assigned to teams, verifying DB state only');
-      expect(alexCheck.team_id).not.toBeNull();
-      expect(blakeCheck.team_id).not.toBeNull();
-      expect(alexCheck.team_id).not.toEqual(blakeCheck.team_id);
+      expect(alexAssignCheck.team_id).not.toBeNull();
+      expect(blakeAssignCheck.team_id).not.toBeNull();
+      expect(alexAssignCheck.team_id).not.toEqual(blakeAssignCheck.team_id);
       return;
     }
 
     // Still on /admin/teams — TeamsManager renders the "Assign Players to Teams"
-    // section showing all players with team_id = null.
-    // Both players were created with team_id = null in beforeAll.
+    // section showing all players with no tournament_players row yet.
 
     await expect(adminPage.getByText('Assign Players to Teams')).toBeVisible({ timeout: 5000 });
 
     // Assign Alex Lion → Team Alpha
     // Player rows: <div class="flex items-center gap-2"><span ...>Name</span><Select...>
     // Use xpath: locate the span by text, go to parent div, then find the combobox within it.
-    // waitForResponse ensures the Supabase PATCH has committed before the DB assertion below.
+    // waitForResponse ensures the Supabase upsert has committed before the DB assertion below.
+    // assignPlayer() upserts into tournament_players — supabase-js issues this as a POST
+    // with a Prefer: resolution=merge-duplicates header, not a PATCH against players.
     await Promise.all([
       adminPage.waitForResponse(
-        (r) => r.url().includes('/rest/v1/players') && r.request().method() === 'PATCH'
+        (r) => r.url().includes('/rest/v1/tournament_players') && r.request().method() === 'POST'
       ),
       adminPage
         .locator(`span:text-is("${PLAYER_A.name}")`)
@@ -460,7 +475,7 @@ test.describe.serial('Tournament Lifecycle — Lionhead Spring Classic 2026', ()
     // Assign Blake Lion → Team Beta
     await Promise.all([
       adminPage.waitForResponse(
-        (r) => r.url().includes('/rest/v1/players') && r.request().method() === 'PATCH'
+        (r) => r.url().includes('/rest/v1/tournament_players') && r.request().method() === 'POST'
       ),
       adminPage
         .locator(`span:text-is("${PLAYER_B.name}")`)
@@ -471,15 +486,16 @@ test.describe.serial('Tournament Lifecycle — Lionhead Spring Classic 2026', ()
     ]);
     await expect(adminPage.getByText(/player assigned/i).first()).toBeVisible({ timeout: 5000 });
 
-    // Verify DB state — both players should now have a non-null team_id
+    // Verify DB state — both players should now have a tournament_players row with a team_id
     const admin = svc();
-    const { data: players } = await admin
-      .from('players')
-      .select('email, team_id')
-      .in('email', [PLAYER_A.email, PLAYER_B.email]);
+    const { data: assignments } = await admin
+      .from('tournament_players')
+      .select('player_id, team_id')
+      .eq('tournament_id', tournamentId)
+      .in('player_id', [alexId, blakeId]);
 
-    const alex = players?.find((p: { email: string }) => p.email === PLAYER_A.email);
-    const blake = players?.find((p: { email: string }) => p.email === PLAYER_B.email);
+    const alex = assignments?.find((r: { player_id: string }) => r.player_id === alexId);
+    const blake = assignments?.find((r: { player_id: string }) => r.player_id === blakeId);
     expect(alex?.team_id).not.toBeNull();
     expect(blake?.team_id).not.toBeNull();
     expect(alex?.team_id).not.toEqual(blake?.team_id);
@@ -488,13 +504,15 @@ test.describe.serial('Tournament Lifecycle — Lionhead Spring Classic 2026', ()
   /**
    * Record one complete hole on the round page.
    * @param page  The player's round page (already loaded at /round)
-   * @param shots Array of [clubName, outcome] pairs; last pair must use 'Sunk!'
+   * @param shots Array of [clubName, outcome] pairs; last pair must use 'Sunk'
    */
   async function scoreHole(page: Page, shots: [club: string, outcome: string][]) {
     for (const [club, outcome] of shots) {
       await page.getByRole('combobox').click();
       await page.getByRole('option', { name: club }).click();
-      await page.getByRole('button', { name: new RegExp(`^${outcome}$`, 'i') }).click();
+      // The button's accessible name is "⛳ Sunk" (see shot-outcome-buttons.tsx), so match
+      // by substring rather than an exact/anchored pattern.
+      await page.getByRole('button', { name: outcome }).click();
       await page.waitForTimeout(300);
     }
     await expect(page.getByRole('button', { name: /next hole/i })).toBeVisible({ timeout: 5000 });
@@ -534,13 +552,14 @@ test.describe.serial('Tournament Lifecycle — Lionhead Spring Classic 2026', ()
     try {
       await page.goto('/round', { waitUntil: 'domcontentloaded' });
       await expect(page.getByText(/hole 1/i).first()).toBeVisible({ timeout: 8000 });
-      await expect(page.getByRole('button', { name: /^alex$/i })).toBeVisible({ timeout: 5000 });
+      // The current player's own pill renders "You" (see PlayerPills), not their first name.
+      await expect(page.getByRole('button', { name: /you/i })).toBeVisible({ timeout: 5000 });
 
       // Hole 1 — birdie (3 shots)
       await scoreHole(page, [
         ['Driver (1W)', 'In Play'],
         ['7 Iron', 'In Play'],
-        ['Putter', 'Sunk!'],
+        ['Putter', 'Sunk'],
       ]);
       await expect(page.getByText(/hole 2/i).first()).toBeVisible({ timeout: 5000 });
 
@@ -548,7 +567,7 @@ test.describe.serial('Tournament Lifecycle — Lionhead Spring Classic 2026', ()
       await scoreHole(page, [
         ['Driver (1W)', 'In Play'],
         ['7 Iron', 'In Play'],
-        ['Putter', 'Sunk!'],
+        ['Putter', 'Sunk'],
       ]);
       await expect(page.getByText(/hole 3/i).first()).toBeVisible({ timeout: 5000 });
 
@@ -557,7 +576,7 @@ test.describe.serial('Tournament Lifecycle — Lionhead Spring Classic 2026', ()
         ['Driver (1W)', 'In Play'],
         ['7 Iron', 'In Play'],
         ['9 Iron', 'In Play'],
-        ['Putter', 'Sunk!'],
+        ['Putter', 'Sunk'],
       ]);
       await expect(page.getByText(/hole 4/i).first()).toBeVisible({ timeout: 5000 });
     } finally {
@@ -615,7 +634,8 @@ test.describe.serial('Tournament Lifecycle — Lionhead Spring Classic 2026', ()
     try {
       await page.goto('/round', { waitUntil: 'domcontentloaded' });
       await expect(page.getByText(/hole 10/i).first()).toBeVisible({ timeout: 8000 });
-      await expect(page.getByRole('button', { name: /^blake$/i })).toBeVisible({ timeout: 5000 });
+      // The current player's own pill renders "You" (see PlayerPills), not their first name.
+      await expect(page.getByRole('button', { name: /you/i })).toBeVisible({ timeout: 5000 });
 
       for (const expectedNext of [11, 12, 13]) {
         await scoreHole(page, [
@@ -623,7 +643,7 @@ test.describe.serial('Tournament Lifecycle — Lionhead Spring Classic 2026', ()
           ['5 Iron', 'In Play'],
           ['7 Iron', 'In Play'],
           ['9 Iron', 'In Play'],
-          ['Putter', 'Sunk!'],
+          ['Putter', 'Sunk'],
         ]);
         await expect(page.getByText(new RegExp(`hole ${expectedNext}`, 'i')).first()).toBeVisible({
           timeout: 5000,
