@@ -548,3 +548,8 @@ Pricing basis: Claude Sonnet 4.6 — Input $3/MTok · Output $15/MTok · Cache R
 | 2026-09-25 | b3ecacff-1675-4b89-8828-60baa2fad6fe | bugfix/BUG-0013-shot-edit-persistence      | 754073       | 13195         | 3562931           | 4.0177   |
 | 2026-09-25 | b3ecacff-1675-4b89-8828-60baa2fad6fe | bugfix/BUG-0013-shot-edit-persistence      | 754774       | 13388         | 3659092           | 4.0520   |
 | 2026-09-25 | b3ecacff-1675-4b89-8828-60baa2fad6fe | bugfix/BUG-0013-shot-edit-persistence      | 782330       | 23538         | 7294064           | 5.3970   |
+| 2026-09-25 | b3ecacff-1675-4b89-8828-60baa2fad6fe | bugfix/BUG-0013-shot-edit-persistence      | 789020       | 25507         | 8314996           | 5.7571   |
+| 2026-09-25 | b3ecacff-1675-4b89-8828-60baa2fad6fe | bugfix/BUG-0013-shot-edit-persistence      | 794324       | 27464         | 9363208           | 6.1206   |
+| 2026-09-25 | b3ecacff-1675-4b89-8828-60baa2fad6fe | bugfix/BUG-0013-shot-edit-persistence      | 804157       | 32207         | 11281801          | 6.8038   |
+| 2026-09-25 | b3ecacff-1675-4b89-8828-60baa2fad6fe | bugfix/BUG-0013-shot-edit-persistence      | 810390       | 36538         | 12902254          | 7.3779   |
+| 2026-09-25 | b3ecacff-1675-4b89-8828-60baa2fad6fe | bugfix/BUG-0013-shot-edit-persistence      | 814911       | 38893         | 13921246          | 7.7354   |
