@@ -3775,9 +3775,9 @@
       "severity": "Low",
       "relatedStory": "N/A (lint tooling)",
       "relatedTask": "",
-      "status": "Open",
-      "fixBranch": "TBD",
-      "lessonEncoded": "No",
+      "status": "Fixed",
+      "fixBranch": "bugfix/BUG-0012-react-hooks-lint-fixes",
+      "lessonEncoded": "Yes (see docs/LESSONS.md)",
       "estimatedCostUsd": 0,
       "ghIssueNumber": null
     },
@@ -4695,6 +4695,14 @@
   ],
   "lessons": [
     {
+      "id": "L-0021",
+      "title": "`react-hooks/set-state-in-effect` flags indirect synchronous setState too",
+      "rule": "",
+      "context": "",
+      "date": "",
+      "bugIds": []
+    },
+    {
       "id": "L-0020",
       "title": "An offline write-queue that only supports `insert` is an architectural gap, not a missing feature",
       "rule": "",
@@ -4855,10 +4863,10 @@
       "bugIds": []
     }
   ],
-  "generatedAt": "2026-09-25T21:58:40.150Z",
-  "commitSha": "2745d86",
-  "buildNumber": "128",
-  "branch": "docs/release-plan-status-reconciliation",
+  "generatedAt": "2026-09-25T22:07:21.741Z",
+  "commitSha": "c411f70",
+  "buildNumber": "134",
+  "branch": "docs/bug-0013-0014-shot-edit-and-vs-par",
   "sessionTimeline": [
     {
       "date": "2026-06-09",
@@ -5272,7 +5280,7 @@
       "2026-09-18T18:44:15.391Z",
       "2026-09-18T20:06:08.886Z",
       "2026-09-18T21:07:39.609Z",
-      "2026-09-25T21:58:40.207Z"
+      "2026-09-25T22:07:21.792Z"
     ],
     "doneCounts": [
       0,
@@ -5344,7 +5352,7 @@
       2,
       4,
       1,
-      1
+      0
     ],
     "atRisk": [
       0,

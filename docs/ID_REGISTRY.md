@@ -14,4 +14,4 @@ Rules:
 | TASK     | TASK-0047         | TASK-0046     |
 | AC       | AC-0155           | AC-0154       |
 | TC       | TC-0171           | TC-0170       |
-| BUG      | BUG-0013          | BUG-0012      |
+| BUG      | BUG-0015          | BUG-0014      |
