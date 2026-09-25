@@ -542,6 +542,10 @@ Pricing basis: Claude Sonnet 4.6 — Input $3/MTok · Output $15/MTok · Cache R
 | 2026-09-18 | b55c8aaf-a2ca-49ba-97ee-99871292acec | docs/test-case-coverage-gap-fill           | 2414505      | 393683        | 81864952          | 39.1299  |
 | 2026-09-18 | b55c8aaf-a2ca-49ba-97ee-99871292acec | docs/bug-0013-0014-shot-edit-and-vs-par    | 3243133      | 447124        | 102160729         | 49.0102  |
 | 2026-09-18 | b55c8aaf-a2ca-49ba-97ee-99871292acec | docs/bug-0013-0014-shot-edit-and-vs-par    | 3244992      | 448393        | 102572685         | 49.1596  |
+| 2026-09-18 | b55c8aaf-a2ca-49ba-97ee-99871292acec | develop                                    | 2454569      | 413367        | 88968127          | 41.7044  |
+| 2026-09-18 | b55c8aaf-a2ca-49ba-97ee-99871292acec | develop                                    | 2459289      | 415771        | 89964341          | 42.0568  |
+| 2026-09-18 | b55c8aaf-a2ca-49ba-97ee-99871292acec | docs/release-plan-status-reconciliation    | 2834427      | 436092        | 98757500          | 46.3157  |
+| 2026-09-18 | b55c8aaf-a2ca-49ba-97ee-99871292acec | docs/release-plan-status-reconciliation    | 2837158      | 436533        | 98904662          | 46.3751  |
 | 2026-09-18 | b55c8aaf-a2ca-49ba-97ee-99871292acec | bugfix/BUG-0013-shot-edit-persistence      | 5314120      | 730493        | 172681553         | 81.7891  |
 | 2026-09-25 | b3ecacff-1675-4b89-8828-60baa2fad6fe | bugfix/BUG-0013-shot-edit-persistence      | 664994       | 4286          | 650469            | 2.6951   |
 | 2026-09-25 | b3ecacff-1675-4b89-8828-60baa2fad6fe | bugfix/BUG-0013-shot-edit-persistence      | 747457       | 11398         | 2623005           | 3.6841   |

@@ -5,7 +5,7 @@
       "title": "Project Setup & Infrastructure",
       "description": "Initialize Next.js 14 project with Supabase, deploy pipeline, shared components, and offline sync engine as foundation layer.",
       "releaseTarget": "MVP (v0.1)",
-      "status": "In Progress",
+      "status": "Done",
       "startDate": null,
       "doneDate": null,
       "dependencies": []
@@ -15,7 +15,7 @@
       "title": "Registration & Authentication",
       "description": "Player self-registration (3-step wizard), email/password login, auth middleware, and role-based access control.",
       "releaseTarget": "MVP (v0.1)",
-      "status": "In Progress",
+      "status": "Done",
       "startDate": null,
       "doneDate": null,
       "dependencies": [
@@ -157,17 +157,17 @@
         {
           "id": "AC-0001",
           "text": "Next.js 14 App Router project runs with `npm run dev`",
-          "done": false
+          "done": true
         },
         {
           "id": "AC-0002",
           "text": "Tailwind CSS classes render correctly",
-          "done": false
+          "done": true
         },
         {
           "id": "AC-0003",
           "text": "shadcn/ui Button component renders without errors",
-          "done": false
+          "done": true
         }
       ],
       "dependencies": []
@@ -184,17 +184,17 @@
         {
           "id": "AC-0004",
           "text": "Browser client connects to Supabase project",
-          "done": false
+          "done": true
         },
         {
           "id": "AC-0005",
           "text": "Server client works in Server Components",
-          "done": false
+          "done": true
         },
         {
           "id": "AC-0006",
           "text": ".env.local.example documents required env vars",
-          "done": false
+          "done": true
         }
       ],
       "dependencies": [
@@ -213,22 +213,22 @@
         {
           "id": "AC-0007",
           "text": "All 9 tables created (tournaments, holes, players, teams, clubs, round_state, shots, scores, sponsors)",
-          "done": false
+          "done": true
         },
         {
           "id": "AC-0008",
           "text": "RLS policies enforce player vs admin separation",
-          "done": false
+          "done": true
         },
         {
           "id": "AC-0009",
           "text": "Realtime enabled on scores table",
-          "done": false
+          "done": true
         },
         {
           "id": "AC-0010",
           "text": "Unique constraints prevent duplicate entries",
-          "done": false
+          "done": true
         }
       ],
       "dependencies": [
@@ -271,17 +271,17 @@
         {
           "id": "AC-0013",
           "text": "Map renders with satellite view centered on pin coordinates",
-          "done": false
+          "done": true
         },
         {
           "id": "AC-0014",
           "text": "Pin marker displays at hole location",
-          "done": false
+          "done": true
         },
         {
           "id": "AC-0015",
           "text": "Player position marker updates on GPS capture",
-          "done": false
+          "done": true
         }
       ],
       "dependencies": [
@@ -300,17 +300,17 @@
         {
           "id": "AC-0016",
           "text": "21 clubs seeded across 5 categories",
-          "done": false
+          "done": true
         },
         {
           "id": "AC-0017",
           "text": "18 holes seeded with par values and approximate GPS",
-          "done": false
+          "done": true
         },
         {
           "id": "AC-0018",
           "text": "Tournament record created for CIBC 2026 event",
-          "done": false
+          "done": true
         }
       ],
       "dependencies": [
@@ -329,17 +329,17 @@
         {
           "id": "AC-0019",
           "text": "Full header shows \"FDgolf | created by AI/Run™\" with gradient icon",
-          "done": false
+          "done": true
         },
         {
           "id": "AC-0020",
           "text": "Compact header shows condensed branding + hole info",
-          "done": false
+          "done": true
         },
         {
           "id": "AC-0021",
           "text": "Dark green (#1a472a) consistent across all variants",
-          "done": false
+          "done": true
         }
       ],
       "dependencies": [
@@ -358,27 +358,27 @@
         {
           "id": "AC-0022",
           "text": "Writes enqueue to localStorage regardless of connectivity",
-          "done": false
+          "done": true
         },
         {
           "id": "AC-0023",
           "text": "Queue flushes automatically when online",
-          "done": false
+          "done": true
         },
         {
           "id": "AC-0024",
           "text": "Failed writes retry up to 5 times",
-          "done": false
+          "done": true
         },
         {
           "id": "AC-0025",
           "text": "Offline indicator shows pending count",
-          "done": false
+          "done": true
         },
         {
           "id": "AC-0026",
           "text": "Online event triggers immediate flush",
-          "done": false
+          "done": true
         }
       ],
       "dependencies": [
@@ -397,17 +397,17 @@
         {
           "id": "AC-0027",
           "text": "Email/password form validates input (min 6 chars, matching passwords)",
-          "done": false
+          "done": true
         },
         {
           "id": "AC-0028",
           "text": "Supabase Auth account created on submit",
-          "done": false
+          "done": true
         },
         {
           "id": "AC-0029",
           "text": "Error displayed for duplicate emails",
-          "done": false
+          "done": true
         }
       ],
       "dependencies": [
@@ -426,12 +426,12 @@
         {
           "id": "AC-0030",
           "text": "Form captures name, title, company, phone (required) and YOB, gender (optional)",
-          "done": false
+          "done": true
         },
         {
           "id": "AC-0031",
           "text": "Player record created in players table linked to auth user",
-          "done": false
+          "done": true
         }
       ],
       "dependencies": [
@@ -450,17 +450,17 @@
         {
           "id": "AC-0032",
           "text": "Team number input validates against existing teams",
-          "done": false
+          "done": true
         },
         {
           "id": "AC-0033",
           "text": "Teammates displayed after lookup",
-          "done": false
+          "done": true
         },
         {
           "id": "AC-0034",
           "text": "Player's team_id updated on registration complete",
-          "done": false
+          "done": true
         }
       ],
       "dependencies": [
@@ -479,17 +479,17 @@
         {
           "id": "AC-0035",
           "text": "Email/password form authenticates via Supabase",
-          "done": false
+          "done": true
         },
         {
           "id": "AC-0036",
           "text": "Successful login redirects to /dashboard",
-          "done": false
+          "done": true
         },
         {
           "id": "AC-0037",
           "text": "Error message shown for invalid credentials",
-          "done": false
+          "done": true
         }
       ],
       "dependencies": [
@@ -508,22 +508,22 @@
         {
           "id": "AC-0038",
           "text": "Unauthenticated users redirected to /login",
-          "done": false
+          "done": true
         },
         {
           "id": "AC-0039",
           "text": "Authenticated users on /login redirected to /dashboard",
-          "done": false
+          "done": true
         },
         {
           "id": "AC-0040",
           "text": "Admin routes check player role before access",
-          "done": false
+          "done": true
         },
         {
           "id": "AC-0041",
           "text": "Public /live/[slug] route accessible without auth",
-          "done": false
+          "done": true
         }
       ],
       "dependencies": [
@@ -542,27 +542,27 @@
         {
           "id": "AC-0042",
           "text": "Welcome message with player's first name",
-          "done": false
+          "done": true
         },
         {
           "id": "AC-0043",
           "text": "Tournament name, venue, and countdown displayed",
-          "done": false
+          "done": true
         },
         {
           "id": "AC-0044",
           "text": "Team number, starting hole, and teammates listed",
-          "done": false
+          "done": true
         },
         {
           "id": "AC-0045",
           "text": "\"Start Round\" button visible when tournament is active",
-          "done": false
+          "done": true
         },
         {
           "id": "AC-0046",
           "text": "Leaderboard link accessible from dashboard",
-          "done": false
+          "done": true
         }
       ],
       "dependencies": [
@@ -581,17 +581,17 @@
         {
           "id": "AC-0047",
           "text": "Starting hole pre-filled from team assignment",
-          "done": false
+          "done": true
         },
         {
           "id": "AC-0048",
           "text": "round_state record created with status 'in_progress'",
-          "done": false
+          "done": true
         },
         {
           "id": "AC-0049",
           "text": "Player redirected to shot tracking screen",
-          "done": false
+          "done": true
         }
       ],
       "dependencies": [
@@ -610,17 +610,17 @@
         {
           "id": "AC-0050",
           "text": "Google Maps satellite view centered on current hole pin",
-          "done": false
+          "done": true
         },
         {
           "id": "AC-0051",
           "text": "Pin marker visible with distinct color",
-          "done": false
+          "done": true
         },
         {
           "id": "AC-0052",
           "text": "Map occupies top ~35% of screen on mobile",
-          "done": false
+          "done": true
         }
       ],
       "dependencies": [
@@ -640,22 +640,22 @@
         {
           "id": "AC-0053",
           "text": "Player pills show all team members",
-          "done": false
+          "done": true
         },
         {
           "id": "AC-0054",
           "text": "Active player highlighted in green",
-          "done": false
+          "done": true
         },
         {
           "id": "AC-0055",
           "text": "Completed players (hole sunk) shown with strikethrough",
-          "done": false
+          "done": true
         },
         {
           "id": "AC-0056",
           "text": "Tapping a pill switches active player",
-          "done": false
+          "done": true
         }
       ],
       "dependencies": [
@@ -674,12 +674,12 @@
         {
           "id": "AC-0057",
           "text": "Dropdown shows active clubs grouped by category (Woods, Hybrids, Irons, Wedges, Putter)",
-          "done": false
+          "done": true
         },
         {
           "id": "AC-0058",
           "text": "Selected club name stored on shot record",
-          "done": false
+          "done": true
         }
       ],
       "dependencies": [
@@ -698,22 +698,22 @@
         {
           "id": "AC-0059",
           "text": "GPS position captured via browser Geolocation API",
-          "done": false
+          "done": true
         },
         {
           "id": "AC-0060",
           "text": "Shot record written through sync engine (offline-safe)",
-          "done": false
+          "done": true
         },
         {
           "id": "AC-0061",
           "text": "Player pin appears on map at captured position",
-          "done": false
+          "done": true
         },
         {
           "id": "AC-0062",
           "text": "GPS permission requested with clear explanation",
-          "done": false
+          "done": true
         }
       ],
       "dependencies": [
@@ -734,27 +734,27 @@
         {
           "id": "AC-0063",
           "text": "Four outcome buttons displayed after shot capture",
-          "done": false
+          "done": true
         },
         {
           "id": "AC-0064",
           "text": "In-Play records shot and moves to next player",
-          "done": false
+          "done": true
         },
         {
           "id": "AC-0065",
           "text": "OOB adds +1 penalty stroke and allows rehit",
-          "done": false
+          "done": true
         },
         {
           "id": "AC-0066",
           "text": "Mulligan discards shot (no stroke counted)",
-          "done": false
+          "done": true
         },
         {
           "id": "AC-0067",
           "text": "Sunk closes hole for that player",
-          "done": false
+          "done": true
         }
       ],
       "dependencies": [
@@ -802,17 +802,17 @@
         {
           "id": "AC-0071",
           "text": "System detects when all active players have outcome 'sunk'",
-          "done": false
+          "done": true
         },
         {
           "id": "AC-0072",
           "text": "Best Ball Edge Function called automatically",
-          "done": false
+          "done": true
         },
         {
           "id": "AC-0073",
           "text": "Hole summary screen displayed",
-          "done": false
+          "done": true
         }
       ],
       "dependencies": [
@@ -860,17 +860,17 @@
         {
           "id": "AC-0077",
           "text": "\"Next Hole\" button advances correctly in sequence",
-          "done": false
+          "done": true
         },
         {
           "id": "AC-0078",
           "text": "After hole 18, wraps to hole 1",
-          "done": false
+          "done": true
         },
         {
           "id": "AC-0079",
           "text": "After completing 18 holes total, shows round complete summary",
-          "done": false
+          "done": true
         }
       ],
       "dependencies": [
@@ -889,27 +889,27 @@
         {
           "id": "AC-0080",
           "text": "Teams ranked by cumulative best-ball score vs par",
-          "done": false
+          "done": true
         },
         {
           "id": "AC-0081",
           "text": "Top 20 teams shown by default",
-          "done": false
+          "done": true
         },
         {
           "id": "AC-0082",
           "text": "\"Your Team ★\" pinned with green highlight (even outside top 20)",
-          "done": false
+          "done": true
         },
         {
           "id": "AC-0083",
           "text": "\"Thru\" column shows holes completed per team",
-          "done": false
+          "done": true
         },
         {
           "id": "AC-0084",
           "text": "Scores update in real-time via Supabase Realtime",
-          "done": false
+          "done": true
         }
       ],
       "dependencies": [
@@ -928,22 +928,22 @@
         {
           "id": "AC-0085",
           "text": "/live/cibc-granite-ridge-2026 loads without authentication",
-          "done": false
+          "done": true
         },
         {
           "id": "AC-0086",
           "text": "Same leaderboard UI without \"Your Team\" pin",
-          "done": false
+          "done": true
         },
         {
           "id": "AC-0087",
           "text": "LIVE badge displayed in header",
-          "done": false
+          "done": true
         },
         {
           "id": "AC-0088",
           "text": "Sponsor logos visible below header",
-          "done": false
+          "done": true
         }
       ],
       "dependencies": [
@@ -962,17 +962,17 @@
         {
           "id": "AC-0089",
           "text": "Sponsor logos fetched from sponsors table",
-          "done": false
+          "done": true
         },
         {
           "id": "AC-0090",
           "text": "Displayed in admin-set order below header",
-          "done": false
+          "done": true
         },
         {
           "id": "AC-0091",
           "text": "Visible on both authenticated and public leaderboard",
-          "done": false
+          "done": true
         }
       ],
       "dependencies": [
@@ -991,22 +991,22 @@
         {
           "id": "AC-0092",
           "text": "Sidebar shows all 7 admin sections",
-          "done": false
+          "done": true
         },
         {
           "id": "AC-0093",
           "text": "FDgolf + AI/Run at top, First Derivative at bottom",
-          "done": false
+          "done": true
         },
         {
           "id": "AC-0094",
           "text": "Active section highlighted with green border",
-          "done": false
+          "done": true
         },
         {
           "id": "AC-0095",
           "text": "Non-admin users redirected away",
-          "done": false
+          "done": true
         }
       ],
       "dependencies": [
@@ -1025,17 +1025,17 @@
         {
           "id": "AC-0096",
           "text": "Edit tournament name, date, venue, format, slug",
-          "done": false
+          "done": true
         },
         {
           "id": "AC-0097",
           "text": "Copy public leaderboard URL to clipboard",
-          "done": false
+          "done": true
         },
         {
           "id": "AC-0098",
           "text": "Change tournament status (setup/active/completed)",
-          "done": false
+          "done": true
         }
       ],
       "dependencies": [
@@ -1054,17 +1054,17 @@
         {
           "id": "AC-0099",
           "text": "18-row table showing hole number, par, handicap, pin lat/lng",
-          "done": false
+          "done": true
         },
         {
           "id": "AC-0100",
           "text": "Inline editing of par and GPS values",
-          "done": false
+          "done": true
         },
         {
           "id": "AC-0101",
           "text": "Changes saved to database on submit",
-          "done": false
+          "done": true
         }
       ],
       "dependencies": [
@@ -1083,17 +1083,17 @@
         {
           "id": "AC-0102",
           "text": "Add, edit, delete clubs",
-          "done": false
+          "done": true
         },
         {
           "id": "AC-0103",
           "text": "Reorder clubs via sort_order",
-          "done": false
+          "done": true
         },
         {
           "id": "AC-0104",
           "text": "Activate/deactivate toggle (inactive clubs hidden from players)",
-          "done": false
+          "done": true
         }
       ],
       "dependencies": [
@@ -1112,22 +1112,22 @@
         {
           "id": "AC-0105",
           "text": "Searchable player table (125 rows)",
-          "done": false
+          "done": true
         },
         {
           "id": "AC-0106",
           "text": "Edit modal with all player fields + team dropdown",
-          "done": false
+          "done": true
         },
         {
           "id": "AC-0107",
           "text": "Password reset button sends reset email",
-          "done": false
+          "done": true
         },
         {
           "id": "AC-0108",
           "text": "Status indicators (active/pending)",
-          "done": false
+          "done": true
         }
       ],
       "dependencies": [
@@ -1146,22 +1146,22 @@
         {
           "id": "AC-0109",
           "text": "Create new team with team number and optional name",
-          "done": false
+          "done": true
         },
         {
           "id": "AC-0110",
           "text": "Search and assign unassigned players to team",
-          "done": false
+          "done": true
         },
         {
           "id": "AC-0111",
           "text": "Set starting hole per team",
-          "done": false
+          "done": true
         },
         {
           "id": "AC-0112",
           "text": "\"Auto-assign starting holes\" distributes teams across 1–18",
-          "done": false
+          "done": true
         }
       ],
       "dependencies": [
@@ -1180,27 +1180,27 @@
         {
           "id": "AC-0113",
           "text": "Select team → select hole → view individual strokes",
-          "done": false
+          "done": true
         },
         {
           "id": "AC-0114",
           "text": "Edit stroke count for any player",
-          "done": false
+          "done": true
         },
         {
           "id": "AC-0115",
           "text": "\"Recalculate Best Ball\" updates is_best_ball flag",
-          "done": false
+          "done": true
         },
         {
           "id": "AC-0116",
           "text": "Override logged with admin ID and timestamp",
-          "done": false
+          "done": true
         },
         {
           "id": "AC-0117",
           "text": "Leaderboard updates immediately after save",
-          "done": false
+          "done": true
         }
       ],
       "dependencies": [
@@ -1219,22 +1219,22 @@
         {
           "id": "AC-0118",
           "text": "Upload PNG/SVG logo to Supabase Storage",
-          "done": false
+          "done": true
         },
         {
           "id": "AC-0119",
           "text": "Set sponsor name and display order",
-          "done": false
+          "done": true
         },
         {
           "id": "AC-0120",
           "text": "Toggle sponsor visibility",
-          "done": false
+          "done": true
         },
         {
           "id": "AC-0121",
           "text": "Preview sponsor bar as it appears on leaderboard",
-          "done": false
+          "done": true
         }
       ],
       "dependencies": [
@@ -1587,7 +1587,7 @@
       "title": "Run create-next-app with TypeScript, Tailwind, App Router, src directory",
       "type": "Infra",
       "assignee": "Agent",
-      "status": "To Do",
+      "status": "Done",
       "branch": "feature/US-0001-project-init",
       "notes": "Use --no-git flag since repo already initialized"
     },
@@ -1597,7 +1597,7 @@
       "title": "Install and initialize shadcn/ui with required components",
       "type": "Infra",
       "assignee": "Agent",
-      "status": "To Do",
+      "status": "Done",
       "branch": "feature/US-0001-project-init",
       "notes": "Components needed: button, input, label, card, select, dialog, table, badge, dropdown-menu, sheet, tabs, toast"
     },
@@ -1607,7 +1607,7 @@
       "title": "Create Supabase browser and server client helpers",
       "type": "Dev",
       "assignee": "Agent",
-      "status": "To Do",
+      "status": "Done",
       "branch": "feature/US-0002-supabase-setup",
       "notes": "Follow @supabase/ssr pattern for Next.js App Router"
     },
@@ -1617,7 +1617,7 @@
       "title": "Write and apply database migration with all tables, RLS, and indexes",
       "type": "Infra",
       "assignee": "Agent",
-      "status": "To Do",
+      "status": "Done",
       "branch": "feature/US-0003-database-schema",
       "notes": "9 tables, enable Realtime on scores table"
     },
@@ -1627,7 +1627,7 @@
       "title": "Write and apply seed SQL for clubs, holes, and tournament",
       "type": "Infra",
       "assignee": "Agent",
-      "status": "To Do",
+      "status": "Done",
       "branch": "feature/US-0006-seed-data",
       "notes": "21 clubs, 18 holes for Granite Ridge, 1 tournament record"
     },
@@ -1637,7 +1637,7 @@
       "title": "Implement offline sync engine with localStorage queue and auto-flush",
       "type": "Dev",
       "assignee": "Agent",
-      "status": "To Do",
+      "status": "Done",
       "branch": "feature/US-0008-sync-engine",
       "notes": "All writes go through sync engine — online or offline. React hook with useSyncExternalStore."
     },
@@ -1647,7 +1647,7 @@
       "title": "Create AppHeader component (full and compact variants)",
       "type": "Dev",
       "assignee": "Agent",
-      "status": "To Do",
+      "status": "Done",
       "branch": "feature/US-0007-header-branding",
       "notes": "FDgolf + AI/Run gradient icon + \"created by AI/Run™\" text"
     },
@@ -1657,7 +1657,7 @@
       "title": "Create Next.js middleware with auth session refresh and route protection",
       "type": "Dev",
       "assignee": "Agent",
-      "status": "To Do",
+      "status": "Done",
       "branch": "feature/US-0013-auth-middleware",
       "notes": "Protect all routes except /login, /register, /live/[slug]"
     },
@@ -1667,7 +1667,7 @@
       "title": "Build registration Step 1 (email/password with Supabase Auth signUp)",
       "type": "Dev",
       "assignee": "Agent",
-      "status": "To Do",
+      "status": "Done",
       "branch": "feature/US-0009-registration-step1",
       "notes": ""
     },
@@ -1677,7 +1677,7 @@
       "title": "Build registration Step 2 (profile form → players table insert)",
       "type": "Dev",
       "assignee": "Agent",
-      "status": "To Do",
+      "status": "Done",
       "branch": "feature/US-0010-registration-step2",
       "notes": ""
     },
@@ -1687,7 +1687,7 @@
       "title": "Build registration Step 3 (team lookup and linking)",
       "type": "Dev",
       "assignee": "Agent",
-      "status": "To Do",
+      "status": "Done",
       "branch": "feature/US-0011-registration-step3",
       "notes": "Query teams by team_number, display teammates, update team_id"
     },
@@ -1697,7 +1697,7 @@
       "title": "Build login page with Supabase signInWithPassword",
       "type": "Dev",
       "assignee": "Agent",
-      "status": "To Do",
+      "status": "Done",
       "branch": "feature/US-0012-login",
       "notes": ""
     },
@@ -1707,7 +1707,7 @@
       "title": "Build player dashboard page",
       "type": "Dev",
       "assignee": "Agent",
-      "status": "To Do",
+      "status": "Done",
       "branch": "feature/US-0014-dashboard",
       "notes": "Server Component fetching player, team, tournament data"
     },
@@ -1717,7 +1717,7 @@
       "title": "Create Google Maps wrapper component with pin and player markers",
       "type": "Dev",
       "assignee": "Agent",
-      "status": "To Do",
+      "status": "Done",
       "branch": "feature/US-0005-google-maps",
       "notes": "Uses @googlemaps/js-api-loader, satellite view, markers for pin and player"
     },
@@ -1727,7 +1727,7 @@
       "title": "Implement GPS capture utility and React hook",
       "type": "Dev",
       "assignee": "Agent",
-      "status": "To Do",
+      "status": "Done",
       "branch": "feature/US-0019-capture-shot",
       "notes": "High accuracy, 10s timeout, distance calculation (Haversine)"
     },
@@ -1737,7 +1737,7 @@
       "title": "Build player pills component for team member selection",
       "type": "Dev",
       "assignee": "Agent",
-      "status": "To Do",
+      "status": "Done",
       "branch": "feature/US-0017-player-selector",
       "notes": "Active/waiting/done states, tap to switch, \"Enter shot for [name]\" semantics"
     },
@@ -1747,7 +1747,7 @@
       "title": "Build club selector dropdown grouped by category",
       "type": "Dev",
       "assignee": "Agent",
-      "status": "To Do",
+      "status": "Done",
       "branch": "feature/US-0018-club-selector",
       "notes": "Fetch active clubs, group by category, sorted by sort_order"
     },
@@ -1757,7 +1757,7 @@
       "title": "Build shot outcome buttons with scoring logic",
       "type": "Dev",
       "assignee": "Agent",
-      "status": "To Do",
+      "status": "Done",
       "branch": "feature/US-0020-shot-outcomes",
       "notes": "In-Play (record), OOB (+1 penalty), Mulligan (discard), Sunk (close hole)"
     },
@@ -1767,7 +1767,7 @@
       "title": "Build round page state machine (capture → outcome → next player loop)",
       "type": "Dev",
       "assignee": "Agent",
-      "status": "To Do",
+      "status": "Done",
       "branch": "feature/US-0015-start-round",
       "notes": "Integrates map, player pills, club selector, capture button, outcome buttons, sync engine"
     },
@@ -1777,7 +1777,7 @@
       "title": "Implement hole completion detection and Best Ball Edge Function",
       "type": "Dev",
       "assignee": "Agent",
-      "status": "To Do",
+      "status": "Done",
       "branch": "feature/US-0022-hole-completion",
       "notes": "Supabase Edge Function calculates strokes, marks is_best_ball, broadcasts via Realtime"
     },
@@ -1787,7 +1787,7 @@
       "title": "Build hole summary screen",
       "type": "Dev",
       "assignee": "Agent",
-      "status": "To Do",
+      "status": "Done",
       "branch": "feature/US-0023-hole-summary",
       "notes": "Show each player's strokes, highlight best ball, score vs par"
     },
@@ -1797,7 +1797,7 @@
       "title": "Implement next-hole navigation with wraparound",
       "type": "Dev",
       "assignee": "Agent",
-      "status": "To Do",
+      "status": "Done",
       "branch": "feature/US-0024-next-hole",
       "notes": "Starting hole 10 → plays 10,11,...18,1,2,...9. Detect round complete after 18 holes."
     },
@@ -1807,7 +1807,7 @@
       "title": "Build authenticated leaderboard with Realtime subscription",
       "type": "Dev",
       "assignee": "Agent",
-      "status": "To Do",
+      "status": "Done",
       "branch": "feature/US-0025-leaderboard",
       "notes": "Uses get_leaderboard RPC, Supabase Realtime channel on scores table"
     },
@@ -1817,7 +1817,7 @@
       "title": "Build public leaderboard page at /live/[slug]",
       "type": "Dev",
       "assignee": "Agent",
-      "status": "To Do",
+      "status": "Done",
       "branch": "feature/US-0026-public-leaderboard",
       "notes": "No auth, fetches tournament by slug, same leaderboard UI, LIVE badge"
     },
@@ -1827,7 +1827,7 @@
       "title": "Build sponsor banner component",
       "type": "Dev",
       "assignee": "Agent",
-      "status": "To Do",
+      "status": "Done",
       "branch": "feature/US-0027-sponsor-banner",
       "notes": "Fetch active sponsors ordered by display_order, display logos"
     },
@@ -1837,7 +1837,7 @@
       "title": "Build admin sidebar navigation and layout",
       "type": "Dev",
       "assignee": "Agent",
-      "status": "To Do",
+      "status": "Done",
       "branch": "feature/US-0028-admin-layout",
       "notes": "Branding, nav items, role check, First Derivative logo footer"
     },
@@ -1847,7 +1847,7 @@
       "title": "Build tournament configuration admin page",
       "type": "Dev",
       "assignee": "Agent",
-      "status": "To Do",
+      "status": "Done",
       "branch": "feature/US-0029-tournament-config",
       "notes": "Edit name, date, venue, format, slug, status. Copy public URL button."
     },
@@ -1857,7 +1857,7 @@
       "title": "Build hole management admin page",
       "type": "Dev",
       "assignee": "Agent",
-      "status": "To Do",
+      "status": "Done",
       "branch": "feature/US-0030-hole-management",
       "notes": "18-row table, inline edit par/handicap/GPS"
     },
@@ -1867,7 +1867,7 @@
       "title": "Build club management admin page",
       "type": "Dev",
       "assignee": "Agent",
-      "status": "To Do",
+      "status": "Done",
       "branch": "feature/US-0031-club-management",
       "notes": "CRUD table, reorder, activate/deactivate"
     },
@@ -1877,7 +1877,7 @@
       "title": "Build player management admin page with team assignment",
       "type": "Dev",
       "assignee": "Agent",
-      "status": "To Do",
+      "status": "Done",
       "branch": "feature/US-0032-player-management",
       "notes": "Searchable table, edit modal with team dropdown, password reset"
     },
@@ -1887,7 +1887,7 @@
       "title": "Build team management admin page",
       "type": "Dev",
       "assignee": "Agent",
-      "status": "To Do",
+      "status": "Done",
       "branch": "feature/US-0033-team-management",
       "notes": "Team list, create/edit modal, player search, auto-assign starting holes"
     },
@@ -1897,7 +1897,7 @@
       "title": "Build score override admin page",
       "type": "Dev",
       "assignee": "Agent",
-      "status": "To Do",
+      "status": "Done",
       "branch": "feature/US-0034-score-override",
       "notes": "Select team → hole → edit strokes → recalculate best ball → audit trail"
     },
@@ -1907,7 +1907,7 @@
       "title": "Build sponsor management admin page",
       "type": "Dev",
       "assignee": "Agent",
-      "status": "To Do",
+      "status": "Done",
       "branch": "feature/US-0035-sponsor-management",
       "notes": "Upload to Supabase Storage, reorder, toggle visibility, live preview"
     },
@@ -1917,7 +1917,7 @@
       "title": "Write get_leaderboard Postgres RPC function",
       "type": "Dev",
       "assignee": "Agent",
-      "status": "To Do",
+      "status": "Done",
       "branch": "feature/US-0025-leaderboard",
       "notes": "Aggregates best-ball scores per team, ranks by score vs par"
     },
@@ -4863,9 +4863,9 @@
       "bugIds": []
     }
   ],
-  "generatedAt": "2026-09-25T22:01:24.594Z",
-  "commitSha": "a5c0e69",
-  "buildNumber": "128",
+  "generatedAt": "2026-09-25T22:07:21.741Z",
+  "commitSha": "c411f70",
+  "buildNumber": "134",
   "branch": "docs/bug-0013-0014-shot-edit-and-vs-par",
   "sessionTimeline": [
     {
@@ -5280,7 +5280,7 @@
       "2026-09-18T18:44:15.391Z",
       "2026-09-18T20:06:08.886Z",
       "2026-09-18T21:07:39.609Z",
-      "2026-09-25T22:01:24.647Z"
+      "2026-09-25T22:07:21.792Z"
     ],
     "doneCounts": [
       0,

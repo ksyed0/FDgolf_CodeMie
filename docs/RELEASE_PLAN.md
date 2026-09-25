@@ -10,7 +10,7 @@
 EPIC-0001: Project Setup & Infrastructure
 Description: Initialize Next.js 14 project with Supabase, deploy pipeline, shared components, and offline sync engine as foundation layer.
 Release Target: MVP (v0.1)
-Status: In Progress
+Status: Done
 Dependencies: None
 Start Date: 2026-06-08
 ```
@@ -19,7 +19,7 @@ Start Date: 2026-06-08
 EPIC-0002: Registration & Authentication
 Description: Player self-registration (3-step wizard), email/password login, auth middleware, and role-based access control.
 Release Target: MVP (v0.1)
-Status: In Progress
+Status: Done
 Dependencies: EPIC-0001
 ```
 
@@ -115,9 +115,9 @@ Status: Done
 Branch: feature/US-0001-project-init
 Dependencies: None
 Acceptance Criteria:
-  - [ ] AC-0001: Next.js 14 App Router project runs with `npm run dev`
-  - [ ] AC-0002: Tailwind CSS classes render correctly
-  - [ ] AC-0003: shadcn/ui Button component renders without errors
+  - [x] AC-0001: Next.js 14 App Router project runs with `npm run dev`
+  - [x] AC-0002: Tailwind CSS classes render correctly
+  - [x] AC-0003: shadcn/ui Button component renders without errors
 ```
 
 ```
@@ -128,9 +128,9 @@ Status: Done
 Branch: feature/US-0002-supabase-setup
 Dependencies: US-0001
 Acceptance Criteria:
-  - [ ] AC-0004: Browser client connects to Supabase project
-  - [ ] AC-0005: Server client works in Server Components
-  - [ ] AC-0006: .env.local.example documents required env vars
+  - [x] AC-0004: Browser client connects to Supabase project
+  - [x] AC-0005: Server client works in Server Components
+  - [x] AC-0006: .env.local.example documents required env vars
 ```
 
 ```
@@ -141,10 +141,10 @@ Status: Done
 Branch: feature/US-0003-database-schema
 Dependencies: US-0002
 Acceptance Criteria:
-  - [ ] AC-0007: All 9 tables created (tournaments, holes, players, teams, clubs, round_state, shots, scores, sponsors)
-  - [ ] AC-0008: RLS policies enforce player vs admin separation
-  - [ ] AC-0009: Realtime enabled on scores table
-  - [ ] AC-0010: Unique constraints prevent duplicate entries
+  - [x] AC-0007: All 9 tables created (tournaments, holes, players, teams, clubs, round_state, shots, scores, sponsors)
+  - [x] AC-0008: RLS policies enforce player vs admin separation
+  - [x] AC-0009: Realtime enabled on scores table
+  - [x] AC-0010: Unique constraints prevent duplicate entries
 ```
 
 ```
@@ -167,9 +167,9 @@ Status: Done
 Branch: feature/US-0005-google-maps
 Dependencies: US-0001
 Acceptance Criteria:
-  - [ ] AC-0013: Map renders with satellite view centered on pin coordinates
-  - [ ] AC-0014: Pin marker displays at hole location
-  - [ ] AC-0015: Player position marker updates on GPS capture
+  - [x] AC-0013: Map renders with satellite view centered on pin coordinates
+  - [x] AC-0014: Pin marker displays at hole location
+  - [x] AC-0015: Player position marker updates on GPS capture
 ```
 
 ```
@@ -180,9 +180,9 @@ Status: Done
 Branch: feature/US-0006-seed-data
 Dependencies: US-0003
 Acceptance Criteria:
-  - [ ] AC-0016: 21 clubs seeded across 5 categories
-  - [ ] AC-0017: 18 holes seeded with par values and approximate GPS
-  - [ ] AC-0018: Tournament record created for CIBC 2026 event
+  - [x] AC-0016: 21 clubs seeded across 5 categories
+  - [x] AC-0017: 18 holes seeded with par values and approximate GPS
+  - [x] AC-0018: Tournament record created for CIBC 2026 event
 ```
 
 ```
@@ -193,9 +193,9 @@ Status: Done
 Branch: feature/US-0007-header-branding
 Dependencies: US-0001
 Acceptance Criteria:
-  - [ ] AC-0019: Full header shows "FDgolf | created by AI/Run™" with gradient icon
-  - [ ] AC-0020: Compact header shows condensed branding + hole info
-  - [ ] AC-0021: Dark green (#1a472a) consistent across all variants
+  - [x] AC-0019: Full header shows "FDgolf | created by AI/Run™" with gradient icon
+  - [x] AC-0020: Compact header shows condensed branding + hole info
+  - [x] AC-0021: Dark green (#1a472a) consistent across all variants
 ```
 
 ```
@@ -206,11 +206,11 @@ Status: Done
 Branch: feature/US-0008-sync-engine
 Dependencies: US-0001
 Acceptance Criteria:
-  - [ ] AC-0022: Writes enqueue to localStorage regardless of connectivity
-  - [ ] AC-0023: Queue flushes automatically when online
-  - [ ] AC-0024: Failed writes retry up to 5 times
-  - [ ] AC-0025: Offline indicator shows pending count
-  - [ ] AC-0026: Online event triggers immediate flush
+  - [x] AC-0022: Writes enqueue to localStorage regardless of connectivity
+  - [x] AC-0023: Queue flushes automatically when online
+  - [x] AC-0024: Failed writes retry up to 5 times
+  - [x] AC-0025: Offline indicator shows pending count
+  - [x] AC-0026: Online event triggers immediate flush
 ```
 
 ```
@@ -221,9 +221,9 @@ Status: Done
 Branch: feature/US-0009-registration-step1
 Dependencies: US-0002
 Acceptance Criteria:
-  - [ ] AC-0027: Email/password form validates input (min 6 chars, matching passwords)
-  - [ ] AC-0028: Supabase Auth account created on submit
-  - [ ] AC-0029: Error displayed for duplicate emails
+  - [x] AC-0027: Email/password form validates input (min 6 chars, matching passwords)
+  - [x] AC-0028: Supabase Auth account created on submit
+  - [x] AC-0029: Error displayed for duplicate emails
 ```
 
 ```
@@ -234,8 +234,8 @@ Status: Done
 Branch: feature/US-0010-registration-step2
 Dependencies: US-0009
 Acceptance Criteria:
-  - [ ] AC-0030: Form captures name, title, company, phone (required) and YOB, gender (optional)
-  - [ ] AC-0031: Player record created in players table linked to auth user
+  - [x] AC-0030: Form captures name, title, company, phone (required) and YOB, gender (optional)
+  - [x] AC-0031: Player record created in players table linked to auth user
 ```
 
 ```
@@ -246,9 +246,9 @@ Status: Done
 Branch: feature/US-0011-registration-step3
 Dependencies: US-0010
 Acceptance Criteria:
-  - [ ] AC-0032: Team number input validates against existing teams
-  - [ ] AC-0033: Teammates displayed after lookup
-  - [ ] AC-0034: Player's team_id updated on registration complete
+  - [x] AC-0032: Team number input validates against existing teams
+  - [x] AC-0033: Teammates displayed after lookup
+  - [x] AC-0034: Player's team_id updated on registration complete
 ```
 
 ```
@@ -259,9 +259,9 @@ Status: Done
 Branch: feature/US-0012-login
 Dependencies: US-0002
 Acceptance Criteria:
-  - [ ] AC-0035: Email/password form authenticates via Supabase
-  - [ ] AC-0036: Successful login redirects to /dashboard
-  - [ ] AC-0037: Error message shown for invalid credentials
+  - [x] AC-0035: Email/password form authenticates via Supabase
+  - [x] AC-0036: Successful login redirects to /dashboard
+  - [x] AC-0037: Error message shown for invalid credentials
 ```
 
 ```
@@ -272,10 +272,10 @@ Status: Done
 Branch: feature/US-0013-auth-middleware
 Dependencies: US-0002
 Acceptance Criteria:
-  - [ ] AC-0038: Unauthenticated users redirected to /login
-  - [ ] AC-0039: Authenticated users on /login redirected to /dashboard
-  - [ ] AC-0040: Admin routes check player role before access
-  - [ ] AC-0041: Public /live/[slug] route accessible without auth
+  - [x] AC-0038: Unauthenticated users redirected to /login
+  - [x] AC-0039: Authenticated users on /login redirected to /dashboard
+  - [x] AC-0040: Admin routes check player role before access
+  - [x] AC-0041: Public /live/[slug] route accessible without auth
 ```
 
 ```
@@ -286,11 +286,11 @@ Status: Done
 Branch: feature/US-0014-dashboard
 Dependencies: US-0013
 Acceptance Criteria:
-  - [ ] AC-0042: Welcome message with player's first name
-  - [ ] AC-0043: Tournament name, venue, and countdown displayed
-  - [ ] AC-0044: Team number, starting hole, and teammates listed
-  - [ ] AC-0045: "Start Round" button visible when tournament is active
-  - [ ] AC-0046: Leaderboard link accessible from dashboard
+  - [x] AC-0042: Welcome message with player's first name
+  - [x] AC-0043: Tournament name, venue, and countdown displayed
+  - [x] AC-0044: Team number, starting hole, and teammates listed
+  - [x] AC-0045: "Start Round" button visible when tournament is active
+  - [x] AC-0046: Leaderboard link accessible from dashboard
 ```
 
 ```
@@ -301,9 +301,9 @@ Status: Done
 Branch: feature/US-0015-start-round
 Dependencies: US-0014
 Acceptance Criteria:
-  - [ ] AC-0047: Starting hole pre-filled from team assignment
-  - [ ] AC-0048: round_state record created with status 'in_progress'
-  - [ ] AC-0049: Player redirected to shot tracking screen
+  - [x] AC-0047: Starting hole pre-filled from team assignment
+  - [x] AC-0048: round_state record created with status 'in_progress'
+  - [x] AC-0049: Player redirected to shot tracking screen
 ```
 
 ```
@@ -314,9 +314,9 @@ Status: Done
 Branch: feature/US-0016-hole-map
 Dependencies: US-0005, US-0015
 Acceptance Criteria:
-  - [ ] AC-0050: Google Maps satellite view centered on current hole pin
-  - [ ] AC-0051: Pin marker visible with distinct color
-  - [ ] AC-0052: Map occupies top ~35% of screen on mobile
+  - [x] AC-0050: Google Maps satellite view centered on current hole pin
+  - [x] AC-0051: Pin marker visible with distinct color
+  - [x] AC-0052: Map occupies top ~35% of screen on mobile
 ```
 
 ```
@@ -327,10 +327,10 @@ Status: Done
 Branch: feature/US-0017-player-selector
 Dependencies: US-0015
 Acceptance Criteria:
-  - [ ] AC-0053: Player pills show all team members
-  - [ ] AC-0054: Active player highlighted in green
-  - [ ] AC-0055: Completed players (hole sunk) shown with strikethrough
-  - [ ] AC-0056: Tapping a pill switches active player
+  - [x] AC-0053: Player pills show all team members
+  - [x] AC-0054: Active player highlighted in green
+  - [x] AC-0055: Completed players (hole sunk) shown with strikethrough
+  - [x] AC-0056: Tapping a pill switches active player
 ```
 
 ```
@@ -341,8 +341,8 @@ Status: Done
 Branch: feature/US-0018-club-selector
 Dependencies: US-0006
 Acceptance Criteria:
-  - [ ] AC-0057: Dropdown shows active clubs grouped by category (Woods, Hybrids, Irons, Wedges, Putter)
-  - [ ] AC-0058: Selected club name stored on shot record
+  - [x] AC-0057: Dropdown shows active clubs grouped by category (Woods, Hybrids, Irons, Wedges, Putter)
+  - [x] AC-0058: Selected club name stored on shot record
 ```
 
 ```
@@ -353,10 +353,10 @@ Status: Done
 Branch: feature/US-0019-capture-shot
 Dependencies: US-0008, US-0017, US-0018
 Acceptance Criteria:
-  - [ ] AC-0059: GPS position captured via browser Geolocation API
-  - [ ] AC-0060: Shot record written through sync engine (offline-safe)
-  - [ ] AC-0061: Player pin appears on map at captured position
-  - [ ] AC-0062: GPS permission requested with clear explanation
+  - [x] AC-0059: GPS position captured via browser Geolocation API
+  - [x] AC-0060: Shot record written through sync engine (offline-safe)
+  - [x] AC-0061: Player pin appears on map at captured position
+  - [x] AC-0062: GPS permission requested with clear explanation
 ```
 
 ```
@@ -367,11 +367,11 @@ Status: Done
 Branch: feature/US-0020-shot-outcomes
 Dependencies: US-0019
 Acceptance Criteria:
-  - [ ] AC-0063: Four outcome buttons displayed after shot capture
-  - [ ] AC-0064: In-Play records shot and moves to next player
-  - [ ] AC-0065: OOB adds +1 penalty stroke and allows rehit
-  - [ ] AC-0066: Mulligan discards shot (no stroke counted)
-  - [ ] AC-0067: Sunk closes hole for that player
+  - [x] AC-0063: Four outcome buttons displayed after shot capture
+  - [x] AC-0064: In-Play records shot and moves to next player
+  - [x] AC-0065: OOB adds +1 penalty stroke and allows rehit
+  - [x] AC-0066: Mulligan discards shot (no stroke counted)
+  - [x] AC-0067: Sunk closes hole for that player
 ```
 
 ```
@@ -395,9 +395,9 @@ Status: Done
 Branch: feature/US-0022-hole-completion
 Dependencies: US-0020
 Acceptance Criteria:
-  - [ ] AC-0071: System detects when all active players have outcome 'sunk'
-  - [ ] AC-0072: Best Ball Edge Function called automatically
-  - [ ] AC-0073: Hole summary screen displayed
+  - [x] AC-0071: System detects when all active players have outcome 'sunk'
+  - [x] AC-0072: Best Ball Edge Function called automatically
+  - [x] AC-0073: Hole summary screen displayed
 ```
 
 ```
@@ -421,9 +421,9 @@ Status: Done
 Branch: feature/US-0024-next-hole
 Dependencies: US-0023
 Acceptance Criteria:
-  - [ ] AC-0077: "Next Hole" button advances correctly in sequence
-  - [ ] AC-0078: After hole 18, wraps to hole 1
-  - [ ] AC-0079: After completing 18 holes total, shows round complete summary
+  - [x] AC-0077: "Next Hole" button advances correctly in sequence
+  - [x] AC-0078: After hole 18, wraps to hole 1
+  - [x] AC-0079: After completing 18 holes total, shows round complete summary
 ```
 
 ```
@@ -434,11 +434,11 @@ Status: Done
 Branch: feature/US-0025-leaderboard
 Dependencies: US-0022
 Acceptance Criteria:
-  - [ ] AC-0080: Teams ranked by cumulative best-ball score vs par
-  - [ ] AC-0081: Top 20 teams shown by default
-  - [ ] AC-0082: "Your Team ★" pinned with green highlight (even outside top 20)
-  - [ ] AC-0083: "Thru" column shows holes completed per team
-  - [ ] AC-0084: Scores update in real-time via Supabase Realtime
+  - [x] AC-0080: Teams ranked by cumulative best-ball score vs par
+  - [x] AC-0081: Top 20 teams shown by default
+  - [x] AC-0082: "Your Team ★" pinned with green highlight (even outside top 20)
+  - [x] AC-0083: "Thru" column shows holes completed per team
+  - [x] AC-0084: Scores update in real-time via Supabase Realtime
 ```
 
 ```
@@ -449,10 +449,10 @@ Status: Done
 Branch: feature/US-0026-public-leaderboard
 Dependencies: US-0025
 Acceptance Criteria:
-  - [ ] AC-0085: /live/cibc-granite-ridge-2026 loads without authentication
-  - [ ] AC-0086: Same leaderboard UI without "Your Team" pin
-  - [ ] AC-0087: LIVE badge displayed in header
-  - [ ] AC-0088: Sponsor logos visible below header
+  - [x] AC-0085: /live/cibc-granite-ridge-2026 loads without authentication
+  - [x] AC-0086: Same leaderboard UI without "Your Team" pin
+  - [x] AC-0087: LIVE badge displayed in header
+  - [x] AC-0088: Sponsor logos visible below header
 ```
 
 ```
@@ -463,9 +463,9 @@ Status: Done
 Branch: feature/US-0027-sponsor-banner
 Dependencies: US-0025
 Acceptance Criteria:
-  - [ ] AC-0089: Sponsor logos fetched from sponsors table
-  - [ ] AC-0090: Displayed in admin-set order below header
-  - [ ] AC-0091: Visible on both authenticated and public leaderboard
+  - [x] AC-0089: Sponsor logos fetched from sponsors table
+  - [x] AC-0090: Displayed in admin-set order below header
+  - [x] AC-0091: Visible on both authenticated and public leaderboard
 ```
 
 ```
@@ -476,10 +476,10 @@ Status: Done
 Branch: feature/US-0028-admin-layout
 Dependencies: US-0007
 Acceptance Criteria:
-  - [ ] AC-0092: Sidebar shows all 7 admin sections
-  - [ ] AC-0093: FDgolf + AI/Run at top, First Derivative at bottom
-  - [ ] AC-0094: Active section highlighted with green border
-  - [ ] AC-0095: Non-admin users redirected away
+  - [x] AC-0092: Sidebar shows all 7 admin sections
+  - [x] AC-0093: FDgolf + AI/Run at top, First Derivative at bottom
+  - [x] AC-0094: Active section highlighted with green border
+  - [x] AC-0095: Non-admin users redirected away
 ```
 
 ```
@@ -490,9 +490,9 @@ Status: Done
 Branch: feature/US-0029-tournament-config
 Dependencies: US-0028
 Acceptance Criteria:
-  - [ ] AC-0096: Edit tournament name, date, venue, format, slug
-  - [ ] AC-0097: Copy public leaderboard URL to clipboard
-  - [ ] AC-0098: Change tournament status (setup/active/completed)
+  - [x] AC-0096: Edit tournament name, date, venue, format, slug
+  - [x] AC-0097: Copy public leaderboard URL to clipboard
+  - [x] AC-0098: Change tournament status (setup/active/completed)
 ```
 
 ```
@@ -503,9 +503,9 @@ Status: Done
 Branch: feature/US-0030-hole-management
 Dependencies: US-0028
 Acceptance Criteria:
-  - [ ] AC-0099: 18-row table showing hole number, par, handicap, pin lat/lng
-  - [ ] AC-0100: Inline editing of par and GPS values
-  - [ ] AC-0101: Changes saved to database on submit
+  - [x] AC-0099: 18-row table showing hole number, par, handicap, pin lat/lng
+  - [x] AC-0100: Inline editing of par and GPS values
+  - [x] AC-0101: Changes saved to database on submit
 ```
 
 ```
@@ -516,9 +516,9 @@ Status: Done
 Branch: feature/US-0031-club-management
 Dependencies: US-0028
 Acceptance Criteria:
-  - [ ] AC-0102: Add, edit, delete clubs
-  - [ ] AC-0103: Reorder clubs via sort_order
-  - [ ] AC-0104: Activate/deactivate toggle (inactive clubs hidden from players)
+  - [x] AC-0102: Add, edit, delete clubs
+  - [x] AC-0103: Reorder clubs via sort_order
+  - [x] AC-0104: Activate/deactivate toggle (inactive clubs hidden from players)
 ```
 
 ```
@@ -529,10 +529,10 @@ Status: Done
 Branch: feature/US-0032-player-management
 Dependencies: US-0028
 Acceptance Criteria:
-  - [ ] AC-0105: Searchable player table (125 rows)
-  - [ ] AC-0106: Edit modal with all player fields + team dropdown
-  - [ ] AC-0107: Password reset button sends reset email
-  - [ ] AC-0108: Status indicators (active/pending)
+  - [x] AC-0105: Searchable player table (125 rows)
+  - [x] AC-0106: Edit modal with all player fields + team dropdown
+  - [x] AC-0107: Password reset button sends reset email
+  - [x] AC-0108: Status indicators (active/pending)
 ```
 
 ```
@@ -543,10 +543,10 @@ Status: Done
 Branch: feature/US-0033-team-management
 Dependencies: US-0028
 Acceptance Criteria:
-  - [ ] AC-0109: Create new team with team number and optional name
-  - [ ] AC-0110: Search and assign unassigned players to team
-  - [ ] AC-0111: Set starting hole per team
-  - [ ] AC-0112: "Auto-assign starting holes" distributes teams across 1–18
+  - [x] AC-0109: Create new team with team number and optional name
+  - [x] AC-0110: Search and assign unassigned players to team
+  - [x] AC-0111: Set starting hole per team
+  - [x] AC-0112: "Auto-assign starting holes" distributes teams across 1–18
 ```
 
 ```
@@ -557,11 +557,11 @@ Status: Done
 Branch: feature/US-0034-score-override
 Dependencies: US-0028
 Acceptance Criteria:
-  - [ ] AC-0113: Select team → select hole → view individual strokes
-  - [ ] AC-0114: Edit stroke count for any player
-  - [ ] AC-0115: "Recalculate Best Ball" updates is_best_ball flag
-  - [ ] AC-0116: Override logged with admin ID and timestamp
-  - [ ] AC-0117: Leaderboard updates immediately after save
+  - [x] AC-0113: Select team → select hole → view individual strokes
+  - [x] AC-0114: Edit stroke count for any player
+  - [x] AC-0115: "Recalculate Best Ball" updates is_best_ball flag
+  - [x] AC-0116: Override logged with admin ID and timestamp
+  - [x] AC-0117: Leaderboard updates immediately after save
 ```
 
 ```
@@ -572,10 +572,10 @@ Status: Done
 Branch: feature/US-0035-sponsor-management
 Dependencies: US-0028
 Acceptance Criteria:
-  - [ ] AC-0118: Upload PNG/SVG logo to Supabase Storage
-  - [ ] AC-0119: Set sponsor name and display order
-  - [ ] AC-0120: Toggle sponsor visibility
-  - [ ] AC-0121: Preview sponsor bar as it appears on leaderboard
+  - [x] AC-0118: Upload PNG/SVG logo to Supabase Storage
+  - [x] AC-0119: Set sponsor name and display order
+  - [x] AC-0120: Toggle sponsor visibility
+  - [x] AC-0121: Preview sponsor bar as it appears on leaderboard
 ```
 
 ```
@@ -740,7 +740,7 @@ Notes: Scoped to environment-dependent infra only (schema, connectivity, seed da
 TASK-0001 (US-0001): Run create-next-app with TypeScript, Tailwind, App Router, src directory
 Type: Infra
 Assignee: Agent
-Status: To Do
+Status: Done
 Branch: feature/US-0001-project-init
 Notes: Use --no-git flag since repo already initialized
 ```
@@ -749,7 +749,7 @@ Notes: Use --no-git flag since repo already initialized
 TASK-0002 (US-0001): Install and initialize shadcn/ui with required components
 Type: Infra
 Assignee: Agent
-Status: To Do
+Status: Done
 Branch: feature/US-0001-project-init
 Notes: Components needed: button, input, label, card, select, dialog, table, badge, dropdown-menu, sheet, tabs, toast
 ```
@@ -758,7 +758,7 @@ Notes: Components needed: button, input, label, card, select, dialog, table, bad
 TASK-0003 (US-0002): Create Supabase browser and server client helpers
 Type: Dev
 Assignee: Agent
-Status: To Do
+Status: Done
 Branch: feature/US-0002-supabase-setup
 Notes: Follow @supabase/ssr pattern for Next.js App Router
 ```
@@ -767,7 +767,7 @@ Notes: Follow @supabase/ssr pattern for Next.js App Router
 TASK-0004 (US-0003): Write and apply database migration with all tables, RLS, and indexes
 Type: Infra
 Assignee: Agent
-Status: To Do
+Status: Done
 Branch: feature/US-0003-database-schema
 Notes: 9 tables, enable Realtime on scores table
 ```
@@ -776,7 +776,7 @@ Notes: 9 tables, enable Realtime on scores table
 TASK-0005 (US-0006): Write and apply seed SQL for clubs, holes, and tournament
 Type: Infra
 Assignee: Agent
-Status: To Do
+Status: Done
 Branch: feature/US-0006-seed-data
 Notes: 21 clubs, 18 holes for Granite Ridge, 1 tournament record
 ```
@@ -785,7 +785,7 @@ Notes: 21 clubs, 18 holes for Granite Ridge, 1 tournament record
 TASK-0006 (US-0008): Implement offline sync engine with localStorage queue and auto-flush
 Type: Dev
 Assignee: Agent
-Status: To Do
+Status: Done
 Branch: feature/US-0008-sync-engine
 Notes: All writes go through sync engine — online or offline. React hook with useSyncExternalStore.
 ```
@@ -794,7 +794,7 @@ Notes: All writes go through sync engine — online or offline. React hook with 
 TASK-0007 (US-0007): Create AppHeader component (full and compact variants)
 Type: Dev
 Assignee: Agent
-Status: To Do
+Status: Done
 Branch: feature/US-0007-header-branding
 Notes: FDgolf + AI/Run gradient icon + "created by AI/Run™" text
 ```
@@ -803,7 +803,7 @@ Notes: FDgolf + AI/Run gradient icon + "created by AI/Run™" text
 TASK-0008 (US-0013): Create Next.js middleware with auth session refresh and route protection
 Type: Dev
 Assignee: Agent
-Status: To Do
+Status: Done
 Branch: feature/US-0013-auth-middleware
 Notes: Protect all routes except /login, /register, /live/[slug]
 ```
@@ -812,7 +812,7 @@ Notes: Protect all routes except /login, /register, /live/[slug]
 TASK-0009 (US-0009): Build registration Step 1 (email/password with Supabase Auth signUp)
 Type: Dev
 Assignee: Agent
-Status: To Do
+Status: Done
 Branch: feature/US-0009-registration-step1
 Notes:
 ```
@@ -821,7 +821,7 @@ Notes:
 TASK-0010 (US-0010): Build registration Step 2 (profile form → players table insert)
 Type: Dev
 Assignee: Agent
-Status: To Do
+Status: Done
 Branch: feature/US-0010-registration-step2
 Notes:
 ```
@@ -830,7 +830,7 @@ Notes:
 TASK-0011 (US-0011): Build registration Step 3 (team lookup and linking)
 Type: Dev
 Assignee: Agent
-Status: To Do
+Status: Done
 Branch: feature/US-0011-registration-step3
 Notes: Query teams by team_number, display teammates, update team_id
 ```
@@ -839,7 +839,7 @@ Notes: Query teams by team_number, display teammates, update team_id
 TASK-0012 (US-0012): Build login page with Supabase signInWithPassword
 Type: Dev
 Assignee: Agent
-Status: To Do
+Status: Done
 Branch: feature/US-0012-login
 Notes:
 ```
@@ -848,7 +848,7 @@ Notes:
 TASK-0013 (US-0014): Build player dashboard page
 Type: Dev
 Assignee: Agent
-Status: To Do
+Status: Done
 Branch: feature/US-0014-dashboard
 Notes: Server Component fetching player, team, tournament data
 ```
@@ -857,7 +857,7 @@ Notes: Server Component fetching player, team, tournament data
 TASK-0014 (US-0005): Create Google Maps wrapper component with pin and player markers
 Type: Dev
 Assignee: Agent
-Status: To Do
+Status: Done
 Branch: feature/US-0005-google-maps
 Notes: Uses @googlemaps/js-api-loader, satellite view, markers for pin and player
 ```
@@ -866,7 +866,7 @@ Notes: Uses @googlemaps/js-api-loader, satellite view, markers for pin and playe
 TASK-0015 (US-0019): Implement GPS capture utility and React hook
 Type: Dev
 Assignee: Agent
-Status: To Do
+Status: Done
 Branch: feature/US-0019-capture-shot
 Notes: High accuracy, 10s timeout, distance calculation (Haversine)
 ```
@@ -875,7 +875,7 @@ Notes: High accuracy, 10s timeout, distance calculation (Haversine)
 TASK-0016 (US-0017): Build player pills component for team member selection
 Type: Dev
 Assignee: Agent
-Status: To Do
+Status: Done
 Branch: feature/US-0017-player-selector
 Notes: Active/waiting/done states, tap to switch, "Enter shot for [name]" semantics
 ```
@@ -884,7 +884,7 @@ Notes: Active/waiting/done states, tap to switch, "Enter shot for [name]" semant
 TASK-0017 (US-0018): Build club selector dropdown grouped by category
 Type: Dev
 Assignee: Agent
-Status: To Do
+Status: Done
 Branch: feature/US-0018-club-selector
 Notes: Fetch active clubs, group by category, sorted by sort_order
 ```
@@ -893,7 +893,7 @@ Notes: Fetch active clubs, group by category, sorted by sort_order
 TASK-0018 (US-0020): Build shot outcome buttons with scoring logic
 Type: Dev
 Assignee: Agent
-Status: To Do
+Status: Done
 Branch: feature/US-0020-shot-outcomes
 Notes: In-Play (record), OOB (+1 penalty), Mulligan (discard), Sunk (close hole)
 ```
@@ -902,7 +902,7 @@ Notes: In-Play (record), OOB (+1 penalty), Mulligan (discard), Sunk (close hole)
 TASK-0019 (US-0015): Build round page state machine (capture → outcome → next player loop)
 Type: Dev
 Assignee: Agent
-Status: To Do
+Status: Done
 Branch: feature/US-0015-start-round
 Notes: Integrates map, player pills, club selector, capture button, outcome buttons, sync engine
 ```
@@ -911,7 +911,7 @@ Notes: Integrates map, player pills, club selector, capture button, outcome butt
 TASK-0020 (US-0022): Implement hole completion detection and Best Ball Edge Function
 Type: Dev
 Assignee: Agent
-Status: To Do
+Status: Done
 Branch: feature/US-0022-hole-completion
 Notes: Supabase Edge Function calculates strokes, marks is_best_ball, broadcasts via Realtime
 ```
@@ -920,7 +920,7 @@ Notes: Supabase Edge Function calculates strokes, marks is_best_ball, broadcasts
 TASK-0021 (US-0023): Build hole summary screen
 Type: Dev
 Assignee: Agent
-Status: To Do
+Status: Done
 Branch: feature/US-0023-hole-summary
 Notes: Show each player's strokes, highlight best ball, score vs par
 ```
@@ -929,7 +929,7 @@ Notes: Show each player's strokes, highlight best ball, score vs par
 TASK-0022 (US-0024): Implement next-hole navigation with wraparound
 Type: Dev
 Assignee: Agent
-Status: To Do
+Status: Done
 Branch: feature/US-0024-next-hole
 Notes: Starting hole 10 → plays 10,11,...18,1,2,...9. Detect round complete after 18 holes.
 ```
@@ -938,7 +938,7 @@ Notes: Starting hole 10 → plays 10,11,...18,1,2,...9. Detect round complete af
 TASK-0023 (US-0025): Build authenticated leaderboard with Realtime subscription
 Type: Dev
 Assignee: Agent
-Status: To Do
+Status: Done
 Branch: feature/US-0025-leaderboard
 Notes: Uses get_leaderboard RPC, Supabase Realtime channel on scores table
 ```
@@ -947,7 +947,7 @@ Notes: Uses get_leaderboard RPC, Supabase Realtime channel on scores table
 TASK-0024 (US-0026): Build public leaderboard page at /live/[slug]
 Type: Dev
 Assignee: Agent
-Status: To Do
+Status: Done
 Branch: feature/US-0026-public-leaderboard
 Notes: No auth, fetches tournament by slug, same leaderboard UI, LIVE badge
 ```
@@ -956,7 +956,7 @@ Notes: No auth, fetches tournament by slug, same leaderboard UI, LIVE badge
 TASK-0025 (US-0027): Build sponsor banner component
 Type: Dev
 Assignee: Agent
-Status: To Do
+Status: Done
 Branch: feature/US-0027-sponsor-banner
 Notes: Fetch active sponsors ordered by display_order, display logos
 ```
@@ -965,7 +965,7 @@ Notes: Fetch active sponsors ordered by display_order, display logos
 TASK-0026 (US-0028): Build admin sidebar navigation and layout
 Type: Dev
 Assignee: Agent
-Status: To Do
+Status: Done
 Branch: feature/US-0028-admin-layout
 Notes: Branding, nav items, role check, First Derivative logo footer
 ```
@@ -974,7 +974,7 @@ Notes: Branding, nav items, role check, First Derivative logo footer
 TASK-0027 (US-0029): Build tournament configuration admin page
 Type: Dev
 Assignee: Agent
-Status: To Do
+Status: Done
 Branch: feature/US-0029-tournament-config
 Notes: Edit name, date, venue, format, slug, status. Copy public URL button.
 ```
@@ -983,7 +983,7 @@ Notes: Edit name, date, venue, format, slug, status. Copy public URL button.
 TASK-0028 (US-0030): Build hole management admin page
 Type: Dev
 Assignee: Agent
-Status: To Do
+Status: Done
 Branch: feature/US-0030-hole-management
 Notes: 18-row table, inline edit par/handicap/GPS
 ```
@@ -992,7 +992,7 @@ Notes: 18-row table, inline edit par/handicap/GPS
 TASK-0029 (US-0031): Build club management admin page
 Type: Dev
 Assignee: Agent
-Status: To Do
+Status: Done
 Branch: feature/US-0031-club-management
 Notes: CRUD table, reorder, activate/deactivate
 ```
@@ -1001,7 +1001,7 @@ Notes: CRUD table, reorder, activate/deactivate
 TASK-0030 (US-0032): Build player management admin page with team assignment
 Type: Dev
 Assignee: Agent
-Status: To Do
+Status: Done
 Branch: feature/US-0032-player-management
 Notes: Searchable table, edit modal with team dropdown, password reset
 ```
@@ -1010,7 +1010,7 @@ Notes: Searchable table, edit modal with team dropdown, password reset
 TASK-0031 (US-0033): Build team management admin page
 Type: Dev
 Assignee: Agent
-Status: To Do
+Status: Done
 Branch: feature/US-0033-team-management
 Notes: Team list, create/edit modal, player search, auto-assign starting holes
 ```
@@ -1019,7 +1019,7 @@ Notes: Team list, create/edit modal, player search, auto-assign starting holes
 TASK-0032 (US-0034): Build score override admin page
 Type: Dev
 Assignee: Agent
-Status: To Do
+Status: Done
 Branch: feature/US-0034-score-override
 Notes: Select team → hole → edit strokes → recalculate best ball → audit trail
 ```
@@ -1028,7 +1028,7 @@ Notes: Select team → hole → edit strokes → recalculate best ball → audit
 TASK-0033 (US-0035): Build sponsor management admin page
 Type: Dev
 Assignee: Agent
-Status: To Do
+Status: Done
 Branch: feature/US-0035-sponsor-management
 Notes: Upload to Supabase Storage, reorder, toggle visibility, live preview
 ```
@@ -1037,7 +1037,7 @@ Notes: Upload to Supabase Storage, reorder, toggle visibility, live preview
 TASK-0034 (US-0025): Write get_leaderboard Postgres RPC function
 Type: Dev
 Assignee: Agent
-Status: To Do
+Status: Done
 Branch: feature/US-0025-leaderboard
 Notes: Aggregates best-ball scores per team, ranks by score vs par
 ```
