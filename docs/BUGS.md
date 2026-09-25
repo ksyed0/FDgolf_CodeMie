@@ -1,5 +1,39 @@
 # FDgolf — Bug Tracker
 
+BUG-0014: Score relative to par (birdie/bogey/etc.) not shown on hole-summary screen
+Severity: Medium
+Related Story: US-0023 (AC-0076)
+Status: Fixed
+Fix Branch: bugfix/BUG-0014-vs-par-hole-summary
+Lesson Encoded: No
+
+`src/app/(player)/round/page.tsx` held a `holeSummaryScores` state variable but never
+rendered a vs-par label (birdie, bogey, par, etc.) alongside it — the hole-summary screen
+showed raw strokes only.
+
+`formatVsPar()` already existed in `src/lib/scoring.ts` and was already wired into
+`src/app/(player)/scorecard/page.tsx` and
+`src/app/(admin)/admin/scores/scores-table.tsx`, so this was not a missing capability —
+it was just never called from the hole-summary flow.
+
+Fix approach: imported `formatVsPar()` into `round/page.tsx`. Replaced the best-ball
+line's ad-hoc `+`-prefix formatting with `formatVsPar(bestBallPar)`, and added a
+per-teammate vs-par badge next to each player's stroke count in the hole-summary list,
+computed as `score.strokes - currentHole.par` and color-coded (green under par, red over
+par, gray at par) matching the existing convention in `scorecard/page.tsx`. Checked off
+AC-0076 in `docs/RELEASE_PLAN.md`.
+
+Verified: `npx tsc --noEmit` clean, `npm run lint` clean at error level, `npm run test:ci`
+173/173 passing (coverage 90.63%/82.59%/85.29%/96.25%, all above the ≥80%/≥70%/≥80%/≥80%
+thresholds — `round/page.tsx` is outside the enforced coverage gate, so verification for
+this page used a targeted E2E check instead). Extended `TC-0076` in
+`tests/e2e/round-scoring.spec.ts` to mock a real `scores` GET response and assert the
+new vs-par text renders; full `round-scoring.spec.ts` suite (13/13) passes.
+
+PR: https://github.com/ksyed0/FDgolf_CodeMie/pull/75
+
+---
+
 BUG-0013: Shot edit/re-enter does not persist or recalculate sequence
 Severity: Medium
 Related Story: US-0021 (AC-0070)

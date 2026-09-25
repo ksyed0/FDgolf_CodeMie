@@ -261,10 +261,30 @@ test('TC-0062: paused tournament disables shot capture', async ({ page }) => {
 // ── TC-0076: Sunk outcome shows hole completion UI ────────────────────────────
 
 test('TC-0076: Sunk outcome submits score and shows hole completion UI', async ({ page }) => {
-  // Mock the scores upsert that calculate-best-ball triggers after a sunk shot
+  // Mock the scores upsert that calculate-best-ball triggers after a sunk shot, and the
+  // scores fetch that populates the hole-summary vs-par labels (hole 14, par 4 — Bob's
+  // 3 strokes is a birdie, vsPar = -1).
   await page.route(`${SB_URL}/rest/v1/scores**`, (route) => {
-    if (route.request().method() === 'POST' || route.request().method() === 'PUT') {
+    const method = route.request().method()
+    if (method === 'POST' || method === 'PUT') {
       route.fulfill({ status: 201, contentType: 'application/json', body: JSON.stringify([]) })
+    } else if (method === 'GET') {
+      route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify([
+          {
+            id: 'score-001',
+            player_id: 'player-002',
+            tournament_id: 'tournament-001',
+            hole_number: 14,
+            strokes: 3,
+            is_best_ball: false,
+            override_by: null,
+            override_at: null,
+          },
+        ]),
+      })
     } else {
       route.continue()
     }
@@ -280,6 +300,9 @@ test('TC-0076: Sunk outcome submits score and shows hole completion UI', async (
   // AND the hole completion UI renders: "⛳ Hole N Complete" + "Next Hole →"
   await expect(page.getByText(/hole.*complete/i).first()).toBeVisible({ timeout: 8000 })
   await expect(page.getByRole('button', { name: /next hole/i })).toBeVisible({ timeout: 5000 })
+
+  // BUG-0014: the hole-summary screen shows each player's score relative to par
+  await expect(page.getByText('(-1)')).toBeVisible({ timeout: 5000 })
 })
 
 // ── BUG-0013: Shot edit persists via SyncEngine ───────────────────────────────
