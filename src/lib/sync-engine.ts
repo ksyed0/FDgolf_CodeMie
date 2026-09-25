@@ -8,6 +8,8 @@ interface QueueEntry {
   payload: Record<string, unknown>;
   created_at: number;
   retries: number;
+  op?: 'insert' | 'update';
+  match?: Record<string, unknown>;
 }
 
 export class SyncEngine {
@@ -32,6 +34,28 @@ export class SyncEngine {
       payload,
       created_at: Date.now(),
       retries: 0,
+      op: 'insert',
+    };
+    const queue = this.getQueue();
+    queue.push(entry);
+    this.saveQueue(queue);
+    this.flush();
+    return entry.id;
+  }
+
+  enqueueUpdate(
+    table: string,
+    payload: Record<string, unknown>,
+    match: Record<string, unknown>
+  ): string {
+    const entry: QueueEntry = {
+      id: crypto.randomUUID(),
+      table,
+      payload,
+      created_at: Date.now(),
+      retries: 0,
+      op: 'update',
+      match,
     };
     const queue = this.getQueue();
     queue.push(entry);
@@ -50,7 +74,13 @@ export class SyncEngine {
     const failed: QueueEntry[] = [];
 
     for (const entry of queue) {
-      const { error } = await supabase.from(entry.table).insert(entry.payload);
+      const { error } =
+        entry.op === 'update'
+          ? await supabase
+              .from(entry.table)
+              .update(entry.payload)
+              .match(entry.match ?? {})
+          : await supabase.from(entry.table).insert(entry.payload);
       if (error) {
         entry.retries++;
         if (entry.retries < 5) {
