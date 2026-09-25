@@ -67,14 +67,6 @@ module.exports = [
       eqeqeq: 'error',
       'no-eval': 'error',
       'no-implied-eval': 'error',
-      // Newly-enabled React Compiler rules (eslint-plugin-react-hooks v7,
-      // pulled in by the eslint-config-next 16 upgrade) flag several
-      // pre-existing idioms (mount-time fetch, ref-during-render tracking,
-      // clearing state synchronously before a debounce fires). Real fixes
-      // are behavioral changes, not lint-tooling ones — downgraded to warn
-      // pending BUG-0012 follow-up.
-      'react-hooks/set-state-in-effect': 'warn',
-      'react-hooks/refs': 'warn',
     },
   },
   {

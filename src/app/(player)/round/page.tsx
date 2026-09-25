@@ -5,12 +5,14 @@ import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { createClient } from '@/lib/supabase/client';
 import { syncEngine } from '@/lib/sync-engine';
+import { formatVsPar } from '@/lib/scoring';
 import { useGps } from '@/hooks/use-gps';
 import { PlayerPills } from '@/components/player-pills';
 import { ClubSelector } from '@/components/club-selector';
 import { ShotOutcomeButtons } from '@/components/shot-outcome-buttons';
 import { HoleMap } from '@/components/hole-map';
 import { Button } from '@/components/ui/button';
+import { computeShotEditCascade } from '@/lib/shot-edit';
 import type { Player, Team, Hole, Club, RoundState, Shot, ShotOutcome, Score } from '@/lib/types';
 
 interface ShotMarker {
@@ -111,7 +113,8 @@ export default function RoundPage() {
         .from('tournament_players')
         .select('player_id')
         .eq('team_id', membership.team_id)
-        .eq('tournament_id', tournamentData!.id);
+        .eq('tournament_id', tournamentData!.id)
+        .neq('player_id', playerData.id);
       const teammateIds = (tpData ?? []).map((r: { player_id: string }) => r.player_id);
 
       const [{ data: teamData }, { data: teammateData }, { data: clubData }] = await Promise.all([
@@ -454,7 +457,10 @@ export default function RoundPage() {
             </p>
             <div className="space-y-1.5">
               {dbShots.map((shot) => {
-                const shooter = teammates.find((p) => p.id === shot.player_id);
+                const shooter =
+                  shot.player_id === player?.id
+                    ? player
+                    : teammates.find((p) => p.id === shot.player_id);
                 const isEditing = editingShot === shot.id;
                 return (
                   <div
@@ -511,21 +517,115 @@ export default function RoundPage() {
                             size="sm"
                             className="flex-1 bg-[#1a472a] hover:bg-[#143820]"
                             onClick={async () => {
-                              const { error } = await supabase
-                                .from('shots')
-                                .update({ club_name: editClub, outcome: editOutcome })
-                                .eq('id', shot.id);
-                              if (error) {
-                                toast.error(error.message);
-                                return;
+                              const cascade = computeShotEditCascade(
+                                shot.outcome,
+                                editOutcome,
+                                shot.shot_number
+                              );
+
+                              // Offline-safe: queued and flushed by SyncEngine like recordShot's
+                              // own shots write.
+                              syncEngine.enqueueUpdate(
+                                'shots',
+                                { club_name: editClub, outcome: editOutcome },
+                                { id: shot.id }
+                              );
+
+                              if (
+                                cascade.deleteShotsAfter !== undefined &&
+                                tournament &&
+                                roundState
+                              ) {
+                                await supabase
+                                  .from('shots')
+                                  .delete()
+                                  .eq('tournament_id', tournament.id)
+                                  .eq('hole_number', roundState.current_hole)
+                                  .eq('player_id', shot.player_id)
+                                  .gt('shot_number', cascade.deleteShotsAfter);
                               }
-                              setDbShots((prev) =>
-                                prev.map((s) =>
+
+                              let scoreChanged = false;
+                              if (cascade.scoreAction === 'upsert' && tournament && roundState) {
+                                await supabase.from('scores').upsert(
+                                  {
+                                    player_id: shot.player_id,
+                                    team_id: roundState.team_id,
+                                    tournament_id: tournament.id,
+                                    hole_number: roundState.current_hole,
+                                    strokes: cascade.strokes,
+                                    is_best_ball: false,
+                                    override_by: null,
+                                    override_at: null,
+                                  },
+                                  { onConflict: 'player_id,tournament_id,hole_number' }
+                                );
+                                scoreChanged = true;
+                              } else if (
+                                cascade.scoreAction === 'delete' &&
+                                tournament &&
+                                roundState
+                              ) {
+                                await supabase
+                                  .from('scores')
+                                  .delete()
+                                  .eq('player_id', shot.player_id)
+                                  .eq('tournament_id', tournament.id)
+                                  .eq('hole_number', roundState.current_hole);
+                                scoreChanged = true;
+                              }
+
+                              if (cascade.recalculateBestBall && tournament && roundState) {
+                                supabase.functions
+                                  .invoke('calculate-best-ball', {
+                                    body: {
+                                      tournament_id: tournament.id,
+                                      team_id: roundState.team_id,
+                                      hole_number: roundState.current_hole,
+                                    },
+                                  })
+                                  .catch(console.error);
+                              }
+
+                              if (
+                                cascade.holeSunk !== undefined &&
+                                shot.player_id === activePlayerId
+                              ) {
+                                setHoleSunk(cascade.holeSunk);
+                              }
+
+                              setDbShots((prev) => {
+                                const updated = prev.map((s) =>
                                   s.id === shot.id
                                     ? { ...s, club_name: editClub, outcome: editOutcome }
                                     : s
-                                )
-                              );
+                                );
+                                return cascade.deleteShotsAfter !== undefined
+                                  ? updated.filter(
+                                      (s) =>
+                                        !(
+                                          s.player_id === shot.player_id &&
+                                          s.shot_number > cascade.deleteShotsAfter!
+                                        )
+                                    )
+                                  : updated;
+                              });
+
+                              if (scoreChanged && tournament && roundState) {
+                                setSummaryLoading(true);
+                                const { data: summaryData } = await supabase
+                                  .from('scores')
+                                  .select('*')
+                                  .eq('tournament_id', tournament.id)
+                                  .eq('hole_number', roundState.current_hole)
+                                  .in(
+                                    'player_id',
+                                    teammates.map((p) => p.id)
+                                  );
+                                setHoleSummaryScores((summaryData as Score[]) ?? []);
+                                setSummaryLoading(false);
+                              }
+
                               setEditingShot(null);
                               toast.success('Shot updated');
                             }}
@@ -578,14 +678,14 @@ export default function RoundPage() {
                     <>
                       {bestBallPar !== null && (
                         <p className="text-center text-sm text-gray-600">
-                          Best Ball: {bestStrokes} strokes ({bestBallPar >= 0 ? '+' : ''}
-                          {bestBallPar} vs par)
+                          Best Ball: {bestStrokes} strokes ({formatVsPar(bestBallPar)} vs par)
                         </p>
                       )}
                       <div className="space-y-1.5">
                         {teammates.map((p) => {
                           const score = holeSummaryScores.find((s) => s.player_id === p.id);
                           const isBest = score !== undefined && score.strokes === bestStrokes;
+                          const vsPar = score ? score.strokes - currentHole.par : null;
                           return (
                             <div
                               key={p.id}
@@ -596,8 +696,21 @@ export default function RoundPage() {
                               }`}
                             >
                               <span>{p.name}</span>
-                              <span>
+                              <span className="flex items-center gap-1.5">
                                 {score ? `${score.strokes} strokes${isBest ? ' ★' : ''}` : '—'}
+                                {vsPar !== null && (
+                                  <span
+                                    className={
+                                      vsPar < 0
+                                        ? 'font-semibold text-green-600'
+                                        : vsPar > 0
+                                          ? 'font-semibold text-red-600'
+                                          : 'text-gray-500'
+                                    }
+                                  >
+                                    ({formatVsPar(vsPar)})
+                                  </span>
+                                )}
                               </span>
                             </div>
                           );

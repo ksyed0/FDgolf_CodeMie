@@ -261,10 +261,30 @@ test('TC-0062: paused tournament disables shot capture', async ({ page }) => {
 // ── TC-0076: Sunk outcome shows hole completion UI ────────────────────────────
 
 test('TC-0076: Sunk outcome submits score and shows hole completion UI', async ({ page }) => {
-  // Mock the scores upsert that calculate-best-ball triggers after a sunk shot
+  // Mock the scores upsert that calculate-best-ball triggers after a sunk shot, and the
+  // scores fetch that populates the hole-summary vs-par labels (hole 14, par 4 — Bob's
+  // 3 strokes is a birdie, vsPar = -1).
   await page.route(`${SB_URL}/rest/v1/scores**`, (route) => {
-    if (route.request().method() === 'POST' || route.request().method() === 'PUT') {
+    const method = route.request().method()
+    if (method === 'POST' || method === 'PUT') {
       route.fulfill({ status: 201, contentType: 'application/json', body: JSON.stringify([]) })
+    } else if (method === 'GET') {
+      route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify([
+          {
+            id: 'score-001',
+            player_id: 'player-002',
+            tournament_id: 'tournament-001',
+            hole_number: 14,
+            strokes: 3,
+            is_best_ball: false,
+            override_by: null,
+            override_at: null,
+          },
+        ]),
+      })
     } else {
       route.continue()
     }
@@ -280,6 +300,72 @@ test('TC-0076: Sunk outcome submits score and shows hole completion UI', async (
   // AND the hole completion UI renders: "⛳ Hole N Complete" + "Next Hole →"
   await expect(page.getByText(/hole.*complete/i).first()).toBeVisible({ timeout: 8000 })
   await expect(page.getByRole('button', { name: /next hole/i })).toBeVisible({ timeout: 5000 })
+
+  // BUG-0014: the hole-summary screen shows each player's score relative to par
+  await expect(page.getByText('(-1)')).toBeVisible({ timeout: 5000 })
+})
+
+// ── BUG-0013: Shot edit persists via SyncEngine ───────────────────────────────
+
+test('BUG-0013: editing a shot outcome sends a PATCH and updates the shot list', async ({
+  page,
+}) => {
+  // Intercept GET (to populate the shot history list after recordShot's refresh
+  // fetch) and PATCH (the edit save) before mockShotsApi's own route for the same
+  // table, so POST (the initial shot insert) still falls through to it.
+  const shotsPatchPromise = page.waitForRequest(
+    (req) => req.url().includes('/rest/v1/shots') && req.method() === 'PATCH',
+    { timeout: 5000 }
+  )
+  await page.route(`${SB_URL}/rest/v1/shots**`, (route) => {
+    const method = route.request().method()
+    if (method === 'GET') {
+      route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify([
+          {
+            id: 'shot-001',
+            player_id: 'player-001',
+            tournament_id: 'tournament-001',
+            hole_number: 14,
+            shot_number: 1,
+            club_name: 'Driver',
+            start_lat: 0,
+            start_lng: 0,
+            outcome: 'in_play',
+          },
+        ]),
+      })
+    } else if (method === 'PATCH') {
+      route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify([]) })
+    } else {
+      route.continue()
+    }
+  })
+
+  await page.goto('/round', { waitUntil: 'domcontentloaded' })
+  await expect(page.getByRole('combobox')).toBeVisible({ timeout: 8000 })
+
+  // Record an in-play shot so it appears in the "This hole" shot history list.
+  await selectClub(page)
+  await page.getByRole('button', { name: /^in play$/i }).click()
+
+  const shotRow = page.getByText(/Shot 1 ·/i).first()
+  await expect(shotRow).toBeVisible({ timeout: 8000 })
+
+  // Enter edit mode and switch the outcome to Mulligan. The edit panel's outcome
+  // buttons share labels with the main ShotOutcomeButtons row, so scope to the
+  // edit panel's own small (text-xs) buttons.
+  await shotRow.click()
+  await page.locator('button.text-xs', { hasText: 'Mulligan' }).click()
+  await page.getByRole('button', { name: /^save$/i }).click()
+
+  const req = await shotsPatchPromise
+  const body = req.postDataJSON() as { outcome?: string; club_name?: string }
+  expect(body.outcome).toBe('mulligan')
+
+  await expect(page.getByText(/Shot 1 ·.*Mulligan/i).first()).toBeVisible({ timeout: 5000 })
 })
 
 // ── TC-0077: Round page shows GPS status indicator ────────────────────────────

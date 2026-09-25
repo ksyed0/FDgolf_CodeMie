@@ -1,5 +1,73 @@
 # Lessons Learned
 
+## L-0021 — `react-hooks/set-state-in-effect` flags indirect synchronous setState too
+
+@session: 41 — 2026-09-18
+
+**Symptom**: BUG-0012 — `use-gps.ts`'s mount effect called `refresh()` (an
+async function) directly: `useEffect(() => { refresh(); }, [])`. No `setState`
+call appears in the effect body itself, yet `react-hooks/set-state-in-effect`
+(from `eslint-plugin-react-hooks@7`'s "React Compiler" rules) still fired.
+
+**Root cause**: The rule doesn't just scan the effect body for literal
+`setState(...)` calls — it flags any setState that runs **synchronously on the
+effect's call stack**, including one buried in the first statement of a
+function invoked directly from the effect. `refresh()`'s first line was
+`setLoading(true)`, executed before any `await`, so it ran synchronously
+within the effect's call stack even though it was one function call removed
+from the effect body.
+
+**Fix pattern**: Defer the call off the effect's synchronous call stack
+entirely — a microtask (`void Promise.resolve().then(refresh)`) or a
+`setTimeout` both work; a bare direct invocation does not. The same applies to
+any early-return setState inside a debounce effect — fold it into the same
+`setTimeout` (even with a `0`ms delay) rather than calling the setter
+synchronously in the effect body.
+
+**Applies to**: Any `useEffect` that invokes an async function whose first
+executed line, before its first `await`, is a state setter.
+
+---
+
+## L-0020 — An offline write-queue that only supports `insert` is an architectural gap, not a missing feature
+
+@session: 41 — 2026-09-18
+
+**Symptom**: BUG-0013 — editing a recorded shot's outcome (e.g. correcting it to
+`sunk`, or un-sinking a mis-tap) called `supabase.from('shots').update(...)` directly
+in `round/page.tsx`, bypassing `SyncEngine` entirely. Offline, the edit silently
+vanished on refresh; online, it worked, masking the gap in normal testing.
+
+**Root cause**: `SyncEngine` (`src/lib/sync-engine.ts`) was built for `recordShot`'s
+one call shape — insert a new shot row — and `QueueEntry`/`flush()` had no concept of
+an update. When shot-editing was added later, the natural-looking shortcut was a
+direct Supabase call "since it's just editing an existing row," which quietly
+reintroduced the exact offline-durability gap `SyncEngine` exists to close for every
+other write in the round-scoring flow.
+
+**Rules**:
+
+- Before adding a new Supabase write inside `(player)/round/page.tsx` (or any other
+  offline-relied-upon flow), route it through `SyncEngine`, not a direct
+  `supabase.from(...)` call — check whether the queue already supports the needed
+  operation (`insert` vs `update`/`delete`) before assuming a "just this once" direct
+  call is safe.
+- When extending a queue/dispatch abstraction to a new operation type, keep the new
+  field optional and interpret its absence as the original behavior (`op` missing ⇒
+  `'insert'`) so already-queued/localStorage-persisted entries from before the change
+  keep working without a migration.
+- Keep business-logic decisions (e.g. "does this edit change the score/best-ball
+  state") in a pure, unit-testable helper (`src/lib/shot-edit.ts`'s
+  `computeShotEditCascade()`) rather than inline in the component — `round/page.tsx`
+  is outside the Jest coverage gate (`collectCoverageFrom` only covers `src/lib/**`
+  and `src/app/api/**`), so logic left inline is only ever exercised by heavier E2E
+  tests.
+
+**Applies to**: any future `SyncEngine` consumer, and any other offline-write-queue
+abstraction added to the codebase.
+
+---
+
 ## L-0019 — Stat-rotator-style components need test waits or panel-targeting, not `.first()` on shared text
 
 @session: 40 — 2026-06-30

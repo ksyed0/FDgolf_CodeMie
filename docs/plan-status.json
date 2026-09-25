@@ -783,7 +783,7 @@
         {
           "id": "AC-0070",
           "text": "Modified shot updates in database and recalculates sequence",
-          "done": false
+          "done": true
         }
       ],
       "dependencies": [
@@ -841,7 +841,7 @@
         {
           "id": "AC-0076",
           "text": "Score relative to par shown (birdie, bogey, etc.)",
-          "done": false
+          "done": true
         }
       ],
       "dependencies": [
@@ -1927,8 +1927,8 @@
       "title": "Implement shot edit/re-enter functionality",
       "type": "Dev",
       "assignee": "Agent",
-      "status": "To Do",
-      "branch": "feature/US-0021-edit-shot",
+      "status": "Done",
+      "branch": "bugfix/BUG-0013-shot-edit-persistence",
       "notes": "Shot history list, tap to edit, update via sync engine"
     },
     {
@@ -3751,8 +3751,8 @@
       "severity": "Medium",
       "relatedStory": "US-0023 (AC-0076)",
       "relatedTask": "",
-      "status": "Open",
-      "fixBranch": "TBD",
+      "status": "Fixed",
+      "fixBranch": "bugfix/BUG-0014-vs-par-hole-summary",
       "lessonEncoded": "No",
       "estimatedCostUsd": 0,
       "ghIssueNumber": null
@@ -3763,8 +3763,8 @@
       "severity": "Medium",
       "relatedStory": "US-0021 (AC-0070)",
       "relatedTask": "",
-      "status": "Open",
-      "fixBranch": "TBD",
+      "status": "Fixed",
+      "fixBranch": "bugfix/BUG-0013-shot-edit-persistence",
       "lessonEncoded": "No",
       "estimatedCostUsd": 0,
       "ghIssueNumber": null
@@ -3775,9 +3775,9 @@
       "severity": "Low",
       "relatedStory": "N/A (lint tooling)",
       "relatedTask": "",
-      "status": "Open",
-      "fixBranch": "TBD",
-      "lessonEncoded": "No",
+      "status": "Fixed",
+      "fixBranch": "bugfix/BUG-0012-react-hooks-lint-fixes",
+      "lessonEncoded": "Yes (see docs/LESSONS.md)",
       "estimatedCostUsd": 0,
       "ghIssueNumber": null
     },
@@ -3787,8 +3787,8 @@
       "severity": "Medium (cascades to steps 10, 11, 12)",
       "relatedStory": "N/A (E2E test infra)",
       "relatedTask": "",
-      "status": "Open",
-      "fixBranch": "TBD",
+      "status": "Fixed",
+      "fixBranch": "bugfix/BUG-0011-e2e-tournament-players-wait",
       "lessonEncoded": "No",
       "estimatedCostUsd": 0,
       "ghIssueNumber": null
@@ -3917,290 +3917,290 @@
   "costs": {
     "US-0001": {
       "projectedUsd": 400,
-      "costUsd": 10.649974,
+      "costUsd": 11.752279,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0002": {
       "projectedUsd": 400,
-      "costUsd": 10.649974,
+      "costUsd": 11.752279,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0003": {
       "projectedUsd": 800,
-      "costUsd": 10.649974,
+      "costUsd": 11.752279,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0004": {
       "projectedUsd": 400,
-      "costUsd": 10.649974,
+      "costUsd": 11.752279,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0005": {
       "projectedUsd": 400,
-      "costUsd": 10.649974,
+      "costUsd": 11.752279,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0006": {
       "projectedUsd": 400,
-      "costUsd": 10.649974,
+      "costUsd": 11.752279,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0007": {
       "projectedUsd": 400,
-      "costUsd": 10.649974,
+      "costUsd": 11.752279,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0008": {
       "projectedUsd": 800,
-      "costUsd": 10.649974,
+      "costUsd": 11.752279,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0009": {
       "projectedUsd": 400,
-      "costUsd": 10.649974,
+      "costUsd": 11.752279,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0010": {
       "projectedUsd": 400,
-      "costUsd": 10.649974,
+      "costUsd": 11.752279,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0011": {
       "projectedUsd": 800,
-      "costUsd": 10.649974,
+      "costUsd": 11.752279,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0012": {
       "projectedUsd": 400,
-      "costUsd": 10.649974,
+      "costUsd": 11.752279,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0013": {
       "projectedUsd": 400,
-      "costUsd": 10.649974,
+      "costUsd": 11.752279,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0014": {
       "projectedUsd": 400,
-      "costUsd": 10.649974,
+      "costUsd": 11.752279,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0015": {
       "projectedUsd": 400,
-      "costUsd": 10.649974,
+      "costUsd": 11.752279,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0016": {
       "projectedUsd": 800,
-      "costUsd": 10.649974,
+      "costUsd": 11.752279,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0017": {
       "projectedUsd": 400,
-      "costUsd": 10.649974,
+      "costUsd": 11.752279,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0018": {
       "projectedUsd": 400,
-      "costUsd": 10.649974,
+      "costUsd": 11.752279,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0019": {
       "projectedUsd": 800,
-      "costUsd": 10.649974,
+      "costUsd": 11.752279,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0020": {
       "projectedUsd": 800,
-      "costUsd": 10.649974,
+      "costUsd": 11.752279,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0021": {
       "projectedUsd": 800,
-      "costUsd": 10.649974,
+      "costUsd": 11.752279,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0022": {
       "projectedUsd": 400,
-      "costUsd": 10.649974,
+      "costUsd": 11.752279,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0023": {
       "projectedUsd": 400,
-      "costUsd": 10.649974,
+      "costUsd": 11.752279,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0024": {
       "projectedUsd": 400,
-      "costUsd": 10.649974,
+      "costUsd": 11.752279,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0025": {
       "projectedUsd": 800,
-      "costUsd": 10.649974,
+      "costUsd": 11.752279,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0026": {
       "projectedUsd": 400,
-      "costUsd": 10.649974,
+      "costUsd": 11.752279,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0027": {
       "projectedUsd": 400,
-      "costUsd": 10.649974,
+      "costUsd": 11.752279,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0028": {
       "projectedUsd": 400,
-      "costUsd": 10.649974,
+      "costUsd": 11.752279,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0029": {
       "projectedUsd": 400,
-      "costUsd": 10.649974,
+      "costUsd": 11.752279,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0030": {
       "projectedUsd": 800,
-      "costUsd": 10.649974,
+      "costUsd": 11.752279,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0031": {
       "projectedUsd": 400,
-      "costUsd": 10.649974,
+      "costUsd": 11.752279,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0032": {
       "projectedUsd": 800,
-      "costUsd": 10.649974,
+      "costUsd": 11.752279,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0033": {
       "projectedUsd": 800,
-      "costUsd": 10.649974,
+      "costUsd": 11.752279,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0034": {
       "projectedUsd": 800,
-      "costUsd": 10.649974,
+      "costUsd": 11.752279,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0035": {
       "projectedUsd": 800,
-      "costUsd": 10.649974,
+      "costUsd": 11.752279,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0036": {
       "projectedUsd": 800,
-      "costUsd": 10.649974,
+      "costUsd": 11.752279,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0037": {
       "projectedUsd": 400,
-      "costUsd": 10.649974,
+      "costUsd": 11.752279,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0038": {
       "projectedUsd": 1600,
-      "costUsd": 10.649974,
+      "costUsd": 11.752279,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0039": {
       "projectedUsd": 1600,
-      "costUsd": 10.649974,
+      "costUsd": 11.752279,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0040": {
       "projectedUsd": 800,
-      "costUsd": 10.649974,
+      "costUsd": 11.752279,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0041": {
       "projectedUsd": 400,
-      "costUsd": 10.649974,
+      "costUsd": 11.752279,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0042": {
       "projectedUsd": 800,
-      "costUsd": 10.649974,
+      "costUsd": 11.752279,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0043": {
       "projectedUsd": 1600,
-      "costUsd": 10.649974,
+      "costUsd": 11.752279,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0044": {
       "projectedUsd": 800,
-      "costUsd": 10.649974,
+      "costUsd": 11.752279,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0045": {
       "projectedUsd": 400,
-      "costUsd": 10.649974,
+      "costUsd": 11.752279,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0046": {
       "projectedUsd": 400,
-      "costUsd": 10.649974,
+      "costUsd": 11.752279,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0047": {
       "projectedUsd": 400,
-      "costUsd": 93.937274,
+      "costUsd": 95.039579,
       "inputTokens": 6615905,
       "outputTokens": 608978
     },
     "_totals": {
-      "costUsd": 583.8361000000001,
-      "inputTokens": 40749929,
-      "outputTokens": 6536998
+      "costUsd": 635.6444,
+      "inputTokens": 44484431,
+      "outputTokens": 6921965
     },
     "_bugs": {
       "BUG-0014": {
@@ -4212,10 +4212,10 @@
         "projectedUsd": 400
       },
       "BUG-0013": {
-        "costUsd": 0,
-        "inputTokens": 0,
-        "outputTokens": 0,
-        "sessions": 0,
+        "costUsd": 81.7891,
+        "inputTokens": 5314120,
+        "outputTokens": 730493,
+        "sessions": 1,
         "isEstimated": false,
         "projectedUsd": 400
       },
@@ -4316,9 +4316,9 @@
         "projectedUsd": 400
       },
       "_totals": {
-        "costUsd": 0,
-        "inputTokens": 0,
-        "outputTokens": 0
+        "costUsd": 81.7891,
+        "inputTokens": 5314120,
+        "outputTokens": 730493
       }
     }
   },
@@ -4658,11 +4658,11 @@
     "byEpic": {}
   },
   "coverage": {
-    "lines": 96.25,
-    "statements": 90.63,
-    "functions": 85.29,
-    "branches": 82.59,
-    "overall": 96.25,
+    "lines": 96.34,
+    "statements": 90.81,
+    "functions": 85.71,
+    "branches": 82.83,
+    "overall": 96.34,
     "meetsTarget": true,
     "available": true
   },
@@ -4694,6 +4694,22 @@
     }
   ],
   "lessons": [
+    {
+      "id": "L-0021",
+      "title": "`react-hooks/set-state-in-effect` flags indirect synchronous setState too",
+      "rule": "",
+      "context": "",
+      "date": "",
+      "bugIds": []
+    },
+    {
+      "id": "L-0020",
+      "title": "An offline write-queue that only supports `insert` is an architectural gap, not a missing feature",
+      "rule": "",
+      "context": "",
+      "date": "",
+      "bugIds": []
+    },
     {
       "id": "L-0019",
       "title": "Stat-rotator-style components need test waits or panel-targeting, not `.first()` on shared text",
@@ -4847,9 +4863,9 @@
       "bugIds": []
     }
   ],
-  "generatedAt": "2026-09-18T20:06:08.833Z",
-  "commitSha": "c95abf5",
-  "buildNumber": "126",
+  "generatedAt": "2026-09-25T22:01:24.594Z",
+  "commitSha": "a5c0e69",
+  "buildNumber": "128",
   "branch": "docs/bug-0013-0014-shot-edit-and-vs-par",
   "sessionTimeline": [
     {
@@ -4942,7 +4958,11 @@
     },
     {
       "date": "2026-09-18",
-      "cumCost": 583.8361
+      "cumCost": 626.4953
+    },
+    {
+      "date": "2026-09-25",
+      "cumCost": 635.6444
     }
   ],
   "costHistory": {
@@ -5048,14 +5068,20 @@
         "costUsd": 19.7937
       }
     ],
-    "docs/test-case-coverage-gap-fill": [
+    "bugfix/BUG-0013-shot-edit-persistence": [
       {
         "date": "2026-09-18",
-        "costUsd": 39.1299
+        "costUsd": 81.7891
+      }
+    ],
+    "docs/BUG-0013-ai-cost-log-followup": [
+      {
+        "date": "2026-09-25",
+        "costUsd": 9.1491
       }
     ]
   },
-  "deltaSpend": 39.13,
+  "deltaSpend": 9.15,
   "projectName": "CodeMie",
   "tagline": "FDgolf CodeMie project.",
   "version": "0.1.0",
@@ -5129,10 +5155,10 @@
   },
   "budget": {
     "totalBudget": null,
-    "totalSpent": 583.8361000000001,
+    "totalSpent": 635.6444,
     "totalProjected": 29200,
     "percentUsed": null,
-    "burnRate": 30.909999999999968,
+    "burnRate": 10.339787499999986,
     "daysRemaining": null,
     "projectedExhaustion": null,
     "thresholds": [
@@ -5146,96 +5172,96 @@
       {
         "id": "EPIC-0001",
         "title": "Project Setup & Infrastructure",
-        "budget": 189.78704,
-        "spent": 189.78704,
+        "budget": 200.81009,
+        "spent": 200.81009,
         "remaining": 0,
         "percentUsed": 100
       },
       {
         "id": "EPIC-0002",
         "title": "Registration & Authentication",
-        "budget": 63.899844,
-        "spent": 63.899844,
+        "budget": 70.513674,
+        "spent": 70.513674,
         "remaining": 0,
         "percentUsed": 100
       },
       {
         "id": "EPIC-0003",
         "title": "Player Dashboard",
-        "budget": 21.299948,
-        "spent": 21.299948,
+        "budget": 23.504558,
+        "spent": 23.504558,
         "remaining": 0,
         "percentUsed": 100
       },
       {
         "id": "EPIC-0004",
         "title": "Active Round — Shot Tracking",
-        "budget": 74.549818,
-        "spent": 74.549818,
+        "budget": 82.265953,
+        "spent": 82.265953,
         "remaining": 0,
         "percentUsed": 100
       },
       {
         "id": "EPIC-0005",
         "title": "Hole & Round Completion",
-        "budget": 31.949922,
-        "spent": 31.949922,
+        "budget": 35.256837,
+        "spent": 35.256837,
         "remaining": 0,
         "percentUsed": 100
       },
       {
         "id": "EPIC-0006",
         "title": "Leaderboard",
-        "budget": 42.599896,
-        "spent": 42.599896,
+        "budget": 47.009116,
+        "spent": 47.009116,
         "remaining": 0,
         "percentUsed": 100
       },
       {
         "id": "EPIC-0007",
         "title": "Admin — Tournament & Course Setup",
-        "budget": 42.599896,
-        "spent": 42.599896,
+        "budget": 47.009116,
+        "spent": 47.009116,
         "remaining": 0,
         "percentUsed": 100
       },
       {
         "id": "EPIC-0008",
         "title": "Admin — Player & Team Management",
-        "budget": 21.299948,
-        "spent": 21.299948,
+        "budget": 23.504558,
+        "spent": 23.504558,
         "remaining": 0,
         "percentUsed": 100
       },
       {
         "id": "EPIC-0009",
         "title": "Admin — Scores & Sponsors",
-        "budget": 21.299948,
-        "spent": 21.299948,
+        "budget": 23.504558,
+        "spent": 23.504558,
         "remaining": 0,
         "percentUsed": 100
       },
       {
         "id": "EPIC-0010",
         "title": "Security & 2FA",
-        "budget": 10.649974,
-        "spent": 10.649974,
+        "budget": 11.752279,
+        "spent": 11.752279,
         "remaining": 0,
         "percentUsed": 100
       },
       {
         "id": "EPIC-0011",
         "title": "Multi-Tournament Administration, Venues & Courses",
-        "budget": 53.24987,
-        "spent": 53.24987,
+        "budget": 58.761395,
+        "spent": 58.761395,
         "remaining": 0,
         "percentUsed": 100
       },
       {
         "id": "EPIC-0012",
         "title": "Admin UI Redesign",
-        "budget": 10.649974,
-        "spent": 10.649974,
+        "budget": 11.752279,
+        "spent": 11.752279,
         "remaining": 0,
         "percentUsed": 100
       }
@@ -5252,13 +5278,17 @@
       "2026-09-18T14:15:57.443Z",
       "2026-09-18T17:46:53.457Z",
       "2026-09-18T18:44:15.391Z",
-      "2026-09-18T20:06:08.886Z"
+      "2026-09-18T20:06:08.886Z",
+      "2026-09-18T21:07:39.609Z",
+      "2026-09-25T22:01:24.647Z"
     ],
     "doneCounts": [
       0,
       32,
       32,
       35,
+      47,
+      47,
       47,
       47,
       47,
@@ -5272,6 +5302,8 @@
       47,
       47,
       47,
+      47,
+      47,
       47
     ],
     "aiCosts": [
@@ -5282,7 +5314,9 @@
       552.9261000000001,
       578.9404,
       586.7630000000001,
-      586.7630000000001
+      586.7630000000001,
+      586.7630000000001,
+      635.6444
     ],
     "coverage": [
       null,
@@ -5292,13 +5326,17 @@
       96.09,
       96.25,
       96.25,
-      96.25
+      96.25,
+      96.25,
+      96.34
     ],
     "velocity": [
       0,
       56,
       56,
       61,
+      93,
+      93,
       93,
       93,
       93,
@@ -5312,9 +5350,13 @@
       3,
       2,
       2,
-      4
+      4,
+      1,
+      0
     ],
     "atRisk": [
+      0,
+      0,
       0,
       0,
       0,
@@ -5332,7 +5374,9 @@
       39222352,
       40376758,
       40794713,
-      40749929
+      40749929,
+      40749929,
+      44484431
     ],
     "outputTokens": [
       157392,
@@ -5342,7 +5386,9 @@
       6249593,
       6474256,
       6559086,
-      6536998
+      6536998,
+      6536998,
+      6921965
     ],
     "avgRisk": [
       1.1000000000000008,
@@ -5352,20 +5398,25 @@
       0,
       0,
       0,
+      0,
+      0,
       0
     ],
     "velocityByWeek": {
       "labels": [
         "2026-W24",
-        "2026-W38"
+        "2026-W38",
+        "2026-W39"
       ],
       "points": [
         61,
-        32
+        32,
+        0
       ],
       "rollingAvg": [
         61,
-        46.5
+        46.5,
+        31
       ]
     }
   }
