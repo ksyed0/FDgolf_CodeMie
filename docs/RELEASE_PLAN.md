@@ -384,7 +384,7 @@ Dependencies: US-0019
 Acceptance Criteria:
   - [x] AC-0068: Shot history visible for current hole
   - [x] AC-0069: Tapping a previous shot opens edit mode
-  - [ ] AC-0070: Modified shot updates in database and recalculates sequence
+  - [x] AC-0070: Modified shot updates in database and recalculates sequence
 ```
 
 ```
@@ -1046,8 +1046,8 @@ Notes: Aggregates best-ball scores per team, ranks by score vs par
 TASK-0035 (US-0021): Implement shot edit/re-enter functionality
 Type: Dev
 Assignee: Agent
-Status: To Do
-Branch: feature/US-0021-edit-shot
+Status: Done
+Branch: bugfix/BUG-0013-shot-edit-persistence
 Notes: Shot history list, tap to edit, update via sync engine
 ```
 
