@@ -540,3 +540,5 @@ Pricing basis: Claude Sonnet 4.6 — Input $3/MTok · Output $15/MTok · Cache R
 | 2026-09-18 | b55c8aaf-a2ca-49ba-97ee-99871292acec | docs/test-case-coverage-gap-fill           | 2410642      | 392958        | 81356157          | 38.9520  |
 | 2026-09-18 | b55c8aaf-a2ca-49ba-97ee-99871292acec | docs/test-case-coverage-gap-fill           | 2411240      | 392997        | 81456866          | 38.9850  |
 | 2026-09-18 | b55c8aaf-a2ca-49ba-97ee-99871292acec | docs/test-case-coverage-gap-fill           | 2414505      | 393683        | 81864952          | 39.1299  |
+| 2026-09-18 | b55c8aaf-a2ca-49ba-97ee-99871292acec | bugfix/BUG-0013-shot-edit-persistence      | 5314120      | 730493        | 172681553         | 81.7891  |
+| 2026-09-25 | b3ecacff-1675-4b89-8828-60baa2fad6fe | bugfix/BUG-0013-shot-edit-persistence      | 664994       | 4286          | 650469            | 2.6951   |
