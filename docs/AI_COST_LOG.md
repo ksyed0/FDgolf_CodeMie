@@ -560,3 +560,4 @@ Pricing basis: Claude Sonnet 4.6 — Input $3/MTok · Output $15/MTok · Cache R
 | 2026-09-25 | b3ecacff-1675-4b89-8828-60baa2fad6fe | bugfix/BUG-0013-shot-edit-persistence      | 810390       | 36538         | 12902254          | 7.3779   |
 | 2026-09-25 | b3ecacff-1675-4b89-8828-60baa2fad6fe | bugfix/BUG-0013-shot-edit-persistence      | 814911       | 38893         | 13921246          | 7.7354   |
 | 2026-09-25 | b3ecacff-1675-4b89-8828-60baa2fad6fe | docs/BUG-0013-ai-cost-log-followup         | 834887       | 48157         | 17923499          | 9.1491   |
+| 2026-09-25 | b3ecacff-1675-4b89-8828-60baa2fad6fe | develop                                    | 1192575      | 114191        | 44596567          | 19.4141  |
