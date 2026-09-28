@@ -639,3 +639,9 @@ Pricing basis: Claude Sonnet 4.6 — Input $3/MTok · Output $15/MTok · Cache R
 | 2026-09-28 | f474b44d-d44d-453b-a38c-47245730735b | bugfix/BUG-0015-scope-tournament-lookup-to-membership | 3098334      | 330152        | 80806250          | 40.3298  |
 | 2026-09-28 | f474b44d-d44d-453b-a38c-47245730735b | bugfix/BUG-0015-scope-tournament-lookup-to-membership | 3099867      | 330216        | 81092912          | 40.4225  |
 | 2026-09-28 | f474b44d-d44d-453b-a38c-47245730735b | bugfix/BUG-0015-scope-tournament-lookup-to-membership | 3107937      | 333120        | 82995286          | 41.0670  |
+| 2026-09-28 | f474b44d-d44d-453b-a38c-47245730735b | docs/BUG-0015-sync-cost-log                           | 3292839      | 349867        | 87914973          | 43.4413  |
+| 2026-09-28 | f474b44d-d44d-453b-a38c-47245730735b | docs/BUG-0015-sync-cost-log                           | 3293325      | 349898        | 88038190          | 43.4806  |
+| 2026-09-28 | f474b44d-d44d-453b-a38c-47245730735b | docs/BUG-0015-sync-cost-log                           | 3294743      | 349968        | 88286299          | 43.5614  |
+| 2026-09-28 | f474b44d-d44d-453b-a38c-47245730735b | docs/BUG-0015-sync-cost-log                           | 3294743      | 349968        | 88286299          | 43.5614  |
+| 2026-09-28 | f474b44d-d44d-453b-a38c-47245730735b | docs/BUG-0015-sync-cost-log                           | 3295466      | 349999        | 88411414          | 43.6021  |
+| 2026-09-28 | f474b44d-d44d-453b-a38c-47245730735b | docs/BUG-0015-sync-cost-log                           | 3296176      | 350026        | 88537250          | 43.6429  |
