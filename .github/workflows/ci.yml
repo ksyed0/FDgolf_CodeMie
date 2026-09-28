@@ -71,14 +71,15 @@ jobs:
           version: 2.109.0
       - run: supabase start
 
-      - name: Write .env.local for local Supabase
+      - name: Write .env.local from live local Supabase instance
         run: |
-          cat <<'EOF' > .env.local
-          NEXT_PUBLIC_SUPABASE_URL=http://127.0.0.1:54341
-          NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlzcyI6InN1cGFiYXNlLWRlbW8iLCJpYXQiOjE2NDE3NjkyMDAsImV4cCI6MTc5OTUzNTYwMH0.dc_X5iR_VP_qT0zsiyj_I_OZ2T9FtRU2BBNWN8Bu4GE
-          SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoic2VydmljZV9yb2xlIiwiaXNzIjoic3VwYWJhc2UtZGVtbyIsImlhdCI6MTY0MTc2OTIwMCwiZXhwIjoxNzk5NTM1NjAwfQ.DaYlNEoUrrEn2Ig7tqibS-PHK5vgusbcbo7X36XVt4Q
-          NEXT_PUBLIC_MAPBOX_TOKEN=pk.dummy-token-for-e2e
-          EOF
+          supabase status -o env \
+            --override-name api.url=NEXT_PUBLIC_SUPABASE_URL \
+            --override-name auth.anon_key=NEXT_PUBLIC_SUPABASE_ANON_KEY \
+            --override-name auth.service_role_key=SUPABASE_SERVICE_ROLE_KEY \
+            | grep -E '^(NEXT_PUBLIC_SUPABASE_URL|NEXT_PUBLIC_SUPABASE_ANON_KEY|SUPABASE_SERVICE_ROLE_KEY)=' \
+            > .env.local
+          echo 'NEXT_PUBLIC_MAPBOX_TOKEN=pk.dummy-token-for-e2e' >> .env.local
 
       - run: ./scripts/reset-and-seed.sh
       - run: npx tsx scripts/reset-lionhead.ts
