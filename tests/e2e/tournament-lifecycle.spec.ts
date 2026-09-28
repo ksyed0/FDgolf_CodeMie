@@ -319,6 +319,21 @@ test.describe.serial('Tournament Lifecycle — Lionhead Spring Classic 2026', ()
 
   // ── Step 6: Activate tournament ───────────────────────────────────────────
   test('step-06: admin activates the Lionhead tournament', async () => {
+    // Idempotent: on a Playwright retry, this step may have already succeeded
+    // (the failure that triggered the retry happened later in the file) — the
+    // tournament is then already 'active', the Status combobox already shows
+    // "Active" with nothing to change, "Save Changes" makes no update, and the
+    // "tournament updated" toast never fires, timing out the assertion below.
+    const { data: existingTournament } = await svc()
+      .from('tournaments')
+      .select('status')
+      .eq('slug', 'lionhead-spring-classic-2026')
+      .maybeSingle();
+    if (existingTournament?.status === 'active') {
+      console.log('[step-06] tournament already active, skipping activation');
+      return;
+    }
+
     // "Manage" on the Lionhead card sets it as the active-tournament cookie and
     // routes to /admin/tournament. Since Lionhead's status is still 'setup' (not
     // active/paused), that route renders TournamentManager's list+edit UI — the
@@ -409,7 +424,10 @@ test.describe.serial('Tournament Lifecycle — Lionhead Spring Classic 2026', ()
         .locator('input[type="number"]')
         .fill('10');
       await adminPage.getByRole('button', { name: /^add team$/i }).click();
-      await expect(adminPage.getByText(/team added/i)).toBeVisible({ timeout: 8000 });
+      // Team Alpha's "Team added" toast may still be visible (toast auto-dismiss
+      // delay), so a bare getByText() here can strict-mode-match both toasts —
+      // .last() targets the one just triggered by this Add Team click.
+      await expect(adminPage.getByText(/team added/i).last()).toBeVisible({ timeout: 8000 });
       await expect(adminPage.getByText('Team Beta', { exact: true })).toBeVisible();
     } else {
       console.log('[step-07] Team Beta already exists, skipping creation');
@@ -435,7 +453,9 @@ test.describe.serial('Tournament Lifecycle — Lionhead Spring Classic 2026', ()
       .eq('tournament_id', tournamentId)
       .in('player_id', [alexId, blakeId]);
     const alexAssignCheck = assignCheck?.find((r: { player_id: string }) => r.player_id === alexId);
-    const blakeAssignCheck = assignCheck?.find((r: { player_id: string }) => r.player_id === blakeId);
+    const blakeAssignCheck = assignCheck?.find(
+      (r: { player_id: string }) => r.player_id === blakeId
+    );
     if (
       alexAssignCheck?.team_id &&
       blakeAssignCheck?.team_id &&
