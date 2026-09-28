@@ -7,7 +7,8 @@ import { generateShots } from './gps-gen';
 
 dotenvConfig({ path: resolve(process.cwd(), '.env.local') });
 
-const HOLE_DELAY_MS = 20_000;
+// Compressed pacing for the talk demo — 4 holes × 12s ≈ 48s per team.
+const HOLE_DELAY_MS = 12_000;
 
 function sleep(ms: number) {
   return new Promise<void>((res) => setTimeout(res, ms));
@@ -17,9 +18,9 @@ async function injectTeamHole(
   supabase: SupabaseClient,
   config: DemoConfig,
   team: DemoTeam,
-  holeIndex: number
+  holeIdx: number
 ) {
-  const hole = config.holes[holeIndex % 18];
+  const hole = config.holes[holeIdx];
   const scores = team.players.map(() => generateScore(hole.par));
 
   const scoreRows = team.players.map((player, idx) => ({
@@ -38,7 +39,7 @@ async function injectTeamHole(
     .upsert(scoreRows, { onConflict: 'player_id,tournament_id,hole_number' });
 
   if (scoreError) {
-    console.error(`[background] Score error team=${team.name} hole=${hole.holeNumber}:`, scoreError.message);
+    console.error(`[background-talk] Score error team=${team.name} hole=${hole.holeNumber}:`, scoreError.message);
   } else {
     // Edge function unavailable locally — compute best ball inline
     const minStrokes = Math.min(...scores);
@@ -56,7 +57,7 @@ async function injectTeamHole(
   if (shots.length > 0) {
     const { error: shotError } = await (supabase as any).from('shots').insert(shots);
     if (shotError) {
-      console.error(`[background] Shot error team=${team.name} hole=${hole.holeNumber}:`, shotError.message);
+      console.error(`[background-talk] Shot error team=${team.name} hole=${hole.holeNumber}:`, shotError.message);
     }
   }
 
@@ -81,42 +82,34 @@ async function runTeam(
   supabase: SupabaseClient,
   config: DemoConfig,
   team: DemoTeam,
-  teamIndex: number, // 1-17
-  signal: AbortSignal
+  fromHoleIdx: number,
+  toHoleIdx: number
 ) {
-  for (let i = 0; i < 18; i++) {
-    if (signal.aborted) {
-      console.log(`[background] Team ${team.name} aborted`);
-      return;
-    }
+  for (let holeIdx = fromHoleIdx; holeIdx <= toHoleIdx; holeIdx++) {
     if (await isStopped(supabase, config.tournamentId)) {
-      console.log(`[background] Team ${team.name} stopped`);
+      console.log(`[background-talk] Team ${team.name} stopped`);
       return;
     }
-    const holeIdx = (team.startingHole - 1 + i) % 18;
     await injectTeamHole(supabase, config, team, holeIdx);
-    if (i < 17) await sleep(HOLE_DELAY_MS);
+    if (holeIdx < toHoleIdx) await sleep(HOLE_DELAY_MS);
   }
-  console.log(`[background] Team ${team.name} complete`);
+  console.log(`[background-talk] Team ${team.name} complete`);
 }
 
-// The caller (run.ts) must abort the signal and await the returned promise
-// before starting another generation — e.g. before a retry's resetTournament()
-// wipes the tables out from under a still-running previous generation, which
-// leaves each team's already-passed holes permanently missing and doubles DB
-// write load (compounding into further timeouts/retries).
-export async function runBackgroundTeams(config: DemoConfig, signal: AbortSignal): Promise<void> {
+export async function runBackgroundTeams(
+  config: DemoConfig,
+  fromHoleIdx: number,
+  toHoleIdx: number
+): Promise<void> {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? 'http://127.0.0.1:54321';
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY ?? '';
   const supabase = createClient(supabaseUrl, serviceKey, {
     auth: { autoRefreshToken: false, persistSession: false },
   });
 
-  // config.teams[0] is the foreground team; teams 1-17 are background
+  // config.teams[0] is the foreground team; the rest run in the background
   const backgroundTeams = config.teams.slice(1);
   await Promise.all(
-    backgroundTeams.map((team: DemoTeam, idx: number) =>
-      runTeam(supabase, config, team, idx + 1, signal)
-    )
+    backgroundTeams.map((team: DemoTeam) => runTeam(supabase, config, team, fromHoleIdx, toHoleIdx))
   );
 }

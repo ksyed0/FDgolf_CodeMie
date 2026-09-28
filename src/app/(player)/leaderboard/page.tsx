@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
+import { getActivePlayerMembership } from '@/lib/tournament-membership';
 import { useRealtimeScores } from '@/hooks/use-realtime-scores';
 import { LeaderboardTable } from '@/components/leaderboard-table';
 import { SponsorBanner } from '@/components/sponsor-banner';
@@ -18,20 +19,6 @@ export default function LeaderboardPage() {
 
   useEffect(() => {
     async function init() {
-      const { data: tournament } = await supabase
-        .from('tournaments')
-        .select('id')
-        .order('created_at', { ascending: false })
-        .limit(1)
-        .single();
-
-      if (!tournament) {
-        setLoading(false);
-        return;
-      }
-
-      setTournamentId(tournament.id);
-
       const {
         data: { user },
       } = await supabase.auth.getUser();
@@ -46,22 +33,23 @@ export default function LeaderboardPage() {
         playerId = pd?.id ?? null;
       }
 
-      const [{ data: lbData }, { data: sponsorData }, { data: tpData }] = await Promise.all([
-        supabase.rpc('get_leaderboard', { p_tournament_id: tournament.id }),
-        supabase.from('sponsors').select('*').eq('tournament_id', tournament.id),
-        playerId
-          ? supabase
-              .from('tournament_players')
-              .select('team_id')
-              .eq('player_id', playerId)
-              .eq('tournament_id', tournament.id)
-              .single<{ team_id: string }>()
-          : Promise.resolve({ data: null }),
+      const membership = playerId ? await getActivePlayerMembership(supabase, playerId) : null;
+
+      if (!membership) {
+        setLoading(false);
+        return;
+      }
+
+      setTournamentId(membership.tournamentId);
+      setMyTeamId(membership.teamId);
+
+      const [{ data: lbData }, { data: sponsorData }] = await Promise.all([
+        supabase.rpc('get_leaderboard', { p_tournament_id: membership.tournamentId }),
+        supabase.from('sponsors').select('*').eq('tournament_id', membership.tournamentId),
       ]);
 
       setRows((lbData as LeaderboardRow[]) ?? []);
       setSponsors((sponsorData as Sponsor[]) ?? []);
-      setMyTeamId((tpData as { team_id: string } | null)?.team_id ?? null);
       setLoading(false);
     }
     init().catch(console.error);

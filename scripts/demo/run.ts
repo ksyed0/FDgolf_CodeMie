@@ -109,12 +109,27 @@ async function main() {
   console.log('[run] Starting kiosk demo…');
   const config: DemoConfig = await seedLionhead();
 
+  let bgController: AbortController | null = null;
+  let bgPromise: Promise<void> | null = null;
+
   while (true) {
     try {
+      // Cancel and wait for the previous generation's background teams to
+      // stop before wiping the tables again — otherwise a still-running
+      // generation keeps writing into (or has its already-passed holes
+      // wiped out from under it by) the next generation's reset, and running
+      // two generations at once doubles DB write load, which is what causes
+      // the foreground Playwright driver's selector timeouts in the first
+      // place, triggering yet another retry/reset in a compounding loop.
+      if (bgController) bgController.abort();
+      if (bgPromise) await bgPromise;
+
       await resetTournament(config.tournamentId);
 
-      // Background teams run concurrently with foreground (fire-and-forget)
-      runBackgroundTeams(config);
+      // Background teams run concurrently with foreground (fire-and-forget,
+      // but cancelled+awaited above before the next generation starts)
+      bgController = new AbortController();
+      bgPromise = runBackgroundTeams(config, bgController.signal);
 
       // Foreground drives the pace — await it
       await runForeground(config);

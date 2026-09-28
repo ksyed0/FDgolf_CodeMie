@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
+import { getActivePlayerMembership } from '@/lib/tournament-membership';
 import { formatVsPar } from '@/lib/scoring';
 import { Card } from '@/components/ui/card';
 import type { Score, Hole } from '@/lib/types';
@@ -19,11 +20,16 @@ export default async function ScorecardPage() {
     .single<{ id: string; name: string }>();
   if (!player) redirect('/login');
 
+  const membership = await getActivePlayerMembership(supabase, player.id);
+
+  if (!membership) {
+    return <div className="px-4 py-8 text-center text-sm text-gray-500">No tournament found.</div>;
+  }
+
   const { data: tournament } = await supabase
     .from('tournaments')
     .select('id, course_id')
-    .order('created_at', { ascending: false })
-    .limit(1)
+    .eq('id', membership.tournamentId)
     .single<{ id: string; course_id: string }>();
 
   if (!tournament) {
