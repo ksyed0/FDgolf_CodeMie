@@ -13,6 +13,7 @@ import { ShotOutcomeButtons } from '@/components/shot-outcome-buttons';
 import { HoleMap } from '@/components/hole-map';
 import { Button } from '@/components/ui/button';
 import { computeShotEditCascade } from '@/lib/shot-edit';
+import { getActivePlayerMembership } from '@/lib/tournament-membership';
 import type { Player, Team, Hole, Club, RoundState, Shot, ShotOutcome, Score } from '@/lib/types';
 
 interface ShotMarker {
@@ -83,28 +84,22 @@ export default function RoundPage() {
       setPlayer(playerData);
       setActivePlayerId(playerData.id);
 
-      const { data: tournamentData } = await supabase
-        .from('tournaments')
-        .select('id, status, course_id, holes_played, nine_hole_selection')
-        .order('created_at', { ascending: false })
-        .limit(1)
-        .single();
+      const membership = await getActivePlayerMembership(supabase, playerData.id);
 
-      if (tournamentData?.status !== 'active' && tournamentData?.status !== 'paused') {
-        toast.error('Tournament is not active.');
+      if (!membership) {
+        toast.error('You are not assigned to an active tournament.');
         router.push('/dashboard');
         return;
       }
 
-      const { data: membership } = await supabase
-        .from('tournament_players')
-        .select('team_id')
-        .eq('player_id', playerData.id)
-        .eq('tournament_id', tournamentData!.id)
-        .single<{ team_id: string }>();
+      const { data: tournamentData } = await supabase
+        .from('tournaments')
+        .select('id, status, course_id, holes_played, nine_hole_selection')
+        .eq('id', membership.tournamentId)
+        .single();
 
-      if (!membership) {
-        toast.error('You are not assigned to a team for this tournament.');
+      if (!tournamentData) {
+        toast.error('Tournament not found.');
         router.push('/dashboard');
         return;
       }
@@ -112,13 +107,13 @@ export default function RoundPage() {
       const { data: tpData } = await supabase
         .from('tournament_players')
         .select('player_id')
-        .eq('team_id', membership.team_id)
-        .eq('tournament_id', tournamentData!.id)
+        .eq('team_id', membership.teamId)
+        .eq('tournament_id', membership.tournamentId)
         .neq('player_id', playerData.id);
       const teammateIds = (tpData ?? []).map((r: { player_id: string }) => r.player_id);
 
       const [{ data: teamData }, { data: teammateData }, { data: clubData }] = await Promise.all([
-        supabase.from('teams').select('*').eq('id', membership.team_id).single<Team>(),
+        supabase.from('teams').select('*').eq('id', membership.teamId).single<Team>(),
         supabase.from('players').select('*').in('id', teammateIds),
         supabase.from('clubs').select('*').eq('is_active', true).order('sort_order'),
       ]);
@@ -139,7 +134,7 @@ export default function RoundPage() {
       let { data: rsData } = await supabase
         .from('round_states')
         .select('*')
-        .eq('team_id', membership.team_id)
+        .eq('team_id', membership.teamId)
         .single<RoundState>();
 
       if (!rsData) {
@@ -147,7 +142,7 @@ export default function RoundPage() {
         const { data: created } = await supabase
           .from('round_states')
           .insert({
-            team_id: membership.team_id,
+            team_id: membership.teamId,
             current_hole: startHole,
             active_player_id: playerData.id,
             status: 'in_progress',

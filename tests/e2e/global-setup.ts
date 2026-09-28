@@ -200,6 +200,49 @@ any) {
   }
 }
 
+async function seedPlayerMembership(admin: // eslint-disable-next-line @typescript-eslint/no-explicit-any
+any) {
+  // Player-facing SSR pages (dashboard, scorecard) now resolve "the" tournament from
+  // the player's own tournament_players row (BUG-0015), not just "the latest tournament
+  // in the DB". Without a membership row here, e2e-player resolves to no tournament and
+  // TC-0071/TC-0074/etc. fail even though the tournament/team fixtures above exist.
+  const adminAny = admin as any
+  const { data: player } = await adminAny
+    .from('players')
+    .select('id')
+    .eq('email', TEST_USER_EMAIL)
+    .maybeSingle()
+  const { data: tournament } = await adminAny
+    .from('tournaments')
+    .select('id')
+    .eq('slug', E2E_TOURNAMENT_SLUG)
+    .maybeSingle()
+  const { data: team } = await adminAny
+    .from('teams')
+    .select('id')
+    .eq('tournament_id', tournament?.id)
+    .eq('team_number', 1)
+    .maybeSingle()
+
+  if (!player || !tournament || !team) {
+    console.warn('[globalSetup] Could not seed player membership — player/tournament/team not found yet')
+    return
+  }
+
+  const { error } = await adminAny
+    .from('tournament_players')
+    .upsert(
+      { player_id: player.id, team_id: team.id, tournament_id: tournament.id },
+      { onConflict: 'player_id,tournament_id' }
+    )
+
+  if (error) {
+    console.warn('[globalSetup] Could not seed player membership:', error.message)
+  } else {
+    console.log('[globalSetup] e2e-player membership ready for:', E2E_TOURNAMENT_SLUG)
+  }
+}
+
 export default async function globalSetup() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? 'http://127.0.0.1:54321'
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY ?? ''
@@ -246,6 +289,7 @@ export default async function globalSetup() {
   await seedTestPlayers(admin)
   await seedTournament(admin)
   await seedTeams(admin)
+  await seedPlayerMembership(admin)
 
   // Ensure .auth/ directory exists for storageState files
   mkdirSync('tests/e2e/.auth', { recursive: true })

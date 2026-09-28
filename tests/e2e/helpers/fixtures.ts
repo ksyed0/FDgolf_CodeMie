@@ -66,11 +66,19 @@ export const fakePlayers = [
 // Migration 011 (tournament_players) replaced the players.team_id direct FK with a join table.
 // Tests that load /round, /leaderboard, or /dashboard now query tournament_players to find
 // team membership; without this mock the page redirects with "not assigned to a team".
+//
+// BUG-0015: getActivePlayerMembership() selects `tournament_id, team_id,
+// tournaments!inner(status, created_at)` — a nested embed — and sorts on
+// `tournaments.created_at`. mockSupabaseTable() returns these rows verbatim
+// (it doesn't interpret the real query's embedded-select shape), so each row
+// needs the same nested `tournaments` object or that lookup throws on
+// `undefined.created_at` and the page's init() silently swallows the error.
+const FAKE_TOURNAMENT_EMBED = { status: 'active', created_at: '2026-01-01T00:00:00.000Z' }
 export const fakeTournamentMembership = [
-  { player_id: 'player-001', team_id: 'team-001', tournament_id: 'tournament-001' },
-  { player_id: 'player-002', team_id: 'team-001', tournament_id: 'tournament-001' },
-  { player_id: 'player-003', team_id: 'team-001', tournament_id: 'tournament-001' },
-  { player_id: 'player-004', team_id: 'team-001', tournament_id: 'tournament-001' },
+  { player_id: 'player-001', team_id: 'team-001', tournament_id: 'tournament-001', tournaments: FAKE_TOURNAMENT_EMBED },
+  { player_id: 'player-002', team_id: 'team-001', tournament_id: 'tournament-001', tournaments: FAKE_TOURNAMENT_EMBED },
+  { player_id: 'player-003', team_id: 'team-001', tournament_id: 'tournament-001', tournaments: FAKE_TOURNAMENT_EMBED },
+  { player_id: 'player-004', team_id: 'team-001', tournament_id: 'tournament-001', tournaments: FAKE_TOURNAMENT_EMBED },
 ]
 
 export const fakeTournament = {
