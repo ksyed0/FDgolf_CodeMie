@@ -35,17 +35,34 @@ export default function LeaderboardPage() {
 
       const membership = playerId ? await getActivePlayerMembership(supabase, playerId) : null;
 
-      if (!membership) {
+      // Leaderboard is also a spectator view (system_admin/tournament_admin,
+      // or an authenticated player with no tournament_players row) — those
+      // viewers have no membership to resolve from, so fall back to whichever
+      // tournament is currently active, same as before BUG-0015 scoped the
+      // player-facing pages to membership.
+      let resolvedTournamentId = membership?.tournamentId ?? null;
+      if (!resolvedTournamentId) {
+        const { data: fallback } = await supabase
+          .from('tournaments')
+          .select('id')
+          .in('status', ['active', 'paused'])
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .maybeSingle<{ id: string }>();
+        resolvedTournamentId = fallback?.id ?? null;
+      }
+
+      if (!resolvedTournamentId) {
         setLoading(false);
         return;
       }
 
-      setTournamentId(membership.tournamentId);
-      setMyTeamId(membership.teamId);
+      setTournamentId(resolvedTournamentId);
+      setMyTeamId(membership?.teamId ?? null);
 
       const [{ data: lbData }, { data: sponsorData }] = await Promise.all([
-        supabase.rpc('get_leaderboard', { p_tournament_id: membership.tournamentId }),
-        supabase.from('sponsors').select('*').eq('tournament_id', membership.tournamentId),
+        supabase.rpc('get_leaderboard', { p_tournament_id: resolvedTournamentId }),
+        supabase.from('sponsors').select('*').eq('tournament_id', resolvedTournamentId),
       ]);
 
       setRows((lbData as LeaderboardRow[]) ?? []);

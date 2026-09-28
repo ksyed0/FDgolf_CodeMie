@@ -626,3 +626,9 @@ Pricing basis: Claude Sonnet 4.6 — Input $3/MTok · Output $15/MTok · Cache R
 | 2026-09-28 | f474b44d-d44d-453b-a38c-47245730735b | bugfix/BUG-0015-scope-tournament-lookup-to-membership | 2864408      | 300495        | 71120001          | 36.1446  |
 | 2026-09-28 | f474b44d-d44d-453b-a38c-47245730735b | bugfix/BUG-0015-scope-tournament-lookup-to-membership | 2864847      | 300521        | 71258718          | 36.1882  |
 | 2026-09-28 | f474b44d-d44d-453b-a38c-47245730735b | bugfix/BUG-0015-scope-tournament-lookup-to-membership | 2865200      | 300561        | 71397872          | 36.2319  |
+| 2026-09-28 | f474b44d-d44d-453b-a38c-47245730735b | bugfix/BUG-0015-scope-tournament-lookup-to-membership | 3041959      | 317469        | 76466483          | 38.6263  |
+| 2026-09-28 | f474b44d-d44d-453b-a38c-47245730735b | bugfix/BUG-0015-scope-tournament-lookup-to-membership | 3042335      | 317507        | 76583329          | 38.6633  |
+| 2026-09-28 | f474b44d-d44d-453b-a38c-47245730735b | bugfix/BUG-0015-scope-tournament-lookup-to-membership | 3043050      | 317543        | 76700549          | 38.7017  |
+| 2026-09-28 | f474b44d-d44d-453b-a38c-47245730735b | bugfix/BUG-0015-scope-tournament-lookup-to-membership | 3043762      | 317603        | 76818482          | 38.7406  |
+| 2026-09-28 | f474b44d-d44d-453b-a38c-47245730735b | bugfix/BUG-0015-scope-tournament-lookup-to-membership | 3044499      | 317635        | 76937125          | 38.7795  |
+| 2026-09-28 | f474b44d-d44d-453b-a38c-47245730735b | bugfix/BUG-0015-scope-tournament-lookup-to-membership | 3045255      | 317677        | 77056503          | 38.8187  |
