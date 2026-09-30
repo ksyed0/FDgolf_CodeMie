@@ -680,3 +680,12 @@ Pricing basis: Claude Sonnet 4.6 — Input $3/MTok · Output $15/MTok · Cache R
 | 2026-09-30 | 8b6fe07a-e0ae-4a10-8bdb-d68e9be8eb37 | develop                                               | 2453857      | 248840        | 79946722          | 36.5784  |
 | 2026-09-30 | 8b6fe07a-e0ae-4a10-8bdb-d68e9be8eb37 | develop                                               | 2456683      | 249494        | 80553652          | 36.7808  |
 | 2026-09-30 | 8b6fe07a-e0ae-4a10-8bdb-d68e9be8eb37 | docs/sync-cost-log-tail4                              | 2476424      | 256589        | 84206441          | 38.0557  |
+| 2026-09-30 | 8b6fe07a-e0ae-4a10-8bdb-d68e9be8eb37 | docs/sync-cost-log-tail5                              | 2505165      | 272345        | 90778358          | 40.3694  |
+| 2026-09-30 | 8b6fe07a-e0ae-4a10-8bdb-d68e9be8eb37 | docs/sync-cost-log-tail5                              | 2506676      | 272432        | 91071699          | 40.4644  |
+| 2026-09-30 | 8b6fe07a-e0ae-4a10-8bdb-d68e9be8eb37 | docs/sync-cost-log-tail5                              | 2508134      | 272592        | 91515180          | 40.6053  |
+| 2026-09-30 | 8b6fe07a-e0ae-4a10-8bdb-d68e9be8eb37 | docs/sync-cost-log-tail5                              | 2509600      | 272786        | 91960981          | 40.7475  |
+| 2026-09-30 | 8b6fe07a-e0ae-4a10-8bdb-d68e9be8eb37 | docs/sync-cost-log-tail5                              | 2510445      | 272868        | 92259719          | 40.8415  |
+| 2026-09-30 | 8b6fe07a-e0ae-4a10-8bdb-d68e9be8eb37 | docs/sync-cost-log-tail5                              | 2511275      | 272956        | 92560115          | 40.9360  |
+| 2026-09-30 | 8b6fe07a-e0ae-4a10-8bdb-d68e9be8eb37 | docs/sync-cost-log-tail5                              | 2512841      | 273126        | 93013229          | 41.0804  |
+| 2026-09-30 | 8b6fe07a-e0ae-4a10-8bdb-d68e9be8eb37 | docs/sync-cost-log-tail5                              | 2513673      | 273206        | 93316930          | 41.1758  |
+| 2026-09-30 | 8b6fe07a-e0ae-4a10-8bdb-d68e9be8eb37 | docs/sync-cost-log-tail5                              | 2643541      | 275842        | 95102338          | 42.1995  |
