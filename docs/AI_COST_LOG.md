@@ -662,3 +662,4 @@ Pricing basis: Claude Sonnet 4.6 — Input $3/MTok · Output $15/MTok · Cache R
 | 2026-09-30 | 8b6fe07a-e0ae-4a10-8bdb-d68e9be8eb37 | chore/test-coverage-and-traceability-sync             | 2049885      | 190502        | 50128625          | 25.3351  |
 | 2026-09-30 | 8b6fe07a-e0ae-4a10-8bdb-d68e9be8eb37 | chore/test-coverage-and-traceability-sync             | 2054847      | 192427        | 51356057          | 25.7502  |
 | 2026-09-30 | 8b6fe07a-e0ae-4a10-8bdb-d68e9be8eb37 | chore/test-coverage-and-traceability-sync             | 2066226      | 197757        | 54026844          | 26.6735  |
+| 2026-09-30 | 8b6fe07a-e0ae-4a10-8bdb-d68e9be8eb37 | docs/sync-cost-log-session41                          | 2083771      | 206123        | 57122474          | 27.7928  |
