@@ -1,4 +1,4 @@
-import { distanceMeters } from '@/lib/gps';
+import { distanceMeters, getCurrentPosition } from '@/lib/gps';
 import type { GpsPosition } from '@/lib/gps';
 
 // ---------------------------------------------------------------------------
@@ -7,6 +7,13 @@ import type { GpsPosition } from '@/lib/gps';
 
 function pos(lat: number, lng: number): GpsPosition {
   return { lat, lng, accuracy: 5 };
+}
+
+function stubGeolocation(geolocation: unknown) {
+  Object.defineProperty(global.navigator, 'geolocation', {
+    value: geolocation,
+    configurable: true,
+  });
 }
 
 // ---------------------------------------------------------------------------
@@ -84,5 +91,43 @@ describe('distanceMeters', () => {
       expect(distance).toBeGreaterThan(100);
       expect(distance).toBeLessThan(300);
     });
+  });
+});
+
+// ---------------------------------------------------------------------------
+// getCurrentPosition — navigator.geolocation wrapper
+// ---------------------------------------------------------------------------
+
+describe('getCurrentPosition', () => {
+  afterEach(() => {
+    stubGeolocation(undefined);
+  });
+
+  it('resolves with lat/lng/accuracy from the success callback', async () => {
+    stubGeolocation({
+      getCurrentPosition: (success: (pos: unknown) => void) =>
+        success({ coords: { latitude: 43.5257, longitude: -79.8816, accuracy: 12 } }),
+    });
+
+    await expect(getCurrentPosition()).resolves.toEqual({
+      lat: 43.5257,
+      lng: -79.8816,
+      accuracy: 12,
+    });
+  });
+
+  it('rejects with the error passed to the error callback', async () => {
+    const geoError = new Error('User denied Geolocation');
+    stubGeolocation({
+      getCurrentPosition: (_success: unknown, error: (err: unknown) => void) => error(geoError),
+    });
+
+    await expect(getCurrentPosition()).rejects.toBe(geoError);
+  });
+
+  it('rejects when navigator.geolocation is not supported', async () => {
+    stubGeolocation(undefined);
+
+    await expect(getCurrentPosition()).rejects.toThrow('Geolocation not supported');
   });
 });

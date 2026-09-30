@@ -13,6 +13,45 @@ Stack: Next.js 16 App Router · TypeScript · Tailwind CSS · shadcn/ui · Supab
 
 ---
 
+## Branch State (as of Session 41 close — 2026-09-30)
+
+| Branch | Status | Notes |
+|--------|--------|-------|
+| `main` | v0.7 released | unchanged this session |
+| `develop` | HEAD to move | BUG-0016 fix (E2E admin cookie pin + scores page tournament_id filter) + test-coverage/traceability-sync work being committed and PR'd this session |
+
+**Current open PRs**: will show here once opened (see next steps below).
+
+### New standing capability: automated TEST_CASES.md sync
+
+`npm run test:e2e:sync` (= `playwright test && node tools/sync-test-cases.js`) now exists.
+It reads `playwright-report/results.json` (JSON reporter added to `playwright.config.ts`),
+matches `TC-XXXX:`-titled specs, and rewrites those TC blocks' `Status`/`Actual
+Result`/`Defect Raised` lines in `docs/TEST_CASES.md` directly from the real run — no more
+hand-editing the matrix after a manual Playwright pass. It never invents a new `BUG-XXXX`;
+a fail keeps whatever defect ID was already recorded. TCs with no matching Playwright title
+are left untouched. **Future sessions: prefer this command over hand-editing
+`docs/TEST_CASES.md`'s Status/Actual Result/Defect Raised fields whenever the TC has a
+matching Playwright title.**
+
+### Coverage gap found and closed this session
+
+`src/lib/tournament-membership.ts` (BUG-0015 fix module) and `src/lib/gps.ts`'s
+`getCurrentPosition()` were both at effectively 0% Jest coverage — the latter despite an
+`/* istanbul ignore next */` comment, which does nothing under this repo's SWC-based
+`next/jest` transform (see `docs/LESSONS.md` L-0022). Both are now at 100%. **Any future
+`istanbul ignore` comment added to this codebase should be treated as a no-op** — write a
+real test or exclude the whole file via `collectCoverageFrom` instead.
+
+### Deliberately left uncovered (documented decision, not an oversight)
+
+`src/app/(admin)/admin/scores/page.tsx` (SSR page component — no `admin/*/page.tsx` in this
+repo has ever had Jest coverage; proven instead at the E2E layer by TC-0088) and
+`tests/e2e/setup/admin.setup.ts` (Playwright test infra, correctly outside
+`collectCoverageFrom`, exercised on every E2E run).
+
+---
+
 ## Branch State (as of Session 40 close — 2026-06-30)
 
 | Branch | Status | Notes |

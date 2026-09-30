@@ -1499,3 +1499,195 @@ Executed 7-task implementation plan using subagent-driven development (DM_AGENT 
 - Run the full E2E suite to confirm the 58/10 → ~67/1 improvement is real.
 - Address the last remaining failure (whatever isn't lifecycle / round-scoring / admin-roles).
 - Platform debt: `auto_expose_new_tables` flag removal on 2026-10-30. File a migration that adds explicit GRANTs by end of September.
+
+## Session 39 — 2026-09-30 (TEST_CASES.md status reconciliation)
+
+**Trigger:** User asked why the Plan Visualizer dashboard showed 0% TC pass rate; all 170
+TC-XXXX entries in `docs/TEST_CASES.md` were literally `Status: [ ] Not Run` (a manually
+maintained ledger, not auto-synced from Jest/Playwright). User asked to update the statuses
+to reflect actual results.
+
+**What was done:**
+- Started local Supabase (`supabase start`) + Next.js dev server, confirmed `global-setup.ts`
+  seeds/verifies E2E auth users and the `cibc-granite-ridge-2026` tournament.
+- Ran the full Jest suite (`npm run test:ci`) and all 9 applicable Playwright E2E spec files
+  with correct `--project` flags per `playwright.config.ts` (`chromium-auth`,
+  `chromium-mobile`, `chromium-desktop`, `chromium-lifecycle`, `chromium-tv`).
+  `tournament-lifecycle.spec.ts` was skipped — its required `scripts/reset-lionhead.ts` reset
+  was blocked by the tool sandbox's permission classifier as a mass-delete operation; this
+  spec has no `TC-XXXX` annotations so it does not affect any TEST_CASES.md status.
+- Jest: 196/196 passing, but Jest tests carry no `TC-XXXX` annotation, so they provide no
+  mechanical evidence for any specific TC — none were marked from Jest results.
+- Playwright: cross-referenced each spec file's `test('TC-XXXX: ...')` title against
+  `docs/TEST_CASES.md`. 65 TC-XXXX IDs are annotated in E2E test titles; of those, 61 passed
+  and 4 failed (TC-0049, TC-0050, TC-0078, TC-0088). TC-0045 and TC-0058 are
+  `test.skip()`'d (missing sponsor-logo seed data / SSR+Radix Select limitation respectively)
+  and were left `Not Run` since they never executed.
+- Updated `docs/TEST_CASES.md`: 61 → `Status: [x] Pass`, 4 → `Status: [x] Fail` (with
+  `Defect Raised: BUG-0016`), all with an `Actual Result` note. The remaining 105 TCs
+  (including TC-0045/TC-0058) have no automated TC-annotated coverage and were left
+  `Not Run` — intentionally not guessed.
+- Investigated the 4 failures (see BUG-0016 for full root cause): all four trace to the same
+  cause. `getActiveTournamentId()` falls back to "most recently created tournament" when no
+  `x-active-tournament` cookie is set (true for a fresh admin `storageState` session), and two
+  unrelated manual/demo tournaments (`fdgolf-talk-demo`, `lionhead-legends-demo`, both created
+  2026-09-28) now sort ahead of the CIBC E2E fixture (created 2026-06-30) in this local
+  Supabase instance. `/admin/tournament` resolves to `lionhead-legends-demo` (status
+  `completed`), so `TournamentControlDashboard` never renders (breaks TC-0049/TC-0050/
+  TC-0078); `/admin/scores` resolves to a demo tournament with a team named "Eagle Squadron",
+  colliding with the `getByText('Eagle')` legend-chip assertion (breaks TC-0088). Confirmed
+  this is local test-environment data pollution, not an application code defect — logged as
+  BUG-0016 (Open, no fix branch yet — needs triage on whether to pin the E2E admin cookie in
+  `global-setup.ts` and/or clean up the stray demo tournaments).
+- Corrected a pre-existing `docs/ID_REGISTRY.md` inconsistency found along the way: BUG-0015
+  was already spent by a merged fix (commit `f000ad3`) but its `docs/BUGS.md` write-up was
+  never committed, so the registry had stalled showing BUG-0015 as still available. Bumped
+  the registry to `Next Available: BUG-0017` / `Last Assigned: BUG-0016` and left a dated note
+  explaining the correction; did not fabricate the missing BUG-0015 entry itself (separate,
+  pre-existing gap, out of scope for this session).
+- Regenerated `docs/plan-status.html`/`.json` via `npm run plan:generate` so the dashboard
+  reflects the real 61/170 pass rate.
+
+**Test results:** Jest 196/196. Playwright (TC-annotated subset): 61 Pass / 4 Fail / 2 Skip
+(TC-0045, TC-0058) out of 67 annotated; 103 TCs remain `Not Run` for lack of any automated,
+TC-annotated coverage (Jest tests carry none).
+
+**Branch:** none — docs-only session, no `src/` changes, no PR opened (per Session 21's
+prior confirmation that documentation-only sessions don't require one). User should confirm
+whether a PR is wanted for these doc changes.
+
+**Next steps:**
+- Triage BUG-0016: decide whether to pin `x-active-tournament` in `tests/e2e/global-setup.ts`
+  and/or delete the stray `fdgolf-talk-demo` / `lionhead-legends-demo` tournaments locally.
+- File the missing BUG-0015 write-up in `docs/BUGS.md` (separate pre-existing gap; the fix
+  itself, commit `f000ad3`, is already merged).
+- Decide whether the ~103 TCs with no automated coverage should get Playwright `TC-XXXX`
+  annotations added over time, or remain manually verified.
+- Platform debt: `auto_expose_new_tables` flag removal on 2026-10-30. File a migration that adds explicit GRANTs by end of September.
+
+## Session 40 — 2026-09-30 (BUG-0016 fix: pin E2E admin cookie)
+
+**Trigger:** User asked to fix BUG-0016 — pin the `x-active-tournament` cookie during E2E
+admin setup so `getActiveTournamentId()`'s "most recently created tournament" fallback can't
+pick a stray/demo tournament over the CIBC E2E fixture.
+
+**What was done:**
+- Exported `E2E_TOURNAMENT_SLUG` from `tests/e2e/global-setup.ts` so other setup files can
+  resolve the CIBC fixture tournament's id without duplicating the slug string.
+- Rewrote `tests/e2e/setup/admin.setup.ts`: after logging in, it now looks up the CIBC
+  tournament's id via a service-role Supabase client and calls
+  `page.context().addCookies([...])` to pin `x-active-tournament` before
+  `storageState()` snapshots `admin.json`. (Deliberately duplicated the cookie name literal
+  rather than importing it from `src/lib/active-tournament.ts`, since that module pulls in
+  `next/headers`, unsafe outside a Next.js server context.)
+- Re-ran the previously-failing TCs: TC-0049, TC-0050, and TC-0078 passed immediately. TC-0088
+  still failed, with a different error signature (`getByText('Eagle')` strict-mode collision).
+- Root-caused the TC-0088 residual failure: `src/app/(admin)/admin/scores/page.tsx` queried
+  `teams` with no `tournament_id` filter (unlike the sibling `scores`/`tournament_players`/
+  `shots` queries in the same `Promise.all`), so it always leaked teams from every tournament
+  in the DB regardless of which one was active. Asked the user whether to fix this too or just
+  report it separately — user chose to fix it. Added `.eq('tournament_id', tid)` to that query.
+  TC-0088 then passed.
+- Verified no regressions: full `chromium-desktop` project run — 27 passed, 1 skipped
+  (pre-existing, unrelated TC-0058 skip). Also ran the full `tournament-lifecycle.spec.ts`
+  (`chromium-lifecycle`, which shares the same `admin-setup` dependency) and confirmed via a
+  `git stash`/`stash pop` A/B comparison (fix files stashed vs. applied) that its one failure
+  (step-12, leaderboard team-name assertion) reproduces identically on unmodified code — a
+  pre-existing, unrelated bug, not a regression from this fix. Confirmed `tournament-
+  lifecycle.spec.ts` doesn't rely on the no-cookie fallback: it explicitly switches the active
+  tournament to Lionhead itself via a "Manage" button UI flow, so pinning CIBC as the initial
+  cookie value doesn't conflict with it.
+- Updated `docs/BUGS.md`: BUG-0016 `Status: Open` → `Fixed`, added a verification note
+  documenting both code changes and the passing test results; marked the cookie-pin follow-up
+  as done, left the stray-demo-tournament-deletion follow-up explicitly undone/out of scope.
+- Updated `docs/TEST_CASES.md`: TC-0049, TC-0050, TC-0078, TC-0088 → `Status: [x] Pass` with
+  updated `Actual Result` notes referencing the fix.
+- Regenerated `docs/plan-status.html`/`.json` via `npm run plan:generate`.
+
+**Files changed:** `tests/e2e/global-setup.ts` (export slug), `tests/e2e/setup/admin.setup.ts`
+(cookie pin), `src/app/(admin)/admin/scores/page.tsx` (tournament_id filter on `teams` query),
+`docs/BUGS.md`, `docs/TEST_CASES.md`, `docs/plan-status.html`/`.json`.
+
+**Test results:** `chromium-desktop`: 27 passed, 1 skipped (pre-existing). TC-0049/TC-0050/
+TC-0078/TC-0088 all pass. `chromium-lifecycle`'s step-12 failure confirmed pre-existing via
+baseline comparison, not investigated further (no bug ID filed for it — see next steps).
+
+**Branch:** none yet — changes are uncommitted on `develop`. Per `CLAUDE.md`'s Git Workflow
+this should go on `bugfix/BUG-0016-pin-e2e-admin-tournament-cookie` and land via a squash-merge
+PR into `develop`, but no branch/commit/PR has been created — awaiting explicit user request
+before doing so.
+
+**Next steps:**
+- User to confirm before creating the `bugfix/BUG-0016-...` branch, committing, and opening a
+  PR — nothing has been pushed.
+- Consider whether the second BUG-0016 follow-up (deleting/archiving `fdgolf-talk-demo` and
+  `lionhead-legends-demo` locally) is still wanted — remains explicitly out of scope unless
+  requested.
+- Consider filing a new bug for `tournament-lifecycle.spec.ts` step-12's pre-existing leaderboard
+  team-name failure — discovered as a side effect of regression testing this session, not yet
+  logged in `docs/BUGS.md` or assigned an ID.
+- Evaluate whether `docs/LESSONS.md` should gain an entry for BUG-0016 (currently
+  `Lesson Encoded: No`) — not yet done.
+
+## Session 41 — 2026-09-30 (Test coverage gaps + traceability sync automation)
+
+**Trigger:** User asked to fix "the test coverage issue." Investigation found the global
+Jest thresholds (80/70/80/80) were passing but two `src/lib` files were severely
+under-tested, the BUG-0016 fix itself shipped with no unit coverage, and
+`docs/TEST_CASES.md` was 100% hand-edited after each manual test run. User confirmed via
+`AskUserQuestion` that all three should be addressed in one pass.
+
+**What was done:**
+- **Coverage — `src/lib/tournament-membership.ts`** (BUG-0015 fix module, was 0%): added
+  `src/__tests__/tournament-membership.test.ts`. Covers no-rows → `null`, single-row mapping,
+  multi-row `.sort()`-by-`created_at` selection, and asserts the exact `.eq('player_id', ...)`
+  / `.in('tournaments.status', ['active','paused'])` filter arguments so the BUG-0015 fix
+  itself can't silently regress.
+- **Coverage — `src/lib/gps.ts`** (`getCurrentPosition()` was 0% despite an
+  `/* istanbul ignore next */` comment): discovered the comment was inert — this repo's
+  `next/jest` config uses SWC, not Babel, and istanbul ignore-comments are a
+  `babel-plugin-istanbul` feature that SWC doesn't honor. Removed the now-inaccurate comment
+  and added 3 real tests to `src/__tests__/gps.test.ts` stubbing
+  `navigator.geolocation` via `Object.defineProperty(global.navigator, 'geolocation', {...,
+  configurable: true})` (success, error, unsupported-browser branches). Logged this as
+  **L-0022** in `docs/LESSONS.md` since it's a repo-wide gotcha, not a one-off.
+- **BUG-0016 fix coverage**: decided explicitly *not* to add Jest coverage for
+  `src/app/(admin)/admin/scores/page.tsx` (SSR page component — this repo has never
+  Jest-tested any `admin/*/page.tsx`; already proven at the E2E layer by TC-0088) or for
+  `tests/e2e/setup/admin.setup.ts` (Playwright test infra, correctly outside
+  `collectCoverageFrom`, exercised on every E2E run). No code change for this part.
+- **Traceability automation**: added a `json` reporter to `playwright.config.ts`
+  (`playwright-report/results.json`) and a new `tools/sync-test-cases.js` that parses it,
+  matches `TC-XXXX:`-prefixed Playwright spec titles, and rewrites just the
+  `Status`/`Actual Result`/`Defect Raised` lines of the matching `docs/TEST_CASES.md` blocks
+  in place (reusing `tools/lib/parse-test-cases.js`'s block-boundary convention). A pass
+  clears `Defect Raised` to `None`; a fail keeps whatever `BUG-XXXX` was already recorded —
+  it never invents a new bug ID. TCs with no matching Playwright title are left untouched. Ends
+  by calling `node tools/generate-plan.js`. Added `npm run test:e2e:sync` and a short note in
+  `plan_visualizer.md` documenting these fields are now tooling-writable.
+- Verified end-to-end: ran `npx playwright test --project=chromium-desktop` (27 passed, 1
+  pre-existing skip) then `node tools/sync-test-cases.js` — it correctly matched and rewrote
+  27 `TC-XXXX` blocks and reported the dashboard regen.
+
+**Files changed:** `src/__tests__/tournament-membership.test.ts` (new),
+`src/__tests__/gps.test.ts`, `src/lib/gps.ts`, `playwright.config.ts`,
+`tools/sync-test-cases.js` (new), `package.json`, `plan_visualizer.md`, `docs/LESSONS.md`,
+`docs/TEST_CASES.md` (synced statuses), `docs/plan-status.html`/`.json`.
+
+**Test results:** `npm run test:ci` — 20 suites / 204 tests passed. Coverage moved from
+90.64%/82.12%/84.72%/96.05% to 92.87%/83.4%/93.05%/98.52% (stmts/branch/funcs/lines);
+`tournament-membership.ts` and `gps.ts` both now 100% across the board. No regressions.
+
+**Branch:** none yet at time of writing — awaiting explicit user request to commit/PR (per
+standing instruction). See next steps.
+
+**Next steps:**
+- Commit this work to a `chore/` branch and open a PR to `develop` once requested.
+- Still outstanding from Session 40: decide on a bug ID for `tournament-lifecycle.spec.ts`
+  step-12's pre-existing leaderboard failure; decide on the stray-demo-tournament cleanup
+  follow-up; `docs/LESSONS.md` entry for BUG-0016 itself still not done.
+- `docs/coverage/coverage-summary.json` (the path `tools/generate-plan.js` and the new sync
+  script's informational summary both read) doesn't match Jest's actual default output path
+  (`coverage/coverage-summary.json` at repo root, no `docs/` prefix) — pre-existing mismatch,
+  not fixed here since it's outside this session's scope; both scripts already degrade
+  gracefully (print "no coverage summary found") when it's absent.

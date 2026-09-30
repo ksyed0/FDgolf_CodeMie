@@ -1,5 +1,70 @@
 # FDgolf — Bug Tracker
 
+BUG-0016: Admin E2E specs resolve to the wrong tournament when stale demo data outranks CIBC
+Severity: Low
+Related Story: N/A (E2E test infra / local environment)
+Steps to Reproduce:
+  1. In local Supabase, have any tournament with `created_at` newer than the seeded
+     `cibc-granite-ridge-2026` fixture (e.g. a manually-created demo tournament).
+  2. Run `npx playwright test tests/e2e/admin.spec.ts --project=chromium-desktop`
+     (fresh admin `storageState`, no `x-active-tournament` cookie set yet).
+  3. Observe `/admin/tournament` and `/admin/scores`.
+Expected: TC-0049, TC-0050, TC-0078 see the CIBC tournament's active
+  `TournamentControlDashboard` ("Open TV Leaderboard" link, "Teams on course" section,
+  TV link pointing at `cibc-granite-ridge-2026`); TC-0088's `getByText('Eagle')` on
+  `/admin/scores` matches only the AdminTopBar legend chip.
+Actual: All four tests failed on 2026-09-30. Root cause (confirmed): `getActiveTournamentId()`
+  (`src/lib/active-tournament.ts`) has no cookie to read on a brand-new admin session, so it
+  falls back to "most recently created tournament" for a `system_admin`. Two tournaments
+  unrelated to the automated E2E flow — `fdgolf-talk-demo` (status `active`, created
+  2026-09-28) and `lionhead-legends-demo` (status `completed`, same date) — now sort ahead
+  of `cibc-granite-ridge-2026` (created 2026-06-30). `/admin/tournament` picked
+  `lionhead-legends-demo` (status `completed`), so the `activeTournament.status === 'active'
+  || 'paused'` gate in `src/app/(admin)/admin/tournament/page.tsx` failed and
+  `TournamentControlDashboard` never rendered — breaking TC-0049/TC-0050/TC-0078, which
+  expect it. `/admin/scores` picked one of the two demo tournaments, both of which seed a
+  team literally named "Eagle Squadron" (deliberately avoided in the CIBC/E2E fixture teams
+  per BUG-0002's fix note); `getByText('Eagle')` then strict-mode-matched both the legend
+  chip and that team-name cell, failing TC-0088.
+  This is local test-environment data pollution from manual/demo sessions, not a product
+  code defect — `TournamentControlDashboard`, the admin page's status gate, and the scores
+  legend all behave exactly as designed once the *correct* tournament is selected; confirmed
+  the CIBC teams (`Foxes`, `Hawks`) have no "Eagle" collision. It would not reproduce against
+  a freshly-reset local Supabase (`supabase db reset` + `seed.sql`), and is unlikely to
+  reproduce in CI, which does not accumulate manual demo tournaments between runs.
+Status: Fixed
+Fix Branch: bugfix/BUG-0016-pin-e2e-admin-tournament-cookie
+Lesson Encoded: No
+
+Fix (2026-09-30): `tests/e2e/setup/admin.setup.ts` now looks up the CIBC fixture tournament's
+  id by slug (`E2E_TOURNAMENT_SLUG`, newly exported from `tests/e2e/global-setup.ts`) via a
+  service-role Supabase client, and calls `page.context().addCookies([...])` to pin
+  `x-active-tournament` to that id *before* `storageState()` captures `admin.json`. Every
+  `chromium-desktop`/`chromium-lifecycle` test that depends on `admin-setup` now starts with
+  the cookie already set, so `getActiveTournamentId()`'s "most recently created tournament"
+  fallback is never reached — admin.spec.ts is now immune to any tournament created outside
+  the E2E flow, past or future. Verified safe against `tournament-lifecycle.spec.ts`
+  (`chromium-lifecycle`): that spec explicitly switches the cookie to Lionhead itself via the
+  "Manage" button UI flow (see its own step-06 comment), so pinning CIBC as the *initial*
+  cookie value doesn't conflict with it.
+  TC-0088 additionally needed a real product-code fix: `src/app/(admin)/admin/scores/page.tsx`
+  queried `teams` with no `.eq('tournament_id', tid)` filter, so it pulled in teams from every
+  tournament in the DB (including "Eagle Squadron" from the demo tournament) regardless of
+  which tournament was active — the cookie pin alone could not fix this, since the leak was
+  independent of tournament selection. Added the missing filter.
+  Verified: `npx playwright test --project=chromium-desktop` — 27 passed, 1 skipped (pre-existing,
+  unrelated TC-0058 skip), including TC-0049/TC-0050/TC-0078/TC-0088 all passing with the two
+  stray demo tournaments still present locally. Also confirmed `chromium-lifecycle` shows no
+  regression: its one failure (step-12, leaderboard team ordering) reproduces identically on
+  unmodified `develop` (pre-existing, unrelated to this fix — not addressed here).
+  Second follow-up from the original write-up (deleting/archiving the stray demo tournaments
+  locally) remains undone — out of scope for this fix and not requested.
+
+Discovered while executing the real E2E suite to update `docs/TEST_CASES.md` statuses
+(2026-09-30 session); see `progress.md` for the full run summary.
+
+---
+
 BUG-0014: Score relative to par (birdie/bogey/etc.) not shown on hole-summary screen
 Severity: Medium
 Related Story: US-0023 (AC-0076)
