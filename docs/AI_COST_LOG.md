@@ -662,3 +662,9 @@ Pricing basis: Claude Sonnet 4.6 — Input $3/MTok · Output $15/MTok · Cache R
 | 2026-09-30 | 8b6fe07a-e0ae-4a10-8bdb-d68e9be8eb37 | chore/test-coverage-and-traceability-sync             | 2049885      | 190502        | 50128625          | 25.3351  |
 | 2026-09-30 | 8b6fe07a-e0ae-4a10-8bdb-d68e9be8eb37 | chore/test-coverage-and-traceability-sync             | 2054847      | 192427        | 51356057          | 25.7502  |
 | 2026-09-30 | 8b6fe07a-e0ae-4a10-8bdb-d68e9be8eb37 | chore/test-coverage-and-traceability-sync             | 2066226      | 197757        | 54026844          | 26.6735  |
+| 2026-09-30 | 8b6fe07a-e0ae-4a10-8bdb-d68e9be8eb37 | develop                                               | 2210657      | 212115        | 60007526          | 29.1908  |
+| 2026-09-30 | 8b6fe07a-e0ae-4a10-8bdb-d68e9be8eb37 | develop                                               | 2228724      | 219478        | 63763791          | 30.4934  |
+| 2026-09-30 | 8b6fe07a-e0ae-4a10-8bdb-d68e9be8eb37 | develop                                               | 2231512      | 220244        | 64493117          | 30.7336  |
+| 2026-09-30 | 8b6fe07a-e0ae-4a10-8bdb-d68e9be8eb37 | develop                                               | 2245076      | 224626        | 66102520          | 31.3317  |
+| 2026-09-30 | 8b6fe07a-e0ae-4a10-8bdb-d68e9be8eb37 | docs/sync-cost-log-session41                          | 2083771      | 206123        | 57122474          | 27.7928  |
+| 2026-09-30 | 8b6fe07a-e0ae-4a10-8bdb-d68e9be8eb37 | docs/sync-cost-log-session41-tail2                    | 2267722      | 231705        | 68990236          | 32.3851  |
