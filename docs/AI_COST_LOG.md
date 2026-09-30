@@ -689,3 +689,9 @@ Pricing basis: Claude Sonnet 4.6 — Input $3/MTok · Output $15/MTok · Cache R
 | 2026-09-30 | 8b6fe07a-e0ae-4a10-8bdb-d68e9be8eb37 | docs/sync-cost-log-tail5                              | 2512841      | 273126        | 93013229          | 41.0804  |
 | 2026-09-30 | 8b6fe07a-e0ae-4a10-8bdb-d68e9be8eb37 | docs/sync-cost-log-tail5                              | 2513673      | 273206        | 93316930          | 41.1758  |
 | 2026-09-30 | 8b6fe07a-e0ae-4a10-8bdb-d68e9be8eb37 | docs/sync-cost-log-tail5                              | 2643541      | 275842        | 95102338          | 42.1995  |
+| 2026-09-30 | 8b6fe07a-e0ae-4a10-8bdb-d68e9be8eb37 | docs/sync-cost-log-tail6                              | 2686965      | 297751        | 102234964         | 44.8298  |
+| 2026-09-30 | 8b6fe07a-e0ae-4a10-8bdb-d68e9be8eb37 | docs/sync-cost-log-tail6                              | 2687379      | 297765        | 102366420         | 44.8710  |
+| 2026-09-30 | 8b6fe07a-e0ae-4a10-8bdb-d68e9be8eb37 | docs/sync-cost-log-tail6                              | 2688078      | 297779        | 102498288         | 44.9133  |
+| 2026-09-30 | 8b6fe07a-e0ae-4a10-8bdb-d68e9be8eb37 | docs/sync-cost-log-tail6                              | 2688776      | 297801        | 102630853         | 44.9561  |
+| 2026-09-30 | 8b6fe07a-e0ae-4a10-8bdb-d68e9be8eb37 | docs/sync-cost-log-tail6                              | 2689483      | 297821        | 102764114         | 44.9990  |
+| 2026-09-30 | 8b6fe07a-e0ae-4a10-8bdb-d68e9be8eb37 | docs/sync-cost-log-tail6                              | 2690231      | 297844        | 102898080         | 45.0423  |
