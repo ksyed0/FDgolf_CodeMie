@@ -29,7 +29,7 @@ export const PLAYER_AUTH_FILE = 'tests/e2e/.auth/player.json'
 export const ADMIN_AUTH_FILE = 'tests/e2e/.auth/admin.json'
 export const TOURNAMENT_ADMIN_AUTH_FILE = 'tests/e2e/.auth/tournament-admin.json'
 
-const E2E_TOURNAMENT_SLUG = 'cibc-granite-ridge-2026'
+export const E2E_TOURNAMENT_SLUG = 'cibc-granite-ridge-2026'
 
 async function upsertUser(
   admin: // eslint-disable-next-line @typescript-eslint/no-explicit-any

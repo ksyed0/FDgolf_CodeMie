@@ -19,7 +19,7 @@ export default async function ScoresAdminPage() {
     supabase.from('scores').select('*').eq('tournament_id', tid).order('hole_number'),
     supabase.from('players').select('id, name'),
     supabase.from('tournament_players').select('player_id, team_id').eq('tournament_id', tid),
-    supabase.from('teams').select('id, team_number, team_name'),
+    supabase.from('teams').select('id, team_number, team_name').eq('tournament_id', tid),
     supabase
       .from('shots')
       .select('player_id, hole_number')

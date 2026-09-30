@@ -1,5 +1,38 @@
 # Lessons Learned
 
+## L-0022 — `/* istanbul ignore next */` is silently inert under `next/jest` (SWC transform)
+
+@session: 41 — 2026-09-30
+
+**Symptom**: `src/lib/gps.ts`'s `getCurrentPosition()` carried an
+`/* istanbul ignore next -- covered at E2E level */` comment above it, yet
+Jest's coverage report still listed it as uncovered — the comment appeared to
+do nothing.
+
+**Root cause**: This repo's `jest.config.js` uses `nextJest({ dir: './' })`,
+which transforms TS/TSX via SWC. Istanbul's ignore-comment handling
+(`/* istanbul ignore next */` etc.) is implemented in `babel-plugin-istanbul`
+and only takes effect when Babel is the transform in the pipeline. Under an
+SWC-based transform, the comment is inert: it's never stripped or interpreted,
+so the function is instrumented and reported as uncovered exactly as if the
+comment weren't there.
+
+**Fix pattern**: Don't rely on `/* istanbul ignore next */` (or any
+`istanbul ignore` variant) in a `next/jest` project. If a function genuinely
+can't be unit-tested, that's a real gap — either write a real test for it
+(stub the browser API it wraps, e.g. `Object.defineProperty(global.navigator,
+'geolocation', { value: ..., configurable: true })` for `getCurrentPosition`),
+or explicitly exclude the whole file via `collectCoverageFrom` in
+`jest.config.js` if it's categorically out of Jest's scope (as this repo
+already does for `src/lib/supabase/**` and `src/lib/utils.ts`). A per-function
+ignore comment is not a working escape hatch here.
+
+**Applies to**: Any file in this repo (or any `next/jest`-based project) that
+still contains an `istanbul ignore` comment — check the coverage report, not
+the comment, to know whether a line is actually excluded.
+
+---
+
 ## L-0021 — `react-hooks/set-state-in-effect` flags indirect synchronous setState too
 
 @session: 41 — 2026-09-18

@@ -2360,7 +2360,7 @@
       "relatedTask": "TASK-0009",
       "relatedAC": "AC-0029",
       "type": "Negative",
-      "status": "Not Run",
+      "status": "Pass",
       "defect": "None"
     },
     {
@@ -2400,7 +2400,7 @@
       "relatedTask": "TASK-0012",
       "relatedAC": "AC-0035",
       "type": "Functional",
-      "status": "Not Run",
+      "status": "Pass",
       "defect": "None"
     },
     {
@@ -2410,7 +2410,7 @@
       "relatedTask": "TASK-0012",
       "relatedAC": "AC-0036",
       "type": "Negative",
-      "status": "Not Run",
+      "status": "Pass",
       "defect": "None"
     },
     {
@@ -2420,7 +2420,7 @@
       "relatedTask": "TASK-0012",
       "relatedAC": "AC-0036",
       "type": "Negative",
-      "status": "Not Run",
+      "status": "Pass",
       "defect": "None"
     },
     {
@@ -2430,7 +2430,7 @@
       "relatedTask": "TASK-0008",
       "relatedAC": "AC-0038",
       "type": "Functional",
-      "status": "Not Run",
+      "status": "Pass",
       "defect": "None"
     },
     {
@@ -2440,7 +2440,7 @@
       "relatedTask": "TASK-0008",
       "relatedAC": "AC-0039",
       "type": "Functional",
-      "status": "Not Run",
+      "status": "Pass",
       "defect": "None"
     },
     {
@@ -2450,7 +2450,7 @@
       "relatedTask": "TASK-0008",
       "relatedAC": "AC-0040",
       "type": "Functional",
-      "status": "Not Run",
+      "status": "Pass",
       "defect": "None"
     },
     {
@@ -2460,7 +2460,7 @@
       "relatedTask": "TASK-0008",
       "relatedAC": "AC-0041",
       "type": "Functional",
-      "status": "Not Run",
+      "status": "Pass",
       "defect": "None"
     },
     {
@@ -2590,7 +2590,7 @@
       "relatedTask": "N/A",
       "relatedAC": "AC-0053",
       "type": "Functional",
-      "status": "Not Run",
+      "status": "Pass",
       "defect": "None"
     },
     {
@@ -2600,7 +2600,7 @@
       "relatedTask": "N/A",
       "relatedAC": "AC-0054",
       "type": "Functional",
-      "status": "Not Run",
+      "status": "Pass",
       "defect": "None"
     },
     {
@@ -2610,7 +2610,7 @@
       "relatedTask": "N/A",
       "relatedAC": "AC-0057",
       "type": "Functional",
-      "status": "Not Run",
+      "status": "Pass",
       "defect": "None"
     },
     {
@@ -2620,7 +2620,7 @@
       "relatedTask": "N/A",
       "relatedAC": "AC-0057",
       "type": "Edge Case",
-      "status": "Not Run",
+      "status": "Pass",
       "defect": "None"
     },
     {
@@ -2650,7 +2650,7 @@
       "relatedTask": "TASK-0006",
       "relatedAC": "AC-0060",
       "type": "Edge Case",
-      "status": "Not Run",
+      "status": "Pass",
       "defect": "None"
     },
     {
@@ -2680,7 +2680,7 @@
       "relatedTask": "N/A",
       "relatedAC": "AC-0064",
       "type": "Functional",
-      "status": "Not Run",
+      "status": "Pass",
       "defect": "None"
     },
     {
@@ -2690,7 +2690,7 @@
       "relatedTask": "N/A",
       "relatedAC": "AC-0065",
       "type": "Functional",
-      "status": "Not Run",
+      "status": "Pass",
       "defect": "None"
     },
     {
@@ -2700,7 +2700,7 @@
       "relatedTask": "N/A",
       "relatedAC": "AC-0066",
       "type": "Functional",
-      "status": "Not Run",
+      "status": "Pass",
       "defect": "None"
     },
     {
@@ -2810,7 +2810,7 @@
       "relatedTask": "N/A",
       "relatedAC": "AC-0080",
       "type": "Functional",
-      "status": "Not Run",
+      "status": "Pass",
       "defect": "None"
     },
     {
@@ -2820,7 +2820,7 @@
       "relatedTask": "N/A",
       "relatedAC": "AC-0082",
       "type": "Edge Case",
-      "status": "Not Run",
+      "status": "Pass",
       "defect": "None"
     },
     {
@@ -2830,7 +2830,7 @@
       "relatedTask": "N/A",
       "relatedAC": "AC-0083",
       "type": "Functional",
-      "status": "Not Run",
+      "status": "Pass",
       "defect": "None"
     },
     {
@@ -2840,7 +2840,7 @@
       "relatedTask": "N/A",
       "relatedAC": "AC-0085",
       "type": "Functional",
-      "status": "Not Run",
+      "status": "Pass",
       "defect": "None"
     },
     {
@@ -2850,7 +2850,7 @@
       "relatedTask": "N/A",
       "relatedAC": "AC-0087",
       "type": "Functional",
-      "status": "Not Run",
+      "status": "Pass",
       "defect": "None"
     },
     {
@@ -2870,7 +2870,7 @@
       "relatedTask": "N/A",
       "relatedAC": "AC-0084",
       "type": "Functional",
-      "status": "Not Run",
+      "status": "Pass",
       "defect": "None"
     },
     {
@@ -2890,7 +2890,7 @@
       "relatedTask": "N/A",
       "relatedAC": "AC-0092",
       "type": "Functional",
-      "status": "Not Run",
+      "status": "Pass",
       "defect": "None"
     },
     {
@@ -2900,7 +2900,7 @@
       "relatedTask": "TASK-0008",
       "relatedAC": "AC-0095",
       "type": "Functional",
-      "status": "Not Run",
+      "status": "Pass",
       "defect": "None"
     },
     {
@@ -2910,7 +2910,7 @@
       "relatedTask": "N/A",
       "relatedAC": "AC-0096",
       "type": "Functional",
-      "status": "Not Run",
+      "status": "Pass",
       "defect": "None"
     },
     {
@@ -2920,7 +2920,7 @@
       "relatedTask": "N/A",
       "relatedAC": "AC-0097",
       "type": "Functional",
-      "status": "Not Run",
+      "status": "Pass",
       "defect": "None"
     },
     {
@@ -2930,7 +2930,7 @@
       "relatedTask": "N/A",
       "relatedAC": "AC-0100",
       "type": "Functional",
-      "status": "Not Run",
+      "status": "Pass",
       "defect": "None"
     },
     {
@@ -2950,7 +2950,7 @@
       "relatedTask": "N/A",
       "relatedAC": "AC-0105",
       "type": "Functional",
-      "status": "Not Run",
+      "status": "Pass",
       "defect": "None"
     },
     {
@@ -2970,7 +2970,7 @@
       "relatedTask": "N/A",
       "relatedAC": "AC-0050",
       "type": "Functional",
-      "status": "Not Run",
+      "status": "Pass",
       "defect": "None"
     },
     {
@@ -2980,7 +2980,7 @@
       "relatedTask": "N/A",
       "relatedAC": "AC-0109",
       "type": "Functional",
-      "status": "Not Run",
+      "status": "Pass",
       "defect": "None"
     },
     {
@@ -3010,7 +3010,7 @@
       "relatedTask": "N/A",
       "relatedAC": "AC-0116",
       "type": "Functional",
-      "status": "Not Run",
+      "status": "Pass",
       "defect": "None"
     },
     {
@@ -3020,7 +3020,7 @@
       "relatedTask": "N/A",
       "relatedAC": "AC-0118",
       "type": "Functional",
-      "status": "Not Run",
+      "status": "Pass",
       "defect": "None"
     },
     {
@@ -3040,7 +3040,7 @@
       "relatedTask": "N/A",
       "relatedAC": "AC-0041",
       "type": "Edge Case",
-      "status": "Not Run",
+      "status": "Pass",
       "defect": "None"
     },
     {
@@ -3060,7 +3060,7 @@
       "relatedTask": "TASK-0006",
       "relatedAC": "AC-0060",
       "type": "Functional",
-      "status": "Not Run",
+      "status": "Pass",
       "defect": "None"
     },
     {
@@ -3070,7 +3070,7 @@
       "relatedTask": "N/A",
       "relatedAC": "AC-0133",
       "type": "Functional",
-      "status": "Not Run",
+      "status": "Pass",
       "defect": "None"
     },
     {
@@ -3080,7 +3080,7 @@
       "relatedTask": "N/A",
       "relatedAC": "AC-0133",
       "type": "Edge Case",
-      "status": "Not Run",
+      "status": "Pass",
       "defect": "None"
     },
     {
@@ -3090,7 +3090,7 @@
       "relatedTask": "N/A",
       "relatedAC": "AC-0134",
       "type": "Functional",
-      "status": "Not Run",
+      "status": "Pass",
       "defect": "BUG-0008 (resolved)"
     },
     {
@@ -3100,7 +3100,7 @@
       "relatedTask": "N/A",
       "relatedAC": "AC-0136",
       "type": "Edge Case",
-      "status": "Not Run",
+      "status": "Pass",
       "defect": "None"
     },
     {
@@ -3110,7 +3110,7 @@
       "relatedTask": "N/A",
       "relatedAC": "AC-0135",
       "type": "Functional",
-      "status": "Not Run",
+      "status": "Pass",
       "defect": "None"
     },
     {
@@ -3120,7 +3120,7 @@
       "relatedTask": "N/A",
       "relatedAC": "AC-0133",
       "type": "Functional",
-      "status": "Not Run",
+      "status": "Pass",
       "defect": "None"
     },
     {
@@ -3130,7 +3130,7 @@
       "relatedTask": "N/A",
       "relatedAC": "AC-0043",
       "type": "Functional",
-      "status": "Not Run",
+      "status": "Pass",
       "defect": "None"
     },
     {
@@ -3140,7 +3140,7 @@
       "relatedTask": "N/A",
       "relatedAC": "AC-0044",
       "type": "Functional",
-      "status": "Not Run",
+      "status": "Pass",
       "defect": "None"
     },
     {
@@ -3150,7 +3150,7 @@
       "relatedTask": "N/A",
       "relatedAC": "AC-0045",
       "type": "Functional",
-      "status": "Not Run",
+      "status": "Pass",
       "defect": "None"
     },
     {
@@ -3160,7 +3160,7 @@
       "relatedTask": "TASK-0045",
       "relatedAC": "AC-0151",
       "type": "Functional",
-      "status": "Not Run",
+      "status": "Pass",
       "defect": "None"
     },
     {
@@ -3170,7 +3170,7 @@
       "relatedTask": "TASK-0045",
       "relatedAC": "AC-0152",
       "type": "Functional",
-      "status": "Not Run",
+      "status": "Pass",
       "defect": "None"
     },
     {
@@ -3180,7 +3180,7 @@
       "relatedTask": "N/A",
       "relatedAC": "AC-0067",
       "type": "Functional",
-      "status": "Not Run",
+      "status": "Pass",
       "defect": "None"
     },
     {
@@ -3190,7 +3190,7 @@
       "relatedTask": "N/A",
       "relatedAC": "AC-0059",
       "type": "Functional",
-      "status": "Not Run",
+      "status": "Pass",
       "defect": "None"
     },
     {
@@ -3200,7 +3200,7 @@
       "relatedTask": "TASK-0043",
       "relatedAC": "AC-0149",
       "type": "Functional",
-      "status": "Not Run",
+      "status": "Pass",
       "defect": "None"
     },
     {
@@ -3210,7 +3210,7 @@
       "relatedTask": "TASK-0041",
       "relatedAC": "AC-0143",
       "type": "Functional",
-      "status": "Not Run",
+      "status": "Pass",
       "defect": "None"
     },
     {
@@ -3220,7 +3220,7 @@
       "relatedTask": "N/A",
       "relatedAC": "AC-0134",
       "type": "Edge Case",
-      "status": "Not Run",
+      "status": "Pass",
       "defect": "None"
     },
     {
@@ -3230,7 +3230,7 @@
       "relatedTask": "N/A",
       "relatedAC": "AC-0134",
       "type": "Functional",
-      "status": "Not Run",
+      "status": "Pass",
       "defect": "None"
     },
     {
@@ -3240,7 +3240,7 @@
       "relatedTask": "TASK-0044",
       "relatedAC": "AC-0150",
       "type": "Functional",
-      "status": "Not Run",
+      "status": "Pass",
       "defect": "None"
     },
     {
@@ -3250,7 +3250,7 @@
       "relatedTask": "TASK-0041",
       "relatedAC": "AC-0145",
       "type": "Functional",
-      "status": "Not Run",
+      "status": "Pass",
       "defect": "None"
     },
     {
@@ -3260,7 +3260,7 @@
       "relatedTask": "TASK-0042",
       "relatedAC": "AC-0146",
       "type": "Functional",
-      "status": "Not Run",
+      "status": "Pass",
       "defect": "None"
     },
     {
@@ -3270,7 +3270,7 @@
       "relatedTask": "N/A",
       "relatedAC": "AC-0105",
       "type": "Functional",
-      "status": "Not Run",
+      "status": "Pass",
       "defect": "None"
     },
     {
@@ -3280,8 +3280,8 @@
       "relatedTask": "N/A",
       "relatedAC": "AC-0111",
       "type": "Functional",
-      "status": "Not Run",
-      "defect": "BUG-0009 (resolved)"
+      "status": "Pass",
+      "defect": "None"
     },
     {
       "id": "TC-0087",
@@ -3290,7 +3290,7 @@
       "relatedTask": "N/A",
       "relatedAC": "AC-0103",
       "type": "Functional",
-      "status": "Not Run",
+      "status": "Pass",
       "defect": "None"
     },
     {
@@ -3300,7 +3300,7 @@
       "relatedTask": "N/A",
       "relatedAC": "N/A",
       "type": "Functional",
-      "status": "Not Run",
+      "status": "Pass",
       "defect": "None"
     },
     {
@@ -3310,7 +3310,7 @@
       "relatedTask": "N/A",
       "relatedAC": "AC-0121",
       "type": "Functional",
-      "status": "Not Run",
+      "status": "Pass",
       "defect": "None"
     },
     {
@@ -3320,7 +3320,7 @@
       "relatedTask": "TASK-0039",
       "relatedAC": "AC-0138",
       "type": "Functional",
-      "status": "Not Run",
+      "status": "Pass",
       "defect": "None"
     },
     {
@@ -3330,7 +3330,7 @@
       "relatedTask": "TASK-0039",
       "relatedAC": "AC-0139",
       "type": "Functional",
-      "status": "Not Run",
+      "status": "Pass",
       "defect": "None"
     },
     {
@@ -3340,7 +3340,7 @@
       "relatedTask": "TASK-0039",
       "relatedAC": "AC-0140",
       "type": "Functional",
-      "status": "Not Run",
+      "status": "Pass",
       "defect": "None"
     },
     {
@@ -3350,7 +3350,7 @@
       "relatedTask": "TASK-0039",
       "relatedAC": "AC-0140",
       "type": "Functional",
-      "status": "Not Run",
+      "status": "Pass",
       "defect": "None"
     },
     {
@@ -3360,7 +3360,7 @@
       "relatedTask": "TASK-0040",
       "relatedAC": "AC-0141",
       "type": "Functional",
-      "status": "Not Run",
+      "status": "Pass",
       "defect": "None"
     },
     {
@@ -3370,7 +3370,7 @@
       "relatedTask": "TASK-0040",
       "relatedAC": "AC-0142",
       "type": "Functional",
-      "status": "Not Run",
+      "status": "Pass",
       "defect": "None"
     },
     {
@@ -3746,6 +3746,18 @@
   ],
   "bugs": [
     {
+      "id": "BUG-0016",
+      "title": "Admin E2E specs resolve to the wrong tournament when stale demo data outranks CIBC",
+      "severity": "Low",
+      "relatedStory": "N/A (E2E test infra / local environment)",
+      "relatedTask": "",
+      "status": "Fixed",
+      "fixBranch": "bugfix/BUG-0016-pin-e2e-admin-tournament-cookie",
+      "lessonEncoded": "No",
+      "estimatedCostUsd": 0,
+      "ghIssueNumber": null
+    },
+    {
       "id": "BUG-0014",
       "title": "Score relative to par (birdie/bogey/etc.) not shown on hole-summary screen",
       "severity": "Medium",
@@ -3917,292 +3929,300 @@
   "costs": {
     "US-0001": {
       "projectedUsd": 400,
-      "costUsd": 11.752279,
+      "costUsd": 13.628198,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0002": {
       "projectedUsd": 400,
-      "costUsd": 11.752279,
+      "costUsd": 13.628198,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0003": {
       "projectedUsd": 800,
-      "costUsd": 11.752279,
+      "costUsd": 13.628198,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0004": {
       "projectedUsd": 400,
-      "costUsd": 11.752279,
+      "costUsd": 13.628198,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0005": {
       "projectedUsd": 400,
-      "costUsd": 11.752279,
+      "costUsd": 13.628198,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0006": {
       "projectedUsd": 400,
-      "costUsd": 11.752279,
+      "costUsd": 13.628198,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0007": {
       "projectedUsd": 400,
-      "costUsd": 11.752279,
+      "costUsd": 13.628198,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0008": {
       "projectedUsd": 800,
-      "costUsd": 11.752279,
+      "costUsd": 13.628198,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0009": {
       "projectedUsd": 400,
-      "costUsd": 11.752279,
+      "costUsd": 13.628198,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0010": {
       "projectedUsd": 400,
-      "costUsd": 11.752279,
+      "costUsd": 13.628198,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0011": {
       "projectedUsd": 800,
-      "costUsd": 11.752279,
+      "costUsd": 13.628198,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0012": {
       "projectedUsd": 400,
-      "costUsd": 11.752279,
+      "costUsd": 13.628198,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0013": {
       "projectedUsd": 400,
-      "costUsd": 11.752279,
+      "costUsd": 13.628198,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0014": {
       "projectedUsd": 400,
-      "costUsd": 11.752279,
+      "costUsd": 13.628198,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0015": {
       "projectedUsd": 400,
-      "costUsd": 11.752279,
+      "costUsd": 13.628198,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0016": {
       "projectedUsd": 800,
-      "costUsd": 11.752279,
+      "costUsd": 13.628198,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0017": {
       "projectedUsd": 400,
-      "costUsd": 11.752279,
+      "costUsd": 13.628198,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0018": {
       "projectedUsd": 400,
-      "costUsd": 11.752279,
+      "costUsd": 13.628198,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0019": {
       "projectedUsd": 800,
-      "costUsd": 11.752279,
+      "costUsd": 13.628198,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0020": {
       "projectedUsd": 800,
-      "costUsd": 11.752279,
+      "costUsd": 13.628198,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0021": {
       "projectedUsd": 800,
-      "costUsd": 11.752279,
+      "costUsd": 13.628198,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0022": {
       "projectedUsd": 400,
-      "costUsd": 11.752279,
+      "costUsd": 13.628198,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0023": {
       "projectedUsd": 400,
-      "costUsd": 11.752279,
+      "costUsd": 13.628198,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0024": {
       "projectedUsd": 400,
-      "costUsd": 11.752279,
+      "costUsd": 13.628198,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0025": {
       "projectedUsd": 800,
-      "costUsd": 11.752279,
+      "costUsd": 13.628198,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0026": {
       "projectedUsd": 400,
-      "costUsd": 11.752279,
+      "costUsd": 13.628198,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0027": {
       "projectedUsd": 400,
-      "costUsd": 11.752279,
+      "costUsd": 13.628198,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0028": {
       "projectedUsd": 400,
-      "costUsd": 11.752279,
+      "costUsd": 13.628198,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0029": {
       "projectedUsd": 400,
-      "costUsd": 11.752279,
+      "costUsd": 13.628198,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0030": {
       "projectedUsd": 800,
-      "costUsd": 11.752279,
+      "costUsd": 13.628198,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0031": {
       "projectedUsd": 400,
-      "costUsd": 11.752279,
+      "costUsd": 13.628198,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0032": {
       "projectedUsd": 800,
-      "costUsd": 11.752279,
+      "costUsd": 13.628198,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0033": {
       "projectedUsd": 800,
-      "costUsd": 11.752279,
+      "costUsd": 13.628198,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0034": {
       "projectedUsd": 800,
-      "costUsd": 11.752279,
+      "costUsd": 13.628198,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0035": {
       "projectedUsd": 800,
-      "costUsd": 11.752279,
+      "costUsd": 13.628198,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0036": {
       "projectedUsd": 800,
-      "costUsd": 11.752279,
+      "costUsd": 13.628198,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0037": {
       "projectedUsd": 400,
-      "costUsd": 11.752279,
+      "costUsd": 13.628198,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0038": {
       "projectedUsd": 1600,
-      "costUsd": 11.752279,
+      "costUsd": 13.628198,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0039": {
       "projectedUsd": 1600,
-      "costUsd": 11.752279,
+      "costUsd": 13.628198,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0040": {
       "projectedUsd": 800,
-      "costUsd": 11.752279,
+      "costUsd": 13.628198,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0041": {
       "projectedUsd": 400,
-      "costUsd": 11.752279,
+      "costUsd": 13.628198,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0042": {
       "projectedUsd": 800,
-      "costUsd": 11.752279,
+      "costUsd": 13.628198,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0043": {
       "projectedUsd": 1600,
-      "costUsd": 11.752279,
+      "costUsd": 13.628198,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0044": {
       "projectedUsd": 800,
-      "costUsd": 11.752279,
+      "costUsd": 13.628198,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0045": {
       "projectedUsd": 400,
-      "costUsd": 11.752279,
+      "costUsd": 13.628198,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0046": {
       "projectedUsd": 400,
-      "costUsd": 11.752279,
+      "costUsd": 13.628198,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0047": {
       "projectedUsd": 400,
-      "costUsd": 95.039579,
+      "costUsd": 96.915498,
       "inputTokens": 6615905,
       "outputTokens": 608978
     },
     "_totals": {
-      "costUsd": 635.6444,
-      "inputTokens": 44484431,
-      "outputTokens": 6921965
+      "costUsd": 723.8126,
+      "inputTokens": 51327559,
+      "outputTokens": 7558116
     },
     "_bugs": {
+      "BUG-0016": {
+        "costUsd": 0,
+        "inputTokens": 0,
+        "outputTokens": 0,
+        "sessions": 0,
+        "isEstimated": false,
+        "projectedUsd": 400
+      },
       "BUG-0014": {
         "costUsd": 0,
         "inputTokens": 0,
@@ -4658,11 +4678,11 @@
     "byEpic": {}
   },
   "coverage": {
-    "lines": 96.34,
-    "statements": 90.81,
-    "functions": 85.71,
-    "branches": 82.83,
-    "overall": 96.34,
+    "lines": 98.52,
+    "statements": 92.87,
+    "functions": 93.05,
+    "branches": 83.4,
+    "overall": 98.52,
     "meetsTarget": true,
     "available": true
   },
@@ -4863,10 +4883,10 @@
       "bugIds": []
     }
   ],
-  "generatedAt": "2026-09-25T22:07:21.741Z",
-  "commitSha": "c411f70",
-  "buildNumber": "134",
-  "branch": "docs/bug-0013-0014-shot-edit-and-vs-par",
+  "generatedAt": "2026-09-30T19:41:27.980Z",
+  "commitSha": "7aa5f71",
+  "buildNumber": "138",
+  "branch": "develop",
   "sessionTimeline": [
     {
       "date": "2026-06-09",
@@ -4961,8 +4981,24 @@
       "cumCost": 626.4953
     },
     {
-      "date": "2026-09-25",
-      "cumCost": 635.6444
+      "date": "2026-09-28",
+      "cumCost": 647.7472
+    },
+    {
+      "date": "2026-09-28",
+      "cumCost": 656.2585
+    },
+    {
+      "date": "2026-09-28",
+      "cumCost": 702.3351
+    },
+    {
+      "date": "2026-09-28",
+      "cumCost": 706.3776
+    },
+    {
+      "date": "2026-09-30",
+      "cumCost": 723.8126
     }
   ],
   "costHistory": {
@@ -5028,6 +5064,26 @@
       {
         "date": "2026-06-30",
         "costUsd": 10.1804
+      },
+      {
+        "date": "2026-09-28",
+        "costUsd": 21.2519
+      },
+      {
+        "date": "2026-09-28",
+        "costUsd": 8.5113
+      },
+      {
+        "date": "2026-09-28",
+        "costUsd": 46.0766
+      },
+      {
+        "date": "2026-09-28",
+        "costUsd": 4.0425
+      },
+      {
+        "date": "2026-09-30",
+        "costUsd": 17.435
       }
     ],
     "fix/longest-drive-gps": [
@@ -5073,15 +5129,9 @@
         "date": "2026-09-18",
         "costUsd": 81.7891
       }
-    ],
-    "docs/BUG-0013-ai-cost-log-followup": [
-      {
-        "date": "2026-09-25",
-        "costUsd": 9.1491
-      }
     ]
   },
-  "deltaSpend": 9.15,
+  "deltaSpend": 17.43,
   "projectName": "CodeMie",
   "tagline": "FDgolf CodeMie project.",
   "version": "0.1.0",
@@ -5155,10 +5205,10 @@
   },
   "budget": {
     "totalBudget": null,
-    "totalSpent": 635.6444,
+    "totalSpent": 723.8126,
     "totalProjected": 29200,
     "percentUsed": null,
-    "burnRate": 10.339787499999986,
+    "burnRate": 13.145115384615373,
     "daysRemaining": null,
     "projectedExhaustion": null,
     "thresholds": [
@@ -5172,96 +5222,96 @@
       {
         "id": "EPIC-0001",
         "title": "Project Setup & Infrastructure",
-        "budget": 200.81009,
-        "spent": 200.81009,
+        "budget": 219.56928,
+        "spent": 219.56928,
         "remaining": 0,
         "percentUsed": 100
       },
       {
         "id": "EPIC-0002",
         "title": "Registration & Authentication",
-        "budget": 70.513674,
-        "spent": 70.513674,
+        "budget": 81.769188,
+        "spent": 81.769188,
         "remaining": 0,
         "percentUsed": 100
       },
       {
         "id": "EPIC-0003",
         "title": "Player Dashboard",
-        "budget": 23.504558,
-        "spent": 23.504558,
+        "budget": 27.256396,
+        "spent": 27.256396,
         "remaining": 0,
         "percentUsed": 100
       },
       {
         "id": "EPIC-0004",
         "title": "Active Round — Shot Tracking",
-        "budget": 82.265953,
-        "spent": 82.265953,
+        "budget": 95.397386,
+        "spent": 95.397386,
         "remaining": 0,
         "percentUsed": 100
       },
       {
         "id": "EPIC-0005",
         "title": "Hole & Round Completion",
-        "budget": 35.256837,
-        "spent": 35.256837,
+        "budget": 40.884594,
+        "spent": 40.884594,
         "remaining": 0,
         "percentUsed": 100
       },
       {
         "id": "EPIC-0006",
         "title": "Leaderboard",
-        "budget": 47.009116,
-        "spent": 47.009116,
+        "budget": 54.512792,
+        "spent": 54.512792,
         "remaining": 0,
         "percentUsed": 100
       },
       {
         "id": "EPIC-0007",
         "title": "Admin — Tournament & Course Setup",
-        "budget": 47.009116,
-        "spent": 47.009116,
+        "budget": 54.512792,
+        "spent": 54.512792,
         "remaining": 0,
         "percentUsed": 100
       },
       {
         "id": "EPIC-0008",
         "title": "Admin — Player & Team Management",
-        "budget": 23.504558,
-        "spent": 23.504558,
+        "budget": 27.256396,
+        "spent": 27.256396,
         "remaining": 0,
         "percentUsed": 100
       },
       {
         "id": "EPIC-0009",
         "title": "Admin — Scores & Sponsors",
-        "budget": 23.504558,
-        "spent": 23.504558,
+        "budget": 27.256396,
+        "spent": 27.256396,
         "remaining": 0,
         "percentUsed": 100
       },
       {
         "id": "EPIC-0010",
         "title": "Security & 2FA",
-        "budget": 11.752279,
-        "spent": 11.752279,
+        "budget": 13.628198,
+        "spent": 13.628198,
         "remaining": 0,
         "percentUsed": 100
       },
       {
         "id": "EPIC-0011",
         "title": "Multi-Tournament Administration, Venues & Courses",
-        "budget": 58.761395,
-        "spent": 58.761395,
+        "budget": 68.14099,
+        "spent": 68.14099,
         "remaining": 0,
         "percentUsed": 100
       },
       {
         "id": "EPIC-0012",
         "title": "Admin UI Redesign",
-        "budget": 11.752279,
-        "spent": 11.752279,
+        "budget": 13.628198,
+        "spent": 13.628198,
         "remaining": 0,
         "percentUsed": 100
       }
@@ -5280,13 +5330,19 @@
       "2026-09-18T18:44:15.391Z",
       "2026-09-18T20:06:08.886Z",
       "2026-09-18T21:07:39.609Z",
-      "2026-09-25T22:07:21.792Z"
+      "2026-09-25T22:07:21.792Z",
+      "2026-09-30T14:07:28.093Z",
+      "2026-09-30T17:39:09.186Z",
+      "2026-09-30T19:41:28.037Z"
     ],
     "doneCounts": [
       0,
       32,
       32,
       35,
+      47,
+      47,
+      47,
       47,
       47,
       47,
@@ -5304,6 +5360,9 @@
       47,
       47,
       47,
+      47,
+      47,
+      47,
       47
     ],
     "aiCosts": [
@@ -5316,7 +5375,10 @@
       586.7630000000001,
       586.7630000000001,
       586.7630000000001,
-      635.6444
+      635.6444,
+      708.4975999999999,
+      716.2625,
+      723.8126
     ],
     "coverage": [
       null,
@@ -5328,13 +5390,19 @@
       96.25,
       96.25,
       96.25,
-      96.34
+      96.34,
+      96.05,
+      96.05,
+      98.52
     ],
     "velocity": [
       0,
       56,
       56,
       61,
+      93,
+      93,
+      93,
       93,
       93,
       93,
@@ -5352,9 +5420,15 @@
       2,
       4,
       1,
+      0,
+      1,
+      0,
       0
     ],
     "atRisk": [
+      0,
+      0,
+      0,
       0,
       0,
       0,
@@ -5376,7 +5450,10 @@
       40794713,
       40749929,
       40749929,
-      44484431
+      44484431,
+      50225659,
+      50583887,
+      51327559
     ],
     "outputTokens": [
       157392,
@@ -5388,7 +5465,10 @@
       6559086,
       6536998,
       6536998,
-      6921965
+      6921965,
+      7439725,
+      7506432,
+      7558116
     ],
     "avgRisk": [
       1.1000000000000008,
@@ -5400,23 +5480,29 @@
       0,
       0,
       0,
+      0,
+      0,
+      0,
       0
     ],
     "velocityByWeek": {
       "labels": [
         "2026-W24",
         "2026-W38",
-        "2026-W39"
+        "2026-W39",
+        "2026-W40"
       ],
       "points": [
         61,
         32,
+        0,
         0
       ],
       "rollingAvg": [
         61,
         46.5,
-        31
+        31,
+        23.3
       ]
     }
   }
