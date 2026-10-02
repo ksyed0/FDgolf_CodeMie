@@ -13,14 +13,18 @@ Stack: Next.js 16 App Router · TypeScript · Tailwind CSS · shadcn/ui · Supab
 
 ---
 
-## Branch State (as of Session 41 close — 2026-09-30)
+## Branch State (as of Session 42 close — 2026-10-02)
 
 | Branch | Status | Notes |
 |--------|--------|-------|
-| `main` | v0.7 released | unchanged this session |
-| `develop` | HEAD to move | BUG-0016 fix (E2E admin cookie pin + scores page tournament_id filter) + test-coverage/traceability-sync work being committed and PR'd this session |
+| `main` | **v0.8 released** (merge commit `5521bcc`, PR #95) | Was stuck at v0.5 (`20fae73`) for ~4 months — `v0.6`/`v0.7` tags existed and PRs #37/#40 genuinely merged at the time, but both merge commits (`3dcd9af`, `de65b4c`) were orphaned by a later history rewrite on `develop`/`main`, so neither release's content ever actually persisted on `main`. PR #95 brought `main` up to `develop`'s HEAD in one catch-up merge (includes everything originally shipped under v0.6 + v0.7, plus ~4 months of subsequent work). All CI (format/audit/lint/test/e2e/CodeQL) passed green before merge. Tagged `v0.8` and published as a GitHub Release. **Any prior note in this file or `progress.md` claiming "main: v0.7 released" was inaccurate relative to the actual `main` ref — superseded by this entry.** |
+| `develop` | In sync with `main` as of PR #95 | PR #94 (cost-log sync + BUG-0019 docs) merged first; then full catch-up merged to `main`. |
 
-**Current open PRs**: will show here once opened (see next steps below).
+**Current open PRs**: None.
+
+### BUG-0019 — GitHub Actions CI-dispatch anomaly (logged this session)
+
+CI/CodeQL failed to dispatch at all on PR #94 (docs-only branch `docs/sync-cost-log-tail14`), even after a forced empty-commit nudge. Root cause not identified (see `docs/BUGS.md`). Merged PR #94 without CI per explicit user sign-off, since it was docs-only with zero code risk. **The anomaly did not recur** — CI dispatched and ran normally on PR #95 (develop → main), reaching genuine green across all jobs. Treat as transient/branch-specific unless it recurs.
 
 ### New standing capability: automated TEST_CASES.md sync
 
