@@ -1691,3 +1691,52 @@ standing instruction). See next steps.
   (`coverage/coverage-summary.json` at repo root, no `docs/` prefix) — pre-existing mismatch,
   not fixed here since it's outside this session's scope; both scripts already degrade
   gracefully (print "no coverage summary found") when it's absent.
+
+## Session 42 — 2026-10-02 (Talk-demo bug triage + documentation sync)
+
+**Trigger:** User reported "the talk demo live window is only showing hole 2 and both
+windows are crashing after 30s." Separately asked to see the E2E test script inventory, then
+asked for a full documentation/commit/PR/CI/release pass.
+
+**What was done:**
+- **Root-caused BUG-0017** (talk-demo captain phone shows the wrong hole; both Playwright
+  windows appear to "crash" after ~15-30s). Confirmed end-to-end via direct Supabase REST
+  queries (`tournaments`, `teams`, `round_states`) that `fdgolf-talk-demo` and
+  `lionhead-legends-demo` were simultaneously `status: 'active'`, share one demo-captain auth
+  account by design, and `getActivePlayerMembership()`'s "pick the newest `created_at`"
+  tie-break resolved the shared account to the wrong (Lionhead) tournament, so `/round` read
+  Lionhead's stale `round_states.current_hole: 2` instead of the talk demo's fast-forwarded
+  hole 15. `foreground-talk.ts`'s `waitForSelector('text=Hole 15', { timeout: 15_000 })` then
+  times out and its catch block calls `closeBrowsers()` — the apparent "crash." Logged as
+  **BUG-0017** in `docs/BUGS.md` and **L-0023** in `docs/LESSONS.md` (same bug class as the
+  admin-side BUG-0016, "stale demo tournament outranks the intended one by recency," but on
+  the player-membership path). Two remediation options were presented to the user (pause the
+  other demo tournament inside `run-talk.ts`'s `resetTournament()`, or pause it manually
+  before each talk-demo run); no fix was requested, so none was implemented — diagnosis only.
+- **E2E suite inventory** (read-only, informational): enumerated `playwright.config.ts`'s 7
+  projects (`player-setup`, `admin-setup`, `chromium-auth`, `chromium-mobile`,
+  `chromium-desktop`, `chromium-lifecycle`, `chromium-tv`) and all 10 spec files under
+  `tests/e2e/` (2,736 total lines) for the user; no changes made.
+- **Documentation/housekeeping pass** (this entry): added the BUG-0017/L-0023 write-ups
+  above; added `docs/codemie/` to `.gitignore` — three auto-generated per-machine CodeMie
+  analytics JSON files (embedding the local user's email in their filenames) with no
+  relationship to the app, same rationale as the existing `docs/dashboard.html` ignore entry;
+  committed the already-pending `docs/AI_COST_LOG.md` tail-13 rows; updated `MEMORY.md` with
+  the BUG-0017 finding; bumped `docs/ID_REGISTRY.md`'s `BUG` counter to `BUG-0018`.
+
+**Files changed:** `docs/BUGS.md`, `docs/LESSONS.md`, `docs/ID_REGISTRY.md`, `MEMORY.md`,
+`.gitignore`, `docs/AI_COST_LOG.md`, `progress.md` (this entry).
+
+**Branch:** `docs/sync-cost-log-tail13` (pre-existing, already 1 commit ahead of `develop` for
+the tail-12 cost rows pattern) — continued on it rather than branching again, since nothing
+on it had been pushed/PR'd yet.
+
+**Next steps:**
+- Open PR to `develop`, monitor CI to green, merge; then PR `develop` → `main`, monitor CI,
+  merge; then cut a new release from `main`; update `README.md` if the release surfaces
+  anything undocumented. (In progress — see this session's remaining work.)
+- BUG-0017 remains **Open** — no code fix implemented, only diagnosed. Revisit if the talk
+  demo needs to be run again before a decision is made on which remediation option to take.
+- Still outstanding from Sessions 40/41: bug ID for `tournament-lifecycle.spec.ts` step-12's
+  pre-existing leaderboard failure; the stray-demo-tournament cleanup follow-up (now
+  partially informed by BUG-0017's findings, but still not actioned).
