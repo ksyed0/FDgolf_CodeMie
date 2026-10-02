@@ -1,5 +1,35 @@
 # FDgolf — Bug Tracker
 
+BUG-0019: GitHub Actions does not dispatch CI/CodeQL runs for push/pull_request events on this
+  repo (confirmed on PR #94, `docs/sync-cost-log-tail14` → `develop`)
+Severity: Medium (blocks CI verification before merge; no functional/user-facing impact)
+Related Story: N/A (CI/CD infrastructure)
+Steps to Reproduce:
+  1. Push a commit to a branch with an open PR targeting `develop` (observed on
+     `docs/sync-cost-log-tail14`, commits `af7ff14` and a follow-up empty-commit nudge
+     `deea609`).
+  2. Poll `gh pr checks <PR>` and `gh api repos/ksyed0/FDgolf_CodeMie/actions/runs`.
+Expected: A new `CI` and `CodeQL` workflow run appears (queued → in_progress → completed),
+  matching the behaviour seen minutes earlier for PR #93 (`gh run list` shows exactly two
+  historical run-pairs for `docs/sync-cost-log-tail13`, both completing successfully).
+Actual: No workflow run of any kind (not even `queued`) was ever created for either commit —
+  confirmed via `gh api .../actions/runs` filtered by `head_branch`, which returns nothing.
+  Only Vercel's preview-deploy checks ("Vercel", "Vercel Preview Comments") fire. `check-suites`
+  for the same commits additionally show two unexplained, perpetually `status: queued,
+  conclusion: null` suites from apps named "Claude" and "Xcode Cloud" that have no evident
+  relationship to this repo's CI setup and don't appear to be blocking anything themselves.
+  Ruled out: Actions disabled (`actions/permissions` → `enabled: true, allowed_actions: all`),
+  workflow files disabled (`gh workflow list` → all four workflows `active`), a `concurrency:`
+  block in `ci.yml` (none present), a skip-ci commit message, a GitHub-wide incident
+  (githubstatus.com reported all-green at the time), API rate limiting (4985/5000 remaining),
+  and branch protection/rulesets interference (neither is configured on this repo at all —
+  `main`/`develop` "protection" is currently a CLAUDE.md convention only, not a GitHub setting).
+Status: Open — root cause not identified; looks like a GitHub-side Actions dispatch failure
+  for this repo that isn't visible or fixable from the `gh` CLI/API. Needs investigation in the
+  GitHub web UI (repo Settings → Actions, and/or account-level Actions status/usage).
+Fix Branch: N/A
+Lesson Encoded: No — logged here only; revisit if it recurs or self-resolves.
+
 BUG-0017: Talk-demo captain phone shows the wrong hole because a stale kiosk-demo tournament
   outranks it in player tournament-membership resolution
 Severity: Low

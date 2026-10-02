@@ -3746,6 +3746,18 @@
   ],
   "bugs": [
     {
+      "id": "BUG-0019",
+      "title": "GitHub Actions does not dispatch CI/CodeQL runs for push/pull_request events on this",
+      "severity": "Medium (blocks CI verification before merge; no functional/user-facing impact)",
+      "relatedStory": "N/A (CI/CD infrastructure)",
+      "relatedTask": "",
+      "status": "Open — root cause not identified; looks like a GitHub-side Actions dispatch failure",
+      "fixBranch": "N/A",
+      "lessonEncoded": "No — logged here only; revisit if it recurs or self-resolves.",
+      "estimatedCostUsd": 0,
+      "ghIssueNumber": null
+    },
+    {
       "id": "BUG-0017",
       "title": "Talk-demo captain phone shows the wrong hole because a stale kiosk-demo tournament",
       "severity": "Low",
@@ -3941,292 +3953,300 @@
   "costs": {
     "US-0001": {
       "projectedUsd": 400,
-      "costUsd": 14.615504,
+      "costUsd": 14.828177,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0002": {
       "projectedUsd": 400,
-      "costUsd": 14.615504,
+      "costUsd": 14.828177,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0003": {
       "projectedUsd": 800,
-      "costUsd": 14.615504,
+      "costUsd": 14.828177,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0004": {
       "projectedUsd": 400,
-      "costUsd": 14.615504,
+      "costUsd": 14.828177,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0005": {
       "projectedUsd": 400,
-      "costUsd": 14.615504,
+      "costUsd": 14.828177,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0006": {
       "projectedUsd": 400,
-      "costUsd": 14.615504,
+      "costUsd": 14.828177,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0007": {
       "projectedUsd": 400,
-      "costUsd": 14.615504,
+      "costUsd": 14.828177,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0008": {
       "projectedUsd": 800,
-      "costUsd": 14.615504,
+      "costUsd": 14.828177,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0009": {
       "projectedUsd": 400,
-      "costUsd": 14.615504,
+      "costUsd": 14.828177,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0010": {
       "projectedUsd": 400,
-      "costUsd": 14.615504,
+      "costUsd": 14.828177,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0011": {
       "projectedUsd": 800,
-      "costUsd": 14.615504,
+      "costUsd": 14.828177,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0012": {
       "projectedUsd": 400,
-      "costUsd": 14.615504,
+      "costUsd": 14.828177,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0013": {
       "projectedUsd": 400,
-      "costUsd": 14.615504,
+      "costUsd": 14.828177,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0014": {
       "projectedUsd": 400,
-      "costUsd": 14.615504,
+      "costUsd": 14.828177,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0015": {
       "projectedUsd": 400,
-      "costUsd": 14.615504,
+      "costUsd": 14.828177,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0016": {
       "projectedUsd": 800,
-      "costUsd": 14.615504,
+      "costUsd": 14.828177,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0017": {
       "projectedUsd": 400,
-      "costUsd": 14.615504,
+      "costUsd": 14.828177,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0018": {
       "projectedUsd": 400,
-      "costUsd": 14.615504,
+      "costUsd": 14.828177,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0019": {
       "projectedUsd": 800,
-      "costUsd": 14.615504,
+      "costUsd": 14.828177,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0020": {
       "projectedUsd": 800,
-      "costUsd": 14.615504,
+      "costUsd": 14.828177,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0021": {
       "projectedUsd": 800,
-      "costUsd": 14.615504,
+      "costUsd": 14.828177,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0022": {
       "projectedUsd": 400,
-      "costUsd": 14.615504,
+      "costUsd": 14.828177,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0023": {
       "projectedUsd": 400,
-      "costUsd": 14.615504,
+      "costUsd": 14.828177,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0024": {
       "projectedUsd": 400,
-      "costUsd": 14.615504,
+      "costUsd": 14.828177,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0025": {
       "projectedUsd": 800,
-      "costUsd": 14.615504,
+      "costUsd": 14.828177,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0026": {
       "projectedUsd": 400,
-      "costUsd": 14.615504,
+      "costUsd": 14.828177,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0027": {
       "projectedUsd": 400,
-      "costUsd": 14.615504,
+      "costUsd": 14.828177,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0028": {
       "projectedUsd": 400,
-      "costUsd": 14.615504,
+      "costUsd": 14.828177,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0029": {
       "projectedUsd": 400,
-      "costUsd": 14.615504,
+      "costUsd": 14.828177,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0030": {
       "projectedUsd": 800,
-      "costUsd": 14.615504,
+      "costUsd": 14.828177,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0031": {
       "projectedUsd": 400,
-      "costUsd": 14.615504,
+      "costUsd": 14.828177,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0032": {
       "projectedUsd": 800,
-      "costUsd": 14.615504,
+      "costUsd": 14.828177,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0033": {
       "projectedUsd": 800,
-      "costUsd": 14.615504,
+      "costUsd": 14.828177,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0034": {
       "projectedUsd": 800,
-      "costUsd": 14.615504,
+      "costUsd": 14.828177,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0035": {
       "projectedUsd": 800,
-      "costUsd": 14.615504,
+      "costUsd": 14.828177,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0036": {
       "projectedUsd": 800,
-      "costUsd": 14.615504,
+      "costUsd": 14.828177,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0037": {
       "projectedUsd": 400,
-      "costUsd": 14.615504,
+      "costUsd": 14.828177,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0038": {
       "projectedUsd": 1600,
-      "costUsd": 14.615504,
+      "costUsd": 14.828177,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0039": {
       "projectedUsd": 1600,
-      "costUsd": 14.615504,
+      "costUsd": 14.828177,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0040": {
       "projectedUsd": 800,
-      "costUsd": 14.615504,
+      "costUsd": 14.828177,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0041": {
       "projectedUsd": 400,
-      "costUsd": 14.615504,
+      "costUsd": 14.828177,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0042": {
       "projectedUsd": 800,
-      "costUsd": 14.615504,
+      "costUsd": 14.828177,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0043": {
       "projectedUsd": 1600,
-      "costUsd": 14.615504,
+      "costUsd": 14.828177,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0044": {
       "projectedUsd": 800,
-      "costUsd": 14.615504,
+      "costUsd": 14.828177,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0045": {
       "projectedUsd": 400,
-      "costUsd": 14.615504,
+      "costUsd": 14.828177,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0046": {
       "projectedUsd": 400,
-      "costUsd": 14.615504,
+      "costUsd": 14.828177,
       "inputTokens": 0,
       "outputTokens": 0
     },
     "US-0047": {
       "projectedUsd": 400,
-      "costUsd": 97.902804,
+      "costUsd": 98.115477,
       "inputTokens": 6615905,
       "outputTokens": 608978
     },
     "_totals": {
-      "costUsd": 770.216,
-      "inputTokens": 53740489,
-      "outputTokens": 7833475
+      "costUsd": 780.2116,
+      "inputTokens": 54372173,
+      "outputTokens": 7890393
     },
     "_bugs": {
+      "BUG-0019": {
+        "costUsd": 0,
+        "inputTokens": 0,
+        "outputTokens": 0,
+        "sessions": 0,
+        "isEstimated": false,
+        "projectedUsd": 400
+      },
       "BUG-0017": {
         "costUsd": 0,
         "inputTokens": 0,
@@ -4919,10 +4939,10 @@
       "bugIds": []
     }
   ],
-  "generatedAt": "2026-10-02T13:37:05.740Z",
-  "commitSha": "dbfc54a",
-  "buildNumber": "147",
-  "branch": "docs/sync-cost-log-tail13",
+  "generatedAt": "2026-10-02T16:55:13.954Z",
+  "commitSha": "0fcfbbc",
+  "buildNumber": "155",
+  "branch": "docs/sync-cost-log-tail14",
   "sessionTimeline": [
     {
       "date": "2026-06-09",
@@ -5037,8 +5057,8 @@
       "cumCost": 758.3451
     },
     {
-      "date": "2026-10-01",
-      "cumCost": 770.216
+      "date": "2026-10-02",
+      "cumCost": 780.2116
     }
   ],
   "costHistory": {
@@ -5170,14 +5190,16 @@
       {
         "date": "2026-09-30",
         "costUsd": 51.9675
-      },
+      }
+    ],
+    "docs/sync-cost-log-tail14": [
       {
-        "date": "2026-10-01",
-        "costUsd": 11.8709
+        "date": "2026-10-02",
+        "costUsd": 21.8665
       }
     ]
   },
-  "deltaSpend": 11.87,
+  "deltaSpend": 21.87,
   "projectName": "CodeMie",
   "tagline": "FDgolf CodeMie project.",
   "version": "0.1.0",
@@ -5251,10 +5273,10 @@
   },
   "budget": {
     "totalBudget": null,
-    "totalSpent": 770.216,
+    "totalSpent": 780.2116,
     "totalProjected": 29200,
     "percentUsed": null,
-    "burnRate": 15.520707142857134,
+    "burnRate": 15.152366666666657,
     "daysRemaining": null,
     "projectedExhaustion": null,
     "thresholds": [
@@ -5268,96 +5290,96 @@
       {
         "id": "EPIC-0001",
         "title": "Project Setup & Infrastructure",
-        "budget": 229.44234,
-        "spent": 229.44234,
+        "budget": 231.56906999999998,
+        "spent": 231.56906999999998,
         "remaining": 0,
         "percentUsed": 100
       },
       {
         "id": "EPIC-0002",
         "title": "Registration & Authentication",
-        "budget": 87.693024,
-        "spent": 87.693024,
+        "budget": 88.969062,
+        "spent": 88.969062,
         "remaining": 0,
         "percentUsed": 100
       },
       {
         "id": "EPIC-0003",
         "title": "Player Dashboard",
-        "budget": 29.231008,
-        "spent": 29.231008,
+        "budget": 29.656354,
+        "spent": 29.656354,
         "remaining": 0,
         "percentUsed": 100
       },
       {
         "id": "EPIC-0004",
         "title": "Active Round — Shot Tracking",
-        "budget": 102.308528,
-        "spent": 102.308528,
+        "budget": 103.79723899999999,
+        "spent": 103.79723899999999,
         "remaining": 0,
         "percentUsed": 100
       },
       {
         "id": "EPIC-0005",
         "title": "Hole & Round Completion",
-        "budget": 43.846512,
-        "spent": 43.846512,
+        "budget": 44.484531000000004,
+        "spent": 44.484531000000004,
         "remaining": 0,
         "percentUsed": 100
       },
       {
         "id": "EPIC-0006",
         "title": "Leaderboard",
-        "budget": 58.462016,
-        "spent": 58.462016,
+        "budget": 59.312708,
+        "spent": 59.312708,
         "remaining": 0,
         "percentUsed": 100
       },
       {
         "id": "EPIC-0007",
         "title": "Admin — Tournament & Course Setup",
-        "budget": 58.462016,
-        "spent": 58.462016,
+        "budget": 59.312708,
+        "spent": 59.312708,
         "remaining": 0,
         "percentUsed": 100
       },
       {
         "id": "EPIC-0008",
         "title": "Admin — Player & Team Management",
-        "budget": 29.231008,
-        "spent": 29.231008,
+        "budget": 29.656354,
+        "spent": 29.656354,
         "remaining": 0,
         "percentUsed": 100
       },
       {
         "id": "EPIC-0009",
         "title": "Admin — Scores & Sponsors",
-        "budget": 29.231008,
-        "spent": 29.231008,
+        "budget": 29.656354,
+        "spent": 29.656354,
         "remaining": 0,
         "percentUsed": 100
       },
       {
         "id": "EPIC-0010",
         "title": "Security & 2FA",
-        "budget": 14.615504,
-        "spent": 14.615504,
+        "budget": 14.828177,
+        "spent": 14.828177,
         "remaining": 0,
         "percentUsed": 100
       },
       {
         "id": "EPIC-0011",
         "title": "Multi-Tournament Administration, Venues & Courses",
-        "budget": 73.07751999999999,
-        "spent": 73.07751999999999,
+        "budget": 74.140885,
+        "spent": 74.140885,
         "remaining": 0,
         "percentUsed": 100
       },
       {
         "id": "EPIC-0012",
         "title": "Admin UI Redesign",
-        "budget": 14.615504,
-        "spent": 14.615504,
+        "budget": 14.828177,
+        "spent": 14.828177,
         "remaining": 0,
         "percentUsed": 100
       }
@@ -5380,13 +5402,15 @@
       "2026-09-30T14:07:28.093Z",
       "2026-09-30T17:39:09.186Z",
       "2026-09-30T19:41:28.037Z",
-      "2026-10-02T13:37:05.832Z"
+      "2026-10-02T13:37:05.832Z",
+      "2026-10-02T16:55:14.060Z"
     ],
     "doneCounts": [
       0,
       32,
       32,
       35,
+      47,
       47,
       47,
       47,
@@ -5412,6 +5436,7 @@
       47,
       47,
       47,
+      47,
       47
     ],
     "aiCosts": [
@@ -5428,7 +5453,8 @@
       708.4975999999999,
       716.2625,
       723.8126,
-      770.216
+      770.216,
+      780.2116
     ],
     "coverage": [
       null,
@@ -5444,6 +5470,7 @@
       96.05,
       96.05,
       98.52,
+      98.52,
       98.52
     ],
     "velocity": [
@@ -5451,6 +5478,7 @@
       56,
       56,
       61,
+      93,
       93,
       93,
       93,
@@ -5476,9 +5504,11 @@
       1,
       0,
       0,
-      1
+      1,
+      2
     ],
     "atRisk": [
+      0,
       0,
       0,
       0,
@@ -5508,7 +5538,8 @@
       50225659,
       50583887,
       51327559,
-      53740489
+      53740489,
+      54372173
     ],
     "outputTokens": [
       157392,
@@ -5524,13 +5555,15 @@
       7439725,
       7506432,
       7558116,
-      7833475
+      7833475,
+      7890393
     ],
     "avgRisk": [
       1.1000000000000008,
       1.1,
       1.1,
       1.1,
+      0,
       0,
       0,
       0,
