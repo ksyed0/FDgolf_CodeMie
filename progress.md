@@ -1740,3 +1740,51 @@ on it had been pushed/PR'd yet.
 - Still outstanding from Sessions 40/41: bug ID for `tournament-lifecycle.spec.ts` step-12's
   pre-existing leaderboard failure; the stray-demo-tournament cleanup follow-up (now
   partially informed by BUG-0017's findings, but still not actioned).
+
+## Session 42 — 2026-10-02 (develop → main catch-up release, v0.8)
+
+- **PR #94** (`docs/sync-cost-log-tail14` → `develop`): orphaned `docs/AI_COST_LOG.md` rows
+  + the BUG-0017/L-0023 documentation from the prior session's close. GitHub Actions never
+  dispatched a CI/CodeQL run for this branch across two pushes, despite exhausting every
+  CLI-visible diagnosis (Actions enabled, workflows active, no concurrency block, no skip-ci
+  message, no GitHub incident, API rate limits fine, no branch protection/rulesets configured
+  on this repo at all). Logged as **BUG-0019** in `docs/BUGS.md`. Asked the user how to
+  proceed; they chose to merge without CI verification since the change was docs-only with
+  zero code risk. Merged.
+- **Discovered while preparing the `develop` → `main` PR:** `main` was pinned at `20fae73`
+  (tag `v0.5`), ~70 commits and ~4 months behind `develop`. Tags `v0.6`/`v0.7` exist and GitHub
+  confirms PRs #37/#40 genuinely merged `develop` → `main` at the time — but neither merge
+  commit (`3dcd9af` for v0.6, `de65b4c` for v0.7) is an ancestor of either branch's current
+  tip, meaning both branches underwent a history rewrite (likely a rebase, circumstantially
+  tied to a logged "git rebase completed on develop" event around 2026-06-21) that silently
+  orphaned both releases. `MEMORY.md`/`progress.md` claims of "main: v0.7 released" were
+  therefore inaccurate relative to the actual `main` ref. Surfaced this to the user; they
+  chose to proceed with one big catch-up PR rather than anything more surgical.
+- **PR #95** (`develop` → `main`): opened with full history of the above explained in the
+  PR body. CI dispatched and ran normally this time (format/audit/lint/test/e2e/CodeQL all
+  passed) — the BUG-0019 anomaly did not recur. Merged via a real merge commit (`5521bcc`),
+  matching the convention used by the prior (now-orphaned) release PRs #37/#40, i.e. not
+  squashed and the `develop` branch not deleted.
+- **Release:** tagged `v0.8` on the merged `main` commit and published a GitHub Release
+  (`gh release create v0.8`) explaining the v0.6/v0.7 orphaning and that this release
+  supersedes their content plus everything merged into `develop` since. `progress.md` had
+  already independently noted "tag v0.8" as the planned next version (line ~202 of an
+  earlier session), so no naming conflict.
+- Updated `MEMORY.md`'s "Branch State" table to reflect the corrected, accurate state of
+  `main` (v0.8, PR #95, merge commit `5521bcc`) and flagged prior "v0.7 released" notes as
+  superseded.
+- This merge triggered a real Vercel production deployment to `https://fdgolfcm.vercel.app`.
+
+**Files changed:** `docs/BUGS.md`, `docs/ID_REGISTRY.md`, `docs/AI_COST_LOG.md`,
+`docs/plan-status.html`, `docs/plan-status.json`, `MEMORY.md`, `progress.md` (this entry),
+`.gitignore` (carried from PR #94).
+
+**Branches:** `docs/sync-cost-log-tail14` → merged to `develop` (PR #94, squash);
+`develop` → merged to `main` (PR #95, merge commit) → tagged `v0.8`.
+
+**Next steps:**
+- Check whether `README.md` needs updating given the catch-up release (in progress).
+- Consider a brief addendum to BUG-0019 noting the anomaly did not recur on PR #95 — done,
+  see `MEMORY.md`'s BUG-0019 note above (not yet mirrored into `docs/BUGS.md` itself).
+- BUG-0017 still **Open** (unchanged from prior session — no fix implemented, diagnosis
+  only).

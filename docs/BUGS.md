@@ -29,6 +29,13 @@ Status: Open — root cause not identified; looks like a GitHub-side Actions dis
   GitHub web UI (repo Settings → Actions, and/or account-level Actions status/usage).
 Fix Branch: N/A
 Lesson Encoded: No — logged here only; revisit if it recurs or self-resolves.
+Addendum (2026-10-02, same session): CI dispatched and ran normally on the very next PR
+  (#95, `develop` → `main`) — `CI` and `CodeQL` both queued immediately on push, and all five
+  `CI` jobs (format, audit, lint, test, e2e) plus `CodeQL` completed successfully. The anomaly
+  did not recur. This suggests the failure was transient or specific to that branch/push
+  rather than a persistent repo-wide dispatch failure. Leaving Status as Open rather than
+  Resolved since the root cause is still unknown and it could recur; downgrading expected
+  urgency of the "investigate in GitHub web UI" follow-up accordingly.
 
 BUG-0017: Talk-demo captain phone shows the wrong hole because a stale kiosk-demo tournament
   outranks it in player tournament-membership resolution
