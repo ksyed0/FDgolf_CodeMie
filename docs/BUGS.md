@@ -1,5 +1,46 @@
 # FDgolf — Bug Tracker
 
+BUG-0017: Talk-demo captain phone shows the wrong hole because a stale kiosk-demo tournament
+  outranks it in player tournament-membership resolution
+Severity: Low
+Related Story: N/A (demo tooling, `scripts/demo-talk/`)
+Steps to Reproduce:
+  1. Run the kiosk demo (`npm run demo`, `scripts/demo/run.ts`), then stop it with Ctrl-C or
+     `TaskStop` partway through a round (e.g. after reaching hole 2) instead of letting it
+     finish or run `resetTournament()` again.
+  2. Separately, run the talk demo (`npm run demo:talk`, `scripts/demo-talk/run-talk.ts`),
+     which fast-forwards `fdgolf-talk-demo`'s Eagle Squadron to hole 15 and opens a captain
+     phone browser logged in as `demo-captain@fdgolf.demo`.
+  3. Observe the phone browser's `/round` page.
+Expected: "Hole 15" (the talk demo's own fast-forwarded state for `fdgolf-talk-demo`).
+Actual: "Hole 2" — the kiosk demo's (`lionhead-legends-demo`) stale `round_states` row — and
+  within ~15-30s `foreground-talk.ts`'s `waitForSelector('text=Hole 15', { timeout: 15_000 })`
+  times out and its catch block calls `closeBrowsers()`, which looked to the user like both
+  Playwright windows "crashing."
+  Root cause (confirmed via direct Supabase REST queries against `tournaments`, `teams`, and
+  `round_states`): `fdgolf-talk-demo` and `lionhead-legends-demo` share one demo-captain auth
+  account (`demo-captain@fdgolf.demo`) by design (see `scripts/demo-talk/seed-talk.ts`'s
+  `upsertTeamsAndPlayers()` comment). `TaskStop`/Ctrl-C on the kiosk demo never updates that
+  tournament's `status` row, so both tournaments were simultaneously `status: 'active'`.
+  `getActivePlayerMembership()` (`src/lib/tournament-membership.ts`) resolves ties between
+  multiple active/paused tournaments for the same player by picking the newest
+  `tournaments.created_at` — but "newest tournament" is not "the one the user is currently
+  running a demo in." Lionhead was created later (`17:29:37` vs the talk demo's `16:29:29`
+  the same day), so it always won the tie-break while both demos' tournaments were active,
+  and the player page (`src/app/(player)/round/page.tsx`) read Lionhead's `round_states` row
+  (`current_hole: 2`, stuck there from the kiosk demo's abrupt stop) instead of the talk
+  demo's own fast-forwarded row.
+  This is the same underlying class of problem as BUG-0016 (stale demo tournaments outranking
+  the intended one by recency), but on the player-facing membership path instead of the
+  admin `getActiveTournamentId()` fallback, and it reproduces reliably whenever both demo
+  scripts' tournaments are left `active`/`paused` at once — not just a one-off local-data
+  artifact.
+Status: Open
+Fix Branch: N/A — diagnosed only; two remediation options (pause the other demo tournament
+  in `run-talk.ts`'s `resetTournament()`, or manually pause it before each talk-demo run)
+  were presented to the user but no fix has been requested or implemented yet.
+Lesson Encoded: Yes — see L-0023 in `docs/LESSONS.md`.
+
 BUG-0016: Admin E2E specs resolve to the wrong tournament when stale demo data outranks CIBC
 Severity: Low
 Related Story: N/A (E2E test infra / local environment)

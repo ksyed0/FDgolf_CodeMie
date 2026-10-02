@@ -531,3 +531,20 @@ Must apply `005_scores_player_rls.sql` to all Supabase instances (local ✓, sta
 1. **Invite real tournament players** via CSV import (`scripts/sample-data/players-import.csv` as template) or individual magic link
 2. **Pre-tournament smoke test** on tournament day (June 22): confirm login, submit score, verify leaderboard end-to-end
 3. **Post-tournament**: upgrade eslint v8 → v9 (flat config), remove `.npmrc` legacy-peer-deps workaround
+
+---
+
+## Demo tournaments can collide via the shared demo-captain account (BUG-0017)
+
+`scripts/demo/seed-lionhead.ts` (`lionhead-legends-demo`) and `scripts/demo-talk/seed-talk.ts`
+(`fdgolf-talk-demo`) deliberately share one auth login, `demo-captain@fdgolf.demo`, across
+both demo tournaments. `getActivePlayerMembership()` (`src/lib/tournament-membership.ts`)
+resolves which tournament that account is "currently" on by picking the one with the newest
+`tournaments.created_at` among rows where `tournaments.status IN ('active','paused')` — this
+only works if at most one of the two demo tournaments is non-terminal at a time. Stopping the
+kiosk demo via `TaskStop`/Ctrl-C does **not** flip `lionhead-legends-demo`'s status, so if the
+talk demo is then started while Lionhead is still `active`, the player-facing `/round` page
+reads Lionhead's stale `round_states` row instead of the talk demo's. Full root cause and two
+unimplemented remediation options are in `docs/BUGS.md` (BUG-0017) and `docs/LESSONS.md`
+(L-0023). Before running `npm run demo:talk`, check that `lionhead-legends-demo` (and any
+other demo tournament sharing the captain login) is not left `active`/`paused`.

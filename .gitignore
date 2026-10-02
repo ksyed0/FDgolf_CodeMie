@@ -4,6 +4,7 @@ node_modules/
 docs/coverage/
 .superpowers/
 docs/dashboard.html
+docs/codemie/
 
 # Build outputs
 .next/

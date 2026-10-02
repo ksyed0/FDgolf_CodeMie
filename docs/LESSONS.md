@@ -1,5 +1,39 @@
 # Lessons Learned
 
+## L-0023 — "Pick the newest tournament" is not a safe tie-break for shared demo accounts
+
+@session: 42 — 2026-10-02
+
+**Symptom**: The talk demo's captain phone showed "Hole 2" instead of the fast-forwarded
+"Hole 15", and both Playwright demo windows appeared to "crash" ~15-30s later. See BUG-0017.
+
+**Root cause**: `getActivePlayerMembership()` (`src/lib/tournament-membership.ts`) was
+written specifically to handle a player account shared across multiple tournaments (its own
+doc comment names the demo-captain account as the motivating case), and resolves ties by
+sorting candidate `tournament_players` rows by `tournaments.created_at` descending — "most
+recently created tournament wins." That heuristic silently assumes a shared account is only
+ever rostered on one *truly* active tournament at a time. It breaks the moment two such
+tournaments are simultaneously `active`/`paused` — e.g. the kiosk demo was stopped
+mid-round (`TaskStop`/Ctrl-C, which never flips `tournaments.status`) while the talk demo's
+tournament was separately started — because "newest" has no relationship to "the one the
+caller actually means right now."
+
+**Fix pattern**: A recency tie-break over `created_at` is only safe when the two states it's
+disambiguating are mutually exclusive by construction (e.g. truly one tournament can ever be
+non-terminal for that player). When a resource can accumulate multiple simultaneously-"active"
+rows for the same identity — demo/seed scripts reusing one login being a common source — either
+(a) make the stop path (`TaskStop`, Ctrl-C, process exit) reliably transition status to a
+terminal state before a new run starts, or (b) require an explicit scoping key (e.g. a
+tournament id read from a cookie/URL, as `getActiveTournamentId()` already does for admin
+sessions) rather than inferring intent from a secondary attribute like `created_at`. BUG-0016
+is the same class of bug on the admin side; `getActivePlayerMembership()`'s "pick newest" is
+the player-side variant that was still open at write time.
+
+**Applies to**: Any lookup that resolves "the current X for this shared/demo identity" by
+sorting rows on a timestamp instead of an explicit scope.
+
+---
+
 ## L-0022 — `/* istanbul ignore next */` is silently inert under `next/jest` (SWC transform)
 
 @session: 41 — 2026-09-30

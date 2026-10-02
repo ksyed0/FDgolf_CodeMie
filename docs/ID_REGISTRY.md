@@ -14,7 +14,7 @@ Rules:
 | TASK     | TASK-0047         | TASK-0046     |
 | AC       | AC-0155           | AC-0154       |
 | TC       | TC-0171           | TC-0170       |
-| BUG      | BUG-0017          | BUG-0016      |
+| BUG      | BUG-0018          | BUG-0017      |
 
 > Note (2026-09-30): BUG-0015 was already consumed by a merged fix (commit `f000ad3`,
 > "Scope player tournament lookup to membership, not latest row") whose `docs/BUGS.md`
