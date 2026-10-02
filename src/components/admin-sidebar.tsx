@@ -2,7 +2,6 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { useTransition } from 'react';
 import { cn } from '@/lib/utils';
 import {
   Trophy,
@@ -13,10 +12,8 @@ import {
   Star,
   MapPin,
   Flag,
-  UserCheck,
   ChevronDown,
 } from 'lucide-react';
-import { setActiveTournamentAction } from '@/lib/actions/set-active-tournament';
 import type { PlayerRole } from '@/lib/types';
 
 const GLOBAL_NAV = [
@@ -60,14 +57,6 @@ function NavItem({ href, label, Icon }: { href: string; label: string; Icon: Rea
 
 export function AdminSidebar({ role, activeTournament }: AdminSidebarProps) {
   const router = useRouter();
-  const [isPending, startTransition] = useTransition();
-
-  const handleTournamentChange = (tournamentId: string) => {
-    startTransition(async () => {
-      await setActiveTournamentAction(tournamentId);
-      router.refresh();
-    });
-  };
 
   return (
     <aside className="flex h-full w-[212px] shrink-0 flex-col bg-[#1a472a] text-white">

@@ -70,7 +70,11 @@ export default function TvLeaderboard({ leaderboard, sparklines }: TvLeaderboard
   const sparkMap = new Map(sparklines.map((s) => [s.teamId, s]));
 
   return (
-    <div className="h-full flex flex-col overflow-hidden" style={{ background: '#f4f7f1' }}>
+    <div
+      data-testid="tv-leaderboard-panel"
+      className="h-full flex flex-col overflow-hidden"
+      style={{ background: '#f4f7f1' }}
+    >
       {/* Header */}
       <div
         className="flex items-center gap-3 px-5 py-4"

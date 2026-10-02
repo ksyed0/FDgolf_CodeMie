@@ -33,6 +33,7 @@ const ROOT = path.resolve(__dirname, '..');
 // not in worktrees. Walk up to the git root so worktree invocations find it.
 function findGitRoot(start) {
   let dir = start;
+  // eslint-disable-next-line no-constant-condition -- bounded by the filesystem-root return below
   while (true) {
     if (fs.existsSync(path.join(dir, '.git'))) return dir;
     const parent = path.dirname(dir);
@@ -1928,7 +1929,7 @@ function generateHTML(status) {
   .mc-agent-model-chip.opus { background: oklch(55% 0.22 290 / 10%); color: oklch(60% 0.1 290); }
   .mc-active-story { background: oklch(0% 0 0 / .35); border-radius: 6px; padding: 7px 10px; font-size: 10px; margin-bottom: 6px; }
   .mc-active-story-id { color: oklch(83% 0.15 70); font-weight: 700; margin-right: 6px; }
-  .mc-active-story-desc { color: oklch(70% 0.15 50); }
+  .mc-active-story-desc { color: oklch(88% 0.03 220); }
   .mc-active-meta { display: flex; gap: 14px; font-size: 9px; color: var(--text-muted); font-family: var(--font-mono); flex-wrap: wrap; }
   .mc-active-meta span { color: var(--text-secondary); }
   /* ── BUG-0186: Conductor last-dispatch strip ── */

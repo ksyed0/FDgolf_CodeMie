@@ -50,7 +50,7 @@ export const fakeTeam = {
   id: 'team-001',
   tournament_id: 'tournament-001',
   team_number: 7,
-  team_name: 'Eagles',
+  team_name: 'Hawks',
   starting_hole: 14,
   max_players: 4,
   captain_id: 'player-001',
@@ -61,6 +61,24 @@ export const fakePlayers = [
   { id: 'player-002', name: 'Bob Chen', email: 'bob@example.com', team_id: 'team-001', role: 'player' },
   { id: 'player-003', name: 'Carol Davis', email: 'carol@example.com', team_id: 'team-001', role: 'player' },
   { id: 'player-004', name: 'Dave Wilson', email: 'dave@example.com', team_id: 'team-001', role: 'player' },
+]
+
+// Migration 011 (tournament_players) replaced the players.team_id direct FK with a join table.
+// Tests that load /round, /leaderboard, or /dashboard now query tournament_players to find
+// team membership; without this mock the page redirects with "not assigned to a team".
+//
+// BUG-0015: getActivePlayerMembership() selects `tournament_id, team_id,
+// tournaments!inner(status, created_at)` — a nested embed — and sorts on
+// `tournaments.created_at`. mockSupabaseTable() returns these rows verbatim
+// (it doesn't interpret the real query's embedded-select shape), so each row
+// needs the same nested `tournaments` object or that lookup throws on
+// `undefined.created_at` and the page's init() silently swallows the error.
+const FAKE_TOURNAMENT_EMBED = { status: 'active', created_at: '2026-01-01T00:00:00.000Z' }
+export const fakeTournamentMembership = [
+  { player_id: 'player-001', team_id: 'team-001', tournament_id: 'tournament-001', tournaments: FAKE_TOURNAMENT_EMBED },
+  { player_id: 'player-002', team_id: 'team-001', tournament_id: 'tournament-001', tournaments: FAKE_TOURNAMENT_EMBED },
+  { player_id: 'player-003', team_id: 'team-001', tournament_id: 'tournament-001', tournaments: FAKE_TOURNAMENT_EMBED },
+  { player_id: 'player-004', team_id: 'team-001', tournament_id: 'tournament-001', tournaments: FAKE_TOURNAMENT_EMBED },
 ]
 
 export const fakeTournament = {
@@ -104,8 +122,22 @@ export const fakeSponsors = [
   { id: 'sponsor-002', name: 'Deloitte', logo_url: null, display_order: 2, is_active: false, tournament_id: 'tournament-001' },
 ]
 
+// Team names intentionally avoid scoring-term collisions (Eagles, Birdies, Pars,
+// Bogeys) — the TV stat-rotator has panels with those exact labels, and a fixture
+// team named "Eagles" makes `getByText('Eagles')` ambiguous (matches the stat
+// panel header AND the leaderboard row), causing TC-0067-style failures.
+// par_total mirrors LeaderboardRow (src/lib/types.ts) — required for vs-par math in
+// TvLeaderboard.tsx (formatScore(total_score - par_total)). Omitting it produces
+// `total_score - undefined` = NaN, which renders as "+NaN" in the Sc column; that
+// extra-wide text overflows the column's fixed 46px grid track and squeezes the
+// adjacent `1fr` Team column down to ~4px, making the team-name span effectively
+// zero-width and reported as hidden by Playwright (a second, fixture-driven cause
+// behind BUG-0008, distinct from the rotator-panel timing/scoping issue).
+// total_score is cumulative strokes taken (not vs-par); par_total is cumulative
+// par for the holes_completed so far (~4 strokes/hole) — vsParVal stays small
+// (single/double digit with sign), matching realistic in-round leaderboard text.
 export const fakeLeaderboard = [
-  { team_id: 'team-001', team_name: 'Eagles', total_score: -5, holes_completed: 12, rank: 1 },
-  { team_id: 'team-002', team_name: 'Birdies', total_score: -3, holes_completed: 11, rank: 2 },
-  { team_id: 'team-003', team_name: 'Pars', total_score: 0, holes_completed: 10, rank: 3 },
+  { team_id: 'team-001', team_name: 'Hawks', total_score: 43, par_total: 48, holes_completed: 12, rank: 1 },
+  { team_id: 'team-002', team_name: 'Falcons', total_score: 41, par_total: 44, holes_completed: 11, rank: 2 },
+  { team_id: 'team-003', team_name: 'Owls', total_score: 40, par_total: 40, holes_completed: 10, rank: 3 },
 ]

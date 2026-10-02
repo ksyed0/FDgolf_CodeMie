@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
+import { getActivePlayerMembership } from '@/lib/tournament-membership';
 import { SponsorBanner } from '@/components/sponsor-banner';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -30,15 +31,11 @@ export default async function DashboardPage() {
     venue: { name: string; city: string; province_state: string } | null;
   };
 
-  const [{ data: player }, { data: tournament }] = await Promise.all([
-    supabase.from('players').select('*').eq('auth_user_id', user.id).single<Player>(),
-    supabase
-      .from('tournaments')
-      .select('*, venue:venues!venue_id(name, city, province_state)')
-      .order('created_at', { ascending: false })
-      .limit(1)
-      .single<TournamentWithVenue>(),
-  ]);
+  const { data: player } = await supabase
+    .from('players')
+    .select('*')
+    .eq('auth_user_id', user.id)
+    .single<Player>();
 
   if (player?.role === 'system_admin' || player?.role === 'tournament_admin')
     redirect('/admin/tournament');
@@ -58,35 +55,35 @@ export default async function DashboardPage() {
   let team: Team | null = null;
   let teammates: Player[] = [];
   let sponsors: Sponsor[] = [];
+  let tournament: TournamentWithVenue | null = null;
 
-  if (tournament) {
-    const [{ data: sponsorData }] = await Promise.all([
-      supabase.from('sponsors').select('*').eq('tournament_id', tournament.id),
+  const membership = await getActivePlayerMembership(supabase, player.id);
+
+  if (membership) {
+    const [{ data: tournamentData }, { data: sponsorData }] = await Promise.all([
+      supabase
+        .from('tournaments')
+        .select('*, venue:venues!venue_id(name, city, province_state)')
+        .eq('id', membership.tournamentId)
+        .single<TournamentWithVenue>(),
+      supabase.from('sponsors').select('*').eq('tournament_id', membership.tournamentId),
     ]);
+    tournament = tournamentData ?? null;
     sponsors = (sponsorData as Sponsor[]) ?? [];
 
-    const { data: membership } = await supabase
+    const { data: tpData } = await supabase
       .from('tournament_players')
-      .select('team_id')
-      .eq('player_id', player.id)
-      .eq('tournament_id', tournament.id)
-      .single<{ team_id: string }>();
+      .select('player_id')
+      .eq('team_id', membership.teamId)
+      .eq('tournament_id', membership.tournamentId);
+    const teammateIds = (tpData ?? []).map((r: { player_id: string }) => r.player_id);
 
-    if (membership) {
-      const { data: tpData } = await supabase
-        .from('tournament_players')
-        .select('player_id')
-        .eq('team_id', membership.team_id)
-        .eq('tournament_id', tournament.id);
-      const teammateIds = (tpData ?? []).map((r: { player_id: string }) => r.player_id);
-
-      const [{ data: teamData }, { data: teammateData }] = await Promise.all([
-        supabase.from('teams').select('*').eq('id', membership.team_id).single<Team>(),
-        supabase.from('players').select('*').in('id', teammateIds),
-      ]);
-      team = teamData;
-      teammates = (teammateData as Player[]) ?? [];
-    }
+    const [{ data: teamData }, { data: teammateData }] = await Promise.all([
+      supabase.from('teams').select('*').eq('id', membership.teamId).single<Team>(),
+      supabase.from('players').select('*').in('id', teammateIds),
+    ]);
+    team = teamData;
+    teammates = (teammateData as Player[]) ?? [];
   }
 
   const canStartRound = tournament?.status === 'active';

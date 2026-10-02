@@ -1,5 +1,208 @@
 # FDgolf-CM — Progress
 
+## Session 40 -- 2026-06-30 (Conductor-orchestrated fix-e2e-trio)
+
+**Agent(s):** Conductor (orchestrator) + Pixel ×3 (Frontend Dev, parallel) + Lens ×3 (Code Reviewer, sequential as each fix landed)
+**Duration:** ~2.5 hrs wall-clock (3 fixes ran in parallel worktrees)
+**Stories touched:** BUG-0008, BUG-0009, BUG-0010 (E2E test infra)
+**Tasks completed:** All 3 bugs from `docs/superpowers/prompts/2026-06-30-fix-e2e-trio.md`, fixed and merged
+**Branches:** `fix/BUG-0009-admin-teams-hole-badge` → PR #60 (merged), `fix/BUG-0010-lifecycle-add-tournament` → PR #61 (merged), `fix/BUG-0008-tv-leaderboard-rotator-wait` → PR #62 (merged)
+**Status:** Complete
+
+### What Was Done
+
+- Executed `docs/superpowers/prompts/2026-06-30-fix-e2e-trio.md` via `docs/agents/DM_AGENT.md`'s Conductor pattern. PR #59 (carrying the prompt + BUG-0008/0009/0010 entries) was merged first since it wasn't yet on `develop`.
+- Dispatched all 3 fixes in parallel (isolated worktrees, no file overlap) rather than the prompt's serial 0010→0009→0008 ordering, since the bugs are file-disjoint and DM_AGENT.md's parallel-agent pattern applies.
+- **BUG-0009** (admin teams hole badge): root cause was never the selector — `supabase/seed.sql` never inserts `teams` rows, so the SSR `/admin/teams` page legitimately rendered zero cards after `db reset`. Fix: seed `teams` in `tests/e2e/global-setup.ts`. Lens: APPROVE (minor commit-format nit, fixed at merge).
+- **BUG-0010** (lifecycle step-05): root cause was a real routing fact, not a bug — `/admin/tournament` (singular) only shows the create form when no tournament is active, and `global-setup.ts` always pre-activates one. Fix: step-05 now creates via `/admin/tournaments` (plural), step-06 switches active context via "Manage". Two more incidental pre-existing test bugs fixed in steps 06/07 while verifying. Lens: APPROVE after source-level verification of the routing claim.
+- **BUG-0008** (TV leaderboard rotator): two compounding bugs — (1) `TvStatsRotator` keeps all panels mounted and toggles `opacity-0`, so an unscoped locator could match a hidden rotator-panel copy of the team name; fixed via `data-testid="tv-leaderboard-panel"` scoping. (2) Separately, the test fixture was missing `par_total`, producing `NaN` that visually squeezed the team-name column to ~4px even with the scoping fix. Sidebar widened 25%→34%. Lens: **REQUEST_CHANGES** (commit format + flagged the production-layout change for explicit visual verification before merge, since it ships to the real TV broadcast display) → Conductor fixed the commit message and visually verified the new layout via Playwright screenshot of `/live/<slug>/tv` (both team names render fully, no truncation) → merged.
+- One sub-agent (BUG-0010) got confused about which of two worktree paths was its own mid-task and stopped without committing. The harness's auto-mode classifier correctly blocked the Conductor's first attempt to resume it on the Conductor's own assertion of authority; routed to the human for explicit confirmation, then resumed cleanly with no work lost.
+- Filed **BUG-0011** (new ID, registry bumped to next-available BUG-0012) for a previously-unreachable failure exposed by the BUG-0010 fix: lifecycle step-08 (player→team assignment) waits for a `/rest/v1/players` PATCH the app no longer issues — assignment now goes through `tournament_players` per migration 011. Diagnosis already captured in the bug writeup for whoever picks it up next.
+
+### Test Results
+
+- **Full local E2E suite, post-merge, clean `supabase db reset`:** **73 passed / 1 failed / 2 skipped / 3 did not run** — up from the session-39 baseline of 68 passed / 3 failed / 2 skipped / 6 did not run.
+- The 1 remaining failure is BUG-0011 (newly filed, out of scope for this prompt — not a regression).
+- `npx jest --ci`: 173/173 passing throughout all 3 branches.
+- All 3 PRs landed with green CI (format, audit, test, CodeQL, Vercel) and auto-squash-merged.
+
+### Branches
+
+`fix/BUG-0009-admin-teams-hole-badge`, `fix/BUG-0010-lifecycle-add-tournament`, `fix/BUG-0008-tv-leaderboard-rotator-wait` — all merged and deleted. All temporary `.claude/worktrees/agent-*` directories and `worktree-agent-*` branches cleaned up per DM_AGENT.md's post-merge protocol.
+
+### Next Steps
+
+- Pick up **BUG-0011** (lifecycle step-08 player-assignment): update the test's `waitForResponse` predicate to match `tournament_players` instead of `players` — diagnosis is already in `docs/BUGS.md`.
+- Platform debt carried over: `auto_expose_new_tables` flag removal on 2026-10-30 — file a migration with explicit GRANTs by end of September.
+- TV leaderboard sidebar is now 34% (partial restoration toward the original 45% spec per BUG-0008's writeup) — full restoration is still open if desired.
+
+---
+
+## Session 39 -- 2026-06-30 (E2E verification + Supabase image dedup)
+
+### What Was Done
+
+**E2E baseline on develop@`d328619`** (post-chip merges from session 36/38):
+- **68 passed, 3 failed, 2 skipped, 6 did not run** — vs. 14/54 at start of session 37
+- Remaining failures logged as **BUG-0008** (TC-0067 TV rotator), **BUG-0009** (TC-0086 admin teams H{n} badge), **BUG-0010** (lifecycle step-05; cascades to 6 downstream steps)
+
+**Supabase CLI + local stack upgrade for image dedup**:
+- Two local stacks (`FDgolf_Claude` + `FDgolf_CodeMie`) were on different image versions, eating ~6 GB of duplicate storage
+- Upgraded Supabase CLI v2.108.0 → v2.109.0 via `brew upgrade supabase/tap/supabase`
+- Stopped + restarted `FDgolf_CodeMie` stack — newer CLI pulled the same image versions Claude is on; both stacks now share a single set of images
+- `docker image prune -a` removed 8 newly-orphaned older images
+- **Disk reclaimed: 6.06 GB** (15.04 GB → 8.99 GB; 20 images → 12 images)
+- Local DB data preserved via Docker volumes; data resumed identically after restart
+
+**No code changes** — diagnosis + infrastructure work only.
+
+### Test Results
+- CI on develop: ✅ green throughout (CI, CodeQL, Plan Visualizer)
+- Jest: 147 tests, 91.2% coverage (unchanged)
+- E2E: 68/79 (excluding skipped) = 86%
+
+### Branch / PRs
+- No PRs opened or merged this session — purely diagnosis + ops
+- BUGS.md gets 3 new entries (BUG-0008/0009/0010) via the session-close PR
+
+### Follow-up
+- Brainstorming prompt drafted (see `docs/superpowers/prompts/2026-06-30-fix-e2e-trio.md`) for fixing BUG-0008/0009/0010 in a fresh Sonnet 5 session
+
+---
+
+## Session 37 -- 2026-06-29 (worktree/branch cleanup + E2E unblock)
+
+### What Was Done
+
+**Worktree + branch cleanup** (no code change):
+- Pruned 16 stale worktrees (15 `agent-*` subagent leftovers + `kiosk-fixes`) → main + active session worktree only
+- Deleted 17 `worktree-agent-*` branches and 11 merged feature branches locally
+- Deleted 10 merged remote feature branches via `gh push --delete` (PRs #2, #7, #8, #11, #14, #16, #23, #35, #42 + `phase6-po-items`)
+- Confirmed `phase6-po-items` features fully reimplemented in develop (commit `15c0991` literally re-applies the original phase6 squash); safe to delete
+- Final state: 18 → 2 worktrees · 31 → 3 local branches · 11 → 2 remote branches
+
+**CI verification on develop** (`51bbe66`): all 3 GitHub workflows ✅ green (CI, CodeQL, Plan Visualizer). Jest 91.2% coverage holds.
+
+**E2E suite unblock — PR #43** (`fix/e2e-supabase-grants-and-venue-fixture` → `develop`, squash-merged as `c9b46dd`):
+
+Recovered 44 of 54 failing E2E tests (81%). Root causes:
+
+1. **Supabase CLI flipped `api.auto_expose_new_tables` default `true` → `false` on 2026-05-30.** Tables created without explicit GRANTs are no longer reachable by anon/authenticated/service_role. None of migrations 001–013 include GRANTs, so every table was effectively locked. Fix: set the flag explicitly in `supabase/config.toml`. **TODO before 2026-10-30 (hard deadline — flag removed by CLI)**: add explicit GRANT migrations.
+2. **Migration 007 dropped `tournaments.venue` text column** (replaced with `venue_id`/`course_id` FKs) but `global-setup.ts` still inserted it. Rewrote to look up venue+course from seed and insert with proper FKs; bumped status `setup` → `active`.
+3. **Real app bug**: `(admin)/layout.tsx` wrote cookies from a Server Component, which Next.js 16 forbids. Wrapped in try/catch — cookie lands on next action/route handler instead. Was masked by lack of integration tests in CI.
+4. **Migration 011 added `tournament_players` join table** — round/leaderboard pages now query it, but tests had no mock → "not assigned to a team" redirect. Added `fakeTournamentMembership` fixture.
+5. **Lifecycle test inserted `players.team_id`** — column removed by migration 011. Stripped.
+6. **Test fixture team names collided with TV stat-panel labels** ('Eagles' team vs 'Eagles' panel → 14 hidden matches). Renamed to Hawks/Falcons/Owls.
+7. **`admin-roles.spec.ts` inherits `ADMIN_AUTH_FILE` storage** but signs in as different users via `/login`. Preloaded session redirected `/login` away. Added `beforeEach` to clear cookies.
+
+**Spawned 3 follow-up chips** for remaining 10 failures:
+- Lifecycle step-02 (cascades to 9 deps) — **already shipped as PR #44 in parallel session 36**
+- SyncEngine flaky localStorage checks (4 tests)
+- tournament_admin routing (3 tests)
+
+### Test Results
+
+| Stage | Passed | Failed |
+|---|---|---|
+| Initial E2E on develop | 14 | 54 |
+| After fixes (PR #43) | 58 | 10 |
+
+Jest: unchanged (147 tests, 91.2% coverage), CI green.
+
+### Branch / PRs
+
+- PR #43 `fix/e2e-supabase-grants-and-venue-fixture` → `develop` — all 7 checks passed, squash-merged as `c9b46dd`
+- 3 follow-up chips queued; one (lifecycle step-02) already merged as PR #44
+
+---
+
+## Session 36 -- 2026-06-29 (lifecycle E2E step-02 fix)
+
+### What Was Done
+
+Unblocked `tests/e2e/tournament-lifecycle.spec.ts` step-02, which was timing out at 30s and cascading "did not run" to 9 dependent steps. Three root causes in one file (`tests/e2e/tournament-lifecycle.spec.ts`):
+
+1. Test searched for `/^add venue$/i` but the form submit button reads **"Save Venue"** (the `+ Add Venue` header button never matches either). Zero-element locator → full 30s wait.
+2. Post-toast assertion used `getByRole('cell', ...)` — but venues render as cards with the name inside a `<p>`, not as a `<td>`.
+3. `beforeAll` inserted players with `team_id: null`, but migration 011 dropped that column.
+
+Verified by reading the trace's page snapshot (form was open + filled correctly, buttons were `Cancel` + `Save Venue`) before changing anything. Total churn: 6 insertions, 5 deletions in one file.
+
+### Test Results
+- step-02 passes in ~1s (was timing out at 30s)
+- step-03 also passes now (was blocked on Lionhead venue existing)
+- Full lifecycle: 3/11 (was 2/11 from PR #43). Step-04 reveals a separate issue at /admin/courses — likely the same cards-vs-table redesign hit that page.
+
+### Branch / PRs
+- PR #44 `claude/gallant-pasteur-c7e63d` → `develop` — all 7 CI checks passed, squash-merged as `950e424`
+- Step-04 fix tracked as a separate task chip; not in this PR (kept scope to ONE focused fix per request)
+
+---
+
+## Session 35 -- 2026-06-26 (longest drive GPS bug fix + foreground geolocation mock)
+
+### What Was Done
+
+**Ran kiosk demo** — seeded Lionhead, reset tournament, launched Playwright TV + phone windows.
+
+**Identified and fixed "40,000 yards" longest drive bug:**
+
+Root cause: two bugs compounding:
+1. The foreground Playwright phone browser uses the real system GPS (downtown Toronto, lng ≈ -79.38). Lionhead tee boxes are in Brampton (lng ≈ -79.84). The ~37 km gap calculated as ~40,000 yards.
+2. The calculation measured `distance(shot_1.start → tee)` which is always ~0 because shot_1.start IS the tee position. The correct measure is `distance(tee → shot_2.start)` — where the ball landed after the drive.
+
+Fixes:
+- `src/lib/tv-stats.ts`: Longest drive now groups shots by player:hole, finds the follow-up shot (shot_2), and measures distance from tee to shot_2.start. Added 550m sanity cap to filter GPS outliers (the downtown-Toronto shots).
+- `scripts/demo/foreground.ts`: Phone browser now uses `browser.newContext({ geolocation, permissions: ['geolocation'] })` with the first hole's tee coords. Geolocation updated per hole as the round progresses.
+- `src/__tests__/tv-stats.test.ts`: Old test updated + two new tests (correct drive measurement, GPS outlier filter).
+
+### Test Results
+- 170/170 passing (was 165 → added 5 new tests this session: 2 new tv-stats, plus prior additions)
+- All coverage thresholds met
+
+### Branch / PRs
+- PR #42 `fix/longest-drive-gps` → `develop` — all 7 CI checks passed, squash-merged
+- `develop` HEAD: `bd6ff8f`
+
+---
+
+## Session 33 -- 2026-06-25 (US-0004 closed, US-0036 brainstorm + spec + plan)
+
+### What Was Done
+
+**US-0004 marked Done** -- Vercel was live since Session 18; status updated in RELEASE_PLAN.md and ACs checked.
+
+**US-0036 reframed and designed:**
+
+Original story: "SMS OTP / 2FA via Supabase Auth"
+Reframed as: "Player self-service magic link login" -- magic link as an alternative first factor, password kept as fallback for all users. No SMS/Twilio required.
+
+Key decisions:
+- New public POST /api/auth/request-link -- checks players table, calls signInWithOtp, always returns 200 (anti-enumeration)
+- Single login form: shared email + two buttons (Send Magic Link / Sign In with Password)
+- signInWithOtp with shouldCreateUser:false -- generates and sends in one call, no service role key needed for auth step
+- Spec patched after self-review: corrected "2FA" framing to "alternative first factor"; replaced admin.generateLink with signInWithOtp
+
+**Artifacts committed to develop:**
+- docs/superpowers/specs/2026-06-24-player-magic-link-login-design.md
+- docs/superpowers/plans/2026-06-24-player-magic-link-login.md
+- RELEASE_PLAN.md: US-0036 retitled, US-0004 marked Done
+
+### Test Results
+- No code changes -- carrying over v0.7 baseline: 165/165 pass
+
+### Branch / PRs
+- 4 docs commits on develop, not yet pushed at session close
+- Implementation not started; plan ready on feature/US-0036-magic-link-login
+
+### Next Steps
+1. Execute docs/superpowers/plans/2026-06-24-player-magic-link-login.md (2 tasks)
+   - Task 1: POST /api/auth/request-link + unit tests
+   - Task 2: Login page Send Magic Link button
+2. PR feature/US-0036-magic-link-login -> develop -> main -> tag v0.8
+
+---
+
 ## Session 32 — 2026-06-23 (Kiosk Demo Improvements — PR to main + v0.7 release)
 
 ### What Was Done
@@ -1246,3 +1449,294 @@ Executed 7-task implementation plan using subagent-driven development (DM_AGENT 
 1. Set real pin GPS coordinates for Ruby holes (Edit Pin on Mapbox satellite)
 2. Invite the 125 tournament players via CSV import (`/admin/players` → Import CSV)
 3. Pre-tournament smoke test on June 22: `npx tsx scripts/reset-lionhead.ts` + run lifecycle spec
+
+## Session 34 — 2026-06-25
+
+**Stories shipped:** US-0036 — Player self-service magic link login
+
+**What was done:**
+- Executed 2-task implementation plan (`docs/superpowers/plans/2026-06-24-player-magic-link-login.md`) via subagent-driven development
+- Task 1: Created `POST /api/auth/request-link` route + 4 unit tests (3 plan-specified + 1 added during review for 500 misconfiguration path)
+- Task 2: Modified `src/app/(auth)/login/page.tsx` — added `linkSent`/`linkLoading` state, `handleSendLink`, Send Magic Link button, confirmation message swap
+- Fix pass after final review: OTP error logging, `linkSent` reset on email edit, fetch guard, email trim+lowercase normalization
+- PR #41 opened against `develop` — CI monitoring in progress
+
+**Test results:** 169/169 Jest tests, 90.49% statement coverage, 82.46% branch coverage (thresholds: 80%/70%) ✓
+
+**Branch:** `feature/US-0036-magic-link-login` → PR #41
+
+**Next steps:**
+- Merge PR #41 once CI green
+- Invite 125 tournament players (CSV import or individual magic link via new feature)
+
+## Session 38 — 2026-06-30
+
+**Stories shipped:** BUG-0007 — flaky shot-queue E2E assertions (PR #45). Merged the four E2E follow-ups from session 37.
+
+**What was done:**
+- Diagnosed and fixed the 4 flaky E2E tests in `tests/e2e/round-scoring.spec.ts` (TC-0030, TC-0031, TC-0026, TC-0064). Two compounding bugs: wrong localStorage key (`fdgolf_sync_queue` vs the real `fdgolf-cm_sync_queue` from the rebrand) and the queue draining before the test could read it.
+- TC-0030, TC-0031 rewritten on TC-0029's `page.waitForRequest` pattern with body inspection.
+- TC-0026, TC-0064 use the new `mockShotsApi(page, { fail: true })` failure mode to keep the queue persistent.
+- `tests/e2e/helpers/supabase-mock.ts` — `mockShotsApi` now also intercepts `${SB_URL}/rest/v1/shots` (SyncEngine's real write path; `/api/shots` was a dead legacy route) and accepts `{ fail: true }`.
+- Verified by overlaying the fix onto PR #43's branch (since `develop` didn't yet have the `tournament_players` mock): 13/13 round-scoring tests pass on `chromium-mobile`.
+- BUG-0007 registered in `docs/BUGS.md` + `docs/ID_REGISTRY.md`.
+- Reviewed 4 open PRs and merged them in order #45 → #47 → #49 → #50. Then opened and merged PR #51 to land a stranded `docs/AI_COST_LOG.md` row.
+
+**Test results:**
+- Local Playwright `round-scoring.spec.ts` chromium-mobile: 13/13 PASS
+- All 5 PRs landed with green CI (format, audit, test, CodeQL, Vercel)
+- No source-code (`src/`) changes this session, so Jest coverage is unchanged from 90.67%
+
+**Branch:** `bugfix/BUG-0007-flaky-shot-queue-e2e-tests` → PR #45 (merged)
+
+**Net E2E delta:** With #45 (BUG-0007) and #49 (admin-roles TC-0092/0093/0095) landing today on top of #43, the round-scoring + admin-roles failures from session 37 are resolved. The 10 remaining failures should be down to 1 (lifecycle step-04 was the other test fix in the queue — landed as PR #47).
+
+**Operational notes / friction:**
+- `gh pr merge --delete-branch` failed locally because the cost-log hook had written to `docs/AI_COST_LOG.md`. The remote merge succeeded; only the local branch cleanup errored. → encoded as L-0017.
+- The cost-log row I pushed to PR #45 *after* the squash merge never reached `develop`. Rescued via a tiny one-row PR #51, but this is the second time the cost-log timing has bitten us — keeping L-0017's rule "commit cost log before any `gh pr merge`" front and center.
+
+**Next steps:**
+- Run the full E2E suite to confirm the 58/10 → ~67/1 improvement is real.
+- Address the last remaining failure (whatever isn't lifecycle / round-scoring / admin-roles).
+- Platform debt: `auto_expose_new_tables` flag removal on 2026-10-30. File a migration that adds explicit GRANTs by end of September.
+
+## Session 39 — 2026-09-30 (TEST_CASES.md status reconciliation)
+
+**Trigger:** User asked why the Plan Visualizer dashboard showed 0% TC pass rate; all 170
+TC-XXXX entries in `docs/TEST_CASES.md` were literally `Status: [ ] Not Run` (a manually
+maintained ledger, not auto-synced from Jest/Playwright). User asked to update the statuses
+to reflect actual results.
+
+**What was done:**
+- Started local Supabase (`supabase start`) + Next.js dev server, confirmed `global-setup.ts`
+  seeds/verifies E2E auth users and the `cibc-granite-ridge-2026` tournament.
+- Ran the full Jest suite (`npm run test:ci`) and all 9 applicable Playwright E2E spec files
+  with correct `--project` flags per `playwright.config.ts` (`chromium-auth`,
+  `chromium-mobile`, `chromium-desktop`, `chromium-lifecycle`, `chromium-tv`).
+  `tournament-lifecycle.spec.ts` was skipped — its required `scripts/reset-lionhead.ts` reset
+  was blocked by the tool sandbox's permission classifier as a mass-delete operation; this
+  spec has no `TC-XXXX` annotations so it does not affect any TEST_CASES.md status.
+- Jest: 196/196 passing, but Jest tests carry no `TC-XXXX` annotation, so they provide no
+  mechanical evidence for any specific TC — none were marked from Jest results.
+- Playwright: cross-referenced each spec file's `test('TC-XXXX: ...')` title against
+  `docs/TEST_CASES.md`. 65 TC-XXXX IDs are annotated in E2E test titles; of those, 61 passed
+  and 4 failed (TC-0049, TC-0050, TC-0078, TC-0088). TC-0045 and TC-0058 are
+  `test.skip()`'d (missing sponsor-logo seed data / SSR+Radix Select limitation respectively)
+  and were left `Not Run` since they never executed.
+- Updated `docs/TEST_CASES.md`: 61 → `Status: [x] Pass`, 4 → `Status: [x] Fail` (with
+  `Defect Raised: BUG-0016`), all with an `Actual Result` note. The remaining 105 TCs
+  (including TC-0045/TC-0058) have no automated TC-annotated coverage and were left
+  `Not Run` — intentionally not guessed.
+- Investigated the 4 failures (see BUG-0016 for full root cause): all four trace to the same
+  cause. `getActiveTournamentId()` falls back to "most recently created tournament" when no
+  `x-active-tournament` cookie is set (true for a fresh admin `storageState` session), and two
+  unrelated manual/demo tournaments (`fdgolf-talk-demo`, `lionhead-legends-demo`, both created
+  2026-09-28) now sort ahead of the CIBC E2E fixture (created 2026-06-30) in this local
+  Supabase instance. `/admin/tournament` resolves to `lionhead-legends-demo` (status
+  `completed`), so `TournamentControlDashboard` never renders (breaks TC-0049/TC-0050/
+  TC-0078); `/admin/scores` resolves to a demo tournament with a team named "Eagle Squadron",
+  colliding with the `getByText('Eagle')` legend-chip assertion (breaks TC-0088). Confirmed
+  this is local test-environment data pollution, not an application code defect — logged as
+  BUG-0016 (Open, no fix branch yet — needs triage on whether to pin the E2E admin cookie in
+  `global-setup.ts` and/or clean up the stray demo tournaments).
+- Corrected a pre-existing `docs/ID_REGISTRY.md` inconsistency found along the way: BUG-0015
+  was already spent by a merged fix (commit `f000ad3`) but its `docs/BUGS.md` write-up was
+  never committed, so the registry had stalled showing BUG-0015 as still available. Bumped
+  the registry to `Next Available: BUG-0017` / `Last Assigned: BUG-0016` and left a dated note
+  explaining the correction; did not fabricate the missing BUG-0015 entry itself (separate,
+  pre-existing gap, out of scope for this session).
+- Regenerated `docs/plan-status.html`/`.json` via `npm run plan:generate` so the dashboard
+  reflects the real 61/170 pass rate.
+
+**Test results:** Jest 196/196. Playwright (TC-annotated subset): 61 Pass / 4 Fail / 2 Skip
+(TC-0045, TC-0058) out of 67 annotated; 103 TCs remain `Not Run` for lack of any automated,
+TC-annotated coverage (Jest tests carry none).
+
+**Branch:** none — docs-only session, no `src/` changes, no PR opened (per Session 21's
+prior confirmation that documentation-only sessions don't require one). User should confirm
+whether a PR is wanted for these doc changes.
+
+**Next steps:**
+- Triage BUG-0016: decide whether to pin `x-active-tournament` in `tests/e2e/global-setup.ts`
+  and/or delete the stray `fdgolf-talk-demo` / `lionhead-legends-demo` tournaments locally.
+- File the missing BUG-0015 write-up in `docs/BUGS.md` (separate pre-existing gap; the fix
+  itself, commit `f000ad3`, is already merged).
+- Decide whether the ~103 TCs with no automated coverage should get Playwright `TC-XXXX`
+  annotations added over time, or remain manually verified.
+- Platform debt: `auto_expose_new_tables` flag removal on 2026-10-30. File a migration that adds explicit GRANTs by end of September.
+
+## Session 40 — 2026-09-30 (BUG-0016 fix: pin E2E admin cookie)
+
+**Trigger:** User asked to fix BUG-0016 — pin the `x-active-tournament` cookie during E2E
+admin setup so `getActiveTournamentId()`'s "most recently created tournament" fallback can't
+pick a stray/demo tournament over the CIBC E2E fixture.
+
+**What was done:**
+- Exported `E2E_TOURNAMENT_SLUG` from `tests/e2e/global-setup.ts` so other setup files can
+  resolve the CIBC fixture tournament's id without duplicating the slug string.
+- Rewrote `tests/e2e/setup/admin.setup.ts`: after logging in, it now looks up the CIBC
+  tournament's id via a service-role Supabase client and calls
+  `page.context().addCookies([...])` to pin `x-active-tournament` before
+  `storageState()` snapshots `admin.json`. (Deliberately duplicated the cookie name literal
+  rather than importing it from `src/lib/active-tournament.ts`, since that module pulls in
+  `next/headers`, unsafe outside a Next.js server context.)
+- Re-ran the previously-failing TCs: TC-0049, TC-0050, and TC-0078 passed immediately. TC-0088
+  still failed, with a different error signature (`getByText('Eagle')` strict-mode collision).
+- Root-caused the TC-0088 residual failure: `src/app/(admin)/admin/scores/page.tsx` queried
+  `teams` with no `tournament_id` filter (unlike the sibling `scores`/`tournament_players`/
+  `shots` queries in the same `Promise.all`), so it always leaked teams from every tournament
+  in the DB regardless of which one was active. Asked the user whether to fix this too or just
+  report it separately — user chose to fix it. Added `.eq('tournament_id', tid)` to that query.
+  TC-0088 then passed.
+- Verified no regressions: full `chromium-desktop` project run — 27 passed, 1 skipped
+  (pre-existing, unrelated TC-0058 skip). Also ran the full `tournament-lifecycle.spec.ts`
+  (`chromium-lifecycle`, which shares the same `admin-setup` dependency) and confirmed via a
+  `git stash`/`stash pop` A/B comparison (fix files stashed vs. applied) that its one failure
+  (step-12, leaderboard team-name assertion) reproduces identically on unmodified code — a
+  pre-existing, unrelated bug, not a regression from this fix. Confirmed `tournament-
+  lifecycle.spec.ts` doesn't rely on the no-cookie fallback: it explicitly switches the active
+  tournament to Lionhead itself via a "Manage" button UI flow, so pinning CIBC as the initial
+  cookie value doesn't conflict with it.
+- Updated `docs/BUGS.md`: BUG-0016 `Status: Open` → `Fixed`, added a verification note
+  documenting both code changes and the passing test results; marked the cookie-pin follow-up
+  as done, left the stray-demo-tournament-deletion follow-up explicitly undone/out of scope.
+- Updated `docs/TEST_CASES.md`: TC-0049, TC-0050, TC-0078, TC-0088 → `Status: [x] Pass` with
+  updated `Actual Result` notes referencing the fix.
+- Regenerated `docs/plan-status.html`/`.json` via `npm run plan:generate`.
+
+**Files changed:** `tests/e2e/global-setup.ts` (export slug), `tests/e2e/setup/admin.setup.ts`
+(cookie pin), `src/app/(admin)/admin/scores/page.tsx` (tournament_id filter on `teams` query),
+`docs/BUGS.md`, `docs/TEST_CASES.md`, `docs/plan-status.html`/`.json`.
+
+**Test results:** `chromium-desktop`: 27 passed, 1 skipped (pre-existing). TC-0049/TC-0050/
+TC-0078/TC-0088 all pass. `chromium-lifecycle`'s step-12 failure confirmed pre-existing via
+baseline comparison, not investigated further (no bug ID filed for it — see next steps).
+
+**Branch:** none yet — changes are uncommitted on `develop`. Per `CLAUDE.md`'s Git Workflow
+this should go on `bugfix/BUG-0016-pin-e2e-admin-tournament-cookie` and land via a squash-merge
+PR into `develop`, but no branch/commit/PR has been created — awaiting explicit user request
+before doing so.
+
+**Next steps:**
+- User to confirm before creating the `bugfix/BUG-0016-...` branch, committing, and opening a
+  PR — nothing has been pushed.
+- Consider whether the second BUG-0016 follow-up (deleting/archiving `fdgolf-talk-demo` and
+  `lionhead-legends-demo` locally) is still wanted — remains explicitly out of scope unless
+  requested.
+- Consider filing a new bug for `tournament-lifecycle.spec.ts` step-12's pre-existing leaderboard
+  team-name failure — discovered as a side effect of regression testing this session, not yet
+  logged in `docs/BUGS.md` or assigned an ID.
+- Evaluate whether `docs/LESSONS.md` should gain an entry for BUG-0016 (currently
+  `Lesson Encoded: No`) — not yet done.
+
+## Session 41 — 2026-09-30 (Test coverage gaps + traceability sync automation)
+
+**Trigger:** User asked to fix "the test coverage issue." Investigation found the global
+Jest thresholds (80/70/80/80) were passing but two `src/lib` files were severely
+under-tested, the BUG-0016 fix itself shipped with no unit coverage, and
+`docs/TEST_CASES.md` was 100% hand-edited after each manual test run. User confirmed via
+`AskUserQuestion` that all three should be addressed in one pass.
+
+**What was done:**
+- **Coverage — `src/lib/tournament-membership.ts`** (BUG-0015 fix module, was 0%): added
+  `src/__tests__/tournament-membership.test.ts`. Covers no-rows → `null`, single-row mapping,
+  multi-row `.sort()`-by-`created_at` selection, and asserts the exact `.eq('player_id', ...)`
+  / `.in('tournaments.status', ['active','paused'])` filter arguments so the BUG-0015 fix
+  itself can't silently regress.
+- **Coverage — `src/lib/gps.ts`** (`getCurrentPosition()` was 0% despite an
+  `/* istanbul ignore next */` comment): discovered the comment was inert — this repo's
+  `next/jest` config uses SWC, not Babel, and istanbul ignore-comments are a
+  `babel-plugin-istanbul` feature that SWC doesn't honor. Removed the now-inaccurate comment
+  and added 3 real tests to `src/__tests__/gps.test.ts` stubbing
+  `navigator.geolocation` via `Object.defineProperty(global.navigator, 'geolocation', {...,
+  configurable: true})` (success, error, unsupported-browser branches). Logged this as
+  **L-0022** in `docs/LESSONS.md` since it's a repo-wide gotcha, not a one-off.
+- **BUG-0016 fix coverage**: decided explicitly *not* to add Jest coverage for
+  `src/app/(admin)/admin/scores/page.tsx` (SSR page component — this repo has never
+  Jest-tested any `admin/*/page.tsx`; already proven at the E2E layer by TC-0088) or for
+  `tests/e2e/setup/admin.setup.ts` (Playwright test infra, correctly outside
+  `collectCoverageFrom`, exercised on every E2E run). No code change for this part.
+- **Traceability automation**: added a `json` reporter to `playwright.config.ts`
+  (`playwright-report/results.json`) and a new `tools/sync-test-cases.js` that parses it,
+  matches `TC-XXXX:`-prefixed Playwright spec titles, and rewrites just the
+  `Status`/`Actual Result`/`Defect Raised` lines of the matching `docs/TEST_CASES.md` blocks
+  in place (reusing `tools/lib/parse-test-cases.js`'s block-boundary convention). A pass
+  clears `Defect Raised` to `None`; a fail keeps whatever `BUG-XXXX` was already recorded —
+  it never invents a new bug ID. TCs with no matching Playwright title are left untouched. Ends
+  by calling `node tools/generate-plan.js`. Added `npm run test:e2e:sync` and a short note in
+  `plan_visualizer.md` documenting these fields are now tooling-writable.
+- Verified end-to-end: ran `npx playwright test --project=chromium-desktop` (27 passed, 1
+  pre-existing skip) then `node tools/sync-test-cases.js` — it correctly matched and rewrote
+  27 `TC-XXXX` blocks and reported the dashboard regen.
+
+**Files changed:** `src/__tests__/tournament-membership.test.ts` (new),
+`src/__tests__/gps.test.ts`, `src/lib/gps.ts`, `playwright.config.ts`,
+`tools/sync-test-cases.js` (new), `package.json`, `plan_visualizer.md`, `docs/LESSONS.md`,
+`docs/TEST_CASES.md` (synced statuses), `docs/plan-status.html`/`.json`.
+
+**Test results:** `npm run test:ci` — 20 suites / 204 tests passed. Coverage moved from
+90.64%/82.12%/84.72%/96.05% to 92.87%/83.4%/93.05%/98.52% (stmts/branch/funcs/lines);
+`tournament-membership.ts` and `gps.ts` both now 100% across the board. No regressions.
+
+**Branch:** none yet at time of writing — awaiting explicit user request to commit/PR (per
+standing instruction). See next steps.
+
+**Next steps:**
+- Commit this work to a `chore/` branch and open a PR to `develop` once requested.
+- Still outstanding from Session 40: decide on a bug ID for `tournament-lifecycle.spec.ts`
+  step-12's pre-existing leaderboard failure; decide on the stray-demo-tournament cleanup
+  follow-up; `docs/LESSONS.md` entry for BUG-0016 itself still not done.
+- `docs/coverage/coverage-summary.json` (the path `tools/generate-plan.js` and the new sync
+  script's informational summary both read) doesn't match Jest's actual default output path
+  (`coverage/coverage-summary.json` at repo root, no `docs/` prefix) — pre-existing mismatch,
+  not fixed here since it's outside this session's scope; both scripts already degrade
+  gracefully (print "no coverage summary found") when it's absent.
+
+## Session 42 — 2026-10-02 (Talk-demo bug triage + documentation sync)
+
+**Trigger:** User reported "the talk demo live window is only showing hole 2 and both
+windows are crashing after 30s." Separately asked to see the E2E test script inventory, then
+asked for a full documentation/commit/PR/CI/release pass.
+
+**What was done:**
+- **Root-caused BUG-0017** (talk-demo captain phone shows the wrong hole; both Playwright
+  windows appear to "crash" after ~15-30s). Confirmed end-to-end via direct Supabase REST
+  queries (`tournaments`, `teams`, `round_states`) that `fdgolf-talk-demo` and
+  `lionhead-legends-demo` were simultaneously `status: 'active'`, share one demo-captain auth
+  account by design, and `getActivePlayerMembership()`'s "pick the newest `created_at`"
+  tie-break resolved the shared account to the wrong (Lionhead) tournament, so `/round` read
+  Lionhead's stale `round_states.current_hole: 2` instead of the talk demo's fast-forwarded
+  hole 15. `foreground-talk.ts`'s `waitForSelector('text=Hole 15', { timeout: 15_000 })` then
+  times out and its catch block calls `closeBrowsers()` — the apparent "crash." Logged as
+  **BUG-0017** in `docs/BUGS.md` and **L-0023** in `docs/LESSONS.md` (same bug class as the
+  admin-side BUG-0016, "stale demo tournament outranks the intended one by recency," but on
+  the player-membership path). Two remediation options were presented to the user (pause the
+  other demo tournament inside `run-talk.ts`'s `resetTournament()`, or pause it manually
+  before each talk-demo run); no fix was requested, so none was implemented — diagnosis only.
+- **E2E suite inventory** (read-only, informational): enumerated `playwright.config.ts`'s 7
+  projects (`player-setup`, `admin-setup`, `chromium-auth`, `chromium-mobile`,
+  `chromium-desktop`, `chromium-lifecycle`, `chromium-tv`) and all 10 spec files under
+  `tests/e2e/` (2,736 total lines) for the user; no changes made.
+- **Documentation/housekeeping pass** (this entry): added the BUG-0017/L-0023 write-ups
+  above; added `docs/codemie/` to `.gitignore` — three auto-generated per-machine CodeMie
+  analytics JSON files (embedding the local user's email in their filenames) with no
+  relationship to the app, same rationale as the existing `docs/dashboard.html` ignore entry;
+  committed the already-pending `docs/AI_COST_LOG.md` tail-13 rows; updated `MEMORY.md` with
+  the BUG-0017 finding; bumped `docs/ID_REGISTRY.md`'s `BUG` counter to `BUG-0018`.
+
+**Files changed:** `docs/BUGS.md`, `docs/LESSONS.md`, `docs/ID_REGISTRY.md`, `MEMORY.md`,
+`.gitignore`, `docs/AI_COST_LOG.md`, `progress.md` (this entry).
+
+**Branch:** `docs/sync-cost-log-tail13` (pre-existing, already 1 commit ahead of `develop` for
+the tail-12 cost rows pattern) — continued on it rather than branching again, since nothing
+on it had been pushed/PR'd yet.
+
+**Next steps:**
+- Open PR to `develop`, monitor CI to green, merge; then PR `develop` → `main`, monitor CI,
+  merge; then cut a new release from `main`; update `README.md` if the release surfaces
+  anything undocumented. (In progress — see this session's remaining work.)
+- BUG-0017 remains **Open** — no code fix implemented, only diagnosed. Revisit if the talk
+  demo needs to be run again before a decision is made on which remediation option to take.
+- Still outstanding from Sessions 40/41: bug ID for `tournament-lifecycle.spec.ts` step-12's
+  pre-existing leaderboard failure; the stray-demo-tournament cleanup follow-up (now
+  partially informed by BUG-0017's findings, but still not actioned).

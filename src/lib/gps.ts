@@ -4,7 +4,6 @@ export interface GpsPosition {
   accuracy: number;
 }
 
-/* istanbul ignore next -- wraps navigator.geolocation; covered at E2E level */
 export async function getCurrentPosition(): Promise<GpsPosition> {
   return new Promise((resolve, reject) => {
     if (!navigator.geolocation) {

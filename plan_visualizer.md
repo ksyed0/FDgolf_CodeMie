@@ -91,6 +91,13 @@ Defect Raised: None
 `Status` values: `[ ] Not Run` | `[x] Pass` | `[x] Fail`
 `Defect Raised`: `None` or `BUG-XXXX`
 
+**Tooling-writable fields**: for any `TC-XXXX` block whose title has a matching
+`test('TC-XXXX: ...', ...)` in the Playwright suite, `tools/sync-test-cases.js` (run via
+`npm run test:e2e:sync`) rewrites that block's `Status`, `Actual Result`, and `Defect Raised`
+lines directly from the real test outcome (`playwright-report/results.json`). It never invents a
+new `BUG-XXXX` ID — a fail keeps whatever defect reference was already there. TCs with no
+matching Playwright title are left untouched and remain hand-authored as before.
+
 ---
 
 ## `docs/BUGS.md`

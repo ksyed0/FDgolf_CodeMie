@@ -81,9 +81,14 @@ async function runTeam(
   supabase: SupabaseClient,
   config: DemoConfig,
   team: DemoTeam,
-  teamIndex: number // 1-17
+  teamIndex: number, // 1-17
+  signal: AbortSignal
 ) {
   for (let i = 0; i < 18; i++) {
+    if (signal.aborted) {
+      console.log(`[background] Team ${team.name} aborted`);
+      return;
+    }
     if (await isStopped(supabase, config.tournamentId)) {
       console.log(`[background] Team ${team.name} stopped`);
       return;
@@ -95,7 +100,12 @@ async function runTeam(
   console.log(`[background] Team ${team.name} complete`);
 }
 
-export async function runBackgroundTeams(config: DemoConfig): Promise<void> {
+// The caller (run.ts) must abort the signal and await the returned promise
+// before starting another generation — e.g. before a retry's resetTournament()
+// wipes the tables out from under a still-running previous generation, which
+// leaves each team's already-passed holes permanently missing and doubles DB
+// write load (compounding into further timeouts/retries).
+export async function runBackgroundTeams(config: DemoConfig, signal: AbortSignal): Promise<void> {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? 'http://127.0.0.1:54321';
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY ?? '';
   const supabase = createClient(supabaseUrl, serviceKey, {
@@ -105,6 +115,8 @@ export async function runBackgroundTeams(config: DemoConfig): Promise<void> {
   // config.teams[0] is the foreground team; teams 1-17 are background
   const backgroundTeams = config.teams.slice(1);
   await Promise.all(
-    backgroundTeams.map((team: DemoTeam, idx: number) => runTeam(supabase, config, team, idx + 1))
+    backgroundTeams.map((team: DemoTeam, idx: number) =>
+      runTeam(supabase, config, team, idx + 1, signal)
+    )
   );
 }

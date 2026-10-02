@@ -84,17 +84,34 @@ test('TC-0067: leaderboard panel shows team rows and column headers', async ({ p
   await page.goto(`/live/${TOURNAMENT_SLUG}/tv`)
   await page.waitForLoadState('networkidle')
 
+  // Scope to the always-visible leaderboard sidebar (TvLeaderboard), identified by
+  // its `data-testid="tv-leaderboard-panel"` root element. This panel renders
+  // unconditionally — unlike the TvStatsRotator panels (Birdies, Hole Difficulty,
+  // Shot Stats, Moment of Day, Team Spotlight), which all mount simultaneously but
+  // stay opacity-0/pointer-events-none until the rotator's 15s setInterval brings
+  // them into view (see TvDisplay.tsx). TvTeamSpotlightPanel (rotator panel index
+  // 4) also renders the leader's team name, so an unscoped `page.getByText(...)`
+  // could resolve `.first()` to a hidden rotator copy rather than the visible
+  // sidebar row — that ambiguity was the root cause of BUG-0008. A class-based
+  // locator was tried first but Tailwind's utility classes are reused broadly
+  // enough (including on TvDisplay's outer scaled wrapper, which contains both the
+  // sidebar AND the rotator) that it failed to disambiguate; a dedicated
+  // data-testid is the robust fix.
+  const leaderboardPanel = page.getByTestId('tv-leaderboard-panel')
+
   // Column header '#' rank column
-  await expect(page.getByText('#').first()).toBeVisible({ timeout: 5000 })
+  await expect(leaderboardPanel.getByText('#').first()).toBeVisible({ timeout: 5000 })
 
   // Column header 'Team'
-  await expect(page.getByText(/^team$/i).first()).toBeVisible({ timeout: 5000 })
+  await expect(leaderboardPanel.getByText(/^team$/i).first()).toBeVisible({ timeout: 5000 })
 
   // Column header 'Sc' (TvLeaderboard renders ['#', 'Team', 'Trend', 'Thru', 'Sc'])
-  await expect(page.getByText(/^sc$/i).first()).toBeVisible({ timeout: 5000 })
+  await expect(leaderboardPanel.getByText(/^sc$/i).first()).toBeVisible({ timeout: 5000 })
 
-  // First team name from fakeLeaderboard should be visible
-  await expect(page.getByText(fakeLeaderboard[0].team_name).first()).toBeVisible({ timeout: 5000 })
+  // First team name from fakeLeaderboard should be visible within the leaderboard panel
+  await expect(
+    leaderboardPanel.getByText(fakeLeaderboard[0].team_name).first()
+  ).toBeVisible({ timeout: 5000 })
 })
 
 // ── TC-0068: Birdie panel shows empty state when no scores ──────────────────

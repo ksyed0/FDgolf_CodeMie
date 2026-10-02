@@ -86,13 +86,47 @@ export async function mockSupabaseInsert(page: Page, table: string, row: unknown
   })
 }
 
-/** Mock POST /api/shots (internal Next.js route) */
-export async function mockShotsApi(page: Page, response: { id: string } = { id: 'shot-001' }) {
+/** Mock the shots write path used by SyncEngine.
+ *
+ * SyncEngine writes through `supabase.from('shots').insert(...)`, which hits
+ * `POST ${SB_URL}/rest/v1/shots`. We also keep the legacy `/api/shots` route
+ * mocked so any leftover callers don't fall through to the real network.
+ *
+ * Pass `{ fail: true }` to make POSTs abort — useful for offline-queue tests
+ * that need the SyncEngine queue to persist in localStorage rather than drain
+ * on first flush.
+ */
+export async function mockShotsApi(
+  page: Page,
+  options: { response?: { id: string }; fail?: boolean } = {}
+) {
+  const { response = { id: 'shot-001' }, fail = false } = options
+
   await page.route('**/api/shots', (route) => {
+    if (fail) {
+      route.abort('failed')
+      return
+    }
     route.fulfill({
       status: 200,
       contentType: 'application/json',
       body: JSON.stringify(response),
+    })
+  })
+
+  await page.route(`${SB_URL}/rest/v1/shots**`, (route) => {
+    if (route.request().method() !== 'POST') {
+      route.continue()
+      return
+    }
+    if (fail) {
+      route.abort('failed')
+      return
+    }
+    route.fulfill({
+      status: 201,
+      contentType: 'application/json',
+      body: JSON.stringify([response]),
     })
   })
 }

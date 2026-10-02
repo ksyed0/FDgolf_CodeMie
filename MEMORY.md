@@ -13,6 +13,112 @@ Stack: Next.js 16 App Router · TypeScript · Tailwind CSS · shadcn/ui · Supab
 
 ---
 
+## Branch State (as of Session 41 close — 2026-09-30)
+
+| Branch | Status | Notes |
+|--------|--------|-------|
+| `main` | v0.7 released | unchanged this session |
+| `develop` | HEAD to move | BUG-0016 fix (E2E admin cookie pin + scores page tournament_id filter) + test-coverage/traceability-sync work being committed and PR'd this session |
+
+**Current open PRs**: will show here once opened (see next steps below).
+
+### New standing capability: automated TEST_CASES.md sync
+
+`npm run test:e2e:sync` (= `playwright test && node tools/sync-test-cases.js`) now exists.
+It reads `playwright-report/results.json` (JSON reporter added to `playwright.config.ts`),
+matches `TC-XXXX:`-titled specs, and rewrites those TC blocks' `Status`/`Actual
+Result`/`Defect Raised` lines in `docs/TEST_CASES.md` directly from the real run — no more
+hand-editing the matrix after a manual Playwright pass. It never invents a new `BUG-XXXX`;
+a fail keeps whatever defect ID was already recorded. TCs with no matching Playwright title
+are left untouched. **Future sessions: prefer this command over hand-editing
+`docs/TEST_CASES.md`'s Status/Actual Result/Defect Raised fields whenever the TC has a
+matching Playwright title.**
+
+### Coverage gap found and closed this session
+
+`src/lib/tournament-membership.ts` (BUG-0015 fix module) and `src/lib/gps.ts`'s
+`getCurrentPosition()` were both at effectively 0% Jest coverage — the latter despite an
+`/* istanbul ignore next */` comment, which does nothing under this repo's SWC-based
+`next/jest` transform (see `docs/LESSONS.md` L-0022). Both are now at 100%. **Any future
+`istanbul ignore` comment added to this codebase should be treated as a no-op** — write a
+real test or exclude the whole file via `collectCoverageFrom` instead.
+
+### Deliberately left uncovered (documented decision, not an oversight)
+
+`src/app/(admin)/admin/scores/page.tsx` (SSR page component — no `admin/*/page.tsx` in this
+repo has ever had Jest coverage; proven instead at the E2E layer by TC-0088) and
+`tests/e2e/setup/admin.setup.ts` (Playwright test infra, correctly outside
+`collectCoverageFrom`, exercised on every E2E run).
+
+---
+
+## Branch State (as of Session 40 close — 2026-06-30)
+
+| Branch | Status | Notes |
+|--------|--------|-------|
+| `main` | **v0.7 released** | Kiosk demo improvements live |
+| `develop` | HEAD `13eadb6` | Session 39 docs (PR #59), BUG-0009 (PR #60), BUG-0010 (PR #61), BUG-0008 (PR #62) all merged |
+
+**Current open PRs**: None (will be 1 — PR for session 40 docs — after this commit)
+
+### Active follow-up chips (queued, not started)
+
+- **BUG-0011** — lifecycle step-08 (player→team assignment) E2E failure, newly exposed by the BUG-0010 fix. Diagnosis already in `docs/BUGS.md`: test waits for a `/rest/v1/players` PATCH the app no longer issues since migration 011 moved assignment to `tournament_players`. Needs a `waitForResponse` predicate update.
+
+### Platform debt — hard deadline 2026-10-30
+
+`supabase/config.toml` sets `auto_expose_new_tables = true` to keep API roles able to read public-schema tables. **This flag is removed by the Supabase CLI on 2026-10-30** — by then, every existing table needs explicit `GRANT ALL TO anon, authenticated, service_role` (or a more scoped equivalent) in a new migration. Filing as future work; do not let this drift past September.
+
+### Next.js 16 cookies pattern (Session 37 discovery)
+
+Server Components can no longer write cookies. Pattern used in [src/app/(admin)/layout.tsx](src/app/\(admin\)/layout.tsx):
+
+```ts
+try {
+  const store = await cookies();
+  store.set(NAME, value, options);
+} catch {
+  // Server Component context — cookie will land on next Server Action / Route Handler.
+}
+```
+
+Apply this anywhere a Server Component might set a cookie (e.g. activeTournament cookies, user-preference cookies).
+
+**GPS / longest-drive fix (Session 35)**
+
+- `tv-stats.ts`: longest drive now measures `distance(tee, shot_2.start)` (ball landing position), not `distance(shot_1.start, tee)` (always ~0). 550m sanity cap filters GPS outliers.
+- `foreground.ts`: Playwright phone context mocks geolocation at each hole's tee coords (`browser.newContext({ geolocation })` + `context.setGeolocation()` per hole).
+- Tests: 170/170 passing.
+
+**Kiosk demo GPS model (confirmed this session):**
+- `shots.start_lat/lng` = where the player stands to make the shot = ball's resting spot before the shot
+- Shot 1: player at tee → `start_lat/lng = tee coords`
+- Shot 2: player walked to where ball landed → `start_lat/lng = ball landing position`
+- Longest drive = `distance(tee, shot_2.start)` ✓
+
+---
+
+## Branch State (as of Session 34 close — 2026-06-25)
+
+| Branch | Status | Notes |
+|--------|--------|-------|
+| `main` | **v0.7 released** | Kiosk demo improvements live |
+| `develop` | HEAD `dc038a8` | US-0036 spec + plan docs; US-0036 feature in PR |
+| `feature/US-0036-magic-link-login` | **PR #41 open** | Magic link login — awaiting CI + merge |
+
+**Current open PRs**: PR #41 — `feature/US-0036-magic-link-login` → `develop` (US-0036 magic link login)
+
+**US-0036 — Player self-service magic link login (DONE — PR #41)**
+
+Shipped this session:
+- `src/app/api/auth/request-link/route.ts` — POST endpoint, service role client, `signInWithOtp({ shouldCreateUser: false })`, email trim+lowercase, OTP error logging, anti-enumeration 200
+- `src/__tests__/api-request-link.test.ts` — 4 unit tests (missing email, unknown email, enrolled player, missing env vars → 500)
+- `src/app/(auth)/login/page.tsx` — `handleSendLink`, `linkSent`/`linkLoading` state, Send Magic Link button (`type="button"`), confirmation swap, `linkSent` resets on email edit, fetch guard with error toast
+
+**Next action (Session 34 close):** Monitor CI on PR #41; merge once green. Then invite 125 players via magic link/CSV.
+
+---
+
 ## Branch State (as of Session 32 close — 2026-06-23)
 
 | Branch | Status | Notes |
@@ -425,3 +531,20 @@ Must apply `005_scores_player_rls.sql` to all Supabase instances (local ✓, sta
 1. **Invite real tournament players** via CSV import (`scripts/sample-data/players-import.csv` as template) or individual magic link
 2. **Pre-tournament smoke test** on tournament day (June 22): confirm login, submit score, verify leaderboard end-to-end
 3. **Post-tournament**: upgrade eslint v8 → v9 (flat config), remove `.npmrc` legacy-peer-deps workaround
+
+---
+
+## Demo tournaments can collide via the shared demo-captain account (BUG-0017)
+
+`scripts/demo/seed-lionhead.ts` (`lionhead-legends-demo`) and `scripts/demo-talk/seed-talk.ts`
+(`fdgolf-talk-demo`) deliberately share one auth login, `demo-captain@fdgolf.demo`, across
+both demo tournaments. `getActivePlayerMembership()` (`src/lib/tournament-membership.ts`)
+resolves which tournament that account is "currently" on by picking the one with the newest
+`tournaments.created_at` among rows where `tournaments.status IN ('active','paused')` — this
+only works if at most one of the two demo tournaments is non-terminal at a time. Stopping the
+kiosk demo via `TaskStop`/Ctrl-C does **not** flip `lionhead-legends-demo`'s status, so if the
+talk demo is then started while Lionhead is still `active`, the player-facing `/round` page
+reads Lionhead's stale `round_states` row instead of the talk demo's. Full root cause and two
+unimplemented remediation options are in `docs/BUGS.md` (BUG-0017) and `docs/LESSONS.md`
+(L-0023). Before running `npm run demo:talk`, check that `lionhead-legends-demo` (and any
+other demo tournament sharing the captain login) is not left `active`/`paused`.

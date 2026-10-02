@@ -29,7 +29,7 @@ export const PLAYER_AUTH_FILE = 'tests/e2e/.auth/player.json'
 export const ADMIN_AUTH_FILE = 'tests/e2e/.auth/admin.json'
 export const TOURNAMENT_ADMIN_AUTH_FILE = 'tests/e2e/.auth/tournament-admin.json'
 
-const E2E_TOURNAMENT_SLUG = 'cibc-granite-ridge-2026'
+export const E2E_TOURNAMENT_SLUG = 'cibc-granite-ridge-2026'
 
 async function upsertUser(
   admin: // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -96,28 +96,62 @@ any) {
 
 async function seedTournament(admin: // eslint-disable-next-line @typescript-eslint/no-explicit-any
 any) {
-  // Only insert the CIBC tournament if no tournament with this slug already exists.
-  // The seed.sql may have already created it with a different ID; we don't override that.
+  // seed.sql inserts the CIBC tournament with status='setup'. E2E tests need status='active' to
+  // exercise round-scoring flows, so we ensure the row exists and bump its status.
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const adminAny = admin as any
   const { data: existing } = await adminAny
     .from('tournaments')
-    .select('id')
+    .select('id, status')
     .eq('slug', E2E_TOURNAMENT_SLUG)
     .maybeSingle()
 
   if (existing) {
-    console.log('[globalSetup] Tournament already exists:', E2E_TOURNAMENT_SLUG)
+    if (existing.status !== 'active') {
+      const { error: updateError } = await adminAny
+        .from('tournaments')
+        .update({ status: 'active' })
+        .eq('id', existing.id)
+      if (updateError) {
+        console.warn('[globalSetup] Could not activate tournament:', updateError.message)
+      } else {
+        console.log('[globalSetup] Tournament activated:', E2E_TOURNAMENT_SLUG)
+      }
+    } else {
+      console.log('[globalSetup] Tournament already active:', E2E_TOURNAMENT_SLUG)
+    }
     return
   }
 
-  // Let the DB generate a UUID for the id column (uuid_generate_v4() default)
+  // Fallback path if seed.sql hasn't run: look up the venue + course it would have created and
+  // insert the tournament with proper FKs. Migration 007 replaced the text `venue` column with
+  // `venue_id`/`course_id` NOT NULL FKs.
+  const { data: venue } = await adminAny
+    .from('venues')
+    .select('id')
+    .eq('name', 'Granite Ridge Golf Club')
+    .maybeSingle()
+
+  const { data: course } = await adminAny
+    .from('courses')
+    .select('id')
+    .eq('name', 'Main Course')
+    .maybeSingle()
+
+  if (!venue || !course) {
+    console.warn(
+      '[globalSetup] Venue or course not found — run `supabase db reset` to load seed data first',
+    )
+    return
+  }
+
   const { error } = await adminAny.from('tournaments').insert({
     name: 'CIBC Capital Markets Golf Tournament 2026',
     slug: E2E_TOURNAMENT_SLUG,
     date: '2026-06-22',
     format: 'best_ball',
-    venue: 'Granite Ridge Golf Club',
+    venue_id: venue.id,
+    course_id: course.id,
     status: 'active',
   })
 
@@ -125,6 +159,87 @@ any) {
     console.warn('[globalSetup] Could not insert tournament:', error.message)
   } else {
     console.log('[globalSetup] Tournament seeded:', E2E_TOURNAMENT_SLUG)
+  }
+}
+
+async function seedTeams(admin: // eslint-disable-next-line @typescript-eslint/no-explicit-any
+any) {
+  // TC-0086 (and the team-cards UI generally) needs at least one real team row
+  // in the active E2E tournament. /admin/teams is an SSR page (page.tsx fetches
+  // `supabase.from('teams')` server-side) so page.route() mocks in the spec file
+  // cannot populate it — see docs/LESSONS.md L-0006. seed.sql never inserts teams,
+  // so without this step the table is empty after `supabase db reset` and the
+  // "H{n}" badge assertion fails for lack of data, not a selector/format mismatch.
+  const adminAny = admin as any
+  const { data: tournament } = await adminAny
+    .from('tournaments')
+    .select('id')
+    .eq('slug', E2E_TOURNAMENT_SLUG)
+    .maybeSingle()
+
+  if (!tournament) {
+    console.warn('[globalSetup] Could not seed teams — E2E tournament not found yet')
+    return
+  }
+
+  // Names deliberately avoid golf-score words (Eagle/Birdie/Par/Bogey) — those
+  // collide with the score-legend chips asserted in TC-0088 (admin.spec.ts).
+  const fixtures = [
+    { tournament_id: tournament.id, team_number: 1, team_name: 'Foxes', starting_hole: 1, max_players: 4 },
+    { tournament_id: tournament.id, team_number: 2, team_name: 'Hawks', starting_hole: 5, max_players: 4 },
+  ]
+
+  const { error } = await adminAny
+    .from('teams')
+    .upsert(fixtures, { onConflict: 'tournament_id,team_number' })
+
+  if (error) {
+    console.warn('[globalSetup] Could not seed teams:', error.message)
+  } else {
+    console.log('[globalSetup] Teams seeded for E2E tournament')
+  }
+}
+
+async function seedPlayerMembership(admin: // eslint-disable-next-line @typescript-eslint/no-explicit-any
+any) {
+  // Player-facing SSR pages (dashboard, scorecard) now resolve "the" tournament from
+  // the player's own tournament_players row (BUG-0015), not just "the latest tournament
+  // in the DB". Without a membership row here, e2e-player resolves to no tournament and
+  // TC-0071/TC-0074/etc. fail even though the tournament/team fixtures above exist.
+  const adminAny = admin as any
+  const { data: player } = await adminAny
+    .from('players')
+    .select('id')
+    .eq('email', TEST_USER_EMAIL)
+    .maybeSingle()
+  const { data: tournament } = await adminAny
+    .from('tournaments')
+    .select('id')
+    .eq('slug', E2E_TOURNAMENT_SLUG)
+    .maybeSingle()
+  const { data: team } = await adminAny
+    .from('teams')
+    .select('id')
+    .eq('tournament_id', tournament?.id)
+    .eq('team_number', 1)
+    .maybeSingle()
+
+  if (!player || !tournament || !team) {
+    console.warn('[globalSetup] Could not seed player membership — player/tournament/team not found yet')
+    return
+  }
+
+  const { error } = await adminAny
+    .from('tournament_players')
+    .upsert(
+      { player_id: player.id, team_id: team.id, tournament_id: tournament.id },
+      { onConflict: 'player_id,tournament_id' }
+    )
+
+  if (error) {
+    console.warn('[globalSetup] Could not seed player membership:', error.message)
+  } else {
+    console.log('[globalSetup] e2e-player membership ready for:', E2E_TOURNAMENT_SLUG)
   }
 }
 
@@ -173,6 +288,8 @@ export default async function globalSetup() {
   }
   await seedTestPlayers(admin)
   await seedTournament(admin)
+  await seedTeams(admin)
+  await seedPlayerMembership(admin)
 
   // Ensure .auth/ directory exists for storageState files
   mkdirSync('tests/e2e/.auth', { recursive: true })

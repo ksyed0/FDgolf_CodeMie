@@ -38,7 +38,11 @@ export default defineConfig({
   workers: process.env.CI ? 1 : undefined,
   timeout: 30_000,
 
-  reporter: [['html', { outputFolder: 'playwright-report' }], ['list']],
+  reporter: [
+    ['html', { outputFolder: 'playwright-report' }],
+    ['list'],
+    ['json', { outputFile: 'playwright-report/results.json' }],
+  ],
 
   use: {
     baseURL: process.env.BASE_URL ?? 'http://localhost:3000',

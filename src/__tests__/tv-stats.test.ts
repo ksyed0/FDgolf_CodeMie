@@ -556,27 +556,27 @@ describe('fetchShotStats', () => {
     expect(result.clubOfDayPct).toBe(67); // 2/3
   });
 
-  it('only considers shot_number=1 wood shots for longest drive', async () => {
+  it('measures longest drive as distance from tee to where ball lands (shot_2.start)', async () => {
     const tournamentChain = makeTournamentChain();
-    // Tee box at lat=43, lng=-80; driver starts far away; approach starts close
+    // Tee box at lat=43.0, lng=-80.0
+    // shot_1 (Driver): player at tee (lat=43.0) — standard for a tee shot
+    // shot_2 (7 Iron): player walked to ball landing spot (lat=43.003 ≈ 333m from tee)
     const shots = [
-      // Tee shot (shot_number=1), Driver — should count
       {
         player_id: 'p1',
         hole_number: 1,
         shot_number: 1,
         club_name: 'Driver (1W)',
-        start_lat: 43.01,
+        start_lat: 43.0,
         start_lng: -80.0,
         outcome: 'in_play',
       },
-      // Approach (shot_number=2), 7 Iron — should NOT count for longest drive
       {
         player_id: 'p1',
         hole_number: 1,
         shot_number: 2,
         club_name: '7 Iron',
-        start_lat: 43.001,
+        start_lat: 43.003,
         start_lng: -80.0,
         outcome: 'in_play',
       },
@@ -603,9 +603,50 @@ describe('fetchShotStats', () => {
     };
 
     const result = await fetchShotStats(supabase as never, TOURNAMENT_ID);
-    // Driver shot is ~1110m from tee (0.01 deg lat ≈ 1111m)
-    expect(result.longestDriveMeters).toBeGreaterThan(1000);
+    // shot_2.start is 0.003° lat from tee ≈ 333m
+    expect(result.longestDriveMeters).toBeGreaterThan(300);
+    expect(result.longestDriveMeters).toBeLessThan(400);
     expect(result.longestDriveTeam).toBe('Falcons');
+  });
+
+  it('filters GPS outliers > 550m for longest drive (prevents downtown-Toronto-vs-tee bogus reads)', async () => {
+    const tournamentChain = makeTournamentChain();
+    const shots = [
+      {
+        player_id: 'p1',
+        hole_number: 1,
+        shot_number: 1,
+        club_name: 'Driver (1W)',
+        start_lat: 43.0,
+        start_lng: -80.0,
+        outcome: 'in_play',
+      },
+      // shot_2 GPS is ~37 km away (wrong phone location) — should be filtered
+      {
+        player_id: 'p1',
+        hole_number: 1,
+        shot_number: 2,
+        club_name: '7 Iron',
+        start_lat: 43.646,
+        start_lng: -79.379,
+        outcome: 'in_play',
+      },
+    ];
+    const holesWithTees = [{ id: 'h1', hole_number: 1, tee_boxes: [{ lat: 43.0, lng: -80.0 }] }];
+    const supabase = {
+      from: jest.fn().mockImplementation((table: string) => {
+        if (table === 'tournaments') return tournamentChain;
+        if (table === 'shots') return buildChain(shots, null);
+        if (table === 'holes') return buildChain(holesWithTees, null);
+        if (table === 'scores') return buildChain([], null);
+        if (table === 'teams') return buildChain([], null);
+        if (table === 'players') return buildChain([], null);
+        return buildChain(null, null);
+      }),
+    };
+
+    const result = await fetchShotStats(supabase as never, TOURNAMENT_ID);
+    expect(result.longestDriveMeters).toBeNull();
   });
 });
 
